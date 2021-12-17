@@ -20,6 +20,18 @@ func Test_example(t *testing.T) {
 	assert.Equal(t, 7, count)
 }
 
+func Test_01(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	data, err := utils.ParseToInts(reader)
+	assert.Nil(t, err)
+
+	count := getIncreasesCount(data)
+
+	assert.Equal(t, 1791, count)
+}
+
 func getIncreasesCount(data []int) int {
 	var increasesCount = 0
 
