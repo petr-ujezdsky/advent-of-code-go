@@ -24,17 +24,16 @@ func Test_01_example(t *testing.T) {
 }
 
 func Test_01(t *testing.T) {
-	// reader, err := os.Open("data-01.txt")
-	// assert.Nil(t, err)
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
 
-	// commands, err := ParseToCommands(reader)
-	// assert.Nil(t, err)
+	nodes, err := ParseToNodes(reader)
+	assert.Nil(t, err)
 
-	// x, y, result := move(commands)
+	sum := Sum(nodes)
 
-	// assert.Equal(t, 1968, x)
-	// assert.Equal(t, 1063, y)
-	// assert.Equal(t, 2091984, result)
+	assert.Equal(t, "[[[[6,6],[6,6]],[[6,7],[7,8]]],[[[7,8],[8,8]],[[7,8],[0,8]]]]", sum.String())
+	assert.Equal(t, 4088, sum.Magnitude())
 }
 
 func Test_02_example(t *testing.T) {
