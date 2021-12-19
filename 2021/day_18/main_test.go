@@ -199,6 +199,18 @@ func TestSplit3(t *testing.T) {
 	assert.Equal(t, "[1,[5,6]]", node.String())
 }
 
+func TestAdd1(t *testing.T) {
+	left, err := NewNode("[[[[4,3],4],4],[7,[[8,4],9]]]")
+	assert.Nil(t, err)
+
+	right, err := NewNode("[1,1]")
+	assert.Nil(t, err)
+
+	result := Add(left, right)
+
+	assert.Equal(t, "[[[[0,7],4],[[7,8],[6,0]]],[8,1]]", result.String())
+}
+
 // func ScanEntities(data []byte, atEOF bool) (advance int, token []byte, err error) {
 // 	if atEOF && len(data) == 0 {
 // 		return 0, nil, nil

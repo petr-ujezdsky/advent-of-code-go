@@ -109,6 +109,34 @@ func (node *Node) Split(parent *Node) bool {
 	return false
 }
 
+func (node *Node) Reduce() {
+	for modified := true; modified; {
+		modified = false
+
+		for node.Explode(nil, 0) {
+			modified = true
+		}
+
+		for node.Split(nil) {
+			modified = true
+		}
+	}
+}
+
+func Add(left, right *Node) *Node {
+	result := &Node{Left: left, Right: right, FirstLeaf: left.FirstLeaf, LastLeaf: right.LastLeaf}
+
+	middleLeft := left.LastLeaf
+	middleRight := right.FirstLeaf
+
+	middleLeft.NextLeaf = middleRight
+	middleRight.PreviousLeaf = middleLeft
+
+	result.Reduce()
+
+	return result
+}
+
 func isNumber(b byte) bool {
 	return '0' <= b && b <= '9'
 }
