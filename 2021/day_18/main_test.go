@@ -3,6 +3,7 @@ package day_18
 import (
 	"bufio"
 	"io"
+	"os"
 	"strings"
 	"testing"
 
@@ -10,17 +11,16 @@ import (
 )
 
 func Test_01_example(t *testing.T) {
-	// reader, err := os.Open("data-00-example.txt")
-	// assert.Nil(t, err)
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
 
-	// commands, err := ParseToCommands(reader)
-	// assert.Nil(t, err)
+	nodes, err := ParseToNodes(reader)
+	assert.Nil(t, err)
 
-	// x, y, result := move(commands)
+	sum := Sum(nodes)
 
-	// assert.Equal(t, 15, x)
-	// assert.Equal(t, 10, y)
-	// assert.Equal(t, 150, result)
+	assert.Equal(t, "[[[[6,6],[7,6]],[[7,7],[7,0]]],[[[7,7],[7,7]],[[7,8],[9,9]]]]", sum.String())
+	assert.Equal(t, 4140, sum.Magnitude())
 }
 
 func Test_01(t *testing.T) {
@@ -304,27 +304,6 @@ func TestSum4(t *testing.T) {
 	sum := Sum(nodes)
 
 	assert.Equal(t, "[[[[8,7],[7,7]],[[8,6],[7,7]]],[[[0,7],[6,6]],[8,7]]]", sum.String())
-}
-
-func TestSum5(t *testing.T) {
-	reader := strings.NewReader(`[[[0,[5,8]],[[1,7],[9,6]]],[[4,[1,2]],[[1,4],2]]]
-	[[[5,[2,8]],4],[5,[[9,9],0]]]
-	[6,[[[6,2],[5,6]],[[7,6],[4,7]]]]
-	[[[6,[0,7]],[0,9]],[4,[9,[9,0]]]]
-	[[[7,[6,4]],[3,[1,3]]],[[[5,5],1],9]]
-	[[6,[[7,3],[3,2]]],[[[3,8],[5,7]],4]]
-	[[[[5,4],[7,7]],8],[[8,3],8]]
-	[[9,3],[[9,9],[6,[4,9]]]]
-	[[2,[[7,7],7]],[[5,8],[[9,3],[0,2]]]]
-	[[[[5,2],5],[8,[3,7]]],[[5,[7,5]],[4,4]]]`)
-
-	nodes, err := ParseToNodes(reader)
-	assert.Nil(t, err)
-
-	sum := Sum(nodes)
-
-	assert.Equal(t, "[[[[6,6],[7,6]],[[7,7],[7,0]]],[[[7,7],[7,7]],[[7,8],[9,9]]]]", sum.String())
-	assert.Equal(t, 4140, sum.Magnitude())
 }
 
 func ParseToNodes(r io.Reader) ([]*Node, error) {
