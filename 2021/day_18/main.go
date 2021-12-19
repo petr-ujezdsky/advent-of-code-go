@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+
+	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 )
 
 type Node struct {
@@ -176,6 +178,20 @@ func Add(left, right *Node) *Node {
 	return result
 }
 
+func AddString(left, right string) (*Node, error) {
+	leftNode, err := NewNode(left)
+	if err != nil {
+		return &Node{}, err
+	}
+
+	rightNode, err := NewNode(right)
+	if err != nil {
+		return &Node{}, err
+	}
+
+	return Add(leftNode, rightNode), nil
+}
+
 func Sum(nodes []*Node) *Node {
 	var sum *Node = nil
 
@@ -188,6 +204,42 @@ func Sum(nodes []*Node) *Node {
 	}
 
 	return sum
+}
+
+// Strings must be used because the Nodes are mutated during Add
+func MaxSumMagnitude(nodes []string) (int, error) {
+	max := 0
+	var nodeMax1, nodeMax2 string
+
+	for _, n1 := range nodes {
+		for _, n2 := range nodes {
+			if n1 == n2 {
+				continue
+			}
+
+			s1, err := AddString(n1, n2)
+			if err != nil {
+				return 0, err
+			}
+
+			s2, err := AddString(n2, n1)
+			if err != nil {
+				return 0, err
+			}
+
+			magnitude := utils.Max(s1.Magnitude(), s2.Magnitude())
+
+			max = utils.Max(max, magnitude)
+
+			nodeMax1 = n1
+			nodeMax2 = n2
+		}
+	}
+
+	fmt.Printf("1: %v\n", nodeMax1)
+	fmt.Printf("2: %v\n", nodeMax2)
+
+	return max, nil
 }
 
 func isNumber(b byte) bool {

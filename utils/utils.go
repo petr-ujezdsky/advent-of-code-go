@@ -23,6 +23,19 @@ func ParseToInts(r io.Reader) ([]int, error) {
 	return result, scanner.Err()
 }
 
+func ParseToStrings(r io.Reader) ([]string, error) {
+	scanner := bufio.NewScanner(r)
+	scanner.Split(bufio.ScanLines)
+
+	var result []string
+
+	for scanner.Scan() {
+		result = append(result, scanner.Text())
+	}
+
+	return result, scanner.Err()
+}
+
 // Returns absolute integer value
 func Abs(i int) int {
 	if i < 0 {
@@ -30,6 +43,15 @@ func Abs(i int) int {
 	}
 
 	return i
+}
+
+// Returns maximum of two integers
+func Max(i, j int) int {
+	if i > j {
+		return i
+	}
+
+	return j
 }
 
 // Sums integers from N to M inclusive

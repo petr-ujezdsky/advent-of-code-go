@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -37,21 +38,29 @@ func Test_01(t *testing.T) {
 }
 
 func Test_02_example(t *testing.T) {
-	// reader, err := os.Open("data-00-example.txt")
-	// assert.Nil(t, err)
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
 
-	// commands, err := ParseToCommands(reader)
-	// assert.Nil(t, err)
+	nodeStrings, err := utils.ParseToStrings(reader)
+	assert.Nil(t, err)
 
-	// x, y, result := moveByAim(commands)
+	max, err := MaxSumMagnitude(nodeStrings)
+	assert.Nil(t, err)
 
-	// assert.Equal(t, 15, x)
-	// assert.Equal(t, 60, y)
-	// assert.Equal(t, 900, result)
+	assert.Equal(t, 3993, max)
 }
 
 func Test_02(t *testing.T) {
-	// assert.Equal(t, 2086261056, result)
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	nodeStrings, err := utils.ParseToStrings(reader)
+	assert.Nil(t, err)
+
+	max, err := MaxSumMagnitude(nodeStrings)
+	assert.Nil(t, err)
+
+	assert.Equal(t, 4536, max)
 }
 
 func TestMagnitude(t *testing.T) {
