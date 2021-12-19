@@ -173,12 +173,30 @@ func TestExplode5(t *testing.T) {
 }
 
 func TestSplit1(t *testing.T) {
-	node, err := NewNode("[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]]")
+	node, err := NewNode("[1,10]")
 	assert.Nil(t, err)
-	exploded := node.Explode(nil, 0)
+	splitted := node.Split(nil)
 
-	assert.True(t, exploded)
-	assert.Equal(t, "[[3,[2,[8,0]]],[9,[5,[7,0]]]]", node.String())
+	assert.True(t, splitted)
+	assert.Equal(t, "[1,[5,5]]", node.String())
+}
+
+func TestSplit2(t *testing.T) {
+	node, err := NewNode("[10,1]")
+	assert.Nil(t, err)
+	splitted := node.Split(nil)
+
+	assert.True(t, splitted)
+	assert.Equal(t, "[[5,5],1]", node.String())
+}
+
+func TestSplit3(t *testing.T) {
+	node, err := NewNode("[1,11]")
+	assert.Nil(t, err)
+	splitted := node.Split(nil)
+
+	assert.True(t, splitted)
+	assert.Equal(t, "[1,[5,6]]", node.String())
 }
 
 // func ScanEntities(data []byte, atEOF bool) (advance int, token []byte, err error) {

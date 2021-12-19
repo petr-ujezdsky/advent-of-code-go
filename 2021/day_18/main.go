@@ -69,6 +69,46 @@ func (node *Node) Explode(parent *Node, depth int) bool {
 	return false
 }
 
+func (node *Node) Split(parent *Node) bool {
+	if node.Left == nil {
+		if node.Value >= 10 {
+
+			left := &Node{Value: node.Value / 2}
+			right := &Node{Value: (node.Value + 1) / 2}
+
+			if previous := node.PreviousLeaf; previous != nil {
+				previous.NextLeaf = left
+				left.PreviousLeaf = previous
+			}
+
+			if next := node.NextLeaf; next != nil {
+				next.PreviousLeaf = right
+				right.NextLeaf = next
+			}
+
+			node.PreviousLeaf = nil
+			node.NextLeaf = nil
+			node.Value = 0
+			node.Left = left
+			node.Right = right
+
+			return true
+		}
+
+		return false
+	}
+
+	if node.Left.Split(node) {
+		return true
+	}
+
+	if node.Right.Split(node) {
+		return true
+	}
+
+	return false
+}
+
 func isNumber(b byte) bool {
 	return '0' <= b && b <= '9'
 }
