@@ -1,6 +1,9 @@
 package day_18
 
 import (
+	"bufio"
+	"io"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -70,10 +73,7 @@ func TestNewNode(t *testing.T) {
 	assert.Equal(t, 9, node.Left.Value)
 	assert.Equal(t, 1, node.Right.Value)
 
-	assert.Equal(t, 1, node.LastLeaf.Value)
-	assert.Equal(t, 9, node.LastLeaf.PreviousLeaf.Value)
-
-	assert.Equal(t, node.FirstLeaf, node.LastLeaf.PreviousLeaf)
+	assert.Equal(t, []int{9, 1}, node.LeafValues())
 }
 
 func TestNewNode2(t *testing.T) {
@@ -84,11 +84,7 @@ func TestNewNode2(t *testing.T) {
 	assert.Equal(t, 8, node.Right.Left.Value)
 	assert.Equal(t, 7, node.Right.Right.Value)
 
-	assert.Equal(t, 7, node.LastLeaf.Value)
-	assert.Equal(t, 8, node.LastLeaf.PreviousLeaf.Value)
-	assert.Equal(t, 9, node.LastLeaf.PreviousLeaf.PreviousLeaf.Value)
-
-	assert.Equal(t, node.FirstLeaf, node.LastLeaf.PreviousLeaf.PreviousLeaf)
+	assert.Equal(t, []int{9, 8, 7}, node.LeafValues())
 }
 
 func TestNewNode3(t *testing.T) {
@@ -99,11 +95,7 @@ func TestNewNode3(t *testing.T) {
 	assert.Equal(t, 8, node.Left.Right.Value)
 	assert.Equal(t, 7, node.Right.Value)
 
-	assert.Equal(t, 7, node.LastLeaf.Value)
-	assert.Equal(t, 8, node.LastLeaf.PreviousLeaf.Value)
-	assert.Equal(t, 9, node.LastLeaf.PreviousLeaf.PreviousLeaf.Value)
-
-	assert.Equal(t, node.FirstLeaf, node.LastLeaf.PreviousLeaf.PreviousLeaf)
+	assert.Equal(t, []int{9, 8, 7}, node.LeafValues())
 }
 
 func TestToString(t *testing.T) {
@@ -134,6 +126,8 @@ func TestExplode1(t *testing.T) {
 
 	assert.True(t, exploded)
 	assert.Equal(t, "[[[[0,9],2],3],4]", node.String())
+
+	assert.Equal(t, []int{0, 9, 2, 3, 4}, node.LeafValues())
 }
 
 func TestExplode2(t *testing.T) {
@@ -143,6 +137,8 @@ func TestExplode2(t *testing.T) {
 
 	assert.True(t, exploded)
 	assert.Equal(t, "[7,[6,[5,[7,0]]]]", node.String())
+
+	assert.Equal(t, []int{7, 6, 5, 7, 0}, node.LeafValues())
 }
 
 func TestExplode3(t *testing.T) {
@@ -152,6 +148,8 @@ func TestExplode3(t *testing.T) {
 
 	assert.True(t, exploded)
 	assert.Equal(t, "[[6,[5,[7,0]]],3]", node.String())
+
+	assert.Equal(t, []int{6, 5, 7, 0, 3}, node.LeafValues())
 }
 
 func TestExplode4(t *testing.T) {
@@ -161,6 +159,8 @@ func TestExplode4(t *testing.T) {
 
 	assert.True(t, exploded)
 	assert.Equal(t, "[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]]", node.String())
+
+	assert.Equal(t, []int{3, 2, 8, 0, 9, 5, 4, 3, 2}, node.LeafValues())
 }
 
 func TestExplode5(t *testing.T) {
@@ -179,6 +179,8 @@ func TestSplit1(t *testing.T) {
 
 	assert.True(t, splitted)
 	assert.Equal(t, "[1,[5,5]]", node.String())
+
+	assert.Equal(t, []int{1, 5, 5}, node.LeafValues())
 }
 
 func TestSplit2(t *testing.T) {
@@ -188,6 +190,8 @@ func TestSplit2(t *testing.T) {
 
 	assert.True(t, splitted)
 	assert.Equal(t, "[[5,5],1]", node.String())
+
+	assert.Equal(t, []int{5, 5, 1}, node.LeafValues())
 }
 
 func TestSplit3(t *testing.T) {
@@ -197,6 +201,8 @@ func TestSplit3(t *testing.T) {
 
 	assert.True(t, splitted)
 	assert.Equal(t, "[1,[5,6]]", node.String())
+
+	assert.Equal(t, []int{1, 5, 6}, node.LeafValues())
 }
 
 func TestAdd1(t *testing.T) {
@@ -209,6 +215,134 @@ func TestAdd1(t *testing.T) {
 	result := Add(left, right)
 
 	assert.Equal(t, "[[[[0,7],4],[[7,8],[6,0]]],[8,1]]", result.String())
+}
+
+func TestAdd2(t *testing.T) {
+	left, err := NewNode("[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]]")
+	assert.Nil(t, err)
+
+	right, err := NewNode("[7,[[[3,7],[4,3]],[[6,3],[8,8]]]]")
+	assert.Nil(t, err)
+
+	result := Add(left, right)
+
+	assert.Equal(t, "[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]]", result.String())
+}
+
+func TestAdd3(t *testing.T) {
+	left, err := NewNode("[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]]")
+	assert.Nil(t, err)
+
+	right, err := NewNode("[[2,[[0,8],[3,4]]],[[[6,7],1],[7,[1,6]]]]")
+	assert.Nil(t, err)
+
+	result := Add(left, right)
+
+	assert.Equal(t, "[[[[6,7],[6,7]],[[7,7],[0,7]]],[[[8,7],[7,7]],[[8,8],[8,0]]]]", result.String())
+}
+
+func TestSum1(t *testing.T) {
+	reader := strings.NewReader(`[1,1]
+	[2,2]
+	[3,3]
+	[4,4]`)
+
+	nodes, err := ParseToNodes(reader)
+	assert.Nil(t, err)
+
+	sum := Sum(nodes)
+
+	assert.Equal(t, "[[[[1,1],[2,2]],[3,3]],[4,4]]", sum.String())
+}
+
+func TestSum2(t *testing.T) {
+	reader := strings.NewReader(`[1,1]
+	[2,2]
+	[3,3]
+	[4,4]
+	[5,5]`)
+
+	nodes, err := ParseToNodes(reader)
+	assert.Nil(t, err)
+
+	sum := Sum(nodes)
+
+	assert.Equal(t, "[[[[3,0],[5,3]],[4,4]],[5,5]]", sum.String())
+}
+
+func TestSum3(t *testing.T) {
+	reader := strings.NewReader(`[1,1]
+	[2,2]
+	[3,3]
+	[4,4]
+	[5,5]
+	[6,6]`)
+
+	nodes, err := ParseToNodes(reader)
+	assert.Nil(t, err)
+
+	sum := Sum(nodes)
+
+	assert.Equal(t, "[[[[5,0],[7,4]],[5,5]],[6,6]]", sum.String())
+}
+
+func TestSum4(t *testing.T) {
+	reader := strings.NewReader(`[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]]
+	[7,[[[3,7],[4,3]],[[6,3],[8,8]]]]
+	[[2,[[0,8],[3,4]]],[[[6,7],1],[7,[1,6]]]]
+	[[[[2,4],7],[6,[0,5]]],[[[6,8],[2,8]],[[2,1],[4,5]]]]
+	[7,[5,[[3,8],[1,4]]]]
+	[[2,[2,2]],[8,[8,1]]]
+	[2,9]
+	[1,[[[9,3],9],[[9,0],[0,7]]]]
+	[[[5,[7,4]],7],1]
+	[[[[4,2],2],6],[8,7]]`)
+
+	nodes, err := ParseToNodes(reader)
+	assert.Nil(t, err)
+
+	sum := Sum(nodes)
+
+	assert.Equal(t, "[[[[8,7],[7,7]],[[8,6],[7,7]]],[[[0,7],[6,6]],[8,7]]]", sum.String())
+}
+
+func TestSum5(t *testing.T) {
+	reader := strings.NewReader(`[[[0,[5,8]],[[1,7],[9,6]]],[[4,[1,2]],[[1,4],2]]]
+	[[[5,[2,8]],4],[5,[[9,9],0]]]
+	[6,[[[6,2],[5,6]],[[7,6],[4,7]]]]
+	[[[6,[0,7]],[0,9]],[4,[9,[9,0]]]]
+	[[[7,[6,4]],[3,[1,3]]],[[[5,5],1],9]]
+	[[6,[[7,3],[3,2]]],[[[3,8],[5,7]],4]]
+	[[[[5,4],[7,7]],8],[[8,3],8]]
+	[[9,3],[[9,9],[6,[4,9]]]]
+	[[2,[[7,7],7]],[[5,8],[[9,3],[0,2]]]]
+	[[[[5,2],5],[8,[3,7]]],[[5,[7,5]],[4,4]]]`)
+
+	nodes, err := ParseToNodes(reader)
+	assert.Nil(t, err)
+
+	sum := Sum(nodes)
+
+	assert.Equal(t, "[[[[6,6],[7,6]],[[7,7],[7,0]]],[[[7,7],[7,7]],[[7,8],[9,9]]]]", sum.String())
+	assert.Equal(t, 4140, sum.Magnitude())
+}
+
+func ParseToNodes(r io.Reader) ([]*Node, error) {
+	scanner := bufio.NewScanner(r)
+	scanner.Split(bufio.ScanLines)
+
+	var result []*Node
+
+	for scanner.Scan() {
+		node, err := NewNode(scanner.Text())
+		if err != nil {
+			return result, err
+		}
+
+		result = append(result, node)
+	}
+
+	return result, scanner.Err()
 }
 
 // func ScanEntities(data []byte, atEOF bool) (advance int, token []byte, err error) {

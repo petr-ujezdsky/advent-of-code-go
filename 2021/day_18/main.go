@@ -10,11 +10,10 @@ type Node struct {
 	Value                  int
 	Left, Right            *Node
 	PreviousLeaf, NextLeaf *Node
-	FirstLeaf, LastLeaf    *Node
 }
 
 func NewNode(str string) (*Node, error) {
-	node, _, err := parseNode([]byte(str), nil, nil)
+	node, _, _, err := parseNode([]byte(str), nil)
 	return node, err
 }
 
@@ -24,6 +23,32 @@ func (node Node) Magnitude() int {
 	}
 
 	return 3*node.Left.Magnitude() + 2*node.Right.Magnitude()
+}
+
+func (node *Node) FirstLeaf() *Node {
+	if node.Left != nil {
+		return node.Left.FirstLeaf()
+	}
+
+	return node
+}
+
+func (node *Node) LastLeaf() *Node {
+	if node.Right != nil {
+		return node.Right.LastLeaf()
+	}
+
+	return node
+}
+
+func (node *Node) LeafValues() []int {
+	var values []int
+
+	for leaf := node.FirstLeaf(); leaf != nil; leaf = leaf.NextLeaf {
+		values = append(values, leaf.Value)
+	}
+
+	return values
 }
 
 func (node *Node) Explode(parent *Node, depth int) bool {
@@ -76,6 +101,9 @@ func (node *Node) Split(parent *Node) bool {
 			left := &Node{Value: node.Value / 2}
 			right := &Node{Value: (node.Value + 1) / 2}
 
+			left.NextLeaf = right
+			right.PreviousLeaf = left
+
 			if previous := node.PreviousLeaf; previous != nil {
 				previous.NextLeaf = left
 				left.PreviousLeaf = previous
@@ -113,51 +141,76 @@ func (node *Node) Reduce() {
 	for modified := true; modified; {
 		modified = false
 
-		for node.Explode(nil, 0) {
+		if node.Explode(nil, 0) {
+			// fmt.Printf("after explode:  %v\n", node)
 			modified = true
+			continue
 		}
 
-		for node.Split(nil) {
+		if node.Split(nil) {
+			// fmt.Printf("after split:    %v\n", node)
 			modified = true
+			continue
 		}
 	}
 }
 
 func Add(left, right *Node) *Node {
-	result := &Node{Left: left, Right: right, FirstLeaf: left.FirstLeaf, LastLeaf: right.LastLeaf}
+	// fmt.Printf("  %v\n", left)
+	// fmt.Printf("+ %v\n", right)
 
-	middleLeft := left.LastLeaf
-	middleRight := right.FirstLeaf
+	result := &Node{Left: left, Right: right}
+
+	middleLeft := left.LastLeaf()
+	middleRight := right.FirstLeaf()
 
 	middleLeft.NextLeaf = middleRight
 	middleRight.PreviousLeaf = middleLeft
 
+	// fmt.Printf("after addition: %v\n", result)
+
 	result.Reduce()
 
+	// fmt.Printf("= %v\n\n", result)
+
 	return result
+}
+
+func Sum(nodes []*Node) *Node {
+	var sum *Node = nil
+
+	for _, node := range nodes {
+		if sum == nil {
+			sum = node
+		} else {
+			sum = Add(sum, node)
+		}
+	}
+
+	return sum
 }
 
 func isNumber(b byte) bool {
 	return '0' <= b && b <= '9'
 }
 
-func parseNode(data []byte, leftmost, rightmost *Node) (*Node, []byte, error) {
+func parseNode(data []byte, lastLeaf *Node) (*Node, *Node, []byte, error) {
 	var i int
 	for i = 0; i < len(data); i++ {
 		ch := data[i]
 
 		if ch == '[' {
-			left, data, err := parseNode(data[i+1:], leftmost, rightmost)
+			left, lastLeaf, data, err := parseNode(data[i+1:], lastLeaf)
 			if err != nil {
-				return &Node{}, nil, err
+				return &Node{}, nil, nil, err
 			}
 
-			right, data, err := parseNode(data, left.FirstLeaf, left.LastLeaf)
+			right, lastLeaf, data, err := parseNode(data, lastLeaf)
 			if err != nil {
-				return &Node{}, nil, err
+				return &Node{}, nil, nil, err
 			}
 
-			return &Node{Left: left, Right: right, FirstLeaf: right.FirstLeaf, LastLeaf: right.LastLeaf}, data, nil
+			return &Node{Left: left, Right: right}, lastLeaf, data, nil
 		}
 
 		if isNumber(ch) {
@@ -171,27 +224,20 @@ func parseNode(data []byte, leftmost, rightmost *Node) (*Node, []byte, error) {
 			// number value
 			value, err := strconv.Atoi(string(data[i:end]))
 			if err != nil {
-				return &Node{}, nil, err
+				return &Node{}, nil, nil, err
 			}
 
-			valueNode := &Node{Value: value, PreviousLeaf: rightmost}
+			valueNode := &Node{Value: value, PreviousLeaf: lastLeaf}
 
-			if rightmost != nil {
-				rightmost.NextLeaf = valueNode
+			if lastLeaf != nil {
+				lastLeaf.NextLeaf = valueNode
 			}
 
-			if leftmost == nil {
-				leftmost = valueNode
-			}
-
-			valueNode.FirstLeaf = leftmost
-			valueNode.LastLeaf = valueNode
-
-			return valueNode, data[end:], nil
+			return valueNode, valueNode, data[end:], nil
 		}
 	}
 
-	return &Node{}, nil, errors.New("Unfinished input")
+	return &Node{}, nil, nil, errors.New("unfinished input")
 }
 
 func (node *Node) String() string {
