@@ -85,6 +85,20 @@ func (image *Image) Enhance() *Image {
 	return enhanced
 }
 
+func (image *Image) LightPixelsCount() int {
+	count := 0
+
+	for _, row := range image.Pixels {
+		for _, pixel := range row {
+			if pixel == '#' {
+				count++
+			}
+		}
+	}
+
+	return count
+}
+
 func readPixelsToIndex(image *Image, x, y int) int {
 	result := ""
 
