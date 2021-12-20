@@ -51,12 +51,17 @@ func (image *Image) String() string {
 }
 
 func (image *Image) GetPixel(x, y int) rune {
-	width := len(image.Pixels[0])
-	height := len(image.Pixels)
-
-	if x < 0 || x >= width || y < 0 || y >= height {
+	if x < 0 || x >= image.Width() || y < 0 || y >= image.Height() {
 		return '.'
 	}
 
 	return rune(image.Pixels[y][x])
+}
+
+func (image *Image) Width() int {
+	return len(image.Pixels[0])
+}
+
+func (image *Image) Height() int {
+	return len(image.Pixels)
 }
