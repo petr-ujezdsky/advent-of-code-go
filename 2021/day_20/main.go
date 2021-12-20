@@ -49,3 +49,14 @@ func (image *Image) String() string {
 
 	return sb.String()
 }
+
+func (image *Image) GetPixel(x, y int) rune {
+	width := len(image.Pixels[0])
+	height := len(image.Pixels)
+
+	if x < 0 || x >= width || y < 0 || y >= height {
+		return '.'
+	}
+
+	return rune(image.Pixels[y][x])
+}
