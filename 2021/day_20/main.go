@@ -8,15 +8,16 @@ import (
 )
 
 type Image struct {
-	Pixels   []string
-	Enhancor string
+	Pixels          []string
+	BackgroundBlack bool
+	Enhancor        string
 }
 
 func NewImage(r io.Reader) (Image, error) {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
 
-	image := Image{}
+	image := Image{BackgroundBlack: true}
 
 	for scanner.Scan() {
 		row := scanner.Text()
@@ -53,7 +54,11 @@ func (image *Image) String() string {
 
 func (image *Image) GetPixel(x, y int) rune {
 	if x < 0 || x >= image.Width() || y < 0 || y >= image.Height() {
-		return '.'
+		if image.BackgroundBlack {
+			return '.'
+		}
+
+		return '#'
 	}
 
 	return rune(image.Pixels[y][x])
@@ -68,7 +73,7 @@ func (image *Image) Height() int {
 }
 
 func (image *Image) Enhance() *Image {
-	enhanced := &Image{Enhancor: image.Enhancor}
+	enhanced := &Image{Enhancor: image.Enhancor, BackgroundBlack: !image.BackgroundBlack}
 
 	for y := -2; y < image.Height()+3; y++ {
 		row := ""
