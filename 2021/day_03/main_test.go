@@ -24,6 +24,25 @@ func Test_01_example(t *testing.T) {
 	assert.Equal(t, 22, gamma)
 	assert.Equal(t, 9, epsilon)
 
+	assert.Equal(t, 198, gamma*epsilon)
+}
+
+func Test_01(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	rows, err := utils.ParseToStrings(reader)
+	assert.Nil(t, err)
+
+	bits := mostCommonBits(rows)
+	assert.Equal(t, "001100100101", bits)
+
+	gamma, epsilon := decodeGammaEpsilon(bits)
+
+	assert.Equal(t, 805, gamma)
+	assert.Equal(t, 3290, epsilon)
+
+	assert.Equal(t, 2648450, gamma*epsilon)
 }
 
 func mostCommonBits(rows []string) string {
