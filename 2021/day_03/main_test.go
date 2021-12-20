@@ -16,7 +16,7 @@ func Test_01_example(t *testing.T) {
 	rows, err := utils.ParseToStrings(reader)
 	assert.Nil(t, err)
 
-	bits := mostCommonBits(rows)
+	bits := mostCommonBits(rows, "1")
 	assert.Equal(t, "10110", bits)
 
 	gamma, epsilon := decodeGammaEpsilon(bits)
@@ -34,7 +34,7 @@ func Test_01(t *testing.T) {
 	rows, err := utils.ParseToStrings(reader)
 	assert.Nil(t, err)
 
-	bits := mostCommonBits(rows)
+	bits := mostCommonBits(rows, "1")
 	assert.Equal(t, "001100100101", bits)
 
 	gamma, epsilon := decodeGammaEpsilon(bits)
@@ -45,7 +45,7 @@ func Test_01(t *testing.T) {
 	assert.Equal(t, 2648450, gamma*epsilon)
 }
 
-func mostCommonBits(rows []string) string {
+func mostCommonBits(rows []string, equalityBit string) string {
 	onesCount := make([]int, len(rows[0]))
 
 	for _, row := range rows {
@@ -57,9 +57,13 @@ func mostCommonBits(rows []string) string {
 	}
 
 	var bits string
-	for _, count := range onesCount {
-		if count > len(rows)/2 {
+	for _, count1 := range onesCount {
+		count0 := len(rows) - count1
+
+		if count1 > count0 {
 			bits += "1"
+		} else if count1 == count0 {
+			bits += equalityBit
 		} else {
 			bits += "0"
 		}
