@@ -80,6 +80,26 @@ func Test_01_example(t *testing.T) {
 	assert.Equal(t, 35, enhanced.LightPixelsCount())
 }
 
+func Test_01(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	image, err := NewImage(reader)
+	assert.Nil(t, err)
+
+	fmt.Println(image.String())
+	fmt.Println("------------------------")
+
+	var enhanced = image.Enhance()
+	fmt.Println(enhanced.String())
+	fmt.Println("------------------------")
+
+	enhanced = enhanced.Enhance()
+	fmt.Println(enhanced.String())
+
+	assert.Equal(t, 5379, enhanced.LightPixelsCount())
+}
+
 func TestGetPixel(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
