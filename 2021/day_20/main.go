@@ -8,16 +8,16 @@ import (
 )
 
 type Image struct {
-	Pixels          []string
-	BackgroundBlack bool
-	Enhancor        string
+	Pixels     []string
+	EmptyColor rune
+	Enhancor   string
 }
 
 func NewImage(r io.Reader) (Image, error) {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
 
-	image := Image{BackgroundBlack: true}
+	image := Image{EmptyColor: '.'}
 
 	for scanner.Scan() {
 		row := scanner.Text()
@@ -54,11 +54,7 @@ func (image *Image) String() string {
 
 func (image *Image) GetPixel(x, y int) rune {
 	if x < 0 || x >= image.Width() || y < 0 || y >= image.Height() {
-		if image.BackgroundBlack {
-			return '.'
-		}
-
-		return '#'
+		return rune(image.EmptyColor)
 	}
 
 	return rune(image.Pixels[y][x])
@@ -73,7 +69,7 @@ func (image *Image) Height() int {
 }
 
 func (image *Image) Enhance() *Image {
-	enhanced := &Image{Enhancor: image.Enhancor, BackgroundBlack: !image.BackgroundBlack}
+	enhanced := &Image{Enhancor: image.Enhancor}
 
 	for y := -2; y < image.Height()+3; y++ {
 		row := ""
@@ -85,6 +81,15 @@ func (image *Image) Enhance() *Image {
 			row += string(pixel)
 		}
 		enhanced.Pixels = append(enhanced.Pixels, row)
+	}
+
+	// enhance empty colors
+	if image.EmptyColor == '.' {
+		// all pixels are ......... -> 00000000 ->   0
+		enhanced.EmptyColor = rune(image.Enhancor[0])
+	} else {
+		// all pixels are ######### -> 11111111 -> 511
+		enhanced.EmptyColor = rune(image.Enhancor[511])
 	}
 
 	return enhanced
