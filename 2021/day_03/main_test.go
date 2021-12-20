@@ -19,12 +19,12 @@ func Test_01_example(t *testing.T) {
 	bits := mostCommonBits(rows, "1")
 	assert.Equal(t, "10110", bits)
 
-	gamma, epsilon := decodeGammaEpsilon(bits)
+	gamma, epsilon, power := decodeGammaEpsilon(bits)
 
 	assert.Equal(t, 22, gamma)
 	assert.Equal(t, 9, epsilon)
 
-	assert.Equal(t, 198, gamma*epsilon)
+	assert.Equal(t, 198, power)
 }
 
 func Test_01(t *testing.T) {
@@ -37,12 +37,12 @@ func Test_01(t *testing.T) {
 	bits := mostCommonBits(rows, "1")
 	assert.Equal(t, "001100100101", bits)
 
-	gamma, epsilon := decodeGammaEpsilon(bits)
+	gamma, epsilon, power := decodeGammaEpsilon(bits)
 
 	assert.Equal(t, 805, gamma)
 	assert.Equal(t, 3290, epsilon)
 
-	assert.Equal(t, 2648450, gamma*epsilon)
+	assert.Equal(t, 2648450, power)
 }
 
 func Test_02_example(t *testing.T) {
@@ -137,12 +137,12 @@ func mostCommonBits(rows []string, equalityBit string) string {
 	return bits
 }
 
-func decodeGammaEpsilon(bits string) (int, int) {
+func decodeGammaEpsilon(bits string) (int, int, int) {
 	gamma, _ := strconv.ParseInt(bits, 2, 0)
 
 	epsilon, _ := strconv.ParseInt(invertBits(bits), 2, 0)
 
-	return int(gamma), int(epsilon)
+	return int(gamma), int(epsilon), int(gamma * epsilon)
 }
 
 func invertBits(bits string) string {
