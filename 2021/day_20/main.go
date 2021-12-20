@@ -3,6 +3,7 @@ package day_20
 import (
 	"bufio"
 	"io"
+	"strconv"
 	"strings"
 )
 
@@ -64,4 +65,41 @@ func (image *Image) Width() int {
 
 func (image *Image) Height() int {
 	return len(image.Pixels)
+}
+
+func (image *Image) Enhance() *Image {
+	enhanced := &Image{Enhancor: image.Enhancor}
+
+	for y := -2; y < image.Height()+3; y++ {
+		row := ""
+		for x := -2; x < image.Width()+3; x++ {
+			index := readPixelsToIndex(image, x, y)
+
+			pixel := rune(image.Enhancor[index])
+
+			row += string(pixel)
+		}
+		enhanced.Pixels = append(enhanced.Pixels, row)
+	}
+
+	return enhanced
+}
+
+func readPixelsToIndex(image *Image, x, y int) int {
+	result := ""
+
+	for offsetY := -1; offsetY <= 1; offsetY++ {
+		for offsetX := -1; offsetX <= 1; offsetX++ {
+			pixel := image.GetPixel(x+offsetX, y+offsetY)
+			if pixel == '.' {
+				result += "0"
+			} else {
+				result += "1"
+			}
+		}
+	}
+
+	index, _ := strconv.ParseInt(result, 2, 0)
+
+	return int(index)
 }
