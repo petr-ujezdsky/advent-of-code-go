@@ -64,3 +64,27 @@ func Test_01(t *testing.T) {
 	assert.NotNil(t, bingo)
 	assert.Equal(t, 6592, score)
 }
+
+func Test_02_example(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	drawn, bingos, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	bingo, score := PlayTillEnd(bingos, drawn)
+	assert.NotNil(t, bingo)
+	assert.Equal(t, 1924, score)
+}
+
+func Test_02(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	drawn, bingos, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	bingo, score := PlayTillEnd(bingos, drawn)
+	assert.NotNil(t, bingo)
+	assert.Equal(t, 31755, score)
+}

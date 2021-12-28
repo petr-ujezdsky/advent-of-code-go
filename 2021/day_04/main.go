@@ -11,6 +11,7 @@ type Bingo struct {
 	Numbers                        [5][5]int
 	MarkedCountRow, MarkedCountCol [5]int
 	SumAll, SumMarked              int
+	Winning                        bool
 }
 
 func NewBingo(numbers [5][5]int) *Bingo {
@@ -39,6 +40,7 @@ func (bingo *Bingo) Mark(numberDrawn int) (bool, int) {
 
 				if bingo.MarkedCountCol[iCol] == 5 || bingo.MarkedCountRow[iRow] == 5 {
 					score := (bingo.SumAll - bingo.SumMarked) * numberDrawn
+					bingo.Winning = true
 
 					return true, score
 				}
@@ -62,6 +64,27 @@ func Play(bingos []*Bingo, drawn []int) (*Bingo, int) {
 	}
 
 	return nil, -1
+}
+
+func PlayTillEnd(bingos []*Bingo, drawn []int) (*Bingo, int) {
+	var winBingo *Bingo
+	winScore := -1
+
+	for _, number := range drawn {
+		for _, bingo := range bingos {
+			if bingo.Winning {
+				continue
+			}
+
+			winning, score := bingo.Mark(number)
+			if winning {
+				winBingo = bingo
+				winScore = score
+			}
+		}
+	}
+
+	return winBingo, winScore
 }
 
 func ParseInput(r io.Reader) ([]int, []*Bingo, error) {
