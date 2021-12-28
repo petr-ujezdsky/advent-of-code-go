@@ -29,6 +29,26 @@ func NewBingo(numbers [5][5]int) Bingo {
 	}
 }
 
+func (bingo *Bingo) Mark(numberDrawn int) (bool, int) {
+	for iRow, row := range bingo.Numbers {
+		for iCol, number := range row {
+			if number == numberDrawn {
+				bingo.MarkedCountCol[iCol]++
+				bingo.MarkedCountRow[iRow]++
+				bingo.SumMarked += number
+
+				if bingo.MarkedCountCol[iCol] == 5 || bingo.MarkedCountRow[iRow] == 5 {
+					score := (bingo.SumAll - bingo.SumMarked) * numberDrawn
+
+					return true, score
+				}
+			}
+		}
+	}
+
+	return false, -1
+}
+
 func ParseInput(r io.Reader) ([]int, []Bingo, error) {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
@@ -61,6 +81,9 @@ func ParseInput(r io.Reader) ([]int, []Bingo, error) {
 
 		copy(numbers[iRow][:], numbersRow)
 	}
+
+	bingo := NewBingo(numbers)
+	bingos = append(bingos, bingo)
 
 	return drawn, bingos, scanner.Err()
 }
