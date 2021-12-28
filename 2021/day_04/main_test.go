@@ -18,4 +18,6 @@ func Test_01_example(t *testing.T) {
 
 	bingo := bingos[0]
 	assert.Equal(t, [5]int{22, 13, 17, 11, 0}, bingo.Numbers[0])
+	assert.Equal(t, 300, bingo.SumAll)
+	assert.Equal(t, 0, bingo.SumMarked)
 }
