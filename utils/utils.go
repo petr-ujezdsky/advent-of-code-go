@@ -36,6 +36,21 @@ func ParseToStrings(r io.Reader) ([]string, error) {
 	return result, scanner.Err()
 }
 
+func ToInts(intsStr []string) ([]int, error) {
+	var result []int
+
+	for _, s := range intsStr {
+		i, err := strconv.Atoi(s)
+		if err != nil {
+			return result, err
+		}
+
+		result = append(result, i)
+	}
+
+	return result, nil
+}
+
 // Returns absolute integer value
 func Abs(i int) int {
 	if i < 0 {
