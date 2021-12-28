@@ -13,7 +13,7 @@ type Bingo struct {
 	SumAll, SumMarked              int
 }
 
-func NewBingo(numbers [5][5]int) Bingo {
+func NewBingo(numbers [5][5]int) *Bingo {
 	sumAll := 0
 
 	for _, row := range numbers {
@@ -22,7 +22,7 @@ func NewBingo(numbers [5][5]int) Bingo {
 		}
 	}
 
-	return Bingo{
+	return &Bingo{
 		Numbers:   numbers,
 		SumAll:    sumAll,
 		SumMarked: 0,
@@ -42,6 +42,8 @@ func (bingo *Bingo) Mark(numberDrawn int) (bool, int) {
 
 					return true, score
 				}
+
+				return false, -1
 			}
 		}
 	}
@@ -49,7 +51,20 @@ func (bingo *Bingo) Mark(numberDrawn int) (bool, int) {
 	return false, -1
 }
 
-func ParseInput(r io.Reader) ([]int, []Bingo, error) {
+func Play(bingos []*Bingo, drawn []int) (*Bingo, int) {
+	for _, number := range drawn {
+		for _, bingo := range bingos {
+			winning, score := bingo.Mark(number)
+			if winning {
+				return bingo, score
+			}
+		}
+	}
+
+	return nil, -1
+}
+
+func ParseInput(r io.Reader) ([]int, []*Bingo, error) {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
 
@@ -60,7 +75,7 @@ func ParseInput(r io.Reader) ([]int, []Bingo, error) {
 	}
 	scanner.Scan()
 
-	var bingos []Bingo
+	var bingos []*Bingo
 	numbers := [5][5]int{}
 
 	for iRow := 0; scanner.Scan(); iRow++ {

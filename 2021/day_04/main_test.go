@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_01_example(t *testing.T) {
+func Test_01_example_parse(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
 
@@ -39,14 +39,28 @@ func Test_01_example(t *testing.T) {
 
 	assert.Equal(t, 325, bingo.SumAll)
 	assert.Equal(t, 0, bingo.SumMarked)
+}
 
-	i := 0
-	for ; i < 11; i++ {
-		winning, _ := bingo.Mark(drawn[i])
-		assert.False(t, winning)
-	}
+func Test_01_example_play(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
 
-	winning, score := bingo.Mark(drawn[i])
-	assert.True(t, winning)
+	drawn, bingos, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	bingo, score := Play(bingos, drawn)
+	assert.NotNil(t, bingo)
 	assert.Equal(t, 4512, score)
+}
+
+func Test_01(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	drawn, bingos, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	bingo, score := Play(bingos, drawn)
+	assert.NotNil(t, bingo)
+	assert.Equal(t, 6592, score)
 }
