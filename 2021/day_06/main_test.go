@@ -59,3 +59,27 @@ func Test_01(t *testing.T) {
 
 	assert.Equal(t, 349549, len(timers))
 }
+
+func Test_02_example_18_days(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	fish, err := ParseFish(reader, 18)
+	assert.Nil(t, err)
+
+	count := CountManyFish(fish)
+
+	assert.Equal(t, 26, count)
+}
+
+func Test_02_example_256_days(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	fish, err := ParseFish(reader, 256)
+	assert.Nil(t, err)
+
+	count := CountManyFish(fish)
+
+	assert.Equal(t, 26984457539, count)
+}
