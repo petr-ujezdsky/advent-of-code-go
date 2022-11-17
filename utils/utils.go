@@ -69,6 +69,15 @@ func Max(i, j int) int {
 	return j
 }
 
+// Min returns minimum of two integers
+func Min(i, j int) int {
+	if i > j {
+		return j
+	}
+
+	return i
+}
+
 // Sums integers from N to M inclusive
 func SumNtoM(n, m int) int {
 	return (n + m) * (1 + m - n) / 2

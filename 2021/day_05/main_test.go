@@ -23,50 +23,26 @@ func Test_01_example_parse(t *testing.T) {
 	assert.Equal(t, NewLine(5, 5, 8, 2), line)
 }
 
-//func Test_01_example_play(t *testing.T) {
-//	reader, err := os.Open("data-00-example.txt")
-//	assert.Nil(t, err)
-//
-//	drawn, bingos, err := ParseInput(reader)
-//	assert.Nil(t, err)
-//
-//	bingo, score := Play(bingos, drawn)
-//	assert.NotNil(t, bingo)
-//	assert.Equal(t, 4512, score)
-//}
-//
-//func Test_01(t *testing.T) {
-//	reader, err := os.Open("data-01.txt")
-//	assert.Nil(t, err)
-//
-//	drawn, bingos, err := ParseInput(reader)
-//	assert.Nil(t, err)
-//
-//	bingo, score := Play(bingos, drawn)
-//	assert.NotNil(t, bingo)
-//	assert.Equal(t, 6592, score)
-//}
-//
-//func Test_02_example(t *testing.T) {
-//	reader, err := os.Open("data-00-example.txt")
-//	assert.Nil(t, err)
-//
-//	drawn, bingos, err := ParseInput(reader)
-//	assert.Nil(t, err)
-//
-//	bingo, score := PlayTillEnd(bingos, drawn)
-//	assert.NotNil(t, bingo)
-//	assert.Equal(t, 1924, score)
-//}
-//
-//func Test_02(t *testing.T) {
-//	reader, err := os.Open("data-01.txt")
-//	assert.Nil(t, err)
-//
-//	drawn, bingos, err := ParseInput(reader)
-//	assert.Nil(t, err)
-//
-//	bingo, score := PlayTillEnd(bingos, drawn)
-//	assert.NotNil(t, bingo)
-//	assert.Equal(t, 31755, score)
-//}
+func Test_01_example_intersections(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	lines, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	intersectionsCount := CountIntersections(lines)
+
+	assert.Equal(t, 5, intersectionsCount)
+}
+
+func Test_01_intersections(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	lines, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	intersectionsCount := CountIntersections(lines)
+
+	assert.Equal(t, 4745, intersectionsCount)
+}

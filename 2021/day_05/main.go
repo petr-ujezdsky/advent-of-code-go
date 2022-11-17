@@ -22,6 +22,59 @@ func NewLine(x1, y1, x2, y2 int) Line {
 	}
 }
 
+func Create2DSlice(x, y int) [][]int {
+	matrixCols := make([][]int, x)
+	cells := make([]int, x*y)
+
+	for col := range matrixCols {
+		matrixCols[col], cells = cells[:y], cells[y:]
+	}
+
+	return matrixCols
+}
+
+func CountIntersections(lines []Line) int {
+	// find max values
+	xMax := 0
+	yMax := 0
+
+	for _, line := range lines {
+		xMax = utils.Max(utils.Max(xMax, line.A.X), line.B.X)
+		yMax = utils.Max(utils.Max(yMax, line.A.Y), line.B.Y)
+	}
+
+	// create area matrix
+	area := Create2DSlice(xMax+1, yMax+1)
+
+	// draw in lines
+	for _, line := range lines {
+		if line.A.X == line.B.X {
+			// vertical line
+			for y := utils.Min(line.A.Y, line.B.Y); y <= utils.Max(line.A.Y, line.B.Y); y++ {
+				area[line.A.X][y]++
+			}
+		} else if line.A.Y == line.B.Y {
+			// horizontal line
+			for x := utils.Min(line.A.X, line.B.X); x <= utils.Max(line.A.X, line.B.X); x++ {
+				area[x][line.A.Y]++
+			}
+		}
+	}
+
+	overlaps := 0
+
+	// count overlaps
+	for _, col := range area {
+		for _, count := range col {
+			if count > 1 {
+				overlaps++
+			}
+		}
+	}
+
+	return overlaps
+}
+
 func ParseInput(r io.Reader) ([]Line, error) {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
