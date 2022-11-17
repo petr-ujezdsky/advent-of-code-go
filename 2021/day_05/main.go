@@ -2,10 +2,14 @@ package day_05
 
 import (
 	"bufio"
+	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"io"
+	"strconv"
 	"strings"
 )
+
+type Matrix2 [][]int
 
 type Point struct {
 	X, Y int
@@ -22,7 +26,7 @@ func NewLine(x1, y1, x2, y2 int) Line {
 	}
 }
 
-func Create2DSlice(x, y int) [][]int {
+func NewMatrix2(x, y int) Matrix2 {
 	matrixCols := make([][]int, x)
 	cells := make([]int, x*y)
 
@@ -33,7 +37,34 @@ func Create2DSlice(x, y int) [][]int {
 	return matrixCols
 }
 
-func CountIntersections(lines []Line) int {
+func (matrix Matrix2) String() string {
+	m := len(matrix)
+	n := len(matrix[0])
+
+	var sb strings.Builder
+
+	for y := 0; y < n; y++ {
+		for x := 0; x < m; x++ {
+			val := matrix[x][y]
+
+			if val == 0 {
+				sb.WriteString(" .")
+			} else {
+				sb.WriteString(" ")
+				sb.WriteString(strconv.Itoa(val))
+			}
+		}
+		sb.WriteString("\n")
+	}
+
+	return sb.String()
+}
+
+func (matrix Matrix2) Print() {
+	fmt.Println(matrix.String())
+}
+
+func CountIntersections(lines []Line, includeDiagonals bool) (int, Matrix2) {
 	// find max values
 	xMax := 0
 	yMax := 0
@@ -44,19 +75,25 @@ func CountIntersections(lines []Line) int {
 	}
 
 	// create area matrix
-	area := Create2DSlice(xMax+1, yMax+1)
+	area := NewMatrix2(xMax+1, yMax+1)
 
 	// draw in lines
 	for _, line := range lines {
-		if line.A.X == line.B.X {
-			// vertical line
-			for y := utils.Min(line.A.Y, line.B.Y); y <= utils.Max(line.A.Y, line.B.Y); y++ {
-				area[line.A.X][y]++
-			}
-		} else if line.A.Y == line.B.Y {
-			// horizontal line
-			for x := utils.Min(line.A.X, line.B.X); x <= utils.Max(line.A.X, line.B.X); x++ {
-				area[x][line.A.Y]++
+		if includeDiagonals || (line.A.X == line.B.X || line.A.Y == line.B.Y) {
+			dirX := utils.Signum(line.B.X - line.A.X)
+			dirY := utils.Signum(line.B.Y - line.A.Y)
+
+			x := line.A.X
+			y := line.A.Y
+
+			for {
+				area[x][y]++
+				x += dirX
+				y += dirY
+
+				if dirX != 0 && x == line.B.X+dirX || dirY != 0 && y == line.B.Y+dirY {
+					break
+				}
 			}
 		}
 	}
@@ -72,7 +109,7 @@ func CountIntersections(lines []Line) int {
 		}
 	}
 
-	return overlaps
+	return overlaps, area
 }
 
 func ParseInput(r io.Reader) ([]Line, error) {

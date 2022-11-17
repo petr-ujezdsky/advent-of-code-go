@@ -60,6 +60,19 @@ func Abs(i int) int {
 	return i
 }
 
+// Signum returns 1 for positive number, -1 for negative and 0 for 0
+func Signum(i int) int {
+	if i < 0 {
+		return -1
+	}
+
+	if i > 0 {
+		return 1
+	}
+
+	return 0
+}
+
 // Returns maximum of two integers
 func Max(i, j int) int {
 	if i > j {
