@@ -3,6 +3,7 @@ package utils
 import (
 	"bufio"
 	"io"
+	"math"
 	"strconv"
 )
 
@@ -89,6 +90,21 @@ func Min(i, j int) int {
 	}
 
 	return i
+}
+
+// ArgMin finds index and value of minimum
+func ArgMin(values ...int) (int, int) {
+	min := math.MaxInt
+	index := -1
+
+	for i, v := range values {
+		if v <= min {
+			min = v
+			index = i
+		}
+	}
+
+	return index, min
 }
 
 // Sums integers from N to M inclusive
