@@ -83,3 +83,15 @@ func Test_02_example_256_days(t *testing.T) {
 
 	assert.Equal(t, 26984457539, count)
 }
+
+func Test_02(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	fish, err := ParseFish(reader, 256)
+	assert.Nil(t, err)
+
+	count := CountManyFish(fish)
+
+	assert.Equal(t, 1589590444365, count)
+}
