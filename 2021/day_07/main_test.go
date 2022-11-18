@@ -25,7 +25,7 @@ func Test_01_example_costs(t *testing.T) {
 	positions, err := ParseInput(reader)
 	assert.Nil(t, err)
 
-	costs := CalculateFuelCosts(positions)
+	costs := CalculateFuelCosts(positions, CostSimple)
 
 	fmt.Println(costs)
 
@@ -41,7 +41,7 @@ func Test_01_example_costs_min(t *testing.T) {
 	positions, err := ParseInput(reader)
 	assert.Nil(t, err)
 
-	position, cost := LowestAlignment(positions)
+	position, cost := LowestAlignment(positions, CostSimple)
 
 	assert.Equal(t, 2, position)
 	assert.Equal(t, 37, cost)
@@ -54,58 +54,34 @@ func Test_01(t *testing.T) {
 	positions, err := ParseInput(reader)
 	assert.Nil(t, err)
 
-	position, cost := LowestAlignment(positions)
+	position, cost := LowestAlignment(positions, CostSimple)
 
 	assert.Equal(t, 343, position)
 	assert.Equal(t, 353800, cost)
 }
 
-//func Test_01_example_80_days(t *testing.T) {
-//	reader, err := os.Open("data-00-example.txt")
-//	assert.Nil(t, err)
-//
-//	timers, err := ParseInput(reader)
-//	assert.Nil(t, err)
-//
-//	timers = PassDays(timers, 80)
-//
-//	fmt.Println(timers)
-//
-//	assert.Equal(t, 5934, len(timers))
-//}
-//
-//func Test_02_example_18_days(t *testing.T) {
-//	reader, err := os.Open("data-00-example.txt")
-//	assert.Nil(t, err)
-//
-//	fish, err := ParseFish(reader, 18)
-//	assert.Nil(t, err)
-//
-//	count := CountManyFish(fish)
-//
-//	assert.Equal(t, 26, count)
-//}
-//
-//func Test_02_example_256_days(t *testing.T) {
-//	reader, err := os.Open("data-00-example.txt")
-//	assert.Nil(t, err)
-//
-//	fish, err := ParseFish(reader, 256)
-//	assert.Nil(t, err)
-//
-//	count := CountManyFish(fish)
-//
-//	assert.Equal(t, 26984457539, count)
-//}
-//
-//func Test_02(t *testing.T) {
-//	reader, err := os.Open("data-01.txt")
-//	assert.Nil(t, err)
-//
-//	fish, err := ParseFish(reader, 256)
-//	assert.Nil(t, err)
-//
-//	count := CountManyFish(fish)
-//
-//	assert.Equal(t, 1589590444365, count)
-//}
+func Test_02_example_costs_min(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	positions, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	position, cost := LowestAlignment(positions, CostSteppingUp)
+
+	assert.Equal(t, 5, position)
+	assert.Equal(t, 168, cost)
+}
+
+func Test_02(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	positions, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	position, cost := LowestAlignment(positions, CostSteppingUp)
+
+	assert.Equal(t, 480, position)
+	assert.Equal(t, 98119739, cost)
+}
