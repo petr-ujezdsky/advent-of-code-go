@@ -38,6 +38,34 @@ func TestAbs(t *testing.T) {
 	// assert.Equal(t, -math.MinInt, utils.Abs(math.MinInt))
 }
 
+func TestSignum(t *testing.T) {
+	assert.Equal(t, -1, utils.Signum(-600))
+	assert.Equal(t, -1, utils.Signum(-1))
+	assert.Equal(t, 0, utils.Signum(0))
+	assert.Equal(t, 1, utils.Signum(1))
+	assert.Equal(t, 1, utils.Signum(20))
+}
+
+func TestMax(t *testing.T) {
+	assert.Equal(t, 1, utils.Max(0, 1))
+	assert.Equal(t, 5, utils.Max(5, -1))
+}
+
+func TestMin(t *testing.T) {
+	assert.Equal(t, 0, utils.Min(0, 1))
+	assert.Equal(t, -1, utils.Min(5, -1))
+}
+
+func TestArgMin(t *testing.T) {
+	index, min := utils.ArgMin(5, 4, 3)
+	assert.Equal(t, 2, index)
+	assert.Equal(t, 3, min)
+
+	index, min = utils.ArgMin([]int{5, -300, 80, 500}...)
+	assert.Equal(t, 1, index)
+	assert.Equal(t, -300, min)
+}
+
 func TestSumNtoM(t *testing.T) {
 	assert.Equal(t, 1, utils.SumNtoM(0, 1))
 	assert.Equal(t, 0, utils.SumNtoM(-50, 50))
