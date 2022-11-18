@@ -127,3 +127,15 @@ func Clamp(val, low, high int) int {
 
 	return val
 }
+
+// ShallowCopy creates shallow copy of the given slice
+func ShallowCopy[T any](slice []T) []T {
+	// prepare destination slice
+	cloned := make([]T, len(slice))
+
+	// copy elements
+	copy(cloned, slice)
+
+	// return
+	return cloned
+}

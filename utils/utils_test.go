@@ -81,3 +81,14 @@ func TestClamp(t *testing.T) {
 	assert.Equal(t, 10, utils.Clamp(10, 0, 10))
 	assert.Equal(t, 10, utils.Clamp(30, 0, 10))
 }
+
+func TestShallowCopy(t *testing.T) {
+	data := []int{1, 2, 3}
+	clone := utils.ShallowCopy(data)
+
+	// modify original data
+	data[0] = 9
+
+	assert.Equal(t, 9, data[0])
+	assert.Equal(t, 1, clone[0])
+}
