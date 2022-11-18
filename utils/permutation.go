@@ -2,32 +2,40 @@ package utils
 
 // see https://www.geeksforgeeks.org/write-a-c-program-to-print-all-permutations-of-a-given-string/
 
-func Permute[T any](values []T) chan []T {
+func Permute[T any](quit chan interface{}, values []T) chan []T {
 	output := make(chan []T)
 
-	go permuteAndClose(values, output)
+	go permuteAndClose(quit, values, output)
 
 	return output
 }
 
-func permuteAndClose[T any](values []T, output chan []T) {
+func permuteAndClose[T any](quit chan interface{}, values []T, output chan []T) {
 	defer close(output)
-	permute(values, 0, len(values)-1, output)
+	permute(quit, values, 0, len(values)-1, output)
 }
 
-func permute[T any](values []T, left, right int, output chan []T) {
+func permute[T any](quit chan interface{}, values []T, left, right int, output chan []T) bool {
 	if left == right {
 		// output slice copy
-		output <- ShallowCopy(values)
+		select {
+		case output <- ShallowCopy(values):
+		case <-quit:
+			return false
+		}
 	} else {
 		for i := left; i <= right; i++ {
 			// swap #1
 			values[left], values[i] = values[i], values[left]
 
-			permute(values, left+1, right, output)
+			if !permute(quit, values, left+1, right, output) {
+				return false
+			}
 
 			// swap #2
 			values[left], values[i] = values[i], values[left]
 		}
 	}
+
+	return true
 }
