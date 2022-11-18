@@ -7,6 +7,7 @@ import (
 	"strconv"
 )
 
+// ParseToInts parses each line as integer and returns the list
 func ParseToInts(r io.Reader) ([]int, error) {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
@@ -24,6 +25,7 @@ func ParseToInts(r io.Reader) ([]int, error) {
 	return result, scanner.Err()
 }
 
+// ParseToStrings returns the list of lines
 func ParseToStrings(r io.Reader) ([]string, error) {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
@@ -37,6 +39,7 @@ func ParseToStrings(r io.Reader) ([]string, error) {
 	return result, scanner.Err()
 }
 
+// ToInts parses each line into integer and returns the list
 func ToInts(intsStr []string) ([]int, error) {
 	var result []int
 
@@ -52,7 +55,7 @@ func ToInts(intsStr []string) ([]int, error) {
 	return result, nil
 }
 
-// Returns absolute integer value
+// Abs returns absolute integer value
 func Abs(i int) int {
 	if i < 0 {
 		return -i
@@ -74,7 +77,7 @@ func Signum(i int) int {
 	return 0
 }
 
-// Returns maximum of two integers
+// Max returns maximum of two integers
 func Max(i, j int) int {
 	if i > j {
 		return i
@@ -107,12 +110,12 @@ func ArgMin(values ...int) (int, int) {
 	return index, min
 }
 
-// Sums integers from N to M inclusive
+// SumNtoM sums integers from N to M inclusive
 func SumNtoM(n, m int) int {
 	return (n + m) * (1 + m - n) / 2
 }
 
-// Restricts value to interval (low, high)
+// Clamp restricts value to interval (low, high)
 func Clamp(val, low, high int) int {
 	if val < low {
 		return low
