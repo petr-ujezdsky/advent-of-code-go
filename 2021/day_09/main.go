@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-type HeightMap = utils.Matrix2[int]
+type Matrix2i = utils.Matrix2[int]
 
 var STEPS = []utils.Vector2i{
 	// left
@@ -19,7 +19,7 @@ var STEPS = []utils.Vector2i{
 	{0, 1},
 }
 
-func InspectNeighbours(heightMap HeightMap, x, y int) (int, bool) {
+func InspectNeighbours(heightMap Matrix2i, x, y int) (int, bool) {
 	value := heightMap.Get(x, y)
 
 	for _, step := range STEPS {
@@ -34,7 +34,7 @@ func InspectNeighbours(heightMap HeightMap, x, y int) (int, bool) {
 	return riskLevel, true
 }
 
-func FindLowPointsAndSum(heightMap HeightMap) int {
+func FindLowPointsAndSum(heightMap Matrix2i) int {
 	lowPointsRiskLevelsSum := 0
 
 	for x := 0; x < heightMap.Width; x++ {
@@ -49,7 +49,7 @@ func FindLowPointsAndSum(heightMap HeightMap) int {
 	return lowPointsRiskLevelsSum
 }
 
-func ParseInput(r io.Reader) (HeightMap, error) {
+func ParseInput(r io.Reader) (Matrix2i, error) {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
 
