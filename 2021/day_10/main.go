@@ -3,14 +3,16 @@ package day_10
 import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"io"
+	"sort"
 )
 
 type InputRows []string
 
 type Char struct {
-	Value   rune
-	Opening bool
-	Group   int
+	Value       rune
+	Counterpart rune
+	Opening     bool
+	Group       int
 }
 
 func NewChar(char rune) Char {
@@ -47,6 +49,21 @@ func charGroup(char rune) int {
 	}
 }
 
+//func charCloseCounterpart(char rune) rune {
+//	switch char {
+//	case '(':
+//		return ')'
+//	case '[':
+//		return ']'
+//	case '{':
+//		return '}'
+//	case '<':
+//		return '>'
+//	default:
+//		panic("Char '" + string(char) + "' is not valid")
+//	}
+//}
+
 func charScore(char rune) int {
 	switch char {
 	case ')':
@@ -62,10 +79,25 @@ func charScore(char rune) int {
 	}
 }
 
-func checkCorruption(row string) (Char, int, bool) {
+func charIncompleteScore(char rune) int {
+	switch char {
+	case '(':
+		return 1
+	case '[':
+		return 2
+	case '{':
+		return 3
+	case '<':
+		return 4
+	default:
+		panic("Char '" + string(char) + "' is not valid")
+	}
+}
+
+func checkCorruption(row string) (Char, utils.Stack[Char], bool) {
 	openersStack := utils.NewStack[Char]()
 
-	for pos, charRune := range []rune(row) {
+	for _, charRune := range []rune(row) {
 		char := NewChar(charRune)
 
 		if char.Opening {
@@ -73,13 +105,13 @@ func checkCorruption(row string) (Char, int, bool) {
 		} else {
 			// closing at wrong time
 			if openersStack.Empty() {
-				return char, pos, true
+				return char, openersStack, true
 			}
 
 			previous := openersStack.Peek()
 			// closing wrong char
 			if previous.Group != char.Group {
-				return char, pos, true
+				return char, openersStack, true
 			}
 
 			// remove opening char
@@ -88,7 +120,7 @@ func checkCorruption(row string) (Char, int, bool) {
 	}
 
 	var empty Char
-	return empty, -1, false
+	return empty, openersStack, false
 }
 
 func CorruptionScore(rows InputRows) int {
@@ -102,6 +134,27 @@ func CorruptionScore(rows InputRows) int {
 	}
 
 	return totalScore
+}
+
+func IncompleteScore(rows InputRows) int {
+	var totalScores []int
+
+	for _, row := range rows {
+		_, openersStack, corrupted := checkCorruption(row)
+
+		if !corrupted {
+			totalScore := 0
+			for !openersStack.Empty() {
+				char := openersStack.Pop()
+				totalScore = totalScore*5 + charIncompleteScore(char.Value)
+			}
+			totalScores = append(totalScores, totalScore)
+		}
+	}
+
+	sort.Ints(totalScores)
+
+	return totalScores[len(totalScores)/2]
 }
 
 func ParseInput(r io.Reader) (InputRows, error) {
