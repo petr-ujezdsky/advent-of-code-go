@@ -28,7 +28,7 @@ func Test_01_example(t *testing.T) {
 	heightMap, err := ParseInput(reader)
 	assert.Nil(t, err)
 
-	sum := FindLowPointsAndSum(heightMap)
+	sum, _ := FindLowPointsAndSum(heightMap)
 	assert.Equal(t, 15, sum)
 }
 
@@ -39,6 +39,28 @@ func Test_01(t *testing.T) {
 	heightMap, err := ParseInput(reader)
 	assert.Nil(t, err)
 
-	sum := FindLowPointsAndSum(heightMap)
+	sum, _ := FindLowPointsAndSum(heightMap)
 	assert.Equal(t, 486, sum)
+}
+
+func Test_02_example(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	heightMap, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	mul := Basins(heightMap)
+	assert.Equal(t, 1134, mul)
+}
+
+func Test_02(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	heightMap, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	mul := Basins(heightMap)
+	assert.Equal(t, 1059300, mul)
 }
