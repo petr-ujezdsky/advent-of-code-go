@@ -1,6 +1,7 @@
 package day_07
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -51,7 +52,44 @@ func Test_02_example_mini(t *testing.T) {
 		Outputs: []string{"cdfeb", "fcadb", "cdfeb", "cdbaf"},
 	}
 
-	output, ok := TryDecodeOutput("deafgbc", entry)
+	output, ok := TryDecodeOutput([]rune("deafgbc"), entry)
 	assert.True(t, ok)
 	assert.Equal(t, 5353, output)
+}
+
+func Test_02_example_one(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	entries, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	output, decoder, iterations, ok := BruteForceDecode(entries[0])
+	fmt.Println("Decoder:", string(decoder), "iterations:", iterations)
+	assert.True(t, ok)
+	assert.Equal(t, 8394, output)
+}
+
+func Test_02_example(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	entries, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	sum, ok := DecodeAndSum(entries)
+	assert.True(t, ok)
+	assert.Equal(t, 61229, sum)
+}
+
+func Test_02(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	entries, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	sum, ok := DecodeAndSum(entries)
+	assert.True(t, ok)
+	assert.Equal(t, 989396, sum)
 }

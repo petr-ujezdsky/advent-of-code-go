@@ -2,6 +2,8 @@ package day_07
 
 import (
 	"bufio"
+	"fmt"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"io"
 	"math"
 	"strings"
@@ -92,10 +94,10 @@ func letterToIndex(char rune) int {
 // arr["a"] = arr[0] = 0 (segment #1)
 // arr["b"] = arr[1] = 2 (segment #3)
 // arr["c"] = arr[2] = 1 (segment #2)
-func createSegmentDecoder(mapping string) []int {
+func createSegmentDecoder(mapping []rune) []int {
 	mapper := make([]int, 7)
 
-	for i, char := range []rune(mapping) {
+	for i, char := range mapping {
 		mapper[letterToIndex(char)] = i
 	}
 
@@ -131,7 +133,7 @@ func decodeDigits(decoder []int, digits []string) (int, bool) {
 	return number, true
 }
 
-func TryDecodeOutput(mapping string, entry Entry) (int, bool) {
+func TryDecodeOutput(mapping []rune, entry Entry) (int, bool) {
 	// create mapping from letter to segment index
 	decoder := createSegmentDecoder(mapping)
 
@@ -146,6 +148,39 @@ func TryDecodeOutput(mapping string, entry Entry) (int, bool) {
 	}
 
 	return output, true
+}
+
+func BruteForceDecode(entry Entry) (int, []rune, int, bool) {
+	quit := make(chan interface{})
+	initialDecoder := []rune("abcdefg")
+	decoders := utils.Permute(quit, initialDecoder)
+
+	i := 0
+	for decoder := range decoders {
+		output, ok := TryDecodeOutput(decoder, entry)
+		if ok {
+			close(quit)
+			return output, decoder, i, true
+		}
+		i++
+	}
+
+	return 0, nil, i, false
+}
+
+func DecodeAndSum(entries []Entry) (int, bool) {
+	sum := 0
+	for i, entry := range entries {
+		output, decoder, iterations, ok := BruteForceDecode(entry)
+		if !ok {
+			return 0, false
+		}
+		fmt.Println(i, "decoder:", string(decoder), "iterations:", iterations)
+
+		sum += output
+	}
+
+	return sum, true
 }
 
 func ParseInput(r io.Reader) ([]Entry, error) {
