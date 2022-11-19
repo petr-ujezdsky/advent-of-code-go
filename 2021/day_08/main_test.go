@@ -45,29 +45,13 @@ func Test_01(t *testing.T) {
 	assert.Equal(t, 470, count)
 }
 
-//
-//func Test_02_example_costs_min(t *testing.T) {
-//	reader, err := os.Open("data-00-example.txt")
-//	assert.Nil(t, err)
-//
-//	positions, err := ParseInput(reader)
-//	assert.Nil(t, err)
-//
-//	position, cost := LowestAlignment(positions, CostSteppingUp)
-//
-//	assert.Equal(t, 5, position)
-//	assert.Equal(t, 168, cost)
-//}
-//
-//func Test_02(t *testing.T) {
-//	reader, err := os.Open("data-01.txt")
-//	assert.Nil(t, err)
-//
-//	positions, err := ParseInput(reader)
-//	assert.Nil(t, err)
-//
-//	position, cost := LowestAlignment(positions, CostSteppingUp)
-//
-//	assert.Equal(t, 480, position)
-//	assert.Equal(t, 98119739, cost)
-//}
+func Test_02_example_mini(t *testing.T) {
+	entry := Entry{
+		Digits:  []string{"acedgfb", "cdfbe", "gcdfa", "fbcad", "dab", "cefabd", "cdfgeb", "eafb", "cagedb", "ab"},
+		Outputs: []string{"cdfeb", "fcadb", "cdfeb", "cdbaf"},
+	}
+
+	output, ok := TryDecodeOutput("deafgbc", entry)
+	assert.True(t, ok)
+	assert.Equal(t, 5353, output)
+}

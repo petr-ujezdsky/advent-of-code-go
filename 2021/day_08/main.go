@@ -3,8 +3,41 @@ package day_07
 import (
 	"bufio"
 	"io"
+	"math"
 	"strings"
 )
+
+// Segment indexes:
+//
+//  aaaa
+// b    c
+// b    c
+//  dddd
+// e    f
+// e    f
+//  gggg
+
+var mask2digit = createMask2DigitMapper()
+
+func createMask2DigitMapper() map[int]int {
+	mask2digit := make(map[int]int)
+	// identity decoder
+	//               a, b, c, d, e, f, g
+	decoder := []int{0, 1, 2, 3, 4, 5, 6}
+
+	mask2digit[createSegmentMask(decoder, "abcefg")] = 0
+	mask2digit[createSegmentMask(decoder, "cf")] = 1
+	mask2digit[createSegmentMask(decoder, "acdeg")] = 2
+	mask2digit[createSegmentMask(decoder, "acdfg")] = 3
+	mask2digit[createSegmentMask(decoder, "bcdf")] = 4
+	mask2digit[createSegmentMask(decoder, "abdfg")] = 5
+	mask2digit[createSegmentMask(decoder, "abdefg")] = 6
+	mask2digit[createSegmentMask(decoder, "acf")] = 7
+	mask2digit[createSegmentMask(decoder, "abcdefg")] = 8
+	mask2digit[createSegmentMask(decoder, "abcdfg")] = 9
+
+	return mask2digit
+}
 
 // Entry
 // List of digits and their segments count, * marks unique
@@ -42,6 +75,77 @@ func CountEasyOutputs(entries []Entry) int {
 	}
 
 	return count
+}
+
+func letterToIndex(char rune) int {
+	// letter to number, a -> 0, g -> 6
+	return int(char) - int('a')
+}
+
+// Each value means segment index
+// "acb" -> [0, 2, 1]
+// a means segment #1 (index 0)
+// c means segment #2 (index 1)
+// b means segment #3 (index 2)
+// ...
+// The resulting array (arr) is reverse mapping:
+// arr["a"] = arr[0] = 0 (segment #1)
+// arr["b"] = arr[1] = 2 (segment #3)
+// arr["c"] = arr[2] = 1 (segment #2)
+func createSegmentDecoder(mapping string) []int {
+	mapper := make([]int, 7)
+
+	for i, char := range []rune(mapping) {
+		mapper[letterToIndex(char)] = i
+	}
+
+	return mapper
+}
+
+func createSegmentMask(decoder []int, segments string) int {
+	mask := 0
+	for _, segmentEncoded := range []rune(segments) {
+		// decode digit to segment index using mapper
+		segmentIndex := decoder[letterToIndex(segmentEncoded)]
+
+		// sum segment masks
+		mask += 1 << segmentIndex
+	}
+	return mask
+}
+
+func decodeDigits(decoder []int, digits []string) (int, bool) {
+	number := 0
+	for i, digitEncodedSegments := range digits {
+		digitSegmentsMask := createSegmentMask(decoder, digitEncodedSegments)
+
+		// lookup digit by mask
+		digit, contains := mask2digit[digitSegmentsMask]
+		if !contains {
+			return 0, false
+		}
+
+		number += digit * int(math.Pow10(len(digits)-i-1))
+	}
+
+	return number, true
+}
+
+func TryDecodeOutput(mapping string, entry Entry) (int, bool) {
+	// create mapping from letter to segment index
+	decoder := createSegmentDecoder(mapping)
+
+	_, ok := decodeDigits(decoder, entry.Digits)
+	if !ok {
+		return 0, false
+	}
+
+	output, ok := decodeDigits(decoder, entry.Outputs)
+	if !ok {
+		return 0, false
+	}
+
+	return output, true
 }
 
 func ParseInput(r io.Reader) ([]Entry, error) {
