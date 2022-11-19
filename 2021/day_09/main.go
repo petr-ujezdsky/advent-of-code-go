@@ -8,19 +8,11 @@ import (
 
 type HeightMap = utils.Matrix2[int]
 
-func ValueAt(x, y int, heightMap HeightMap, width, height int) (int, bool) {
-	if x < 0 || x >= width || y < 0 || y >= height {
-		return 0, false
-	}
+func InspectNeighbours(heightMap HeightMap, x, y int, steps []utils.Vector2i) (int, bool) {
+	value := heightMap.Get(x, y)
 
-	return heightMap[x][y], true
-}
-
-func InspectNeighbours(heightMap HeightMap, x, y, width, height int, offsetIndexes []utils.Vector2i) (int, bool) {
-	value := heightMap[x][y]
-
-	for _, dir := range offsetIndexes {
-		neighbour, ok := ValueAt(x+dir.X, y+dir.Y, heightMap, width, height)
+	for _, step := range steps {
+		neighbour, ok := heightMap.GetSafe(x+step.X, y+step.Y)
 		if ok && neighbour <= value {
 			// found neighbour of lower value
 			return 0, false
@@ -32,9 +24,6 @@ func InspectNeighbours(heightMap HeightMap, x, y, width, height int, offsetIndex
 }
 
 func FindLowPointsAndSum(heightMap HeightMap) int {
-	width := len(heightMap)
-	height := len(heightMap[0])
-
 	offsetIndexes := []utils.Vector2i{
 		// left
 		{-1, 0},
@@ -48,9 +37,9 @@ func FindLowPointsAndSum(heightMap HeightMap) int {
 
 	lowPointsRiskLevelsSum := 0
 
-	for x := 0; x < width; x++ {
-		for y := 0; y < height; y++ {
-			riskLevel, ok := InspectNeighbours(heightMap, x, y, width, height, offsetIndexes)
+	for x := 0; x < heightMap.Width; x++ {
+		for y := 0; y < heightMap.Height; y++ {
+			riskLevel, ok := InspectNeighbours(heightMap, x, y, offsetIndexes)
 			if ok {
 				lowPointsRiskLevelsSum += riskLevel
 			}

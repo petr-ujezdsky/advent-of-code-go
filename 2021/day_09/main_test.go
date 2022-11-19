@@ -15,10 +15,10 @@ func Test_01_example_parse(t *testing.T) {
 	assert.Nil(t, err)
 
 	// first column
-	assert.Equal(t, []int{2, 3, 9, 8, 9}, heightMap[0])
+	assert.Equal(t, []int{2, 3, 9, 8, 9}, heightMap.Columns[0])
 
 	// last column
-	assert.Equal(t, []int{0, 1, 2, 9, 8}, heightMap[9])
+	assert.Equal(t, []int{0, 1, 2, 9, 8}, heightMap.Columns[9])
 }
 
 func Test_01_example(t *testing.T) {
