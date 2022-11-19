@@ -1,4 +1,4 @@
-package day_07
+package day_08
 
 import (
 	"fmt"
