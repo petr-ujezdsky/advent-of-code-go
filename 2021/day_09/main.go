@@ -7,8 +7,6 @@ import (
 	"sort"
 )
 
-type Matrix2i = utils.Matrix2[int]
-
 var STEPS = []utils.Vector2i{
 	// left
 	{-1, 0},
@@ -20,7 +18,7 @@ var STEPS = []utils.Vector2i{
 	{0, 1},
 }
 
-func inspectNeighbours(heightMap Matrix2i, x, y int) (int, bool) {
+func inspectNeighbours(heightMap utils.Matrix2i, x, y int) (int, bool) {
 	value := heightMap.Get(x, y)
 
 	for _, step := range STEPS {
@@ -35,7 +33,7 @@ func inspectNeighbours(heightMap Matrix2i, x, y int) (int, bool) {
 	return riskLevel, true
 }
 
-func FindLowPointsAndSum(heightMap Matrix2i) (int, []utils.Vector2i) {
+func FindLowPointsAndSum(heightMap utils.Matrix2i) (int, []utils.Vector2i) {
 	lowPointsRiskLevelsSum := 0
 	var lowPoints []utils.Vector2i
 
@@ -54,7 +52,7 @@ func FindLowPointsAndSum(heightMap Matrix2i) (int, []utils.Vector2i) {
 	return lowPointsRiskLevelsSum, lowPoints
 }
 
-func findBasinSizeRecursive(heightMap, basin Matrix2i, position utils.Vector2i) int {
+func findBasinSizeRecursive(heightMap, basin utils.Matrix2i, position utils.Vector2i) int {
 	if basin.Get(position.X, position.Y) != 0 {
 		// already inspected -> end
 		return 0
@@ -87,7 +85,7 @@ func findBasinSizeRecursive(heightMap, basin Matrix2i, position utils.Vector2i) 
 	return size
 }
 
-func findBasinSize(heightMap Matrix2i, position utils.Vector2i) int {
+func findBasinSize(heightMap utils.Matrix2i, position utils.Vector2i) int {
 	// create empty matrix to write found basin points
 	basin := utils.NewMatrix2[int](heightMap.Width, heightMap.Height)
 
@@ -95,7 +93,7 @@ func findBasinSize(heightMap Matrix2i, position utils.Vector2i) int {
 	return findBasinSizeRecursive(heightMap, basin, position)
 }
 
-func Basins(heightMap Matrix2i) int {
+func Basins(heightMap utils.Matrix2i) int {
 	_, lowPoints := FindLowPointsAndSum(heightMap)
 
 	var basinSizes []int
@@ -112,7 +110,7 @@ func Basins(heightMap Matrix2i) int {
 	return basinSizes[0] * basinSizes[1] * basinSizes[2]
 }
 
-func ParseInput(r io.Reader) (Matrix2i, error) {
+func ParseInput(r io.Reader) (utils.Matrix2i, error) {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
 
