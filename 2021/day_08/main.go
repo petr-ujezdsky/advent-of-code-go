@@ -168,6 +168,12 @@ func BruteForceDecode(entry Entry) (int, []rune, int, bool) {
 	return 0, nil, i, false
 }
 
+type Result struct {
+	Output  int
+	Decoder []rune
+	Index   int
+}
+
 func DecodeAndSum(entries []Entry) (int, bool) {
 	sum := 0
 	for i, entry := range entries {
@@ -176,6 +182,70 @@ func DecodeAndSum(entries []Entry) (int, bool) {
 			return 0, false
 		}
 		fmt.Println(i, "decoder:", string(decoder), "iterations:", iterations)
+
+		sum += output
+	}
+
+	return sum, true
+}
+
+func BruteForceDecodeParallel(entry Entry) (int, []rune, int, bool) {
+	quit := make(chan interface{})
+	initialDecoder := []rune("abcdefg")
+	decoders := utils.Permute(quit, initialDecoder)
+
+	resultChan := make(chan Result)
+	i := 0
+	for decoder := range decoders {
+		go func(quit chan interface{}, decoder []rune, entry Entry, outputChan chan Result, i int) {
+			output, ok := TryDecodeOutput(decoder, entry)
+			if ok {
+				close(quit)
+				outputChan <- Result{output, decoder, i}
+				close(outputChan)
+			}
+		}(quit, decoder, entry, resultChan, i)
+
+		i++
+	}
+
+	result, ok := <-resultChan
+	if !ok {
+		return 0, nil, i, false
+	}
+
+	return result.Output, result.Decoder, result.Index, true
+}
+
+type DecodeFunc func(entry Entry) (int, []rune, int, bool)
+
+func DecodeAndSumParallel(entries []Entry, decode DecodeFunc) (int, bool) {
+	var outputs []chan int
+
+	for i, entry := range entries {
+		outputChan := make(chan int)
+
+		go func(o chan int, num int, entry Entry) {
+			defer close(o)
+			output, decoder, iterations, ok := decode(entry)
+			fmt.Println(num, "decoder:", string(decoder), "output:", output, "iterations:", iterations)
+
+			if ok {
+				o <- output
+			} else {
+				fmt.Println(num, "FAILED iterations:", iterations)
+			}
+		}(outputChan, i, entry)
+
+		outputs = append(outputs, outputChan)
+	}
+
+	sum := 0
+	for _, outputCh := range outputs {
+		output, ok := <-outputCh
+		if !ok {
+			return 0, false
+		}
 
 		sum += output
 	}

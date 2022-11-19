@@ -93,3 +93,59 @@ func Test_02(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, 989396, sum)
 }
+
+func Test_02_parallel(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	entries, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	sum, ok := DecodeAndSumParallel(entries, BruteForceDecode)
+	assert.True(t, ok)
+	assert.Equal(t, 989396, sum)
+}
+
+func Test_02_super_parallel(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	entries, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	sum, ok := DecodeAndSumParallel(entries, BruteForceDecodeParallel)
+	assert.True(t, ok)
+	assert.Equal(t, 989396, sum)
+}
+
+func Benchmark_02_parallel(b *testing.B) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(b, err)
+
+	entries, err := ParseInput(reader)
+	assert.Nil(b, err)
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		sum, ok := DecodeAndSumParallel(entries, BruteForceDecode)
+		assert.True(b, ok)
+		assert.Equal(b, 989396, sum)
+	}
+}
+
+func Benchmark_02_super_parallel(b *testing.B) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(b, err)
+
+	entries, err := ParseInput(reader)
+	assert.Nil(b, err)
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		sum, ok := DecodeAndSumParallel(entries, BruteForceDecodeParallel)
+		assert.True(b, ok)
+		assert.Equal(b, 989396, sum)
+	}
+}
