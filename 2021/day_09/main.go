@@ -16,19 +16,11 @@ func ValueAt(x, y int, heightMap HeightMap, width, height int) (int, bool) {
 	return heightMap[x][y], true
 }
 
-func InspectNeighbours(heightMap HeightMap, x, y, width, height int, offsetIndexes []int) (int, bool) {
+func InspectNeighbours(heightMap HeightMap, x, y, width, height int, offsetIndexes []utils.Vector2i) (int, bool) {
 	value := heightMap[x][y]
 
-	for _, dx := range offsetIndexes {
-		neighbour, ok := ValueAt(x+dx, y, heightMap, width, height)
-		if ok && neighbour <= value {
-			// found neighbour of lower value
-			return 0, false
-		}
-	}
-
-	for _, dy := range offsetIndexes {
-		neighbour, ok := ValueAt(x, y+dy, heightMap, width, height)
+	for _, dir := range offsetIndexes {
+		neighbour, ok := ValueAt(x+dir.X, y+dir.Y, heightMap, width, height)
 		if ok && neighbour <= value {
 			// found neighbour of lower value
 			return 0, false
@@ -43,7 +35,16 @@ func FindLowPointsAndSum(heightMap HeightMap) int {
 	width := len(heightMap)
 	height := len(heightMap[0])
 
-	offsetIndexes := []int{-1, 1}
+	offsetIndexes := []utils.Vector2i{
+		// left
+		{-1, 0},
+		// right
+		{1, 0},
+		// up
+		{0, -1},
+		// down
+		{0, 1},
+	}
 
 	lowPointsRiskLevelsSum := 0
 
