@@ -76,14 +76,31 @@ func step(energyLevels utils.Matrix2i) int {
 	return flashesCount
 }
 
-func CountFlashes(energyLevels utils.Matrix2i, stepsCount int) int {
+func CountFlashes(energyLevels utils.Matrix2i, stepsCount int) (int, int) {
 	flashesCount := 0
+	allFlashedStepNumber := -1
 
-	for i := 0; i < stepsCount; i++ {
-		flashesCount += step(energyLevels)
+	for i := 0; true; i++ {
+		// move one step and count flashes
+		stepFlashesCount := step(energyLevels)
+
+		// all flashed at once
+		if stepFlashesCount == energyLevels.Width*energyLevels.Height {
+			allFlashedStepNumber = i + 1
+		}
+
+		// aggregate flashes count for first stepsCount
+		if i < stepsCount {
+			flashesCount += stepFlashesCount
+		}
+
+		// all detected
+		if i >= stepsCount && allFlashedStepNumber > 0 {
+			break
+		}
 	}
 
-	return flashesCount
+	return flashesCount, allFlashedStepNumber
 }
 
 func ParseInput(r io.Reader) (utils.Matrix2i, error) {

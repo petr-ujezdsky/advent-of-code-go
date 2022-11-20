@@ -28,9 +28,10 @@ func Test_01_example(t *testing.T) {
 	energyLevels, err := ParseInput(reader)
 	assert.Nil(t, err)
 
-	flashesCount := CountFlashes(energyLevels, 100)
+	flashesCount, allFlashedStepNumber := CountFlashes(energyLevels, 100)
 
 	assert.Equal(t, 1656, flashesCount)
+	assert.Equal(t, 195, allFlashedStepNumber)
 }
 
 func Test_01(t *testing.T) {
@@ -40,7 +41,8 @@ func Test_01(t *testing.T) {
 	energyLevels, err := ParseInput(reader)
 	assert.Nil(t, err)
 
-	flashesCount := CountFlashes(energyLevels, 100)
+	flashesCount, allFlashedStepNumber := CountFlashes(energyLevels, 100)
 
 	assert.Equal(t, 1773, flashesCount)
+	assert.Equal(t, 494, allFlashedStepNumber)
 }
