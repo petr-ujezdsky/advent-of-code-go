@@ -72,6 +72,52 @@ func getOrCreateNode(world *World, id string) *Node {
 	return node
 }
 
+func visitable(node *Node, path []*Node) bool {
+	switch node.nodeType {
+	case start:
+		return false
+	case end, big:
+		return true
+	case small:
+		for _, pathNode := range path {
+			if node == pathNode {
+				// small node already visited -> can not visit again
+				return false
+			}
+		}
+
+		return true
+	default:
+		panic("Unknown type")
+	}
+}
+
+func findAllPathsRecursive(node *Node, path []*Node, allPaths *[][]*Node) {
+	// add myself to the path
+	path = append(path, node)
+
+	// end on end
+	if node.nodeType == end {
+		*allPaths = append(*allPaths, path)
+		return
+	}
+
+	// inspect neighbours
+	for _, neighbour := range node.neighbours {
+		if visitable(neighbour, path) {
+			findAllPathsRecursive(neighbour, path, allPaths)
+		}
+	}
+}
+
+func FindAllPaths(world World) [][]*Node {
+	var paths [][]*Node
+	var path []*Node
+
+	findAllPathsRecursive(world.startNode, path, &paths)
+	return paths
+}
+
 func ParseInput(r io.Reader) (World, error) {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
