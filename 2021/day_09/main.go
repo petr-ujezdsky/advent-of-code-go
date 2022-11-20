@@ -1,7 +1,6 @@
 package day_09
 
 import (
-	"bufio"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"io"
 	"sort"
@@ -111,22 +110,5 @@ func Basins(heightMap utils.Matrix2i) int {
 }
 
 func ParseInput(r io.Reader) (utils.Matrix2i, error) {
-	scanner := bufio.NewScanner(r)
-	scanner.Split(bufio.ScanLines)
-
-	var rows [][]int
-
-	for scanner.Scan() {
-		line := scanner.Text()
-		var row []int
-
-		for _, digitAscii := range []rune(line) {
-			digit := int(digitAscii) - int('0')
-			row = append(row, digit)
-		}
-
-		rows = append(rows, row)
-	}
-
-	return utils.NewMatrix2RowNotation(rows), scanner.Err()
+	return utils.ParseToMatrix(r)
 }

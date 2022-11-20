@@ -39,6 +39,28 @@ func ParseToStrings(r io.Reader) ([]string, error) {
 	return result, scanner.Err()
 }
 
+// ParseToMatrix returns the matrix of integers
+func ParseToMatrix(r io.Reader) (Matrix2i, error) {
+	scanner := bufio.NewScanner(r)
+	scanner.Split(bufio.ScanLines)
+
+	var rows [][]int
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		var row []int
+
+		for _, digitAscii := range []rune(line) {
+			digit := int(digitAscii) - int('0')
+			row = append(row, digit)
+		}
+
+		rows = append(rows, row)
+	}
+
+	return NewMatrix2RowNotation(rows), scanner.Err()
+}
+
 // ToInts parses each line into integer and returns the list
 func ToInts(intsStr []string) ([]int, error) {
 	var result []int
