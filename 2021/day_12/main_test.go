@@ -34,7 +34,7 @@ func Test_01_example(t *testing.T) {
 	world, err := ParseInput(reader)
 	assert.Nil(t, err)
 
-	paths := FindAllPaths(world)
+	paths := FindAllPaths(world, false)
 	fmt.Println(paths)
 	assert.Equal(t, 10, len(paths))
 }
@@ -46,7 +46,7 @@ func Test_01_example_02(t *testing.T) {
 	world, err := ParseInput(reader)
 	assert.Nil(t, err)
 
-	paths := FindAllPaths(world)
+	paths := FindAllPaths(world, false)
 	fmt.Println(paths)
 	assert.Equal(t, 19, len(paths))
 }
@@ -58,17 +58,40 @@ func Test_01_example_03(t *testing.T) {
 	world, err := ParseInput(reader)
 	assert.Nil(t, err)
 
-	paths := FindAllPaths(world)
+	paths := FindAllPaths(world, false)
 	assert.Equal(t, 226, len(paths))
 }
 
-func Test_011(t *testing.T) {
+func Test_01(t *testing.T) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(t, err)
 
 	world, err := ParseInput(reader)
 	assert.Nil(t, err)
 
-	paths := FindAllPaths(world)
+	paths := FindAllPaths(world, false)
 	assert.Equal(t, 5254, len(paths))
+}
+
+func Test_02_example(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	world, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	paths := FindAllPaths(world, true)
+	fmt.Println(paths)
+	assert.Equal(t, 36, len(paths))
+}
+
+func Test_02(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	world, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	paths := FindAllPaths(world, true)
+	assert.Equal(t, 149385, len(paths))
 }

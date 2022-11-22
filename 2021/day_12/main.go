@@ -72,7 +72,23 @@ func getOrCreateNode(world *World, id string) *Node {
 	return node
 }
 
-func visitable(node *Node, path []*Node) bool {
+func canRevisit(path []*Node) bool {
+	counts := make(map[string]int)
+
+	for _, pathNode := range path {
+		if pathNode.nodeType == small {
+			counts[pathNode.id]++
+
+			if counts[pathNode.id] > 1 {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+func visitable(node *Node, path []*Node, allowSmallRevisit bool) bool {
 	switch node.nodeType {
 	case start:
 		return false
@@ -81,8 +97,12 @@ func visitable(node *Node, path []*Node) bool {
 	case small:
 		for _, pathNode := range path {
 			if node == pathNode {
-				// small node already visited -> can not visit again
-				return false
+				if !allowSmallRevisit {
+					// small node already visited -> can not visit again
+					return false
+				}
+
+				return canRevisit(path)
 			}
 		}
 
@@ -92,7 +112,7 @@ func visitable(node *Node, path []*Node) bool {
 	}
 }
 
-func findAllPathsRecursive(node *Node, path []*Node, allPaths *[][]*Node) {
+func findAllPathsRecursive(node *Node, path []*Node, allPaths *[][]*Node, allowSmallRevisit bool) {
 	// add myself to the path
 	path = append(path, node)
 
@@ -104,17 +124,17 @@ func findAllPathsRecursive(node *Node, path []*Node, allPaths *[][]*Node) {
 
 	// inspect neighbours
 	for _, neighbour := range node.neighbours {
-		if visitable(neighbour, path) {
-			findAllPathsRecursive(neighbour, path, allPaths)
+		if visitable(neighbour, path, allowSmallRevisit) {
+			findAllPathsRecursive(neighbour, path, allPaths, allowSmallRevisit)
 		}
 	}
 }
 
-func FindAllPaths(world World) [][]*Node {
+func FindAllPaths(world World, allowSmallRevisit bool) [][]*Node {
 	var paths [][]*Node
 	var path []*Node
 
-	findAllPathsRecursive(world.startNode, path, &paths)
+	findAllPathsRecursive(world.startNode, path, &paths, allowSmallRevisit)
 	return paths
 }
 
