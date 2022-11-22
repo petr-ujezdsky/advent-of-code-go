@@ -83,7 +83,9 @@ func (m Matrix2n[T]) String() string {
 	return m.StringFmt(FmtNative[T])
 }
 
-func (m Matrix2n[T]) StringFmt(formatter func(v T) string) string {
+type ValueFormatter[T Number] func(value T) string
+
+func (m Matrix2n[T]) StringFmt(formatter ValueFormatter[T]) string {
 	var sb strings.Builder
 
 	for _, col := range m.Columns {
@@ -101,24 +103,26 @@ func FmtNative[T Number](value T) string {
 	return fmt.Sprint(value)
 }
 
-func FmtBoolean[T Number](val T) string {
-	return FmtBooleanCustom[T](".", "#")(val)
-}
-
-func FmtBooleanCustom[T Number](falseVal, trueVal string) func(v T) string {
+func FmtConstant[T Number](value string) func(v T) string {
 	return func(val T) string {
-		if val == 0 {
-			return falseVal
-		} else {
-			return trueVal
-		}
+		return value
 	}
 }
 
-func FmtZeroDotNumber[T Number](val T) string {
-	if val == 0 {
-		return "."
-	} else {
-		return FmtNative(val)
+func FmtBoolean[T Number](val T) string {
+	return FmtBooleanConst[T](".", "#")(val)
+}
+
+func FmtBooleanConst[T Number](falseVal, trueVal string) ValueFormatter[T] {
+	return FmtBooleanCustom[T](FmtConstant[T](falseVal), FmtConstant[T](trueVal))
+}
+
+func FmtBooleanCustom[T Number](formatterFalse, formatterTrue ValueFormatter[T]) func(v T) string {
+	return func(val T) string {
+		if val == 0 {
+			return formatterFalse(0)
+		} else {
+			return formatterTrue(val)
+		}
 	}
 }

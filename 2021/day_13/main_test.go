@@ -74,7 +74,7 @@ func Test_02(t *testing.T) {
 	dotsCount := FoldPaper(world, math.MaxInt)
 	assert.Equal(t, 95, dotsCount)
 
-	paper := PointsToMatrix(world.points).Transpose().StringFmt(utils.FmtBooleanCustom[int](" ", "#"))
+	paper := PointsToMatrix(world.points).Transpose().StringFmt(utils.FmtBooleanConst[int](" ", "#"))
 	expected := `
      # #   # # #     # # # #     # #     #     #     # #     #     #   # # #  
        #   #     #         #   #     #   #     #   #     #   #     #   #     #
