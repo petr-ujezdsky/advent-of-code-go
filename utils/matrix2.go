@@ -67,6 +67,18 @@ func (m Matrix2n[T]) Set(x, y int, value T) {
 	m.Columns[x][y] = value
 }
 
+func (m Matrix2n[T]) Transpose() Matrix2n[T] {
+	transposed := NewMatrix2[T](m.Height, m.Width)
+
+	for x, col := range m.Columns {
+		for y, val := range col {
+			transposed.Columns[y][x] = val
+		}
+	}
+
+	return transposed
+}
+
 func (m Matrix2n[T]) String() string {
 	return m.StringFmt(FmtNative[T])
 }
@@ -90,10 +102,16 @@ func FmtNative[T Number](value T) string {
 }
 
 func FmtBoolean[T Number](val T) string {
-	if val == 0 {
-		return "."
-	} else {
-		return "#"
+	return FmtBooleanCustom[T](".", "#")(val)
+}
+
+func FmtBooleanCustom[T Number](falseVal, trueVal string) func(v T) string {
+	return func(val T) string {
+		if val == 0 {
+			return falseVal
+		} else {
+			return trueVal
+		}
 	}
 }
 

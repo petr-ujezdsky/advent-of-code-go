@@ -1,7 +1,9 @@
 package day_12
 
 import (
+	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"math"
 	"os"
 	"testing"
 
@@ -24,7 +26,7 @@ func Test_01_example_parse(t *testing.T) {
 	assert.Equal(t, Fold{5, false}, world.folds[1])
 }
 
-func Test_01_example(t *testing.T) {
+func Test_01_example_one_fold(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
 
@@ -33,6 +35,22 @@ func Test_01_example(t *testing.T) {
 
 	dotsCount := FoldPaper(world, 1)
 	assert.Equal(t, 17, dotsCount)
+
+	fmt.Println(PointsToMatrix(world.points).StringFmt(utils.FmtBoolean[int]))
+
+}
+
+func Test_01_example(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	world, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	dotsCount := FoldPaper(world, math.MaxInt)
+	assert.Equal(t, 16, dotsCount)
+
+	fmt.Println(PointsToMatrix(world.points).StringFmt(utils.FmtBoolean[int]))
 }
 
 func Test_01(t *testing.T) {
@@ -44,4 +62,27 @@ func Test_01(t *testing.T) {
 
 	dotsCount := FoldPaper(world, 1)
 	assert.Equal(t, 655, dotsCount)
+}
+
+func Test_02(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	world, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	dotsCount := FoldPaper(world, math.MaxInt)
+	assert.Equal(t, 95, dotsCount)
+
+	paper := PointsToMatrix(world.points).Transpose().StringFmt(utils.FmtBooleanCustom[int](" ", "#"))
+	expected := `
+     # #   # # #     # # # #     # #     #     #     # #     #     #   # # #  
+       #   #     #         #   #     #   #     #   #     #   #     #   #     #
+       #   #     #       #     #         #     #   #     #   #     #   #     #
+       #   # # #       #       #         #     #   # # # #   #     #   # # #  
+ #     #   #         #         #     #   #     #   #     #   #     #   #   #  
+   # #     #         # # # #     # #       # #     #     #     # #     #     #
+`
+	fmt.Println(paper)
+	assert.Equal(t, expected, "\n"+paper)
 }

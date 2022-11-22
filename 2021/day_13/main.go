@@ -2,7 +2,6 @@ package day_12
 
 import (
 	"bufio"
-	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"io"
 	"strconv"
@@ -51,7 +50,7 @@ func countUniquePoints(points []*utils.Vector2i) int {
 	return len(uniquePoints)
 }
 
-func printPoints(points []*utils.Vector2i) {
+func PointsToMatrix(points []*utils.Vector2i) utils.Matrix2n[int] {
 	var maxX, maxY int
 
 	for _, point := range points {
@@ -65,7 +64,7 @@ func printPoints(points []*utils.Vector2i) {
 		matrix.Columns[point.X][point.Y]++
 	}
 
-	fmt.Println(matrix.StringFmt(utils.FmtBoolean[int]))
+	return matrix
 }
 
 func FoldPaper(world World, foldsCount int) int {
@@ -75,8 +74,6 @@ func FoldPaper(world World, foldsCount int) int {
 		}
 		foldPoints(world.points, fold)
 	}
-
-	//printPoints(world.points)
 
 	return countUniquePoints(world.points)
 }
