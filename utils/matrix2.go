@@ -1,5 +1,10 @@
 package utils
 
+import (
+	"fmt"
+	"strings"
+)
+
 // matrix2 is array of columns of values T
 // This matrix values are also indexes of given values:
 // 0 3 6
@@ -60,4 +65,42 @@ func (m Matrix2n[T]) GetSafe(x, y int) (T, bool) {
 
 func (m Matrix2n[T]) Set(x, y int, value T) {
 	m.Columns[x][y] = value
+}
+
+func (m Matrix2n[T]) String() string {
+	return m.StringFmt(FmtNative[T])
+}
+
+func (m Matrix2n[T]) StringFmt(formatter func(v T) string) string {
+	var sb strings.Builder
+
+	for _, col := range m.Columns {
+		for _, val := range col {
+			sb.WriteString(" ")
+			sb.WriteString(formatter(val))
+		}
+		sb.WriteString("\n")
+	}
+
+	return sb.String()
+}
+
+func FmtNative[T Number](value T) string {
+	return fmt.Sprint(value)
+}
+
+func FmtBoolean[T Number](val T) string {
+	if val == 0 {
+		return "."
+	} else {
+		return "#"
+	}
+}
+
+func FmtZeroDotNumber[T Number](val T) string {
+	if val == 0 {
+		return "."
+	} else {
+		return FmtNative(val)
+	}
 }
