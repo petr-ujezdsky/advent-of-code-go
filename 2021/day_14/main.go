@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+const alphabetSize = int('Z' - 'A')
+
 type World struct {
 	template string
 	rules    map[string]string
@@ -15,8 +17,7 @@ type World struct {
 type WorldRunes struct {
 	template []rune
 	// index is hash of duo
-	rules        []rune
-	alphabetSize int
+	rules []rune
 }
 
 func PolymerScore(polymer string) int {
@@ -109,23 +110,23 @@ func GrowPolymerRecursive(template string, rules map[string]string, stepsCount i
 	return scoreFromCounts(counts)
 }
 
-func growPolymerRecursiveRune(duo []rune, rules []rune, counts map[rune]int, depth, alphabetSize int) {
+func growPolymerRecursiveRune(duo []rune, rules []rune, counts map[rune]int, depth int) {
 	if depth > 0 {
-		hash := int(duo[0]-'A')*alphabetSize + int(duo[1]-'A')
+		hash := duoHash(duo)
 		newChar := rules[hash]
 
 		if newChar > 0 {
 			counts[newChar]++
 			// left + new
-			growPolymerRecursiveRune([]rune{duo[0], newChar}, rules, counts, depth-1, alphabetSize)
+			growPolymerRecursiveRune([]rune{duo[0], newChar}, rules, counts, depth-1)
 
 			// new + right
-			growPolymerRecursiveRune([]rune{newChar, duo[1]}, rules, counts, depth-1, alphabetSize)
+			growPolymerRecursiveRune([]rune{newChar, duo[1]}, rules, counts, depth-1)
 		}
 	}
 }
 
-func GrowPolymerRecursiveRune(template []rune, rules []rune, stepsCount, alphabetSize int) int {
+func GrowPolymerRecursiveRune(template []rune, rules []rune, stepsCount int) int {
 	counts := make(map[rune]int)
 
 	// counts from init template
@@ -135,7 +136,7 @@ func GrowPolymerRecursiveRune(template []rune, rules []rune, stepsCount, alphabe
 
 	for i := 0; i < len(template)-1; i++ {
 		duo := template[i : i+2]
-		growPolymerRecursiveRune(duo, rules, counts, stepsCount, alphabetSize)
+		growPolymerRecursiveRune(duo, rules, counts, stepsCount)
 	}
 
 	return scoreFromCounts(counts)
@@ -159,17 +160,20 @@ func ParseInput(r io.Reader) (World, error) {
 	return World{template, rules}, scanner.Err()
 }
 
+func duoHash(duo []rune) int {
+	return int(duo[0]-'A')*alphabetSize + int(duo[1]-'A')
+}
+
 func Runify(world World) WorldRunes {
 	template := []rune(world.template)
 
-	alphabetSize := int('Z' - 'A')
 	rules := make([]rune, alphabetSize*alphabetSize+1)
 
 	for left, right := range world.rules {
-		hash := int(left[0]-'A')*alphabetSize + int(left[1]-'A')
+		hash := duoHash([]rune(left))
 
 		rules[hash] = rune(right[0])
 	}
 
-	return WorldRunes{template, rules, alphabetSize}
+	return WorldRunes{template, rules}
 }

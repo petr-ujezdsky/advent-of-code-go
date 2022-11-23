@@ -83,7 +83,7 @@ func Test_01_example_recursive_runified(t *testing.T) {
 	assert.Nil(t, err)
 
 	worldRunes := Runify(world)
-	score := GrowPolymerRecursiveRune(worldRunes.template, worldRunes.rules, 10, worldRunes.alphabetSize)
+	score := GrowPolymerRecursiveRune(worldRunes.template, worldRunes.rules, 10)
 
 	assert.Equal(t, 1588, score)
 }
@@ -130,7 +130,7 @@ func Benchmark_recursive(b *testing.B) {
 	}
 }
 
-// Benchmark_recursive_runified-10    	     151	   7 837 770 ns/op
+// Benchmark_recursive_runified-10    	     153	   7 675 607 ns/op
 func Benchmark_recursive_runified(b *testing.B) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(b, err)
@@ -143,7 +143,7 @@ func Benchmark_recursive_runified(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		score := GrowPolymerRecursiveRune(worldRunes.template, worldRunes.rules, 18, worldRunes.alphabetSize)
+		score := GrowPolymerRecursiveRune(worldRunes.template, worldRunes.rules, 18)
 		//assert.Equal(b, 1961318, score) // for 20
 		assert.Equal(b, 480563, score)
 	}
