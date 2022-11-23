@@ -2,7 +2,6 @@ package day_14
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"math"
 	"strings"
@@ -20,9 +19,12 @@ func PolymerScore(polymer string) int {
 		counts[char]++
 	}
 
+	return scoreFromCounts(counts)
+}
+
+func scoreFromCounts(counts map[rune]int) int {
 	minCount := math.MaxInt
 	maxCount := math.MinInt
-
 	for _, count := range counts {
 		if count > maxCount {
 			maxCount = count
@@ -60,11 +62,44 @@ func GrowPolymerStepIter(template string, rules map[string]string) string {
 
 func GrowPolymerIter(template string, rules map[string]string, stepsCount int) string {
 	for i := 0; i < stepsCount; i++ {
-		fmt.Printf("Growing polymer #%d\n", i)
+		//fmt.Printf("Growing polymer #%d\n", i)
 		template = GrowPolymerStepIter(template, rules)
 	}
 
 	return template
+}
+
+func growPolymerRecursive(duo string, rules map[string]string, counts map[rune]int, depth int) {
+	if depth > 0 {
+		newChar, contains := rules[duo]
+		if contains {
+			newCharRune := []rune(newChar)[0]
+
+			counts[newCharRune]++
+			duoRunes := []rune(duo)
+			// left + new
+			growPolymerRecursive(string([]rune{duoRunes[0], newCharRune}), rules, counts, depth-1)
+
+			// new + right
+			growPolymerRecursive(string([]rune{newCharRune, duoRunes[1]}), rules, counts, depth-1)
+		}
+	}
+}
+
+func GrowPolymerRecursive(template string, rules map[string]string, stepsCount int) int {
+	counts := make(map[rune]int)
+
+	// counts from init template
+	for _, char := range []rune(template) {
+		counts[char]++
+	}
+
+	for i := 0; i < len(template)-1; i++ {
+		duo := template[i : i+2]
+		growPolymerRecursive(duo, rules, counts, stepsCount)
+	}
+
+	return scoreFromCounts(counts)
 }
 
 func ParseInput(r io.Reader) (World, error) {

@@ -64,6 +64,17 @@ func Test_01_example(t *testing.T) {
 	assert.Equal(t, 1588, score)
 }
 
+func Test_01_example_recursive(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	world, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	score := GrowPolymerRecursive(world.template, world.rules, 10)
+	assert.Equal(t, 1588, score)
+}
+
 func Test_01(t *testing.T) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(t, err)
@@ -87,4 +98,38 @@ func Test_02(t *testing.T) {
 	polymer := GrowPolymerIter(world.template, world.rules, 40)
 	score := PolymerScore(polymer)
 	assert.Equal(t, -1, score)
+}
+
+// Benchmark_recursive-10    	      22	  49 740 915 ns/op
+func Benchmark_recursive(b *testing.B) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(b, err)
+
+	world, err := ParseInput(reader)
+	assert.Nil(b, err)
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		score := GrowPolymerRecursive(world.template, world.rules, 18)
+		//assert.Equal(b, 1961318, score) // for 20
+		assert.Equal(b, 480563, score)
+	}
+}
+
+// Benchmark_iter-10    	      57	  19 790 479 ns/op
+func Benchmark_iter(b *testing.B) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(b, err)
+
+	world, err := ParseInput(reader)
+	assert.Nil(b, err)
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		polymer := GrowPolymerIter(world.template, world.rules, 18)
+		score := PolymerScore(polymer)
+		assert.Equal(b, 480563, score)
+	}
 }
