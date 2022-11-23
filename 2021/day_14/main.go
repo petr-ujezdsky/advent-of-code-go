@@ -142,6 +142,39 @@ func GrowPolymerRecursiveRune(template []rune, rules []rune, stepsCount int) int
 	return scoreFromCounts(counts)
 }
 
+func mergeCounts(source, target map[rune]int) {
+	for char, count := range source {
+		target[char] += count
+	}
+}
+
+func GrowPolymerRecursiveRuneParallel(template []rune, rules []rune, stepsCount int) int {
+	countsTotal := make(map[rune]int)
+
+	// counts from init template
+	for _, char := range template {
+		countsTotal[char]++
+	}
+
+	countsChan := make(chan map[rune]int)
+	for i := 0; i < len(template)-1; i++ {
+		duo := template[i : i+2]
+		counts := make(map[rune]int)
+
+		go func(countsChan chan map[rune]int, duo []rune, rules []rune, stepsCount int) {
+			growPolymerRecursiveRune(duo, rules, counts, stepsCount)
+			countsChan <- counts
+		}(countsChan, duo, rules, stepsCount)
+	}
+
+	for i := 0; i < len(template)-1; i++ {
+		counts := <-countsChan
+		mergeCounts(counts, countsTotal)
+	}
+
+	return scoreFromCounts(countsTotal)
+}
+
 func ParseInput(r io.Reader) (World, error) {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)

@@ -113,6 +113,19 @@ func Test_01_recursive(t *testing.T) {
 	assert.Equal(t, 3555, score)
 }
 
+func Test_01_recursive_parallel(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	world, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	worldRunes := Runify(world)
+	score := GrowPolymerRecursiveRuneParallel(worldRunes.template, worldRunes.rules, 10)
+
+	assert.Equal(t, 3555, score)
+}
+
 func Test_02(t *testing.T) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(t, err)
@@ -135,9 +148,9 @@ func Test_02_recursive(t *testing.T) {
 
 	worldRunes := Runify(world)
 	// never finishes
-	score := GrowPolymerRecursiveRune(worldRunes.template, worldRunes.rules, 26)
+	score := GrowPolymerRecursiveRuneParallel(worldRunes.template, worldRunes.rules, 26)
 
-	assert.Equal(t, -1, score)
+	assert.Equal(t, 268137532, score)
 }
 
 // Benchmark_recursive-10    	      22	  49 740 915 ns/op
@@ -171,6 +184,25 @@ func Benchmark_recursive_runified(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		score := GrowPolymerRecursiveRune(worldRunes.template, worldRunes.rules, 18)
+		//assert.Equal(b, 1961318, score) // for 20
+		assert.Equal(b, 480563, score)
+	}
+}
+
+// Benchmark_recursive_runified_parallel-10    	     250	   4 398 125 ns/op
+func Benchmark_recursive_runified_parallel(b *testing.B) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(b, err)
+
+	world, err := ParseInput(reader)
+	assert.Nil(b, err)
+
+	worldRunes := Runify(world)
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		score := GrowPolymerRecursiveRuneParallel(worldRunes.template, worldRunes.rules, 18)
 		//assert.Equal(b, 1961318, score) // for 20
 		assert.Equal(b, 480563, score)
 	}
