@@ -2,6 +2,7 @@ package day_14
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"math"
 	"strings"
@@ -35,7 +36,7 @@ func PolymerScore(polymer string) int {
 	return maxCount - minCount
 }
 
-func GrowPolymerStep(template string, rules map[string]string) string {
+func GrowPolymerStepIter(template string, rules map[string]string) string {
 	var polymer strings.Builder
 
 	for i := 0; i < len(template)-1; i++ {
@@ -57,9 +58,10 @@ func GrowPolymerStep(template string, rules map[string]string) string {
 	return polymer.String()
 }
 
-func GrowPolymer(template string, rules map[string]string, stepsCount int) string {
+func GrowPolymerIter(template string, rules map[string]string, stepsCount int) string {
 	for i := 0; i < stepsCount; i++ {
-		template = GrowPolymerStep(template, rules)
+		fmt.Printf("Growing polymer #%d\n", i)
+		template = GrowPolymerStepIter(template, rules)
 	}
 
 	return template
