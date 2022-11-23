@@ -100,6 +100,19 @@ func Test_01(t *testing.T) {
 	assert.Equal(t, 3555, score)
 }
 
+func Test_01_recursive(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	world, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	worldRunes := Runify(world)
+	score := GrowPolymerRecursiveRune(worldRunes.template, worldRunes.rules, 10)
+
+	assert.Equal(t, 3555, score)
+}
+
 func Test_02(t *testing.T) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(t, err)
@@ -110,6 +123,20 @@ func Test_02(t *testing.T) {
 	// never finishes
 	polymer := GrowPolymerIter(world.template, world.rules, 40)
 	score := PolymerScore(polymer)
+	assert.Equal(t, -1, score)
+}
+
+func Test_02_recursive(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	world, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	worldRunes := Runify(world)
+	// never finishes
+	score := GrowPolymerRecursiveRune(worldRunes.template, worldRunes.rules, 26)
+
 	assert.Equal(t, -1, score)
 }
 
