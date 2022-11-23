@@ -12,6 +12,13 @@ type World struct {
 	rules    map[string]string
 }
 
+type WorldRunes struct {
+	template []rune
+	// index is hash of duo
+	rules        []rune
+	alphabetSize int
+}
+
 func PolymerScore(polymer string) int {
 	counts := make(map[rune]int)
 
@@ -102,6 +109,38 @@ func GrowPolymerRecursive(template string, rules map[string]string, stepsCount i
 	return scoreFromCounts(counts)
 }
 
+func growPolymerRecursiveRune(duo []rune, rules []rune, counts map[rune]int, depth, alphabetSize int) {
+	if depth > 0 {
+		hash := int(duo[0]-'A')*alphabetSize + int(duo[1]-'A')
+		newChar := rules[hash]
+
+		if newChar > 0 {
+			counts[newChar]++
+			// left + new
+			growPolymerRecursiveRune([]rune{duo[0], newChar}, rules, counts, depth-1, alphabetSize)
+
+			// new + right
+			growPolymerRecursiveRune([]rune{newChar, duo[1]}, rules, counts, depth-1, alphabetSize)
+		}
+	}
+}
+
+func GrowPolymerRecursiveRune(template []rune, rules []rune, stepsCount, alphabetSize int) int {
+	counts := make(map[rune]int)
+
+	// counts from init template
+	for _, char := range template {
+		counts[char]++
+	}
+
+	for i := 0; i < len(template)-1; i++ {
+		duo := template[i : i+2]
+		growPolymerRecursiveRune(duo, rules, counts, stepsCount, alphabetSize)
+	}
+
+	return scoreFromCounts(counts)
+}
+
 func ParseInput(r io.Reader) (World, error) {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
@@ -118,4 +157,19 @@ func ParseInput(r io.Reader) (World, error) {
 	}
 
 	return World{template, rules}, scanner.Err()
+}
+
+func Runify(world World) WorldRunes {
+	template := []rune(world.template)
+
+	alphabetSize := int('Z' - 'A')
+	rules := make([]rune, alphabetSize*alphabetSize+1)
+
+	for left, right := range world.rules {
+		hash := int(left[0]-'A')*alphabetSize + int(left[1]-'A')
+
+		rules[hash] = rune(right[0])
+	}
+
+	return WorldRunes{template, rules, alphabetSize}
 }
