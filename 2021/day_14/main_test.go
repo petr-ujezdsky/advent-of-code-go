@@ -88,6 +88,19 @@ func Test_01_example_recursive_runified(t *testing.T) {
 	assert.Equal(t, 1588, score)
 }
 
+func Test_01_example_recursive_runified_parallel(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	world, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	worldRunes := Runify(world)
+	score := GrowPolymerRecursiveRuneParallel(worldRunes.template, worldRunes.rules, 10)
+
+	assert.Equal(t, 1588, score)
+}
+
 func Test_01(t *testing.T) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(t, err)
