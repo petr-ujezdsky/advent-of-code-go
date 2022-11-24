@@ -27,6 +27,7 @@ func NewMatrix2[T Number](width, height int) Matrix2n[T] {
 	matrixCols := make([][]T, width)
 	cells := make([]T, width*height)
 
+	// ensure data locality
 	for col := range matrixCols {
 		matrixCols[col], cells = cells[:height], cells[height:]
 	}
