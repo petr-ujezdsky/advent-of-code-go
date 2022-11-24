@@ -16,8 +16,8 @@ func Test_01_example_parse(t *testing.T) {
 
 	assert.Equal(t, "NNCB", world.template)
 	assert.Equal(t, 16, len(world.rules))
-	assert.Equal(t, "B", world.rules["CH"])
-	assert.Equal(t, "C", world.rules["CN"])
+	assert.Equal(t, "B", world.rules[duoHash([]rune("CH"))])
+	assert.Equal(t, "C", world.rules[duoHash([]rune("CN"))])
 }
 
 func Test_01_example_single(t *testing.T) {
@@ -59,57 +59,7 @@ func Test_01_example(t *testing.T) {
 	world, err := ParseInput(reader)
 	assert.Nil(t, err)
 
-	polymer := GrowPolymerIter(world.template, world.rules, 10)
-	score := PolymerScore(polymer)
-	assert.Equal(t, 1588, score)
-}
-
-func Test_01_example_recursive(t *testing.T) {
-	reader, err := os.Open("data-00-example.txt")
-	assert.Nil(t, err)
-
-	world, err := ParseInput(reader)
-	assert.Nil(t, err)
-
-	score := GrowPolymerRecursive(world.template, world.rules, 10)
-	assert.Equal(t, 1588, score)
-}
-
-func Test_01_example_recursive_runified(t *testing.T) {
-	reader, err := os.Open("data-00-example.txt")
-	assert.Nil(t, err)
-
-	world, err := ParseInput(reader)
-	assert.Nil(t, err)
-
-	worldRunes := Runify(world)
-	score := GrowPolymerRecursiveRune(worldRunes.template, worldRunes.rules, 10)
-
-	assert.Equal(t, 1588, score)
-}
-
-func Test_01_example_recursive_runified_parallel(t *testing.T) {
-	reader, err := os.Open("data-00-example.txt")
-	assert.Nil(t, err)
-
-	world, err := ParseInput(reader)
-	assert.Nil(t, err)
-
-	worldRunes := Runify(world)
-	score := GrowPolymerRecursiveRuneParallel(worldRunes.template, worldRunes.rules, 10)
-
-	assert.Equal(t, 1588, score)
-}
-
-func Test_01_example_recursive_runified_caching(t *testing.T) {
-	reader, err := os.Open("data-00-example.txt")
-	assert.Nil(t, err)
-
-	world, err := ParseInput(reader)
-	assert.Nil(t, err)
-
-	worldRunes := Runify(world)
-	score := GrowPolymerRecursiveRuneCaching(worldRunes.template, worldRunes.rules, 10)
+	score := GrowPolymerRecursiveRuneCaching(world.template, world.rules, 10)
 
 	assert.Equal(t, 1588, score)
 }
@@ -121,48 +71,20 @@ func Test_01(t *testing.T) {
 	world, err := ParseInput(reader)
 	assert.Nil(t, err)
 
-	polymer := GrowPolymerIter(world.template, world.rules, 10)
-	score := PolymerScore(polymer)
+	score := GrowPolymerRecursiveRuneCaching(world.template, world.rules, 10)
+
 	assert.Equal(t, 3555, score)
 }
 
-func Test_01_recursive(t *testing.T) {
-	reader, err := os.Open("data-01.txt")
+func Test_02_example(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
 
 	world, err := ParseInput(reader)
 	assert.Nil(t, err)
 
-	worldRunes := Runify(world)
-	score := GrowPolymerRecursiveRune(worldRunes.template, worldRunes.rules, 10)
-
-	assert.Equal(t, 3555, score)
-}
-
-func Test_01_recursive_parallel(t *testing.T) {
-	reader, err := os.Open("data-01.txt")
-	assert.Nil(t, err)
-
-	world, err := ParseInput(reader)
-	assert.Nil(t, err)
-
-	worldRunes := Runify(world)
-	score := GrowPolymerRecursiveRuneParallel(worldRunes.template, worldRunes.rules, 10)
-
-	assert.Equal(t, 3555, score)
-}
-
-func Test_01_recursive_caching(t *testing.T) {
-	reader, err := os.Open("data-01.txt")
-	assert.Nil(t, err)
-
-	world, err := ParseInput(reader)
-	assert.Nil(t, err)
-
-	worldRunes := Runify(world)
-	score := GrowPolymerRecursiveRuneCaching(worldRunes.template, worldRunes.rules, 10)
-
-	assert.Equal(t, 3555, score)
+	score := GrowPolymerRecursiveRuneCaching(world.template, world.rules, 40)
+	assert.Equal(t, 2188189693529, score)
 }
 
 func Test_02(t *testing.T) {
@@ -172,81 +94,12 @@ func Test_02(t *testing.T) {
 	world, err := ParseInput(reader)
 	assert.Nil(t, err)
 
-	// never finishes
-	polymer := GrowPolymerIter(world.template, world.rules, 40)
-	score := PolymerScore(polymer)
-	assert.Equal(t, -1, score)
+	score := GrowPolymerRecursiveRuneCaching(world.template, world.rules, 40)
+
+	assert.Equal(t, 4439442043739, score)
 }
 
-func Test_02_recursive(t *testing.T) {
-	reader, err := os.Open("data-01.txt")
-	assert.Nil(t, err)
-
-	world, err := ParseInput(reader)
-	assert.Nil(t, err)
-
-	worldRunes := Runify(world)
-	// never finishes
-	score := GrowPolymerRecursiveRuneCaching(worldRunes.template, worldRunes.rules, 40)
-
-	assert.Equal(t, 268137532, score)
-}
-
-// Benchmark_recursive-10    	      22	  49 740 915 ns/op
-func Benchmark_recursive(b *testing.B) {
-	reader, err := os.Open("data-00-example.txt")
-	assert.Nil(b, err)
-
-	world, err := ParseInput(reader)
-	assert.Nil(b, err)
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		score := GrowPolymerRecursive(world.template, world.rules, 18)
-		//assert.Equal(b, 1961318, score) // for 20
-		assert.Equal(b, 480563, score)
-	}
-}
-
-// Benchmark_recursive_runified-10    	     153	   7 675 607 ns/op
-func Benchmark_recursive_runified(b *testing.B) {
-	reader, err := os.Open("data-00-example.txt")
-	assert.Nil(b, err)
-
-	world, err := ParseInput(reader)
-	assert.Nil(b, err)
-
-	worldRunes := Runify(world)
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		score := GrowPolymerRecursiveRune(worldRunes.template, worldRunes.rules, 18)
-		//assert.Equal(b, 1961318, score) // for 20
-		assert.Equal(b, 480563, score)
-	}
-}
-
-// Benchmark_recursive_runified_parallel-10    	     250	   4 398 125 ns/op
-func Benchmark_recursive_runified_parallel(b *testing.B) {
-	reader, err := os.Open("data-00-example.txt")
-	assert.Nil(b, err)
-
-	world, err := ParseInput(reader)
-	assert.Nil(b, err)
-
-	worldRunes := Runify(world)
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		score := GrowPolymerRecursiveRuneParallel(worldRunes.template, worldRunes.rules, 18)
-		//assert.Equal(b, 1961318, score) // for 20
-		assert.Equal(b, 480563, score)
-	}
-}
-
+// Benchmark_recursive_runified_caching-10    	   17024	      70 349 ns/op
 func Benchmark_recursive_runified_caching(b *testing.B) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(b, err)
@@ -254,30 +107,10 @@ func Benchmark_recursive_runified_caching(b *testing.B) {
 	world, err := ParseInput(reader)
 	assert.Nil(b, err)
 
-	worldRunes := Runify(world)
-
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		score := GrowPolymerRecursiveRuneCaching(worldRunes.template, worldRunes.rules, 18)
-		//assert.Equal(b, 1961318, score) // for 20
-		assert.Equal(b, 480563, score)
-	}
-}
-
-// Benchmark_iter-10    	      57	  19 790 479 ns/op
-func Benchmark_iter(b *testing.B) {
-	reader, err := os.Open("data-00-example.txt")
-	assert.Nil(b, err)
-
-	world, err := ParseInput(reader)
-	assert.Nil(b, err)
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		polymer := GrowPolymerIter(world.template, world.rules, 18)
-		score := PolymerScore(polymer)
+		score := GrowPolymerRecursiveRuneCaching(world.template, world.rules, 18)
 		assert.Equal(b, 480563, score)
 	}
 }
