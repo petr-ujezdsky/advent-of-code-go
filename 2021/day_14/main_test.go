@@ -101,6 +101,19 @@ func Test_01_example_recursive_runified_parallel(t *testing.T) {
 	assert.Equal(t, 1588, score)
 }
 
+func Test_01_example_recursive_runified_caching(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	world, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	worldRunes := Runify(world)
+	score := GrowPolymerRecursiveRuneCaching(worldRunes.template, worldRunes.rules, 10)
+
+	assert.Equal(t, 1588, score)
+}
+
 func Test_01(t *testing.T) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(t, err)
@@ -139,6 +152,19 @@ func Test_01_recursive_parallel(t *testing.T) {
 	assert.Equal(t, 3555, score)
 }
 
+func Test_01_recursive_caching(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	world, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	worldRunes := Runify(world)
+	score := GrowPolymerRecursiveRuneCaching(worldRunes.template, worldRunes.rules, 10)
+
+	assert.Equal(t, 3555, score)
+}
+
 func Test_02(t *testing.T) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(t, err)
@@ -161,7 +187,7 @@ func Test_02_recursive(t *testing.T) {
 
 	worldRunes := Runify(world)
 	// never finishes
-	score := GrowPolymerRecursiveRuneParallel(worldRunes.template, worldRunes.rules, 26)
+	score := GrowPolymerRecursiveRuneCaching(worldRunes.template, worldRunes.rules, 40)
 
 	assert.Equal(t, 268137532, score)
 }
@@ -216,6 +242,24 @@ func Benchmark_recursive_runified_parallel(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		score := GrowPolymerRecursiveRuneParallel(worldRunes.template, worldRunes.rules, 18)
+		//assert.Equal(b, 1961318, score) // for 20
+		assert.Equal(b, 480563, score)
+	}
+}
+
+func Benchmark_recursive_runified_caching(b *testing.B) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(b, err)
+
+	world, err := ParseInput(reader)
+	assert.Nil(b, err)
+
+	worldRunes := Runify(world)
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		score := GrowPolymerRecursiveRuneCaching(worldRunes.template, worldRunes.rules, 18)
 		//assert.Equal(b, 1961318, score) // for 20
 		assert.Equal(b, 480563, score)
 	}

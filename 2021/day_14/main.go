@@ -2,6 +2,7 @@ package day_14
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"math"
 	"strings"
@@ -142,6 +143,62 @@ func GrowPolymerRecursiveRune(template []rune, rules []rune, stepsCount int) int
 	return scoreFromCounts(counts)
 }
 
+func growPolymerRecursiveRuneCaching(duo []rune, rules []rune, counts map[rune]int, countsCache []map[rune]int, depth int) {
+	if depth > 0 {
+		countsHash := duoHeightHash(duo, depth)
+
+		cachedCounts := countsCache[countsHash]
+
+		if cachedCounts == nil {
+			cachedCounts = make(map[rune]int)
+
+			hash := duoHash(duo)
+			newChar := rules[hash]
+
+			if newChar > 0 {
+				cachedCounts[newChar]++
+				// left + new
+				growPolymerRecursiveRune([]rune{duo[0], newChar}, rules, cachedCounts, depth-1)
+
+				// new + right
+				growPolymerRecursiveRune([]rune{newChar, duo[1]}, rules, cachedCounts, depth-1)
+			}
+
+			// store cached counts
+			countsCache[countsHash] = cachedCounts
+		} else {
+			fmt.Println("Cache hit!")
+		}
+
+		// merge counts
+		mergeCounts(cachedCounts, counts)
+	}
+}
+
+func GrowPolymerRecursiveRuneCaching(template []rune, rules []rune, stepsCount int) int {
+	var counts map[rune]int
+
+	countsCache := make([]map[rune]int, (stepsCount+1)*alphabetSize*alphabetSize)
+
+	// count all counts for every step to make heavy use of the cache
+	for stepsCountCurrent := 1; stepsCountCurrent <= stepsCount; stepsCountCurrent++ {
+		// clear counts
+		counts = make(map[rune]int)
+
+		for i := 0; i < len(template)-1; i++ {
+			duo := template[i : i+2]
+			growPolymerRecursiveRuneCaching(duo, rules, counts, countsCache, stepsCount)
+		}
+	}
+
+	// counts from init template
+	for _, char := range template {
+		counts[char]++
+	}
+
+	return scoreFromCounts(counts)
+}
+
 func mergeCounts(source, target map[rune]int) {
 	for char, count := range source {
 		target[char] += count
@@ -195,6 +252,10 @@ func ParseInput(r io.Reader) (World, error) {
 
 func duoHash(duo []rune) int {
 	return int(duo[0]-'A')*alphabetSize + int(duo[1]-'A')
+}
+
+func duoHeightHash(duo []rune, height int) int {
+	return height*alphabetSize*alphabetSize + int(duo[0]-'A')*alphabetSize + int(duo[1]-'A')
 }
 
 func Runify(world World) WorldRunes {
