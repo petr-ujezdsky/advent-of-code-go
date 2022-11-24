@@ -15,13 +15,13 @@ type World struct {
 	rules []rune
 }
 
-func growPolymerRecursiveRuneCaching(duo []rune, rules []rune, counts map[rune]int, countsCache []map[rune]int, depth int) {
+func growPolymerRecursiveRuneCaching(duo []rune, rules []rune, counts map[rune]int, countsCache []map[rune]int, polymer *strings.Builder, depth int) {
 	if depth > 0 {
 		countsHash := duoHeightHash(duo, depth)
 
 		cachedCounts := countsCache[countsHash]
 
-		if cachedCounts == nil {
+		if cachedCounts == nil || polymer != nil {
 			cachedCounts = make(map[rune]int)
 
 			hash := duoHash(duo)
@@ -30,10 +30,14 @@ func growPolymerRecursiveRuneCaching(duo []rune, rules []rune, counts map[rune]i
 			if newChar > 0 {
 				cachedCounts[newChar]++
 				// left + new
-				growPolymerRecursiveRuneCaching([]rune{duo[0], newChar}, rules, cachedCounts, countsCache, depth-1)
+				growPolymerRecursiveRuneCaching([]rune{duo[0], newChar}, rules, cachedCounts, countsCache, polymer, depth-1)
+
+				if polymer != nil {
+					polymer.WriteRune(newChar)
+				}
 
 				// new + right
-				growPolymerRecursiveRuneCaching([]rune{newChar, duo[1]}, rules, cachedCounts, countsCache, depth-1)
+				growPolymerRecursiveRuneCaching([]rune{newChar, duo[1]}, rules, cachedCounts, countsCache, polymer, depth-1)
 			}
 
 			// store cached counts
@@ -47,14 +51,22 @@ func growPolymerRecursiveRuneCaching(duo []rune, rules []rune, counts map[rune]i
 	}
 }
 
-func GrowPolymerRecursiveRuneCaching(template []rune, rules []rune, stepsCount int) int {
+func GrowPolymerRecursiveRuneCaching(template []rune, rules []rune, stepsCount int, polymer *strings.Builder) (int, *strings.Builder) {
 	counts := make(map[rune]int)
 
 	countsCache := make([]map[rune]int, (stepsCount+1)*alphabetSize*alphabetSize)
 
+	if polymer != nil {
+		polymer.WriteRune(template[0])
+	}
+
 	for i := 0; i < len(template)-1; i++ {
 		duo := template[i : i+2]
-		growPolymerRecursiveRuneCaching(duo, rules, counts, countsCache, stepsCount)
+		growPolymerRecursiveRuneCaching(duo, rules, counts, countsCache, polymer, stepsCount)
+
+		if polymer != nil {
+			polymer.WriteRune(duo[1])
+		}
 	}
 
 	// counts from init template
@@ -62,7 +74,7 @@ func GrowPolymerRecursiveRuneCaching(template []rune, rules []rune, stepsCount i
 		counts[char]++
 	}
 
-	return scoreFromCounts(counts)
+	return scoreFromCounts(counts), polymer
 }
 
 func scoreFromCounts(counts map[rune]int) int {
