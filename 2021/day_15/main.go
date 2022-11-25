@@ -139,6 +139,27 @@ func CalcBestScoreAStar(m Matrix2i) ([]Vector2i, int, bool) {
 	return utils.AStar(Vector2i{0, 0}, endPos, h(endPos), d(m), neighbours(m))
 }
 
+func EnlargeWorld(m Matrix2i) Matrix2i {
+	factor := 5
+	enlarged := utils.NewMatrix2i(m.Width*factor, m.Height*factor)
+
+	for x, col := range enlarged.Columns {
+		for y := range col {
+			xx := x % m.Width
+			yy := y % m.Height
+
+			xi := x / m.Width
+			yi := y / m.Height
+
+			valueToAdd := xi + yi
+
+			enlarged.Columns[x][y] = (m.Columns[xx][yy]+valueToAdd-1)%9 + 1
+		}
+	}
+
+	return enlarged
+}
+
 func ParseInput(r io.Reader) (Matrix2i, error) {
 	return utils.ParseToMatrix(r)
 }

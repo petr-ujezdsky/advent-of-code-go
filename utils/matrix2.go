@@ -20,8 +20,14 @@ type matrix2[T any] struct {
 
 type Matrix2n[T Number] matrix2[T]
 
+// number aliases
+
 type Matrix2i = Matrix2n[int]
 type Matrix2f = Matrix2n[float64]
+
+// constructor aliases
+
+var NewMatrix2i = NewMatrix2[int]
 
 func NewMatrix2[T Number](width, height int) Matrix2n[T] {
 	matrixCols := make([][]T, width)

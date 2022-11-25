@@ -105,6 +105,35 @@ func Test_01_a_star(t *testing.T) {
 	assert.Equal(t, 462, score)
 }
 
+func Test_02_example(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	levels, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	enlargedLevels := EnlargeWorld(levels)
+	//fmt.Println(enlargedLevels.StringFmt(utils.FmtFmt[int]("%2d")))
+
+	_, score, ok := CalcBestScoreAStar(enlargedLevels)
+	assert.True(t, ok)
+	assert.Equal(t, 315, score)
+}
+
+func Test_02(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	levels, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	enlargedLevels := EnlargeWorld(levels)
+
+	_, score, ok := CalcBestScoreAStar(enlargedLevels)
+	assert.True(t, ok)
+	assert.Equal(t, 2846, score)
+}
+
 // Benchmark_back_propagation-10    	    5437	    217 993 ns/op
 func Benchmark_back_propagation(b *testing.B) {
 	reader, err := os.Open("data-00-example.txt")
