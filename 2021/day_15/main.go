@@ -54,6 +54,17 @@ func makeStepRecursive(pos Vector2i, m Matrix2i, currentScore int, bestScore *in
 	return false
 }
 
+var dirs = []Vector2i{
+	// left
+	{-1, 0},
+	// up
+	{0, -1},
+	// right
+	{1, 0},
+	// down
+	{0, 1},
+}
+
 func FindPathScore(m Matrix2i) int {
 	currentScore := 0
 	bestScore := math.MaxInt
@@ -63,23 +74,20 @@ func FindPathScore(m Matrix2i) int {
 }
 
 func calcBestScores(scoreTillEnd int, pos Vector2i, m, scores Matrix2i) {
-	currentScore, ok := scores.GetVSafe(pos)
+	// store better score
+	scores.SetV(pos, scoreTillEnd)
 
-	if ok && scoreTillEnd < currentScore {
-		// store better score
-		scores.SetV(pos, scoreTillEnd)
+	// propagate further
+	riskLevel := m.GetV(pos)
+	score := scoreTillEnd + riskLevel
 
-		// propagate further
-		riskLevel := m.Columns[pos.X][pos.Y]
+	for _, dir := range dirs {
+		nextPos := pos.Add(dir)
 
-		// left
-		calcBestScores(scoreTillEnd+riskLevel, Vector2i{pos.X - 1, pos.Y}, m, scores)
-		// up
-		calcBestScores(scoreTillEnd+riskLevel, Vector2i{pos.X, pos.Y - 1}, m, scores)
-		// right
-		calcBestScores(scoreTillEnd+riskLevel, Vector2i{pos.X + 1, pos.Y}, m, scores)
-		// down
-		calcBestScores(scoreTillEnd+riskLevel, Vector2i{pos.X, pos.Y + 1}, m, scores)
+		nextScore, ok := scores.GetVSafe(nextPos)
+		if ok && score < nextScore {
+			calcBestScores(score, nextPos, m, scores)
+		}
 	}
 }
 

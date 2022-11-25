@@ -81,7 +81,7 @@ func Test_01(t *testing.T) {
 	assert.NotNil(t, bestScores)
 }
 
-// Benchmark_back_propagation-10    	    5126	    230781 ns/op
+// Benchmark_back_propagation-10    	    5437	    217993 ns/op
 func Benchmark_back_propagation(b *testing.B) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(b, err)
