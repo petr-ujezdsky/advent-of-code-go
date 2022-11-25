@@ -89,12 +89,18 @@ type ValueFormatter[T Number] func(value T) string
 func (m Matrix2n[T]) StringFmt(formatter ValueFormatter[T]) string {
 	var sb strings.Builder
 
-	for _, col := range m.Columns {
-		for _, val := range col {
-			sb.WriteString(" ")
+	for y := 0; y < m.Height; y++ {
+		for x := 0; x < m.Width; x++ {
+			val := m.Columns[x][y]
+
+			if x > 0 {
+				sb.WriteString(" ")
+			}
 			sb.WriteString(formatter(val))
 		}
-		sb.WriteString("\n")
+		if y < m.Height-1 {
+			sb.WriteString("\n")
+		}
 	}
 
 	return sb.String()
