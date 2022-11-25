@@ -167,3 +167,37 @@ func Benchmark_a_star(b *testing.B) {
 		assert.Equal(b, 40, score)
 	}
 }
+
+// Benchmark_back_propagation_big-10    	       1	7 331 581 583 ns/op
+func Benchmark_back_propagation_big(b *testing.B) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(b, err)
+
+	levels, err := ParseInput(reader)
+	assert.Nil(b, err)
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		bestScore, _ := CalcBestScore(levels)
+		assert.Equal(b, 462, bestScore)
+	}
+}
+
+// Benchmark_a_star_big-10    	      16	  69 845 609 ns/op
+func Benchmark_a_star_big(b *testing.B) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(b, err)
+
+	levels, err := ParseInput(reader)
+	assert.Nil(b, err)
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		path, score, ok := CalcBestScoreAStar(levels)
+		assert.True(b, ok)
+		assert.NotNil(b, path)
+		assert.Equal(b, 462, score)
+	}
+}
