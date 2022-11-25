@@ -51,17 +51,13 @@ func NewMatrix2RowNotation[T Number](rows [][]T) Matrix2n[T] {
 	return matrix
 }
 
-func (m Matrix2n[T]) Get(x, y int) T {
-	return m.Columns[x][y]
-}
-
 func (m Matrix2n[T]) GetSafe(x, y int) (T, bool) {
 	if x < 0 || x >= m.Width || y < 0 || y >= m.Height {
 		var nothing T
 		return nothing, false
 	}
 
-	return m.Get(x, y), true
+	return m.Columns[x][y], true
 }
 
 func (m Matrix2n[T]) Transpose() Matrix2n[T] {

@@ -43,7 +43,7 @@ func raiseNeighboursLevels(energyLevels utils.Matrix2i, pos utils.Vector2i) int 
 }
 
 func inspectFlash(energyLevels utils.Matrix2i, pos utils.Vector2i) int {
-	energyLevel := energyLevels.Get(pos.X, pos.Y)
+	energyLevel := energyLevels.Columns[pos.X][pos.Y]
 
 	// flashing
 	if energyLevel > 9 {
@@ -61,7 +61,7 @@ func step(energyLevels utils.Matrix2i) int {
 	// increment levels by 1
 	for x := 0; x < energyLevels.Width; x++ {
 		for y := 0; y < energyLevels.Height; y++ {
-			energyLevels.Columns[x][y] = energyLevels.Get(x, y) + 1
+			energyLevels.Columns[x][y] = energyLevels.Columns[x][y] + 1
 		}
 	}
 

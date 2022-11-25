@@ -18,7 +18,7 @@ var STEPS = []utils.Vector2i{
 }
 
 func inspectNeighbours(heightMap utils.Matrix2i, x, y int) (int, bool) {
-	value := heightMap.Get(x, y)
+	value := heightMap.Columns[x][y]
 
 	for _, step := range STEPS {
 		neighbour, ok := heightMap.GetSafe(x+step.X, y+step.Y)
@@ -52,7 +52,7 @@ func FindLowPointsAndSum(heightMap utils.Matrix2i) (int, []utils.Vector2i) {
 }
 
 func findBasinSizeRecursive(heightMap, basin utils.Matrix2i, position utils.Vector2i) int {
-	if basin.Get(position.X, position.Y) != 0 {
+	if basin.Columns[position.X][position.Y] != 0 {
 		// already inspected -> end
 		return 0
 	}
@@ -60,7 +60,7 @@ func findBasinSizeRecursive(heightMap, basin utils.Matrix2i, position utils.Vect
 	// save basin point location
 	basin.Columns[position.X][position.Y] = 1
 
-	value := heightMap.Get(position.X, position.Y)
+	value := heightMap.Columns[position.X][position.Y]
 
 	if value == 9 {
 		// 9 is not part of the basin
