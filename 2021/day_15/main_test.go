@@ -52,17 +52,18 @@ func Test_01_example_back_propagation(t *testing.T) {
 	bestScore, bestScores := CalcBestScore(levels)
 
 	expected := `
-40 40 34 31 30 25 24 28 28 39
-39 37 31 30 27 22 21 22 21 37
-37 36 33 27 22 21 20 19 19 29
-40 36 30 26 22 19 19 14 13 20
-33 32 26 23 19 18 14 13 12 19
-32 29 28 19 18 16 13 12  9 12
-31 28 27 25 16 15 13  9  7 11
+40 40 34 31 30 25 24 25 28 30
+39 37 31 30 27 22 21 22 21 28
+37 36 33 27 22 21 20 19 19 21
+39 36 30 26 22 19 19 14 13 14
+33 32 26 23 19 18 14 13 12 13
+32 29 28 19 18 16 13 12  9 10
+31 28 27 25 16 15 13  9  7  9
 28 27 25 20 16 14 13  7  4  2
-35 33 24 21 20 17  9  4  2  1
-36 33 32 31 22 18 14  9  1  0`
+30 28 23 20 19 16  9  4  2  1
+28 25 24 23 20 18 14  9  1  0`
 	assert.Equal(t, expected, "\n"+bestScores.StringFmt(utils.FmtFmt[int]("%2d")))
+	//fmt.Println(bestScores.StringFmt(utils.FmtFmt[int]("%2d")))
 	assert.Equal(t, 40, bestScore)
 }
 
@@ -78,4 +79,20 @@ func Test_01(t *testing.T) {
 
 	//fmt.Println(bestScores.StringFmt(utils.FmtFmt[int]("%3d")))
 	assert.NotNil(t, bestScores)
+}
+
+// Benchmark_back_propagation-10    	    5126	    230781 ns/op
+func Benchmark_back_propagation(b *testing.B) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(b, err)
+
+	levels, err := ParseInput(reader)
+	assert.Nil(b, err)
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		bestScore, _ := CalcBestScore(levels)
+		assert.Equal(b, 40, bestScore)
+	}
 }
