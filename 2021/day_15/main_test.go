@@ -28,3 +28,25 @@ func Test_01_example_parse(t *testing.T) {
 
 	assert.Equal(t, expected, "\n"+levels.String())
 }
+
+func Test_01_example(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	levels, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	score := FindPathScore(levels)
+	assert.Equal(t, 40, score)
+}
+
+func Test_01(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	levels, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	score := FindPathScore(levels)
+	assert.Equal(t, 40, score)
+}

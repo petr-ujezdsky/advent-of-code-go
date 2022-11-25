@@ -60,6 +60,10 @@ func (m Matrix2n[T]) GetSafe(x, y int) (T, bool) {
 	return m.Columns[x][y], true
 }
 
+func (m Matrix2n[T]) GetVSafe(pos Vector2i) (T, bool) {
+	return m.GetSafe(pos.X, pos.Y)
+}
+
 func (m Matrix2n[T]) Transpose() Matrix2n[T] {
 	transposed := NewMatrix2[T](m.Height, m.Width)
 
