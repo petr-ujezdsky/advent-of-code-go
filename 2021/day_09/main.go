@@ -58,7 +58,7 @@ func findBasinSizeRecursive(heightMap, basin utils.Matrix2i, position utils.Vect
 	}
 
 	// save basin point location
-	basin.Set(position.X, position.Y, 1)
+	basin.Columns[position.X][position.Y] = 1
 
 	value := heightMap.Get(position.X, position.Y)
 

@@ -44,7 +44,7 @@ func NewMatrix2RowNotation[T Number](rows [][]T) Matrix2n[T] {
 
 	for y, row := range rows {
 		for x, value := range row {
-			matrix.Set(x, y, value)
+			matrix.Columns[x][y] = value
 		}
 	}
 
@@ -62,10 +62,6 @@ func (m Matrix2n[T]) GetSafe(x, y int) (T, bool) {
 	}
 
 	return m.Get(x, y), true
-}
-
-func (m Matrix2n[T]) Set(x, y int, value T) {
-	m.Columns[x][y] = value
 }
 
 func (m Matrix2n[T]) Transpose() Matrix2n[T] {
