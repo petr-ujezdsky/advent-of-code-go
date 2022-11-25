@@ -51,6 +51,31 @@ func NewMatrix2RowNotation[T Number](rows [][]T) Matrix2n[T] {
 	return matrix
 }
 
+func (m Matrix2n[T]) SetAll(value T) {
+	for x := 0; x < m.Width; x++ {
+		for y := 0; y < m.Height; y++ {
+			m.Columns[x][y] = value
+		}
+	}
+}
+
+func (m Matrix2n[T]) SetSafe(x, y int, value T) bool {
+	if x < 0 || x >= m.Width || y < 0 || y >= m.Height {
+		return false
+	}
+
+	m.Columns[x][y] = value
+	return true
+}
+
+func (m Matrix2n[T]) SetV(pos Vector2i, value T) {
+	m.Columns[pos.X][pos.Y] = value
+}
+
+func (m Matrix2n[T]) SetVSafe(pos Vector2i, value T) bool {
+	return m.SetSafe(pos.X, pos.Y, value)
+}
+
 func (m Matrix2n[T]) GetSafe(x, y int) (T, bool) {
 	if x < 0 || x >= m.Width || y < 0 || y >= m.Height {
 		var nothing T
@@ -58,6 +83,10 @@ func (m Matrix2n[T]) GetSafe(x, y int) (T, bool) {
 	}
 
 	return m.Columns[x][y], true
+}
+
+func (m Matrix2n[T]) GetV(pos Vector2i) T {
+	return m.Columns[pos.X][pos.Y]
 }
 
 func (m Matrix2n[T]) GetVSafe(pos Vector2i) (T, bool) {
@@ -106,6 +135,11 @@ func FmtNative[T Number](value T) string {
 	return fmt.Sprint(value)
 }
 
+func FmtFmt[T Number](format string) func(v T) string {
+	return func(val T) string {
+		return fmt.Sprintf(format, val)
+	}
+}
 func FmtConstant[T Number](value string) func(v T) string {
 	return func(val T) string {
 		return value
