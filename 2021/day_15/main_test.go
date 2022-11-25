@@ -43,7 +43,6 @@ func Test_01_example(t *testing.T) {
 
 func Test_01_example_back_propagation(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
-	//reader, err := os.Open("data-01.txt")
 	assert.Nil(t, err)
 
 	levels, err := ParseInput(reader)
@@ -67,6 +66,19 @@ func Test_01_example_back_propagation(t *testing.T) {
 	assert.Equal(t, 40, bestScore)
 }
 
+func Test_01_example_a_star(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	levels, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	path, score, ok := CalcBestScoreAStar(levels)
+	assert.True(t, ok)
+	assert.NotNil(t, path)
+	assert.Equal(t, 40, score)
+}
+
 func Test_01(t *testing.T) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(t, err)
@@ -81,7 +93,19 @@ func Test_01(t *testing.T) {
 	assert.NotNil(t, bestScores)
 }
 
-// Benchmark_back_propagation-10    	    5437	    217993 ns/op
+func Test_01_a_star(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	levels, err := ParseInput(reader)
+	assert.Nil(t, err)
+
+	_, score, ok := CalcBestScoreAStar(levels)
+	assert.True(t, ok)
+	assert.Equal(t, 462, score)
+}
+
+// Benchmark_back_propagation-10    	    5437	    217 993 ns/op
 func Benchmark_back_propagation(b *testing.B) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(b, err)
@@ -94,5 +118,23 @@ func Benchmark_back_propagation(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		bestScore, _ := CalcBestScore(levels)
 		assert.Equal(b, 40, bestScore)
+	}
+}
+
+// Benchmark_a_star-10    	   13176	     89 633 ns/op
+func Benchmark_a_star(b *testing.B) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(b, err)
+
+	levels, err := ParseInput(reader)
+	assert.Nil(b, err)
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		path, score, ok := CalcBestScoreAStar(levels)
+		assert.True(b, ok)
+		assert.NotNil(b, path)
+		assert.Equal(b, 40, score)
 	}
 }
