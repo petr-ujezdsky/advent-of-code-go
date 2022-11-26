@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 )
 
@@ -17,6 +18,38 @@ func (bits Bits) String() string {
 	}
 
 	return sb.String()
+}
+
+func (bits Bits) ToNumber() int {
+	length := len(bits)
+
+	if length > strconv.IntSize {
+		panic("Too many bits " + strconv.Itoa(length))
+	}
+
+	number := 0
+	for i, bit := range bits {
+		number += int(bit) << (length - i - 1)
+	}
+
+	return number
+}
+
+type Packet struct {
+	Version int
+	TypeID  int
+	Payload Bits
+}
+
+func NewPacket(bits Bits) Packet {
+	version, bits := bits[:3].ToNumber(), bits[3:]
+	typeID, bits := bits[:3].ToNumber(), bits[3:]
+
+	return Packet{
+		Version: version,
+		TypeID:  typeID,
+		Payload: bits,
+	}
 }
 
 func HexadecimalStringToBits(text string) Bits {
