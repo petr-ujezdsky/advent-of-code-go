@@ -35,20 +35,33 @@ func (bits Bits) ToNumber() int {
 	return number
 }
 
-type Packet struct {
+type LiteralPacket struct {
 	Version int
 	TypeID  int
-	Payload Bits
+	Value   int
 }
 
-func NewPacket(bits Bits) Packet {
+func NewLiteralPacket(bits Bits) LiteralPacket {
 	version, bits := bits[:3].ToNumber(), bits[3:]
 	typeID, bits := bits[:3].ToNumber(), bits[3:]
 
-	return Packet{
+	var valueBits Bits
+	for len(bits) > 0 {
+		valueBits = append(valueBits, bits[1:5]...)
+
+		if bits[0] == 0 {
+			break
+		}
+
+		bits = bits[5:]
+	}
+
+	number := valueBits.ToNumber()
+
+	return LiteralPacket{
 		Version: version,
 		TypeID:  typeID,
-		Payload: bits,
+		Value:   number,
 	}
 }
 

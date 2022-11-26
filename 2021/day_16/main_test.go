@@ -33,12 +33,12 @@ func Test_ToNumber(t *testing.T) {
 	assert.Equal(t, 255, bits[len(bits)/2:].ToNumber())
 }
 
-func Test_NewPacket(t *testing.T) {
+func Test_LiteralPacket(t *testing.T) {
 	bits := HexadecimalStringToBits("D2FE28")
-	packet := NewPacket(bits)
+	packet := NewLiteralPacket(bits)
 	assert.Equal(t, 6, packet.Version)
 	assert.Equal(t, 4, packet.TypeID)
-	assert.Equal(t, "101111111000101000", packet.Payload.String())
+	assert.Equal(t, 2021, packet.Value)
 }
 
 func Test_01_example_parse(t *testing.T) {
