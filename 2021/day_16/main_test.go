@@ -10,7 +10,7 @@ import (
 
 func Test_HexadecimalStringToBits(t *testing.T) {
 	bits := HexadecimalStringToBits("D2FE28")
-	assert.Equal(t, "1101 0010 1111 1110 0010 1000", fmt.Sprint(bits))
+	assert.Equal(t, "110100101111111000101000", fmt.Sprint(bits))
 
 	bits = HexadecimalStringToBits("38006F45291200")
 	assert.Equal(t, "00111000000000000110111101000101001010010001001000000000", fmt.Sprint(bits))
@@ -39,8 +39,8 @@ func Test_ParsePackets_LiteralPacket(t *testing.T) {
 	assert.Equal(t, 1, len(packets))
 
 	packet := packets[0]
-	assert.Equal(t, 6, packet.GetVersion())
-	assert.Equal(t, 4, packet.GetTypeID())
+	assert.Equal(t, 6, packet.Version)
+	assert.Equal(t, 4, packet.TypeID)
 	//assert.Equal(t, 2021, packet.Value)
 }
 
@@ -50,8 +50,8 @@ func Test_ParsePackets_OperatorPacket_1(t *testing.T) {
 	assert.Equal(t, 1, len(packets))
 
 	packet := packets[0]
-	assert.Equal(t, 1, packet.GetVersion())
-	assert.Equal(t, 6, packet.GetTypeID())
+	assert.Equal(t, 1, packet.Version)
+	assert.Equal(t, 6, packet.TypeID)
 	//assert.Equal(t, 2021, packet.Value)
 }
 
@@ -61,8 +61,8 @@ func Test_ParsePackets_OperatorPacket_2(t *testing.T) {
 	assert.Equal(t, 1, len(packets))
 
 	packet := packets[0]
-	assert.Equal(t, 7, packet.GetVersion())
-	assert.Equal(t, 3, packet.GetTypeID())
+	assert.Equal(t, 7, packet.Version)
+	assert.Equal(t, 3, packet.TypeID)
 	//assert.Equal(t, 2021, packet.Value)
 }
 

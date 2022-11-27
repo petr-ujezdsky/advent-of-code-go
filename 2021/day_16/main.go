@@ -35,48 +35,14 @@ func (bits Bits) ToNumber() int {
 	return number
 }
 
-type Packet interface {
-	GetVersion() int
-	GetTypeID() int
-	GetSize() int
-}
-
-type LiteralPacket struct {
+type Packet struct {
 	Version int
 	TypeID  int
 	Size    int
-	Value   int
-}
-
-func (p LiteralPacket) GetVersion() int {
-	return p.Version
-}
-
-func (p LiteralPacket) GetTypeID() int {
-	return p.TypeID
-}
-
-func (p LiteralPacket) GetSize() int {
-	return p.Size
-}
-
-type OperatorPacket struct {
-	Version    int
-	TypeID     int
-	Size       int
+	// for literal packet
+	Value int
+	// for operator packets
 	SubPackets []Packet
-}
-
-func (p OperatorPacket) GetVersion() int {
-	return p.Version
-}
-
-func (p OperatorPacket) GetTypeID() int {
-	return p.TypeID
-}
-
-func (p OperatorPacket) GetSize() int {
-	return p.Size
 }
 
 func ParsePacket(bits Bits) (Packet, Bits) {
@@ -105,7 +71,7 @@ func ParsePacket(bits Bits) (Packet, Bits) {
 
 		number := valueBits.ToNumber()
 
-		packet := LiteralPacket{
+		packet := Packet{
 			Version: version,
 			TypeID:  typeID,
 			Size:    3 + 3 + payloadSize,
@@ -123,7 +89,7 @@ func ParsePacket(bits Bits) (Packet, Bits) {
 		payloadSize, bits = bits[:15].ToNumber(), bits[15:]
 		packets, bits := ParsePackets(bits[:payloadSize]), bits[payloadSize:]
 
-		packet := OperatorPacket{
+		packet := Packet{
 			Version:    version,
 			TypeID:     typeID,
 			Size:       3 + 3 + 1 + payloadSize,
@@ -139,11 +105,11 @@ func ParsePacket(bits Bits) (Packet, Bits) {
 	for i := 0; i < packetsCount; i++ {
 		packet, bitsNew := ParsePacket(bits)
 		packets = append(packets, packet)
-		payloadSize += packet.GetSize()
+		payloadSize += packet.Size
 		bits = bitsNew
 	}
 
-	packet := OperatorPacket{
+	packet := Packet{
 		Version:    version,
 		TypeID:     typeID,
 		Size:       3 + 3 + 1 + payloadSize,
