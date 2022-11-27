@@ -73,3 +73,21 @@ func Test_01_example_parse(t *testing.T) {
 	ParseInput(reader)
 	assert.Nil(t, err)
 }
+
+func Test_01_examples(t *testing.T) {
+	assert.Equal(t, 16, SumVersions(ParsePackets(HexadecimalStringToBits("8A004A801A8002F478"))))
+	assert.Equal(t, 12, SumVersions(ParsePackets(HexadecimalStringToBits("620080001611562C8802118E34"))))
+	assert.Equal(t, 23, SumVersions(ParsePackets(HexadecimalStringToBits("C0015000016115A2E0802F182340"))))
+	assert.Equal(t, 31, SumVersions(ParsePackets(HexadecimalStringToBits("A0016C880162017C3686B18A3D4780"))))
+}
+
+func Test_01(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	bits := ParseInput(reader)
+	assert.Nil(t, err)
+
+	sum := SumVersions(ParsePackets(bits))
+	assert.Equal(t, 984, sum)
+}

@@ -151,6 +151,15 @@ func HexadecimalStringToBits(text string) Bits {
 	return bits
 }
 
+func SumVersions(packets []Packet) int {
+	sum := 0
+	for _, packet := range packets {
+		sum += packet.Version + SumVersions(packet.SubPackets)
+	}
+
+	return sum
+}
+
 func ParseInput(r io.Reader) Bits {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
