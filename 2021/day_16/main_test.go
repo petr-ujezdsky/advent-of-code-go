@@ -91,3 +91,25 @@ func Test_01(t *testing.T) {
 	sum := SumVersions(ParsePackets(bits))
 	assert.Equal(t, 984, sum)
 }
+
+func Test_02_examples(t *testing.T) {
+	assert.Equal(t, 3, Evaluate(ParsePackets(HexadecimalStringToBits("C200B40A82"))))
+	assert.Equal(t, 54, Evaluate(ParsePackets(HexadecimalStringToBits("04005AC33890"))))
+	assert.Equal(t, 7, Evaluate(ParsePackets(HexadecimalStringToBits("880086C3E88112"))))
+	assert.Equal(t, 9, Evaluate(ParsePackets(HexadecimalStringToBits("CE00C43D881120"))))
+	assert.Equal(t, 1, Evaluate(ParsePackets(HexadecimalStringToBits("D8005AC2A8F0"))))
+	assert.Equal(t, 0, Evaluate(ParsePackets(HexadecimalStringToBits("F600BC2D8F"))))
+	assert.Equal(t, 0, Evaluate(ParsePackets(HexadecimalStringToBits("9C005AC2F8F0"))))
+	assert.Equal(t, 1, Evaluate(ParsePackets(HexadecimalStringToBits("9C0141080250320F1802104A08"))))
+}
+
+func Test_02(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	bits := ParseInput(reader)
+	assert.Nil(t, err)
+
+	value := Evaluate(ParsePackets(bits))
+	assert.Equal(t, 1015320896946, value)
+}

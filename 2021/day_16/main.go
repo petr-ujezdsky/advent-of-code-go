@@ -3,7 +3,9 @@ package day_16
 import (
 	"bufio"
 	"fmt"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"io"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -43,6 +45,79 @@ type Packet struct {
 	Value int
 	// for operator packets
 	SubPackets []Packet
+}
+
+func reduce[T any, R any](items []T, acc func(R, T) R, init R) R {
+	cum := init
+	for _, item := range items {
+		cum = acc(cum, item)
+	}
+
+	return cum
+}
+
+func sum(acc int, packet Packet) int {
+	return acc + EvaluatePacket(packet)
+}
+
+func mul(acc int, packet Packet) int {
+	return acc * EvaluatePacket(packet)
+}
+
+func min(acc int, packet Packet) int {
+	return utils.Min(acc, EvaluatePacket(packet))
+}
+
+func max(acc int, packet Packet) int {
+	return utils.Max(acc, EvaluatePacket(packet))
+}
+
+func EvaluatePacket(packet Packet) int {
+	switch packet.TypeID {
+	case 0:
+		return reduce(packet.SubPackets, sum, 0)
+	case 1:
+		return reduce(packet.SubPackets, mul, 1)
+	case 2:
+		return reduce(packet.SubPackets, min, math.MaxInt)
+	case 3:
+		return reduce(packet.SubPackets, max, math.MinInt)
+	case 4:
+		return packet.Value
+	case 5:
+		left := EvaluatePacket(packet.SubPackets[0])
+		right := EvaluatePacket(packet.SubPackets[1])
+
+		if left > right {
+			return 1
+		}
+
+		return 0
+	case 6:
+		left := EvaluatePacket(packet.SubPackets[0])
+		right := EvaluatePacket(packet.SubPackets[1])
+
+		if left < right {
+			return 1
+		}
+
+		return 0
+	case 7:
+		left := EvaluatePacket(packet.SubPackets[0])
+		right := EvaluatePacket(packet.SubPackets[1])
+
+		if left == right {
+			return 1
+		}
+
+		return 0
+	}
+
+	panic("Unknown type " + strconv.Itoa(packet.TypeID))
+}
+
+func Evaluate(packets []Packet) int {
+	return EvaluatePacket(packets[0])
 }
 
 func ParsePacket(bits Bits) (Packet, Bits) {
