@@ -19,10 +19,10 @@ func Test_01_example_parse(t *testing.T) {
 	assert.Nil(t, err)
 
 	assert.Equal(t, 0, scanners[0].Id)
-	assert.Equal(t, Vector3i{404, -588, -901}, scanners[0].Beacons[0])
-	assert.Equal(t, Vector3i{459, -707, 401}, scanners[0].Beacons[24])
+	assert.Equal(t, Vector3i{404, -588, -901}, scanners[0].RotatedBeacons[0][0])
+	assert.Equal(t, Vector3i{459, -707, 401}, scanners[0].RotatedBeacons[0][24])
 
 	assert.Equal(t, 4, scanners[4].Id)
-	assert.Equal(t, Vector3i{727, 592, 562}, scanners[4].Beacons[0])
-	assert.Equal(t, Vector3i{30, -46, -14}, scanners[4].Beacons[25])
+	assert.Equal(t, Vector3i{727, 592, 562}, scanners[4].RotatedBeacons[0][0])
+	assert.Equal(t, Vector3i{30, -46, -14}, scanners[4].RotatedBeacons[0][25])
 }
