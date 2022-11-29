@@ -60,5 +60,5 @@ func Test_01(t *testing.T) {
 
 	mainScanner := SearchAndConsume(scanners)
 
-	assert.Equal(t, 926, len(mainScanner.UniqueBeacons))
+	assert.Equal(t, 432, len(mainScanner.UniqueBeacons))
 }

@@ -80,9 +80,9 @@ func allRotations(positions []Vector3i) [][]Vector3i {
 	return rotations
 }
 
-func FindOverlap(s1, s2 []Vector3i) (bool, Vector3i) {
+func FindOverlap(s1unique map[Vector3i]struct{}, s2 []Vector3i) (bool, Vector3i) {
 	// choose b1
-	for _, b1 := range s1 {
+	for b1 := range s1unique {
 		// choose b2
 		for _, b2 := range s2 {
 			count := 0
@@ -91,19 +91,16 @@ func FindOverlap(s1, s2 []Vector3i) (bool, Vector3i) {
 			step := b1.Subtract(b2)
 
 			// find same beacons
-			for _, bb1 := range s1 {
-				for _, bb2 := range s2 {
-					// align using step
-					bb2 = bb2.Add(step)
+			for _, bb2 := range s2 {
+				// align using step
+				bb2 = bb2.Add(step)
 
-					if bb1 == bb2 {
-						count++
+				// check overlap
+				if _, ok := s1unique[bb2]; ok {
+					count++
 
-						if count >= 12 {
-							return true, step
-						}
-
-						//break
+					if count >= 12 {
+						return true, step
 					}
 				}
 			}
@@ -116,7 +113,7 @@ func FindOverlap(s1, s2 []Vector3i) (bool, Vector3i) {
 func FindOverlapRotations(s1, s2 BeaconScanner) (bool, int, Vector3i) {
 	// over all s2 rotations
 	for irot, s2beacons := range s2.RotatedBeacons {
-		overlap, step := FindOverlap(s1.RotatedBeacons[0], s2beacons)
+		overlap, step := FindOverlap(s1.UniqueBeacons, s2beacons)
 		if overlap {
 			return true, irot, step
 		}
@@ -144,7 +141,10 @@ func SearchAndConsume(scanners []BeaconScanner) BeaconScanner {
 	mainScanner := scanners[0]
 	scanners = utils.RemoveUnordered(scanners, 0)
 
+	r := 0
 	for len(scanners) > 0 {
+		fmt.Printf("Round #%d\n", r)
+
 		for i, scanner := range scanners {
 			fmt.Printf("Finding overlap in %d / %d\n", i, len(scanners))
 
@@ -160,6 +160,7 @@ func SearchAndConsume(scanners []BeaconScanner) BeaconScanner {
 				break
 			}
 		}
+		r++
 	}
 
 	return mainScanner
