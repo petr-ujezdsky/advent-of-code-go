@@ -20,6 +20,19 @@ type BeaconScanner struct {
 	UniqueBeacons  map[Vector3i]struct{}
 }
 
+func NewBeaconScanner(id int, beacons []Vector3i) BeaconScanner {
+	// find all rotations
+	rotations := allRotations(beacons)
+
+	// add unique beacons
+	uniqueBeacons := make(map[Vector3i]struct{})
+	for _, beacon := range rotations[0] {
+		uniqueBeacons[beacon] = struct{}{}
+	}
+
+	return BeaconScanner{id, rotations, uniqueBeacons}
+}
+
 func roll(positions []Vector3i) []Vector3i {
 	transformed := make([]Vector3i, len(positions))
 	for i, v := range positions {
@@ -113,28 +126,18 @@ func FindOverlapRotations(s1, s2 BeaconScanner) (bool, int, Vector3i) {
 }
 
 func consume(mainScanner BeaconScanner, beacons []Vector3i, step Vector3i) BeaconScanner {
-	var newBeacons []Vector3i
+	allBeacons := mainScanner.RotatedBeacons[0]
 
 	for _, beacon := range beacons {
 		beacon = beacon.Add(step)
 
 		// beacon is new
 		if _, ok := mainScanner.UniqueBeacons[beacon]; !ok {
-			newBeacons = append(newBeacons, beacon)
-			// add to unique set
-			mainScanner.UniqueBeacons[beacon] = struct{}{}
+			allBeacons = append(allBeacons, beacon)
 		}
 	}
 
-	// calculate all rotations
-	rotations := allRotations(newBeacons)
-
-	// merge with mainScanner
-	for i := range mainScanner.RotatedBeacons {
-		mainScanner.RotatedBeacons[i] = append(mainScanner.RotatedBeacons[i], rotations[i]...)
-	}
-
-	return mainScanner
+	return NewBeaconScanner(mainScanner.Id, allBeacons)
 }
 
 func SearchAndConsume(scanners []BeaconScanner) BeaconScanner {
@@ -206,7 +209,7 @@ func ParseInput(r io.Reader) ([]BeaconScanner, error) {
 			uniqueBeacons[beacon] = struct{}{}
 		}
 
-		beaconScanners = append(beaconScanners, BeaconScanner{id, rotations, uniqueBeacons})
+		beaconScanners = append(beaconScanners, NewBeaconScanner(id, beacons))
 	}
 
 	return beaconScanners, nil
