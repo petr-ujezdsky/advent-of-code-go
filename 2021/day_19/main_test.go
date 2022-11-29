@@ -46,9 +46,10 @@ func Test_01_example(t *testing.T) {
 	scanners, err := ParseInput(reader)
 	assert.Nil(t, err)
 
-	mainScanner := SearchAndConsume(scanners)
+	uniqueBeaconsCount, largestDistance := SearchAndConsume(scanners)
 
-	assert.Equal(t, 79, len(mainScanner.UniqueBeacons))
+	assert.Equal(t, 79, uniqueBeaconsCount)
+	assert.Equal(t, 3621, largestDistance)
 }
 
 func Test_01(t *testing.T) {
@@ -58,7 +59,8 @@ func Test_01(t *testing.T) {
 	scanners, err := ParseInput(reader)
 	assert.Nil(t, err)
 
-	mainScanner := SearchAndConsume(scanners)
+	uniqueBeaconsCount, largestDistance := SearchAndConsume(scanners)
 
-	assert.Equal(t, 432, len(mainScanner.UniqueBeacons))
+	assert.Equal(t, 432, uniqueBeaconsCount)
+	assert.Equal(t, 14414, largestDistance)
 }

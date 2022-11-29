@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"io"
+	"math"
 	"regexp"
 	"strconv"
 	"strings"
@@ -90,7 +91,7 @@ func FindOverlap(s1unique map[Vector3i]struct{}, s2 []Vector3i) (bool, Vector3i)
 			// try to align all s2 beacons using vec b2 -> b1
 			step := b1.Subtract(b2)
 
-			// find same beacons
+			// find overlapped beacons
 			for _, bb2 := range s2 {
 				// align using step
 				bb2 = bb2.Add(step)
@@ -137,9 +138,28 @@ func consume(mainScanner BeaconScanner, beacons []Vector3i, step Vector3i) Beaco
 	return NewBeaconScanner(mainScanner.Id, allBeacons)
 }
 
-func SearchAndConsume(scanners []BeaconScanner) BeaconScanner {
+func largestManhattanDistance(origins []Vector3i) int {
+	max := math.MinInt
+
+	for o1i := 0; o1i < len(origins); o1i++ {
+		for o2i := o1i + 1; o2i < len(origins); o2i++ {
+			o1 := origins[o1i]
+			o2 := origins[o2i]
+
+			max = utils.Max(max, o2.Subtract(o1).ManhattanLength())
+		}
+	}
+
+	return max
+}
+
+func SearchAndConsume(scanners []BeaconScanner) (int, int) {
+	// all scanners will be rotated, translated and merged into this one
 	mainScanner := scanners[0]
 	scanners = utils.RemoveUnordered(scanners, 0)
+
+	// all scanner origins, start with 0,0,0 for the main scanner (#0)
+	scannerOrigins := []Vector3i{{0, 0, 0}}
 
 	r := 0
 	for len(scanners) > 0 {
@@ -156,6 +176,9 @@ func SearchAndConsume(scanners []BeaconScanner) BeaconScanner {
 				// remove scanner
 				scanners = utils.RemoveUnordered(scanners, i)
 
+				// save origin
+				scannerOrigins = append(scannerOrigins, step)
+
 				fmt.Printf("Found! Consuming %d\n", i)
 				break
 			}
@@ -163,7 +186,7 @@ func SearchAndConsume(scanners []BeaconScanner) BeaconScanner {
 		r++
 	}
 
-	return mainScanner
+	return len(mainScanner.UniqueBeacons), largestManhattanDistance(scannerOrigins)
 }
 
 func ParseInput(r io.Reader) ([]BeaconScanner, error) {

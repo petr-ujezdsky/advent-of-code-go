@@ -77,8 +77,8 @@ func ToInts(intsStr []string) ([]int, error) {
 	return result, nil
 }
 
-// Abs returns absolute integer value
-func Abs(i int) int {
+// Abs returns absolute value
+func Abs[T Number](i T) T {
 	if i < 0 {
 		return -i
 	}

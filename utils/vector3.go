@@ -1,6 +1,8 @@
 package utils
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type vector3[T any] struct {
 	X, Y, Z T
@@ -25,6 +27,10 @@ func (v1 Vector3n[T]) Subtract(v2 Vector3n[T]) Vector3n[T] {
 		Y: v1.Y - v2.Y,
 		Z: v1.Z - v2.Z,
 	}
+}
+
+func (v1 Vector3n[T]) ManhattanLength() T {
+	return Abs(v1.X) + Abs(v1.Y) + Abs(v1.Z)
 }
 
 func (v1 Vector3n[T]) String() string {
