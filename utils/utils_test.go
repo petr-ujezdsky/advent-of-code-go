@@ -97,3 +97,9 @@ func TestReverse(t *testing.T) {
 	assert.Equal(t, []int{3, 2, 1}, utils.Reverse([]int{1, 2, 3}))
 	assert.Equal(t, []int{4, 3, 2, 1}, utils.Reverse([]int{1, 2, 3, 4}))
 }
+
+func TestRemoveUnordered(t *testing.T) {
+	assert.Equal(t, []int{3, 2}, utils.RemoveUnordered([]int{1, 2, 3}, 0))
+	assert.Equal(t, []int{1, 3}, utils.RemoveUnordered([]int{1, 2, 3}, 1))
+	assert.Equal(t, []int{1, 2}, utils.RemoveUnordered([]int{1, 2, 3}, 2))
+}

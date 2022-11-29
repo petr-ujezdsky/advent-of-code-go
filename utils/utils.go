@@ -172,3 +172,12 @@ func Reverse[T any](slice []T) []T {
 
 	return reversed
 }
+
+// RemoveUnordered removes element at index i and returns slice without this element. Changes items order in slice.
+func RemoveUnordered[T any](s []T, i int) []T {
+	// swap i-th and last element
+	s[i] = s[len(s)-1]
+
+	// return len-1 elements
+	return s[:len(s)-1]
+}
