@@ -19,6 +19,14 @@ func (v1 Vector3n[T]) Add(v2 Vector3n[T]) Vector3n[T] {
 	}
 }
 
+func (v1 Vector3n[T]) Subtract(v2 Vector3n[T]) Vector3n[T] {
+	return Vector3n[T]{
+		X: v1.X - v2.X,
+		Y: v1.Y - v2.Y,
+		Z: v1.Z - v2.Z,
+	}
+}
+
 func (v1 Vector3n[T]) String() string {
 	return fmt.Sprint([]T{v1.X, v1.Y, v1.Z})
 }
