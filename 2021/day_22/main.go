@@ -14,7 +14,53 @@ type Cube struct {
 	Value     bool
 }
 
-var regexCube = regexp.MustCompile("(on|off) x=(\\d+)\\.\\.(\\d+),y=(\\d+)\\.\\.(\\d+),z=(\\d+)\\.\\.(\\d+)")
+func NewCubeSymmetric(halfSideLength int, value bool) Cube {
+	return Cube{
+		Low:   Vector3i{-halfSideLength, -halfSideLength, -halfSideLength},
+		High:  Vector3i{halfSideLength, halfSideLength, halfSideLength},
+		Value: value,
+	}
+}
+
+func (c Cube) Contains(p Vector3i) bool {
+	return c.Low.X <= p.X && p.X <= c.High.X &&
+		c.Low.Y <= p.Y && p.Y <= c.High.Y &&
+		c.Low.Z <= p.Z && p.Z <= c.High.Z
+}
+
+var regexCube = regexp.MustCompile("(on|off) x=(-?\\d+)\\.\\.(-?\\d+),y=(-?\\d+)\\.\\.(-?\\d+),z=(-?\\d+)\\.\\.(-?\\d+)")
+
+func resolveOnOff(point Vector3i, cubes []Cube) bool {
+	for _, cube := range cubes {
+		if cube.Contains(point) {
+			return cube.Value
+		}
+	}
+
+	panic("Don't know if on or off!")
+}
+
+func NaiveCount(world Cube, cubes []Cube) int {
+	count := 0
+
+	// start investigation with *last* added cube and so on
+	cubes = utils.Reverse(cubes)
+
+	// final cube is world itself
+	cubes = append(cubes, world)
+
+	for x := world.Low.X; x <= world.High.X; x++ {
+		for y := world.Low.Y; y <= world.High.Y; y++ {
+			for z := world.Low.Z; z <= world.High.Z; z++ {
+				if resolveOnOff(Vector3i{x, y, z}, cubes) {
+					count++
+				}
+			}
+		}
+	}
+
+	return count
+}
 
 func ParseInput(r io.Reader) []Cube {
 	scanner := bufio.NewScanner(r)
