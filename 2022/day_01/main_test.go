@@ -25,3 +25,23 @@ func Test_01(t *testing.T) {
 	max := FindMax(elves)
 	assert.Equal(t, 64929, max)
 }
+
+func Test_02_example(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	elves := ParseInput(reader)
+
+	max := FindTopThree(elves)
+	assert.Equal(t, 45000, max)
+}
+
+func Test_02(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	elves := ParseInput(reader)
+
+	max := FindTopThree(elves)
+	assert.Equal(t, 193697, max)
+}
