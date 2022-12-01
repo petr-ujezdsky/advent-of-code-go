@@ -77,6 +77,15 @@ func ToInts(intsStr []string) ([]int, error) {
 	return result, nil
 }
 
+// ParseInt parses string to number or panics
+func ParseInt(str string) int {
+	v, err := strconv.Atoi(str)
+	if err != nil {
+		panic("Can not convert " + str + " to number")
+	}
+	return v
+}
+
 // Abs returns absolute value
 func Abs[T Number](i T) T {
 	if i < 0 {
