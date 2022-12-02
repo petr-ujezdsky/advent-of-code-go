@@ -7,23 +7,23 @@ import (
 )
 
 func Test_01_decrypt(t *testing.T) {
-	assert.Equal(t, byte('A'), decrypt('X'))
-	assert.Equal(t, byte('B'), decrypt('Y'))
-	assert.Equal(t, byte('C'), decrypt('Z'))
+	assert.Equal(t, 'A', decrypt('X'))
+	assert.Equal(t, 'B', decrypt('Y'))
+	assert.Equal(t, 'C', decrypt('Z'))
 }
 
 func Test_01_outcomeScore(t *testing.T) {
-	assert.Equal(t, 3, outcomeScore(byte('A'), byte('A')))
-	assert.Equal(t, 6, outcomeScore(byte('A'), byte('B')))
-	assert.Equal(t, 0, outcomeScore(byte('A'), byte('C')))
+	assert.Equal(t, 3, outcomeScore("AA"))
+	assert.Equal(t, 6, outcomeScore("BA"))
+	assert.Equal(t, 0, outcomeScore("CA"))
 
-	assert.Equal(t, 0, outcomeScore(byte('B'), byte('A')))
-	assert.Equal(t, 3, outcomeScore(byte('B'), byte('B')))
-	assert.Equal(t, 6, outcomeScore(byte('B'), byte('C')))
+	assert.Equal(t, 0, outcomeScore("AB"))
+	assert.Equal(t, 3, outcomeScore("BB"))
+	assert.Equal(t, 6, outcomeScore("CB"))
 
-	assert.Equal(t, 6, outcomeScore(byte('C'), byte('A')))
-	assert.Equal(t, 0, outcomeScore(byte('C'), byte('B')))
-	assert.Equal(t, 3, outcomeScore(byte('C'), byte('C')))
+	assert.Equal(t, 6, outcomeScore("AC"))
+	assert.Equal(t, 0, outcomeScore("BC"))
+	assert.Equal(t, 3, outcomeScore("CC"))
 }
 
 func Test_01_parse(t *testing.T) {
@@ -33,7 +33,7 @@ func Test_01_parse(t *testing.T) {
 	rounds := ParseInput(reader)
 
 	assert.Equal(t, 3, len(rounds))
-	assert.Equal(t, []byte{'C', 'Z'}, rounds[2])
+	assert.Equal(t, []rune("CC"), rounds[2])
 }
 
 func Test_01_example(t *testing.T) {

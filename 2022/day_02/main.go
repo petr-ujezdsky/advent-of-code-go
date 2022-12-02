@@ -4,45 +4,42 @@ import (
 	"bufio"
 	_ "embed"
 	"io"
-	"strings"
 )
 
-type Round = []byte
+type Round = []rune
 
-func decrypt(choice byte) byte {
+func decrypt(choice rune) rune {
 	return choice - ('X' - 'A')
 }
 
-func outcomeScore(p1, p2 byte) int {
-	diff := int(p1) - int(p2)
-
-	// same choices - draw
-	if diff == 0 {
+// A/X - Rock
+// B/Y - Paper
+// C/Z - Scissors
+func outcomeScore(round string) int {
+	switch round {
+	case "AA", "BB", "CC":
+		// same choices - draw
 		return 3
-	}
-
-	// p1 wins
-	if diff == 1 || diff == -2 {
+	case "CA", "AB", "BC":
+		// p2 wins
 		return 6
-	}
-
-	// p1 looses
-	if diff == -1 || diff == 2 {
+	case "BA", "CB", "AC":
+		// p2 looses
 		return 0
 	}
 
 	panic("Unknown outcome")
 }
 
-func choiceScore(choice byte) int {
+func choiceScore(choice rune) int {
 	return int(choice - 'A' + 1)
 }
 
 func Score(rounds []Round) int {
 	sum := 0
 	for _, round := range rounds {
-		sum += choiceScore(decrypt(round[1]))
-		sum += outcomeScore(decrypt(round[1]), round[0])
+		sum += choiceScore(round[1])
+		sum += outcomeScore(string(round))
 	}
 
 	return sum
@@ -55,9 +52,9 @@ func ParseInput(r io.Reader) []Round {
 	var rounds []Round
 
 	for scanner.Scan() {
-		parts := strings.Split(scanner.Text(), " ")
+		line := []rune(scanner.Text())
 
-		round := Round{parts[0][0], parts[1][0]}
+		round := Round{line[0], decrypt(line[2])}
 		rounds = append(rounds, round)
 	}
 
