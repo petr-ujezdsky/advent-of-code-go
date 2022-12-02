@@ -31,6 +31,38 @@ func outcomeScore(round string) int {
 	panic("Unknown outcome")
 }
 
+// A/X - loose
+// B/Y - draw
+// C/Z - win
+func makeChoice(round string) rune {
+	/*
+		AA - C
+		BA - A
+		CA - B
+
+		AB - A
+		BB - B
+		CB - C
+
+		AC - B
+		BC - C
+		CC - A
+	*/
+	switch round {
+	case "BA", "AB", "CC":
+		// p2 will loose
+		return 'A'
+	case "CA", "BB", "AC":
+		// p2 will draw
+		return 'B'
+	case "AA", "CB", "BC":
+		// p2 will win
+		return 'C'
+	}
+
+	panic("Unknown outcome")
+}
+
 func choiceScore(choice rune) int {
 	return int(choice - 'A' + 1)
 }
@@ -38,6 +70,17 @@ func choiceScore(choice rune) int {
 func Score(rounds []Round) int {
 	sum := 0
 	for _, round := range rounds {
+		sum += choiceScore(round[1])
+		sum += outcomeScore(string(round))
+	}
+
+	return sum
+}
+
+func Score02(rounds []Round) int {
+	sum := 0
+	for _, round := range rounds {
+		round = Round{round[0], makeChoice(string(round))}
 		sum += choiceScore(round[1])
 		sum += outcomeScore(string(round))
 	}

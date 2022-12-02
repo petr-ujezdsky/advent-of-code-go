@@ -56,22 +56,22 @@ func Test_01(t *testing.T) {
 	assert.Equal(t, 9177, score)
 }
 
-//func Test_02_example(t *testing.T) {
-//	reader, err := os.Open("data-00-example.txt")
-//	assert.Nil(t, err)
-//
-//	elves := ParseInput(reader)
-//
-//	max := FindTopThree(elves)
-//	assert.Equal(t, 45000, max)
-//}
-//
-//func Test_02(t *testing.T) {
-//	reader, err := os.Open("data-01.txt")
-//	assert.Nil(t, err)
-//
-//	elves := ParseInput(reader)
-//
-//	max := FindTopThree(elves)
-//	assert.Equal(t, 193697, max)
-//}
+func Test_02_example(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	rounds := ParseInput(reader)
+
+	score := Score02(rounds)
+	assert.Equal(t, 12, score)
+}
+
+func Test_02(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	rounds := ParseInput(reader)
+
+	score := Score02(rounds)
+	assert.Equal(t, 12111, score)
+}
