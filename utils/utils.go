@@ -108,8 +108,8 @@ func Signum(i int) int {
 	return 0
 }
 
-// Max returns maximum of two integers
-func Max(i, j int) int {
+// Max returns maximum of two numbers
+func Max[T Number](i, j T) T {
 	if i > j {
 		return i
 	}
@@ -117,8 +117,8 @@ func Max(i, j int) int {
 	return j
 }
 
-// Min returns minimum of two integers
-func Min(i, j int) int {
+// Min returns minimum of two numbers
+func Min[T Number](i, j T) T {
 	if i > j {
 		return j
 	}
@@ -157,6 +157,28 @@ func Clamp(val, low, high int) int {
 	}
 
 	return val
+}
+
+func NextPowOf2(n int) int {
+	k := 1
+	for k < n {
+		k = k << 1
+	}
+	return k
+}
+
+// IntervalIntersection finds common intersection of two intervals (lowA, highA) and (lowB, highB)
+// see https://scicomp.stackexchange.com/a/26260
+func IntervalIntersection(lowA, highA, lowB, highB int) (int, int, bool) {
+	if highA < lowB || highB < lowA {
+		// no intersection
+		return 0, 0, false
+	}
+
+	low := Max(lowA, lowB)
+	high := Min(highA, highB)
+
+	return low, high, true
 }
 
 // ShallowCopy creates shallow copy of the given slice

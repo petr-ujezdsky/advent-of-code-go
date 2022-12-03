@@ -15,16 +15,49 @@ func Test_regexCube(t *testing.T) {
 	assert.Equal(t, []string{"on x=-54112..-39298,y=-85059..-49293,z=-27449..7877", "on", "-54112", "-39298", "-85059", "-49293", "-27449", "7877"}, matches)
 }
 
+func Test_Split(t *testing.T) {
+	probe := Cube{
+		Low:   Vector3i{0, 0, 0},
+		High:  Vector3i{3, 3, 3},
+		Value: false,
+	}
+
+	singleCell := probe.Split()[0].Split()[0]
+	expected := Cube{
+		Low:   Vector3i{0, 0, 0},
+		High:  Vector3i{0, 0, 0},
+		Value: false,
+	}
+	assert.Equal(t, expected, singleCell)
+}
+
+func Test_Intersect(t *testing.T) {
+	probe := Cube{
+		Low:   Vector3i{0, 0, 0},
+		High:  Vector3i{0, 0, 0},
+		Value: false,
+	}
+
+	singleCell := probe.Intersect(probe)
+	expected := Cube{
+		Low:   Vector3i{0, 0, 0},
+		High:  Vector3i{0, 0, 0},
+		Value: false,
+	}
+	assert.Equal(t, expected, singleCell)
+}
+
 func Test_01_example_1(t *testing.T) {
 	reader, err := os.Open("data-00-example-1.txt")
 	assert.Nil(t, err)
 
-	cubes := ParseInput(reader)
+	cubes, _ := ParseInput(reader)
 	assert.Equal(t, 4, len(cubes))
 
 	world := NewCubeSymmetric(50, false)
 
-	count := NaiveCount(world, cubes)
+	//count := NaiveCount(world, cubes)
+	count := FasterCount(world, cubes)
 	assert.Equal(t, 39, count)
 }
 
@@ -32,12 +65,13 @@ func Test_01_example_2(t *testing.T) {
 	reader, err := os.Open("data-00-example-2.txt")
 	assert.Nil(t, err)
 
-	cubes := ParseInput(reader)
+	cubes, _ := ParseInput(reader)
 	assert.Equal(t, 22, len(cubes))
 
 	world := NewCubeSymmetric(50, false)
 
-	count := NaiveCount(world, cubes[:20])
+	//count := NaiveCount(world, cubes[:20])
+	count := FasterCount(world, cubes[:20])
 	assert.Equal(t, 590784, count)
 }
 
@@ -45,11 +79,24 @@ func Test_01(t *testing.T) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(t, err)
 
-	cubes := ParseInput(reader)
+	cubes, _ := ParseInput(reader)
 	assert.Equal(t, 420, len(cubes))
 
 	world := NewCubeSymmetric(50, false)
 
-	count := NaiveCount(world, cubes[:20])
+	//count := NaiveCount(world, cubes[:20])
+	count := FasterCount(world, cubes[:20])
 	assert.Equal(t, 620241, count)
+}
+
+func Test_02_example_3(t *testing.T) {
+	reader, err := os.Open("data-00-example-3.txt")
+	assert.Nil(t, err)
+
+	cubes, world := ParseInput(reader)
+	assert.Equal(t, 60, len(cubes))
+
+	//count := NaiveCount(world, cubes)
+	count := FasterCount(world, cubes)
+	assert.Equal(t, 2758514936282235, count)
 }
