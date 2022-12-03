@@ -22,6 +22,15 @@ func Test_01_commonItem(t *testing.T) {
 	assert.Equal(t, 'p', ci)
 }
 
+func Test_01_commonChars(t *testing.T) {
+	ch := commonChar([]string{
+		"vJrwpWtwJgWrhcsFMMfFFhFp",
+		"jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL",
+		"PmmdzqPrVvPwwTWBwg"})
+
+	assert.Equal(t, 'r', ch)
+}
+
 func Test_01_itemScore(t *testing.T) {
 	assert.Equal(t, 1, itemScore('a'))
 	assert.Equal(t, 26, itemScore('z'))
@@ -49,22 +58,22 @@ func Test_01(t *testing.T) {
 	assert.Equal(t, 8139, score)
 }
 
-//func Test_02_example(t *testing.T) {
-//	reader, err := os.Open("data-00-example.txt")
-//	assert.Nil(t, err)
-//
-//	rounds := ParseInput(reader)
-//
-//	score := Score02(rounds)
-//	assert.Equal(t, 12, score)
-//}
-//
-//func Test_02(t *testing.T) {
-//	reader, err := os.Open("data-01.txt")
-//	assert.Nil(t, err)
-//
-//	rounds := ParseInput(reader)
-//
-//	score := Score02(rounds)
-//	assert.Equal(t, 12111, score)
-//}
+func Test_02_example(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	rucksacks := ParseInput(reader)
+
+	score := GroupsScore(rucksacks)
+	assert.Equal(t, 70, score)
+}
+
+func Test_02(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	rucksacks := ParseInput(reader)
+
+	score := GroupsScore(rucksacks)
+	assert.Equal(t, 70, score)
+}
