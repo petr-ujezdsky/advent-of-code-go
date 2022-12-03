@@ -38,13 +38,8 @@ func Test_Intersect(t *testing.T) {
 		Value: false,
 	}
 
-	singleCell := probe.Intersect(probe)
-	expected := Cube{
-		Low:   Vector3i{0, 0, 0},
-		High:  Vector3i{0, 0, 0},
-		Value: false,
-	}
-	assert.Equal(t, expected, singleCell)
+	intersectionType := probe.Intersect(probe)
+	assert.Equal(t, Inside, intersectionType)
 }
 
 func Test_01_example_1(t *testing.T) {
@@ -96,7 +91,26 @@ func Test_02_example_3(t *testing.T) {
 	cubes, world := ParseInput(reader)
 	assert.Equal(t, 60, len(cubes))
 
+	metric.Enabled = true
 	//count := NaiveCount(world, cubes)
 	count := FasterCount(world, cubes)
 	assert.Equal(t, 2758514936282235, count)
+}
+
+// Benchmark_fast-10    	      46	  25 154 525 ns/op
+func Benchmark_fast(b *testing.B) {
+	reader, err := os.Open("data-00-example-2.txt")
+	assert.Nil(b, err)
+
+	cubes, _ := ParseInput(reader)
+	assert.Equal(b, 22, len(cubes))
+
+	world := NewCubeSymmetric(50, false)
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		count := FasterCount(world, cubes[:20])
+		assert.Equal(b, 590784, count)
+	}
 }

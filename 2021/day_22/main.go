@@ -19,6 +19,8 @@ const (
 	Wraps
 )
 
+var metric = utils.Metric{}
+
 type Cube struct {
 	Low, High Vector3i
 	Value     bool
@@ -120,7 +122,7 @@ func (c Cube) Split() []Cube {
 
 	if size == (Vector3i{0, 0, 0}) {
 		// can not divide single cell
-		return nil
+		panic("Can not divide single cell")
 	}
 
 	half := size.Divide(2)
@@ -187,6 +189,8 @@ func countRecursive(probe Cube, cubes []Cube) int {
 	for _, subProbe := range subProbes {
 		count += countRecursive(subProbe, cubes)
 	}
+
+	metric.TickSum(100_000, count)
 
 	return count
 }
