@@ -167,20 +167,6 @@ func NextPowOf2(n int) int {
 	return k
 }
 
-// IntervalIntersection finds common intersection of two intervals (lowA, highA) and (lowB, highB)
-// see https://scicomp.stackexchange.com/a/26260
-func IntervalIntersection(lowA, highA, lowB, highB int) (int, int, bool) {
-	if highA < lowB || highB < lowA {
-		// no intersection
-		return 0, 0, false
-	}
-
-	low := Max(lowA, lowB)
-	high := Min(highA, highB)
-
-	return low, high, true
-}
-
 // ShallowCopy creates shallow copy of the given slice
 func ShallowCopy[T any](slice []T) []T {
 	// prepare destination slice
