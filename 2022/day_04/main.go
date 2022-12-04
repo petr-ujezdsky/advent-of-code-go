@@ -29,6 +29,17 @@ func CountContained(pairs []Pair) int {
 
 	return count
 }
+func CountOverlapped(pairs []Pair) int {
+	count := 0
+	for _, pair := range pairs {
+		intersectionType, _, _ := utils.IntervalIntersectionDetail(pair.Left.Min, pair.Left.Max, pair.Right.Min, pair.Right.Max)
+		if intersectionType != utils.None {
+			count++
+		}
+	}
+
+	return count
+}
 
 func ParseInput(r io.Reader) []Pair {
 	scanner := bufio.NewScanner(r)

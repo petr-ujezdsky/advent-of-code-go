@@ -37,22 +37,22 @@ func Test_01(t *testing.T) {
 	assert.Equal(t, 605, count)
 }
 
-//func Test_02_example(t *testing.T) {
-//	reader, err := os.Open("data-00-example.txt")
-//	assert.Nil(t, err)
-//
-//	rucksacks := ParseInput(reader)
-//
-//	score := GroupsScore(rucksacks)
-//	assert.Equal(t, 70, score)
-//}
-//
-//func Test_02(t *testing.T) {
-//	reader, err := os.Open("data-01.txt")
-//	assert.Nil(t, err)
-//
-//	rucksacks := ParseInput(reader)
-//
-//	score := GroupsScore(rucksacks)
-//	assert.Equal(t, 70, score)
-//}
+func Test_02_example(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	pairs := ParseInput(reader)
+
+	count := CountOverlapped(pairs)
+	assert.Equal(t, 4, count)
+}
+
+func Test_02(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	pairs := ParseInput(reader)
+
+	count := CountOverlapped(pairs)
+	assert.Equal(t, 914, count)
+}
