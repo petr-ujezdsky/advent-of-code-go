@@ -30,6 +30,11 @@ func TestParseToInts(t *testing.T) {
 	assert.Equal(t, expected, parsed)
 }
 
+func TestExtractInts(t *testing.T) {
+	assert.Equal(t, []int{34, 60, 18, 25}, utils.ExtractInts("Hi there, I'm 34 years old and 60in tall. Today should be 18-25 degrees Celsius", false))
+	assert.Equal(t, []int{34, 60, 18, -25}, utils.ExtractInts("Hi there, I'm 34 years old and 60in tall. Today should be 18-25 degrees Celsius", true))
+}
+
 func TestAbs(t *testing.T) {
 	assert.Equal(t, 5, utils.Abs(5))
 	assert.Equal(t, 5, utils.Abs(-5))

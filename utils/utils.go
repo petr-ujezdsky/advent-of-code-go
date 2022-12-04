@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"io"
 	"math"
+	"regexp"
 	"strconv"
 )
 
@@ -84,6 +85,29 @@ func ParseInt(str string) int {
 		panic("Can not convert " + str + " to number")
 	}
 	return v
+}
+
+var regexIntNegative = regexp.MustCompile(`-?\d+`)
+var regexIntPositive = regexp.MustCompile(`\d+`)
+
+// ExtractInts extracts all integers in given string
+func ExtractInts(str string, allowNegative bool) []int {
+	var regex *regexp.Regexp
+
+	if allowNegative {
+		regex = regexIntNegative
+	} else {
+		regex = regexIntPositive
+	}
+
+	stringValues := regex.FindAllString(str, -1)
+
+	ints := make([]int, len(stringValues))
+	for i, stringValue := range stringValues {
+		ints[i] = ParseInt(stringValue)
+	}
+
+	return ints
 }
 
 // Abs returns absolute value
