@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
@@ -13,8 +14,8 @@ func Test_01_parse(t *testing.T) {
 	pairs := ParseInput(reader)
 
 	assert.Equal(t, 6, len(pairs))
-	assert.Equal(t, Range{2, 6}, pairs[5].Left)
-	assert.Equal(t, Range{4, 8}, pairs[5].Right)
+	assert.Equal(t, utils.NewInterval(2, 6), pairs[5].Left)
+	assert.Equal(t, utils.NewInterval(4, 8), pairs[5].Right)
 }
 
 func Test_01_example(t *testing.T) {

@@ -8,12 +8,8 @@ import (
 	"regexp"
 )
 
-type Range struct {
-	Min, Max int
-}
-
 type Pair struct {
-	Left, Right Range
+	Left, Right utils.IntervalI
 }
 
 var regexPair = regexp.MustCompile("(\\d+)-(\\d+),(\\d+)-(\\d+)")
@@ -21,7 +17,7 @@ var regexPair = regexp.MustCompile("(\\d+)-(\\d+),(\\d+)-(\\d+)")
 func CountContained(pairs []Pair) int {
 	count := 0
 	for _, pair := range pairs {
-		intersectionType, _, _ := utils.IntervalIntersectionDetail(pair.Left.Min, pair.Left.Max, pair.Right.Min, pair.Right.Max)
+		intersectionType, _, _ := pair.Left.IntersectionDetail(pair.Right)
 		if intersectionType == utils.Inside || intersectionType == utils.Wraps || intersectionType == utils.Identical {
 			count++
 		}
@@ -32,7 +28,7 @@ func CountContained(pairs []Pair) int {
 func CountOverlapped(pairs []Pair) int {
 	count := 0
 	for _, pair := range pairs {
-		intersectionType, _, _ := utils.IntervalIntersectionDetail(pair.Left.Min, pair.Left.Max, pair.Right.Min, pair.Right.Max)
+		intersectionType, _, _ := pair.Left.IntersectionDetail(pair.Right)
 		if intersectionType != utils.None {
 			count++
 		}
@@ -50,8 +46,8 @@ func ParseInput(r io.Reader) []Pair {
 	for scanner.Scan() {
 		tokens := regexPair.FindStringSubmatch(scanner.Text())
 		pair := Pair{
-			Left:  Range{utils.ParseInt(tokens[1]), utils.ParseInt(tokens[2])},
-			Right: Range{utils.ParseInt(tokens[3]), utils.ParseInt(tokens[4])},
+			Left:  utils.NewInterval(utils.ParseInt(tokens[1]), utils.ParseInt(tokens[2])),
+			Right: utils.NewInterval(utils.ParseInt(tokens[3]), utils.ParseInt(tokens[4])),
 		}
 
 		pairs = append(pairs, pair)

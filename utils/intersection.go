@@ -12,7 +12,7 @@ const (
 
 // IntervalIntersection finds common intersection of two intervals (lowA, highA) and (lowB, highB)
 // see https://scicomp.stackexchange.com/a/26260
-func IntervalIntersection(lowA, highA, lowB, highB int) (int, int, bool) {
+func IntervalIntersection[T Number](lowA, highA, lowB, highB T) (T, T, bool) {
 	if highA < lowB || highB < lowA {
 		// no intersection
 		return 0, 0, false
@@ -24,7 +24,7 @@ func IntervalIntersection(lowA, highA, lowB, highB int) (int, int, bool) {
 	return low, high, true
 }
 
-func IntervalIntersectionDetail(lowA, highA, lowB, highB int) (IntersectionType, int, int) {
+func IntervalIntersectionDetail[T Number](lowA, highA, lowB, highB T) (IntersectionType, T, T) {
 	// same
 	if lowA == lowB && highA == highB {
 		return Identical, lowA, highA
