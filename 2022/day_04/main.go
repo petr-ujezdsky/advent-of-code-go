@@ -17,7 +17,7 @@ var regexPair = regexp.MustCompile("(\\d+)-(\\d+),(\\d+)-(\\d+)")
 func CountContained(pairs []Pair) int {
 	count := 0
 	for _, pair := range pairs {
-		intersectionType, _, _ := pair.Left.IntersectionDetail(pair.Right)
+		intersectionType, _ := pair.Left.IntersectionDetail(pair.Right)
 		if intersectionType == utils.Inside || intersectionType == utils.Wraps || intersectionType == utils.Identical {
 			count++
 		}
@@ -28,7 +28,7 @@ func CountContained(pairs []Pair) int {
 func CountOverlapped(pairs []Pair) int {
 	count := 0
 	for _, pair := range pairs {
-		intersectionType, _, _ := pair.Left.IntersectionDetail(pair.Right)
+		intersectionType, _ := pair.Left.IntersectionDetail(pair.Right)
 		if intersectionType != utils.None {
 			count++
 		}
