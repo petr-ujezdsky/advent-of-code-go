@@ -5,29 +5,61 @@ import (
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"io"
-	"strings"
 )
 
-func ParseInput(r io.Reader) []Cube {
+type CratesStack = utils.Stack[rune]
+
+type Operation struct {
+	From, To, Count int
+}
+
+func ParseInput(r io.Reader) ([]*CratesStack, []Operation) {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
 
-	var cubes []Cube
+	// stacks status
+	var lines [][]rune
+	for scanner.Scan() && scanner.Text() != "" {
+		lines = append(lines, []rune(scanner.Text()))
+	}
+
+	// last char in last line is last stack number -> count
+	stacksCount := lines[len(lines)-1][len(lines[len(lines)-1])-1] - '0'
+	stacks := make([]*utils.Stack[rune], stacksCount)
+	for _, line := range utils.Reverse(lines[:len(lines)-1]) {
+		for i, stack := range stacks {
+			index := i*4 + 1
+
+			if index >= len(line) {
+				continue
+			}
+
+			if stack == nil {
+				s := utils.NewStack[rune]()
+				stack = &s
+				stacks[i] = &s
+			}
+			crate := line[index]
+			if crate != ' ' {
+				stack.Push(line[index])
+			}
+		}
+	}
+
+	// operations
+	var operations []Operation
 	for scanner.Scan() {
 		line := scanner.Text()
 		ints := utils.ExtractInts(line, true)
 
-		on := strings.HasPrefix(line, "on")
-
-		cube := Cube{
-			X:  utils.NewInterval(ints[0], ints[1]),
-			Y:  utils.NewInterval(ints[2], ints[3]),
-			Z:  utils.NewInterval(ints[4], ints[5]),
-			On: on,
+		op := Operation{
+			From:  ints[1],
+			To:    ints[2],
+			Count: ints[0],
 		}
 
-		cubes = append(cubes, cube)
+		operations = append(operations, op)
 	}
 
-	return cubes
+	return stacks, operations
 }
