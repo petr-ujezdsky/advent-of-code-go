@@ -22,7 +22,7 @@ func Test_01_example(t *testing.T) {
 
 	stacks, ops := ParseInput(reader)
 
-	topCrates := MoveCratesByOps(stacks, ops)
+	topCrates := MoveCratesByOps(stacks, ops, false)
 	assert.Equal(t, "CMZ", topCrates)
 }
 
@@ -32,27 +32,26 @@ func Test_01(t *testing.T) {
 
 	stacks, ops := ParseInput(reader)
 
-	topCrates := MoveCratesByOps(stacks, ops)
+	topCrates := MoveCratesByOps(stacks, ops, false)
 	assert.Equal(t, "FJSRQCFTN", topCrates)
 }
 
-//
-//func Test_02_example(t *testing.T) {
-//	reader, err := os.Open("data-00-example.txt")
-//	assert.Nil(t, err)
-//
-//	pairs := ParseInput(reader)
-//
-//	count := CountOverlapped(pairs)
-//	assert.Equal(t, 4, count)
-//}
-//
-//func Test_02(t *testing.T) {
-//	reader, err := os.Open("data-01.txt")
-//	assert.Nil(t, err)
-//
-//	pairs := ParseInput(reader)
-//
-//	count := CountOverlapped(pairs)
-//	assert.Equal(t, 914, count)
-//}
+func Test_02_example(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	stacks, ops := ParseInput(reader)
+
+	topCrates := MoveCratesByOps(stacks, ops, true)
+	assert.Equal(t, "MCD", topCrates)
+}
+
+func Test_02(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	stacks, ops := ParseInput(reader)
+
+	topCrates := MoveCratesByOps(stacks, ops, true)
+	assert.Equal(t, "CJVLJQPHS", topCrates)
+}

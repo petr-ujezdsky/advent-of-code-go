@@ -13,15 +13,32 @@ type Operation struct {
 	From, To, Count int
 }
 
-func move(from, to *CratesStack, count int) {
+func moveByOne(from, to *CratesStack, count int) {
 	for i := 0; i < count; i++ {
 		to.Push(from.Pop())
 	}
 }
 
-func MoveCratesByOps(stacks []*CratesStack, ops []Operation) string {
+func moveAll(from, to *CratesStack, count int) {
+	stack := utils.NewStack[rune]()
+
+	for i := 0; i < count; i++ {
+		stack.Push(from.Pop())
+	}
+
+	for !stack.Empty() {
+		to.Push(stack.Pop())
+	}
+}
+
+func MoveCratesByOps(stacks []*CratesStack, ops []Operation, movesAll bool) string {
 	for _, op := range ops {
-		move(stacks[op.From-1], stacks[op.To-1], op.Count)
+		if movesAll {
+			moveAll(stacks[op.From-1], stacks[op.To-1], op.Count)
+
+		} else {
+			moveByOne(stacks[op.From-1], stacks[op.To-1], op.Count)
+		}
 	}
 
 	topCrates := ""
