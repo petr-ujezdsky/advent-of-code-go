@@ -14,30 +14,28 @@ func Test_01_parse(t *testing.T) {
 
 	assert.Equal(t, 3, len(stacks))
 	assert.Equal(t, 4, len(ops))
-	//assert.Equal(t, utils.NewInterval(2, 6), pairs[5].Left)
-	//assert.Equal(t, utils.NewInterval(4, 8), pairs[5].Right)
 }
 
-//
-//func Test_01_example(t *testing.T) {
-//	reader, err := os.Open("data-00-example.txt")
-//	assert.Nil(t, err)
-//
-//	pairs := ParseInput(reader)
-//
-//	count := CountContained(pairs)
-//	assert.Equal(t, 2, count)
-//}
-//
-//func Test_01(t *testing.T) {
-//	reader, err := os.Open("data-01.txt")
-//	assert.Nil(t, err)
-//
-//	pairs := ParseInput(reader)
-//
-//	count := CountContained(pairs)
-//	assert.Equal(t, 605, count)
-//}
+func Test_01_example(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	stacks, ops := ParseInput(reader)
+
+	topCrates := MoveCratesByOps(stacks, ops)
+	assert.Equal(t, "CMZ", topCrates)
+}
+
+func Test_01(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	stacks, ops := ParseInput(reader)
+
+	topCrates := MoveCratesByOps(stacks, ops)
+	assert.Equal(t, "FJSRQCFTN", topCrates)
+}
+
 //
 //func Test_02_example(t *testing.T) {
 //	reader, err := os.Open("data-00-example.txt")

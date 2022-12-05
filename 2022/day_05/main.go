@@ -13,6 +13,27 @@ type Operation struct {
 	From, To, Count int
 }
 
+func move(from, to *CratesStack, count int) {
+	for i := 0; i < count; i++ {
+		to.Push(from.Pop())
+	}
+}
+
+func MoveCratesByOps(stacks []*CratesStack, ops []Operation) string {
+	for _, op := range ops {
+		move(stacks[op.From-1], stacks[op.To-1], op.Count)
+	}
+
+	topCrates := ""
+	for _, stack := range stacks {
+		if !stack.Empty() {
+			topCrates += string(stack.Peek())
+		}
+	}
+
+	return topCrates
+}
+
 func ParseInput(r io.Reader) ([]*CratesStack, []Operation) {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
