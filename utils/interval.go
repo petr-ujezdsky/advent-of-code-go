@@ -15,6 +15,14 @@ func NewInterval[T Number](a, b T) Interval[T] {
 	return Interval[T]{a, b}
 }
 
+func (i Interval[T]) IsInversed() bool {
+	return i.Low > i.High
+}
+
+func (i Interval[T]) Size() T {
+	return i.High - i.Low + 1
+}
+
 func (i Interval[T]) Contains(v T) bool {
 	return i.Low <= v && v <= i.High
 }
