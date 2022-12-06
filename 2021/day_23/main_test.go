@@ -21,6 +21,18 @@ func Test_Building_String(t *testing.T) {
   #A#D#C#A#
   #########`
 	assert.Equal(t, expected, "\n"+building.String())
+
+	building = NewBuilding("ADDB", "DBCC", "CABB", "ACAD")
+
+	expected = `
+#############
+#...........#
+###B#C#B#D###
+  #D#C#B#A#
+  #D#B#A#C#
+  #A#D#C#A#
+  #########`
+	assert.Equal(t, expected, "\n"+building.String())
 }
 
 func Test_01_example_sorted(t *testing.T) {
@@ -63,5 +75,23 @@ func Test_01(t *testing.T) {
 
 	score, winner := Sort(building)
 	assert.Equal(t, 10607, score)
+	PrintMoves(winner)
+}
+
+func Test_02_example(t *testing.T) {
+	metrics.Enable()
+	building := NewBuilding("ADDB", "DBCC", "CABB", "ACAD")
+
+	score, winner := Sort(building)
+	assert.Equal(t, 44169, score)
+	PrintMoves(winner)
+}
+
+func Test_02(t *testing.T) {
+	metrics.Enable()
+	building := NewBuilding("CDDB", "ABCB", "AABD", "CCAD")
+
+	score, winner := Sort(building)
+	assert.Equal(t, 59071, score)
 	PrintMoves(winner)
 }

@@ -16,64 +16,85 @@ import (
   #########
 */
 
+type Room struct {
+	utils.Stack[rune]
+	Capacity int
+}
+
+func (r Room) ContainsOnly(ch rune) bool {
+	for _, rch := range r.PeekAll() {
+		if rch != ch {
+			return false
+		}
+	}
+
+	return r.Length() > 0
+}
+
+func (r Room) CanAccept(ch rune) bool {
+	return r.Length() == 0 || r.Length() < r.Capacity && r.ContainsOnly(ch)
+}
+
+func (r Room) Clone() Room {
+	return Room{
+		Stack:    r.Stack.Clone(),
+		Capacity: r.Capacity,
+	}
+}
+
 type Building struct {
 	// 00-10 = hallway
 	// 11-12 = room1
 	// 13-14 = room2
 	// 15-16 = room3
 	// 17-18 = room4
-	data           []rune
+	Hallway        []rune
+	Rooms          []Room
 	ConsumedEnergy int
 	Previous       *Building
 }
 
 func NewBuilding(room1, room2, room3, room4 string) Building {
-	b := Building{
-		data:           make([]rune, 19),
-		ConsumedEnergy: 0,
-	}
-
-	utils.Copy([]rune(room1), b.Room(0))
-	utils.Copy([]rune(room2), b.Room(1))
-	utils.Copy([]rune(room3), b.Room(2))
-	utils.Copy([]rune(room4), b.Room(3))
-
-	return b
+	return NewBuildingFull("...........", room1, room2, room3, room4, 0)
 }
+
 func NewBuildingFull(hallway, room1, room2, room3, room4 string, consumedEnergy int) Building {
 	b := Building{
-		data:           make([]rune, 19),
+		Hallway:        dot2zero([]rune(hallway)),
+		Rooms:          make([]Room, 4),
 		ConsumedEnergy: consumedEnergy,
 	}
 
-	utils.Copy([]rune(hallway), b.Hallway())
-
-	utils.Copy([]rune(room1), b.Room(0))
-	utils.Copy([]rune(room2), b.Room(1))
-	utils.Copy([]rune(room3), b.Room(2))
-	utils.Copy([]rune(room4), b.Room(3))
-
-	for i := 0; i < len(b.data); i++ {
-		if b.data[i] == '.' {
-			b.data[i] = 0
-		}
-	}
+	b.Rooms[0] = Room{Stack: utils.NewStackFilled(dot2nothing([]rune(room1))), Capacity: len(room1)}
+	b.Rooms[1] = Room{Stack: utils.NewStackFilled(dot2nothing([]rune(room2))), Capacity: len(room1)}
+	b.Rooms[2] = Room{Stack: utils.NewStackFilled(dot2nothing([]rune(room3))), Capacity: len(room1)}
+	b.Rooms[3] = Room{Stack: utils.NewStackFilled(dot2nothing([]rune(room4))), Capacity: len(room1)}
 
 	return b
 }
 
-func (b Building) Hallway() []rune {
-	return b.data[0:11]
+func dot2zero(chars []rune) []rune {
+	for i := 0; i < len(chars); i++ {
+		if chars[i] == '.' {
+			chars[i] = 0
+		}
+	}
+	return chars
 }
 
-func (b Building) Room(i int) Room {
-	return b.data[11+i*2 : 11+i*2+2]
+func dot2nothing(chars []rune) []rune {
+	for i := 0; i < len(chars); i++ {
+		if chars[i] == '.' {
+			return chars[0:i]
+		}
+	}
+	return chars
 }
 
 func (b Building) IsSorted() bool {
 	for iRoom := 0; iRoom < 4; iRoom++ {
-		room := b.Room(iRoom)
-		if int(room[0]) != ('A'+iRoom) || int(room[1]) != ('A'+iRoom) {
+		room := b.Rooms[iRoom]
+		if !room.ContainsOnly(rune('A'+iRoom)) || room.Length() != room.Capacity {
 			return false
 		}
 	}
@@ -82,18 +103,34 @@ func (b Building) IsSorted() bool {
 }
 
 func (b Building) Clone() Building {
-	return Building{
-		data:           utils.ShallowCopy(b.data),
+	b2 := Building{
+		Hallway:        utils.ShallowCopy(b.Hallway),
+		Rooms:          make([]Room, 4),
 		ConsumedEnergy: b.ConsumedEnergy,
 		Previous:       &b,
 	}
+
+	b2.Rooms[0] = b.Rooms[0].Clone()
+	b2.Rooms[1] = b.Rooms[1].Clone()
+	b2.Rooms[2] = b.Rooms[2].Clone()
+	b2.Rooms[3] = b.Rooms[3].Clone()
+
+	return b2
 }
-func chToString(ch rune) rune {
+func chZeroToDot(ch rune) rune {
 	if ch == 0 {
 		return '.'
 	}
 
 	return ch
+}
+
+func getChOrDot(chars []rune, i int) string {
+	if i < 0 || i >= len(chars) {
+		return "."
+	}
+
+	return string(chZeroToDot(chars[i]))
 }
 
 func (b Building) String() string {
@@ -103,86 +140,33 @@ func (b Building) String() string {
 	sb.WriteString("#")
 
 	// hallway
-	for _, ch := range b.Hallway() {
-		sb.WriteRune(chToString(ch))
+	for _, ch := range b.Hallway {
+		sb.WriteRune(chZeroToDot(ch))
 	}
 	sb.WriteString("#\n")
 
 	// rooms
-	sb.WriteString("###")
-	for i := 0; i < 4; i++ {
-		room := b.Room(i)
-		sb.WriteString(string(chToString(room[1])) + "#")
-	}
-	sb.WriteString("##\n")
+	for i := b.Rooms[0].Capacity - 1; i >= 0; i-- {
+		if i == b.Rooms[0].Capacity-1 {
+			sb.WriteString("###")
+		} else {
+			sb.WriteString("  #")
+		}
 
-	sb.WriteString("  #")
-	for i := 0; i < 4; i++ {
-		room := b.Room(i)
-		sb.WriteString(string(chToString(room[0])) + "#")
+		for _, room := range b.Rooms {
+			sb.WriteString(getChOrDot(room.PeekAll(), i) + "#")
+		}
+
+		if i == b.Rooms[0].Capacity-1 {
+			sb.WriteString("##\n")
+		} else {
+			sb.WriteString("\n")
+		}
 	}
-	sb.WriteString("\n")
+
 	sb.WriteString("  #########")
 
 	return sb.String()
-}
-
-type Room []rune
-
-func (r Room) Length() int {
-	if r[1] != 0 {
-		return 2
-	}
-
-	if r[0] != 0 {
-		return 1
-	}
-
-	return 0
-}
-
-func (r Room) Empty() bool {
-	return r.Length() == 0
-}
-
-func (r Room) Push(ch rune) {
-	r[r.Length()] = ch
-}
-
-func (r Room) Pop() rune {
-	ch := r[r.Length()-1]
-	r[r.Length()-1] = 0
-	return ch
-}
-
-func (r Room) Peek() rune {
-	return r[r.Length()-1]
-}
-
-func (r Room) ContainsOnly(ch rune) bool {
-	if r[1] != 0 && r[1] != ch {
-		return false
-	}
-
-	if r[0] != 0 && r[0] != ch {
-		return false
-	}
-
-	return r.Length() > 0
-}
-
-func (r Room) EligibleFor(ch rune) bool {
-	length := r.Length()
-
-	if length == 0 {
-		return true
-	}
-
-	if length == 2 {
-		return false
-	}
-
-	return r[0] == ch
 }
 
 func stepEnergy(ch rune) int {
@@ -223,11 +207,11 @@ func Move(building Building, lowestEnergy *int) ([]Building, *Building) {
 
 	var buildings []Building
 
-	hallway := building.Hallway()
+	hallway := building.Hallway
 
 	// try every ch in all rooms and move it to hallway
 	for iRoom := 0; iRoom < 4; iRoom++ {
-		room := building.Room(iRoom)
+		room := building.Rooms[iRoom]
 
 		if room.Empty() {
 			continue
@@ -238,7 +222,7 @@ func Move(building Building, lowestEnergy *int) ([]Building, *Building) {
 			continue
 		}
 
-		stepsUp := 3 - room.Length()
+		stepsUp := room.Capacity + 1 - room.Length()
 
 		// index of room in hallway
 		iRoomHallway := iRoom*2 + 2
@@ -269,9 +253,9 @@ func Move(building Building, lowestEnergy *int) ([]Building, *Building) {
 			// move to that position creating new state
 			b := building.Clone()
 			// remove ch from room
-			ch := b.Room(iRoom).Pop()
+			ch := b.Rooms[iRoom].Pop()
 			// add it to hallway
-			b.Hallway()[iHallway] = ch
+			b.Hallway[iHallway] = ch
 			// energy
 			b.ConsumedEnergy = energy
 
@@ -304,9 +288,9 @@ func Move(building Building, lowestEnergy *int) ([]Building, *Building) {
 			// move to that position creating new state
 			b := building.Clone()
 			// remove ch from room
-			ch := b.Room(iRoom).Pop()
+			ch := b.Rooms[iRoom].Pop()
 			// add it to hallway
-			b.Hallway()[iHallway] = ch
+			b.Hallway[iHallway] = ch
 			// energy
 			b.ConsumedEnergy = energy
 
@@ -330,10 +314,10 @@ HALLWAY:
 
 		// target room
 		iRoom := int(ch - 'A')
-		room := building.Room(iRoom)
+		room := building.Rooms[iRoom]
 
 		// check room eligibility
-		if !room.EligibleFor(ch) {
+		if !room.CanAccept(ch) {
 			continue
 		}
 		// room is eligible
@@ -362,7 +346,7 @@ HALLWAY:
 
 		// calculate energy
 		stepsSide := utils.Abs(iHallway - iRoomHallway)
-		stepsDown := 2 - room.Length()
+		stepsDown := room.Capacity - room.Length()
 		stepsTotal := stepsSide + stepsDown
 		energy := building.ConsumedEnergy + stepsTotal*stepEnergy(ch)
 
@@ -374,9 +358,9 @@ HALLWAY:
 		// move into room creating new state
 		b := building.Clone()
 		// remove it from hallway
-		b.Hallway()[iHallway] = 0
+		b.Hallway[iHallway] = 0
 		// add ch to room
-		b.Room(iRoom).Push(ch)
+		b.Rooms[iRoom].Push(ch)
 		// energy
 		b.ConsumedEnergy = energy
 

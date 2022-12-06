@@ -21,6 +21,10 @@ func (stack *Stack[T]) Peek() T {
 	return stack.list[len(stack.list)-1]
 }
 
+func (stack *Stack[T]) PeekAll() []T {
+	return stack.list
+}
+
 func (stack *Stack[T]) Push(elm T) {
 	stack.list = append(stack.list, elm)
 }
