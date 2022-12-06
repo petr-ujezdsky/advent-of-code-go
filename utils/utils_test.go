@@ -98,6 +98,15 @@ func TestShallowCopy(t *testing.T) {
 	assert.Equal(t, 1, clone[0])
 }
 
+func TestCopy(t *testing.T) {
+	source := []int{1, 2, 3}
+	target := make([]int, 3)
+
+	utils.Copy(source, target)
+
+	assert.Equal(t, []int{1, 2, 3}, target)
+}
+
 func TestReverse(t *testing.T) {
 	assert.Equal(t, []int{3, 2, 1}, utils.Reverse([]int{1, 2, 3}))
 	assert.Equal(t, []int{4, 3, 2, 1}, utils.Reverse([]int{1, 2, 3, 4}))

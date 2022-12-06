@@ -203,6 +203,13 @@ func ShallowCopy[T any](slice []T) []T {
 	return cloned
 }
 
+// Copy copies all values from source slice into target slice
+func Copy[T any](source []T, target []T) {
+	for i, v := range source {
+		target[i] = v
+	}
+}
+
 func Reverse[T any](slice []T) []T {
 	length := len(slice)
 	reversed := make([]T, length)

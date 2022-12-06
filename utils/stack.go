@@ -10,6 +10,10 @@ func NewStack[T any]() Stack[T] {
 	return Stack[T]{}
 }
 
+func NewStackFilled[T any](values []T) Stack[T] {
+	return Stack[T]{list: values}
+}
+
 func (stack *Stack[T]) Peek() T {
 	if stack.Empty() {
 		panic("Stack is empty")
@@ -32,4 +36,12 @@ func (stack *Stack[T]) Pop() (elm T) {
 
 func (stack *Stack[T]) Empty() bool {
 	return len(stack.list) == 0
+}
+
+func (stack *Stack[T]) Length() int {
+	return len(stack.list)
+}
+
+func (stack *Stack[T]) Clone() Stack[T] {
+	return NewStackFilled(ShallowCopy(stack.list))
 }

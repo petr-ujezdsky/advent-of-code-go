@@ -16,6 +16,14 @@ func (m *Metric) TickSum(period, v int) {
 	}
 }
 
+func (m *Metric) TickCurrent(period, v int) {
+	m.Iterations++
+
+	if m.Enabled && m.Iterations%period == 0 {
+		fmt.Printf("Iteration #%d, current = %d\n", m.Iterations, v)
+	}
+}
+
 func (m *Metric) Tick(period int) {
 	m.Iterations++
 
