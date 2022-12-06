@@ -9,7 +9,6 @@ import (
 func FindPacketStart(str string, windowSize int) int {
 	chars := []rune(str)
 	window := make(map[rune]int)
-	leftChar := rune(0)
 
 	for i, ch := range chars {
 		window[ch]++
@@ -19,7 +18,7 @@ func FindPacketStart(str string, windowSize int) int {
 		}
 
 		if i >= windowSize-1 {
-			leftChar = chars[i-windowSize+1]
+			leftChar := chars[i-windowSize+1]
 			window[leftChar]--
 			if window[leftChar] == 0 {
 				delete(window, leftChar)
