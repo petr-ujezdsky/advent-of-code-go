@@ -44,3 +44,11 @@ func (m *Metric) Finished() {
 		fmt.Printf("%v - ticks = %d, sum = %d (finished)\n", m.Name, m.Ticks, m.Sum)
 	}
 }
+
+type Metrics []*Metric
+
+func (m Metrics) Enable() {
+	for _, metric := range m {
+		metric.Enabled = true
+	}
+}

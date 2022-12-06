@@ -24,7 +24,7 @@ func Test_Building_String(t *testing.T) {
 }
 
 func Test_01_example_sorted(t *testing.T) {
-	metric.Enabled = true
+	metrics.Enable()
 	building := NewBuilding("AA", "BB", "CC", "DD")
 	building.ConsumedEnergy = 12521
 
@@ -33,7 +33,7 @@ func Test_01_example_sorted(t *testing.T) {
 }
 
 func Test_01_example_final_2(t *testing.T) {
-	metric.Enabled = true
+	metrics.Enable()
 	building := NewBuildingFull(".....D.D.A.", "A.", "BB", "CC", "..", 12521-8-7000)
 
 	score, _ := Sort(building)
@@ -41,7 +41,7 @@ func Test_01_example_final_2(t *testing.T) {
 }
 
 func Test_01_example_final_1(t *testing.T) {
-	metric.Enabled = true
+	metrics.Enable()
 	building := NewBuildingFull(".........A.", "A.", "BB", "CC", "DD", 12521-8)
 
 	score, _ := Sort(building)
@@ -49,7 +49,7 @@ func Test_01_example_final_1(t *testing.T) {
 }
 
 func Test_01_example(t *testing.T) {
-	metric.Enabled = true
+	metrics.Enable()
 	building := NewBuilding("AB", "DC", "CB", "AD")
 
 	score, winner := Sort(building)
@@ -58,7 +58,7 @@ func Test_01_example(t *testing.T) {
 }
 
 func Test_01(t *testing.T) {
-	metric.Enabled = true
+	metrics.Enable()
 	building := NewBuilding("CB", "AB", "AD", "CD")
 
 	score, winner := Sort(building)

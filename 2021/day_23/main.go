@@ -387,18 +387,19 @@ HALLWAY:
 	return buildings, nil
 }
 
-var metric = utils.NewMetric("Global")
-var metricSolution = utils.NewMetric("Winner")
+var metricGlobal = utils.NewMetric("Global")
+var metricWinner = utils.NewMetric("Winner")
+var metrics = utils.Metrics{metricGlobal, metricWinner}
 
 func Sort(building Building) (int, *Building) {
-	metricSolution.Enabled = metric.Enabled
+	metricWinner.Enabled = metricGlobal.Enabled
 
 	lowestEnergy := math.MaxInt
 	buildings := []Building{building}
 	var totalWinner *Building
 
 	for len(buildings) > 0 {
-		metric.TickCurrent(500_000, len(buildings))
+		metricGlobal.TickCurrent(500_000, len(buildings))
 
 		b := buildings[0]
 		buildings = utils.RemoveUnordered(buildings, 0)
@@ -408,11 +409,11 @@ func Sort(building Building) (int, *Building) {
 
 		if currentWinner != nil {
 			totalWinner = currentWinner
-			metricSolution.Tick(100)
+			metricWinner.Tick(100)
 		}
 	}
-	metric.Finished()
-	metricSolution.Finished()
+	metricGlobal.Finished()
+	metricWinner.Finished()
 
 	return lowestEnergy, totalWinner
 }
