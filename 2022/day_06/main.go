@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-func FindPacketStart(str string) int {
+func FindPacketStart(str string, windowSize int) int {
 	chars := []rune(str)
 	window := make(map[rune]int)
 	leftChar := rune(0)
@@ -14,12 +14,12 @@ func FindPacketStart(str string) int {
 	for i, ch := range chars {
 		window[ch]++
 
-		if len(window) == 4 {
+		if len(window) == windowSize {
 			return i + 1
 		}
 
-		if i > 2 {
-			leftChar = chars[i-3]
+		if i >= windowSize-1 {
+			leftChar = chars[i-windowSize+1]
 			window[leftChar]--
 			if window[leftChar] == 0 {
 				delete(window, leftChar)
