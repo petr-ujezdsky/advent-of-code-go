@@ -40,6 +40,27 @@ func NewBuilding2(room1, room2, room3, room4 string) Building2 {
 
 	return b
 }
+func NewBuilding2Full(hallway, room1, room2, room3, room4 string, consumedEnergy int) Building2 {
+	b := Building2{
+		data:           make([]rune, 19),
+		ConsumedEnergy: consumedEnergy,
+	}
+
+	utils.Copy([]rune(hallway), b.Hallway())
+
+	utils.Copy([]rune(room1), b.Room(0))
+	utils.Copy([]rune(room2), b.Room(1))
+	utils.Copy([]rune(room3), b.Room(2))
+	utils.Copy([]rune(room4), b.Room(3))
+
+	for i := 0; i < len(b.data); i++ {
+		if b.data[i] == '.' {
+			b.data[i] = 0
+		}
+	}
+
+	return b
+}
 
 func (b Building2) Hallway() []rune {
 	return b.data[0:11]
@@ -324,7 +345,7 @@ HALLWAY:
 		step := utils.Signum(iRoomHallway - iHallway)
 
 		// go left or right
-		for iiHallway := iHallway + step; 0 < iiHallway && iiHallway < len(hallway); iiHallway += step {
+		for iiHallway := iHallway + step; utils.Abs(iiHallway-iRoomHallway) > 0; iiHallway += step {
 			// invalid hallway positions (room entrances)
 			if iiHallway == 2 || iiHallway == 4 || iiHallway == 6 || iiHallway == 8 {
 				continue
@@ -366,15 +387,18 @@ HALLWAY:
 	return buildings, nil
 }
 
-var metric = utils.Metric{}
+var metric = utils.NewMetric("Global")
+var metricSolution = utils.NewMetric("Winner")
 
 func Sort(building Building2) (int, *Building2) {
+	metricSolution.Enabled = metric.Enabled
+
 	lowestEnergy := math.MaxInt
 	buildings := []Building2{building}
 	var totalWinner *Building2
 
 	for len(buildings) > 0 {
-		metric.TickCurrent(1_000, len(buildings))
+		metric.TickCurrent(500_000, len(buildings))
 
 		b := buildings[0]
 		buildings = utils.RemoveUnordered(buildings, 0)
@@ -384,8 +408,11 @@ func Sort(building Building2) (int, *Building2) {
 
 		if currentWinner != nil {
 			totalWinner = currentWinner
+			metricSolution.Tick(100)
 		}
 	}
+	metric.Finished()
+	metricSolution.Finished()
 
 	return lowestEnergy, totalWinner
 }

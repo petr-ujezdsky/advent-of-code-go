@@ -229,3 +229,15 @@ func RemoveUnordered[T any](s []T, i int) []T {
 	// return len-1 elements
 	return s[:len(s)-1]
 }
+
+func EqualSlice[T comparable](a, b []T) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, av := range a {
+		if av != b[i] {
+			return false
+		}
+	}
+	return true
+}
