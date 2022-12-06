@@ -16,7 +16,7 @@ import (
   #########
 */
 
-type Building2 struct {
+type Building struct {
 	// 00-10 = hallway
 	// 11-12 = room1
 	// 13-14 = room2
@@ -24,11 +24,11 @@ type Building2 struct {
 	// 17-18 = room4
 	data           []rune
 	ConsumedEnergy int
-	Previous       *Building2
+	Previous       *Building
 }
 
-func NewBuilding2(room1, room2, room3, room4 string) Building2 {
-	b := Building2{
+func NewBuilding(room1, room2, room3, room4 string) Building {
+	b := Building{
 		data:           make([]rune, 19),
 		ConsumedEnergy: 0,
 	}
@@ -40,8 +40,8 @@ func NewBuilding2(room1, room2, room3, room4 string) Building2 {
 
 	return b
 }
-func NewBuilding2Full(hallway, room1, room2, room3, room4 string, consumedEnergy int) Building2 {
-	b := Building2{
+func NewBuildingFull(hallway, room1, room2, room3, room4 string, consumedEnergy int) Building {
+	b := Building{
 		data:           make([]rune, 19),
 		ConsumedEnergy: consumedEnergy,
 	}
@@ -62,15 +62,15 @@ func NewBuilding2Full(hallway, room1, room2, room3, room4 string, consumedEnergy
 	return b
 }
 
-func (b Building2) Hallway() []rune {
+func (b Building) Hallway() []rune {
 	return b.data[0:11]
 }
 
-func (b Building2) Room(i int) Room {
+func (b Building) Room(i int) Room {
 	return b.data[11+i*2 : 11+i*2+2]
 }
 
-func (b Building2) IsSorted() bool {
+func (b Building) IsSorted() bool {
 	for iRoom := 0; iRoom < 4; iRoom++ {
 		room := b.Room(iRoom)
 		if int(room[0]) != ('A'+iRoom) || int(room[1]) != ('A'+iRoom) {
@@ -81,8 +81,8 @@ func (b Building2) IsSorted() bool {
 	return true
 }
 
-func (b Building2) Clone() Building2 {
-	return Building2{
+func (b Building) Clone() Building {
+	return Building{
 		data:           utils.ShallowCopy(b.data),
 		ConsumedEnergy: b.ConsumedEnergy,
 		Previous:       &b,
@@ -96,7 +96,7 @@ func chToString(ch rune) rune {
 	return ch
 }
 
-func (b Building2) String() string {
+func (b Building) String() string {
 	sb := strings.Builder{}
 
 	sb.WriteString("#############\n")
@@ -200,7 +200,7 @@ func stepEnergy(ch rune) int {
 	panic("Unknown ch")
 }
 
-func PrintMoves(b *Building2) {
+func PrintMoves(b *Building) {
 	if b.Previous != nil {
 		PrintMoves(b.Previous)
 	}
@@ -209,7 +209,7 @@ func PrintMoves(b *Building2) {
 	fmt.Printf("======================================%v\n", b.ConsumedEnergy)
 }
 
-func Move(building Building2, lowestEnergy *int) ([]Building2, *Building2) {
+func Move(building Building, lowestEnergy *int) ([]Building, *Building) {
 	// check best energy
 	if building.ConsumedEnergy > *lowestEnergy {
 		return nil, nil
@@ -221,7 +221,7 @@ func Move(building Building2, lowestEnergy *int) ([]Building2, *Building2) {
 		return nil, &building
 	}
 
-	var buildings []Building2
+	var buildings []Building
 
 	hallway := building.Hallway()
 
@@ -390,12 +390,12 @@ HALLWAY:
 var metric = utils.NewMetric("Global")
 var metricSolution = utils.NewMetric("Winner")
 
-func Sort(building Building2) (int, *Building2) {
+func Sort(building Building) (int, *Building) {
 	metricSolution.Enabled = metric.Enabled
 
 	lowestEnergy := math.MaxInt
-	buildings := []Building2{building}
-	var totalWinner *Building2
+	buildings := []Building{building}
+	var totalWinner *Building
 
 	for len(buildings) > 0 {
 		metric.TickCurrent(500_000, len(buildings))

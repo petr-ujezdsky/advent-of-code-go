@@ -7,12 +7,12 @@ import (
 )
 
 func Test_Building_IsSorted(t *testing.T) {
-	assert.Equal(t, true, NewBuilding2("AA", "BB", "CC", "DD").IsSorted())
-	assert.Equal(t, false, NewBuilding2("AB", "DC", "CB", "AD").IsSorted())
+	assert.Equal(t, true, NewBuilding("AA", "BB", "CC", "DD").IsSorted())
+	assert.Equal(t, false, NewBuilding("AB", "DC", "CB", "AD").IsSorted())
 }
 
 func Test_Building_String(t *testing.T) {
-	building := NewBuilding2("AB", "DC", "CB", "AD")
+	building := NewBuilding("AB", "DC", "CB", "AD")
 
 	expected := `
 #############
@@ -25,7 +25,7 @@ func Test_Building_String(t *testing.T) {
 
 func Test_01_example_sorted(t *testing.T) {
 	metric.Enabled = true
-	building := NewBuilding2("AA", "BB", "CC", "DD")
+	building := NewBuilding("AA", "BB", "CC", "DD")
 	building.ConsumedEnergy = 12521
 
 	score, _ := Sort(building)
@@ -34,7 +34,7 @@ func Test_01_example_sorted(t *testing.T) {
 
 func Test_01_example_final_2(t *testing.T) {
 	metric.Enabled = true
-	building := NewBuilding2Full(".....D.D.A.", "A.", "BB", "CC", "..", 12521-8-7000)
+	building := NewBuildingFull(".....D.D.A.", "A.", "BB", "CC", "..", 12521-8-7000)
 
 	score, _ := Sort(building)
 	assert.Equal(t, 12521, score)
@@ -42,7 +42,7 @@ func Test_01_example_final_2(t *testing.T) {
 
 func Test_01_example_final_1(t *testing.T) {
 	metric.Enabled = true
-	building := NewBuilding2Full(".........A.", "A.", "BB", "CC", "DD", 12521-8)
+	building := NewBuildingFull(".........A.", "A.", "BB", "CC", "DD", 12521-8)
 
 	score, _ := Sort(building)
 	assert.Equal(t, 12521, score)
@@ -50,7 +50,7 @@ func Test_01_example_final_1(t *testing.T) {
 
 func Test_01_example(t *testing.T) {
 	metric.Enabled = true
-	building := NewBuilding2("AB", "DC", "CB", "AD")
+	building := NewBuilding("AB", "DC", "CB", "AD")
 
 	score, winner := Sort(building)
 	assert.Equal(t, 12521, score)
@@ -59,7 +59,7 @@ func Test_01_example(t *testing.T) {
 
 func Test_01(t *testing.T) {
 	metric.Enabled = true
-	building := NewBuilding2("CB", "AB", "AD", "CD")
+	building := NewBuilding("CB", "AB", "AD", "CD")
 
 	score, winner := Sort(building)
 	assert.Equal(t, 10607, score)
