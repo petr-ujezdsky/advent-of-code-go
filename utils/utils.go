@@ -242,6 +242,14 @@ func EqualSlice[T comparable](a, b []T) bool {
 	return true
 }
 
+func FilledSlice[T any](v T, length int) []T {
+	s := make([]T, length)
+	for i := 0; i < len(s); i++ {
+		s[i] = v
+	}
+	return s
+}
+
 func Msg(str string) string {
 	return str[1:]
 }
