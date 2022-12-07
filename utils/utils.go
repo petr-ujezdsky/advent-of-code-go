@@ -241,3 +241,7 @@ func EqualSlice[T comparable](a, b []T) bool {
 	}
 	return true
 }
+
+func Msg(str string) string {
+	return str[1:]
+}
