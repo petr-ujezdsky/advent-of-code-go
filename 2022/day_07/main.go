@@ -132,12 +132,42 @@ func ReplayCommands(commands []Command) *Node {
 		Size:   0,
 	}
 
+	// replay commands
 	currentNode := root
 	for _, command := range commands {
 		currentNode = command.Evaluator(currentNode, command)
 	}
 
 	return root
+}
+
+func findDirsOfSizeLessThan(limit int, node *Node, dirs *[]*Node) {
+	if node.Type == File {
+		return
+	}
+
+	if node.Size <= limit {
+		*dirs = append(*dirs, node)
+	}
+
+	for _, child := range node.Nodes {
+		findDirsOfSizeLessThan(limit, child, dirs)
+	}
+}
+
+func Filter100k(root *Node) int {
+	limit := 100_000
+	dirs := &[]*Node{}
+
+	findDirsOfSizeLessThan(limit, root, dirs)
+
+	// sum dir sizes
+	sum := 0
+	for _, dir := range *dirs {
+		sum += dir.Size
+	}
+
+	return sum
 }
 
 func ParseInput(r io.Reader) []Command {
