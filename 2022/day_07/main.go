@@ -170,6 +170,31 @@ func Filter100k(root *Node) int {
 	return sum
 }
 
+func minMax(node *Node, limit int, min *Node) *Node {
+	if node.Type == File || node.Size < limit {
+		return min
+	}
+
+	if node.Size < min.Size {
+		min = node
+	}
+
+	for _, child := range node.Nodes {
+		min = minMax(child, limit, min)
+	}
+
+	return min
+}
+
+func Deletable(root *Node) int {
+	free := 70_000_000 - root.Size
+	needed := 30000000 - free
+
+	min := minMax(root, needed, root)
+
+	return min.Size
+}
+
 func ParseInput(r io.Reader) []Command {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)

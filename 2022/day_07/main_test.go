@@ -60,23 +60,26 @@ func Test_01(t *testing.T) {
 	assert.Equal(t, 1783610, sum)
 }
 
-//
-//func Test_02_example(t *testing.T) {
-//	reader, err := os.Open("data-00-example.txt")
-//	assert.Nil(t, err)
-//
-//	commands := ParseInput(reader)
-//
-//	root := ReplayCommands(commands)
-//	assert.Equal(t, 0, root)
-//}
-//
-//func Test_02(t *testing.T) {
-//	reader, err := os.Open("data-01.txt")
-//	assert.Nil(t, err)
-//
-//	commands := ParseInput(reader)
-//
-//	root := ReplayCommands(commands)
-//	assert.Equal(t, 0, root)
-//}
+func Test_02_example(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	commands := ParseInput(reader)
+
+	root := ReplayCommands(commands)
+
+	size := Deletable(root)
+	assert.Equal(t, 24933642, size)
+}
+
+func Test_02(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	commands := ParseInput(reader)
+
+	root := ReplayCommands(commands)
+
+	size := Deletable(root)
+	assert.Equal(t, 4370655, size)
+}
