@@ -28,10 +28,20 @@ type Matrix2f = Matrix2n[float64]
 // constructor aliases
 
 var NewMatrix2i = NewMatrix2[int]
+var NewMatrix2iPopulated = NewMatrix2Populated[int]
 
 func NewMatrix2[T Number](width, height int) Matrix2n[T] {
+	return NewMatrix2Populated[T](width, height, 0)
+}
+
+func NewMatrix2Populated[T Number](width, height int, value T) Matrix2n[T] {
 	matrixCols := make([][]T, width)
 	cells := make([]T, width*height)
+
+	// 0 is default, no need to init in this case
+	if value != 0 {
+		FillSlice(cells, value)
+	}
 
 	// ensure data locality
 	for col := range matrixCols {
@@ -109,6 +119,20 @@ func (m Matrix2n[T]) Transpose() Matrix2n[T] {
 	}
 
 	return transposed
+}
+
+func (m Matrix2n[T]) ArgMax() (Vector2i, T) {
+	max, xmax, ymax := m.Columns[0][0], 0, 0
+
+	for x, col := range m.Columns {
+		for y, val := range col {
+			if val > max {
+				max, xmax, ymax = val, x, y
+			}
+		}
+	}
+
+	return Vector2i{xmax, ymax}, max
 }
 
 func (m Matrix2n[T]) String() string {

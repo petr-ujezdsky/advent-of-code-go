@@ -32,8 +32,8 @@ func Test_02_example(t *testing.T) {
 
 	heights := ParseInput(reader)
 
-	result := CountVisibleTrees(heights)
-	assert.Equal(t, 0, result)
+	result := FindBestTreeHouseLocationScore(heights)
+	assert.Equal(t, 8, result)
 }
 
 func Test_02(t *testing.T) {
@@ -42,6 +42,6 @@ func Test_02(t *testing.T) {
 
 	heights := ParseInput(reader)
 
-	result := CountVisibleTrees(heights)
-	assert.Equal(t, 0, result)
+	result := FindBestTreeHouseLocationScore(heights)
+	assert.Equal(t, 288120, result)
 }

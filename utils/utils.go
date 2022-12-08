@@ -259,6 +259,12 @@ func FilledSlice[T any](v T, length int) []T {
 	return s
 }
 
+func FillSlice[T any](slice []T, value T) {
+	for i := 0; i < len(slice); i++ {
+		slice[i] = value
+	}
+}
+
 func Msg(str string) string {
 	return str[1:]
 }

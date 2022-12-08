@@ -10,25 +10,19 @@ import (
 type Matrix2i = utils.Matrix2i
 type Vector2i = utils.Vector2i
 
-func processColumn(col []int, x int, points map[Vector2i]struct{}, transposed, reversed bool) int {
-	// skip bottom edge - it is always visible
-	col = col[:len(col)-1]
-
+func processColumn(col []int, x int, points map[Vector2i]struct{}, transposed bool, from, to int) {
 	max := math.MinInt
-	count := 0
 
-	for i, height := range col {
+	step := utils.Signum(to - from)
+	for y := from; y != to; y += step {
+		height := col[y]
+
 		if height > max {
 			max = height
 
-			// do not count top edge
-			if i == 0 {
+			// do not count beginning (edge)
+			if y == from {
 				continue
-			}
-
-			y := i
-			if reversed {
-				y = len(col) - 1 - i + 1
 			}
 
 			point := Vector2i{x, y}
@@ -39,8 +33,6 @@ func processColumn(col []int, x int, points map[Vector2i]struct{}, transposed, r
 			points[point] = struct{}{}
 		}
 	}
-
-	return count
 }
 
 func processVertically(heights Matrix2i, points map[Vector2i]struct{}, transposed bool) {
@@ -51,9 +43,9 @@ func processVertically(heights Matrix2i, points map[Vector2i]struct{}, transpose
 		}
 
 		// visible from top
-		processColumn(col, x, points, transposed, false)
+		processColumn(col, x, points, transposed, 0, len(col)-1)
 		// visible from bottom
-		processColumn(utils.Reverse(col), x, points, transposed, true)
+		processColumn(col, x, points, transposed, len(col)-1, 0)
 	}
 }
 
@@ -69,6 +61,69 @@ func CountVisibleTrees(heights Matrix2i) int {
 
 	count += len(interiorPoints)
 	return count
+}
+
+func countTreesFromHouseView(col []int, houseHeight, from, to int) int {
+	count := 0
+
+	step := utils.Signum(to - from)
+	for i := from; i != to+step || step == 0; i += step {
+		treeHeight := col[i]
+
+		count++
+		if treeHeight >= houseHeight {
+			break
+		}
+
+		if step == 0 {
+			break
+		}
+	}
+
+	return count
+}
+
+func processTreeHouseVertically(heights Matrix2i, scores *Matrix2i) {
+	for x, col := range heights.Columns {
+		// skip vertical edges
+		if x == 0 || x == heights.Width-1 {
+			continue
+		}
+
+		for y, houseHeight := range col {
+			// skip horizontal edges
+			if y == 0 || y == heights.Height-1 {
+				continue
+			}
+
+			score := 1
+
+			// view up
+			score *= countTreesFromHouseView(col, houseHeight, y-1, 0)
+
+			// view down
+			score *= countTreesFromHouseView(col, houseHeight, y+1, len(col)-1)
+
+			scores.Columns[x][y] *= score
+		}
+	}
+}
+
+func FindBestTreeHouseLocationScore(heights Matrix2i) int {
+	// default value is 1 because the score is multiplied
+	scores := utils.NewMatrix2iPopulated(heights.Width, heights.Height, 1)
+
+	// process vertically
+	processTreeHouseVertically(heights, &scores)
+
+	// process horizontally
+	heights = heights.Transpose()
+	scores = scores.Transpose()
+	processTreeHouseVertically(heights, &scores)
+
+	_, max := scores.ArgMax()
+
+	return max
 }
 
 func ParseInput(r io.Reader) utils.Matrix2i {
