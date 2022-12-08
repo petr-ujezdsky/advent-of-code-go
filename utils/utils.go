@@ -62,6 +62,15 @@ func ParseToMatrix(r io.Reader) (Matrix2i, error) {
 	return NewMatrix2RowNotation(rows), scanner.Err()
 }
 
+// ParseToMatrixP returns the matrix of integers (panics in case of an error)
+func ParseToMatrixP(r io.Reader) Matrix2i {
+	m, err := ParseToMatrix(r)
+	if err != nil {
+		panic("Problem parsing integer matrix")
+	}
+	return m
+}
+
 // ToInts parses each line into integer and returns the list
 func ToInts(intsStr []string) ([]int, error) {
 	var result []int

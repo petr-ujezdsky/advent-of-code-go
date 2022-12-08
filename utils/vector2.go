@@ -22,6 +22,10 @@ func (v1 vector2n[T]) Add(v2 vector2n[T]) vector2n[T] {
 	}
 }
 
+func (v1 vector2n[T]) Reverse() vector2n[T] {
+	return vector2n[T]{v1.Y, v1.X}
+}
+
 func (v1 vector2n[T]) String() string {
 	return fmt.Sprint([]T{v1.X, v1.Y})
 }
