@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+type MatrixB = utils.Matrix[bool]
+
 type Instruction struct {
 	Name   string
 	Amount int
@@ -21,7 +23,20 @@ func readSignalStrength(cycle, x int) int {
 	return 0
 }
 
-func DoWithInput(instructions []Instruction) int {
+func drawPixel(cycle, x int, pixels MatrixB) {
+	pos := cycle - 1
+	px := pos % 40
+	py := pos / 40
+
+	if x-1 <= px && px <= x+1 {
+		pixels.Columns[px][py] = true
+	} else {
+		pixels.Columns[px][py] = false
+	}
+}
+
+func DoWithInput(instructions []Instruction) (int, MatrixB) {
+	pixels := utils.NewMatrix[bool](40, 6)
 	strengthSum := 0
 	cycle := 0
 	x := 1
@@ -29,17 +44,21 @@ func DoWithInput(instructions []Instruction) int {
 		if instruction.Name == "noop" {
 			cycle++
 			strengthSum += readSignalStrength(cycle, x)
+			drawPixel(cycle, x, pixels)
 			continue
 		}
 
 		cycle++
 		strengthSum += readSignalStrength(cycle, x)
+		drawPixel(cycle, x, pixels)
 		cycle++
 		strengthSum += readSignalStrength(cycle, x)
+		drawPixel(cycle, x, pixels)
 		x += instruction.Amount
 		_ = i
 	}
-	return strengthSum
+
+	return strengthSum, pixels
 }
 
 func ParseInput(r io.Reader) []Instruction {

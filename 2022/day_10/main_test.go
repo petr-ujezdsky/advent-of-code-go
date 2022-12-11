@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
@@ -21,7 +23,7 @@ func Test_01_example(t *testing.T) {
 
 	instructions := ParseInput(reader)
 
-	result := DoWithInput(instructions)
+	result, _ := DoWithInput(instructions)
 	assert.Equal(t, 13140, result)
 }
 
@@ -31,7 +33,7 @@ func Test_01(t *testing.T) {
 
 	instructions := ParseInput(reader)
 
-	result := DoWithInput(instructions)
+	result, _ := DoWithInput(instructions)
 	assert.Equal(t, 13920, result)
 }
 
@@ -41,8 +43,9 @@ func Test_02_example(t *testing.T) {
 
 	instructions := ParseInput(reader)
 
-	result := DoWithInput(instructions)
-	assert.Equal(t, 0, result)
+	_, pixels := DoWithInput(instructions)
+
+	fmt.Printf("%v\n", pixels.StringFmt(utils.FmtBoolean[bool]))
 }
 
 func Test_02(t *testing.T) {
@@ -51,6 +54,7 @@ func Test_02(t *testing.T) {
 
 	instructions := ParseInput(reader)
 
-	result := DoWithInput(instructions)
-	assert.Equal(t, 0, result)
+	_, pixels := DoWithInput(instructions)
+
+	fmt.Printf("%v\n", pixels.StringFmt(utils.FmtBoolean[bool]))
 }
