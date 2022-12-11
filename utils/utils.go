@@ -3,7 +3,6 @@ package utils
 import (
 	"bufio"
 	"io"
-	"math"
 	"regexp"
 	"strconv"
 )
@@ -129,7 +128,7 @@ func Abs[T Number](i T) T {
 }
 
 // Signum returns 1 for positive number, -1 for negative and 0 for 0
-func Signum(i int) int {
+func Signum[T Number](i T) T {
 	if i < 0 {
 		return -1
 	}
@@ -160,8 +159,8 @@ func Min[T Number](i, j T) T {
 }
 
 // ArgMin finds index and value of minimum
-func ArgMin(values ...int) (int, int) {
-	min := math.MaxInt
+func ArgMin[T Number](values ...T) (int, T) {
+	min := values[0]
 	index := -1
 
 	for i, v := range values {
@@ -172,6 +171,21 @@ func ArgMin(values ...int) (int, int) {
 	}
 
 	return index, min
+}
+
+// ArgMax finds index and value of maximum
+func ArgMax[T Number](values ...T) (int, T) {
+	max := values[0]
+	index := -1
+
+	for i, v := range values {
+		if v <= max {
+			max = v
+			index = i
+		}
+	}
+
+	return index, max
 }
 
 // SumNtoM sums integers from N to M inclusive

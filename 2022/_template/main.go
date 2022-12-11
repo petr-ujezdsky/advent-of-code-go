@@ -9,8 +9,8 @@ import (
 type Item struct {
 }
 
-func DoWithInput(_ []Item) int {
-	return 0
+func DoWithInput(items []Item) int {
+	return len(items)
 }
 
 func ParseInput(r io.Reader) []Item {
