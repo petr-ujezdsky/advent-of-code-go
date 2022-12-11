@@ -50,7 +50,7 @@ func countUniquePoints(points []*utils.Vector2i) int {
 	return len(uniquePoints)
 }
 
-func PointsToMatrix(points []*utils.Vector2i) utils.Matrix2n[int] {
+func PointsToMatrix(points []*utils.Vector2i) utils.MatrixNumber[int] {
 	var maxX, maxY int
 
 	for _, point := range points {
@@ -58,7 +58,7 @@ func PointsToMatrix(points []*utils.Vector2i) utils.Matrix2n[int] {
 		maxY = utils.Max(maxY, point.Y)
 	}
 
-	matrix := utils.NewMatrix2[int](maxX+1, maxY+1)
+	matrix := utils.NewMatrixNumber[int](maxX+1, maxY+1)
 
 	for _, point := range points {
 		matrix.Columns[point.X][point.Y]++

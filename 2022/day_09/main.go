@@ -51,7 +51,7 @@ func moveTails(rope []Vector2i, iHead int, visited map[Vector2i]struct{}) {
 
 func printState(head Vector2i, tails []Vector2i) {
 	size := 35
-	m := utils.NewMatrix2iPopulated(size, size, 0)
+	m := utils.NewMatrixInt(size, size)
 	offset := Vector2i{size / 2, size / 2}
 
 	// origin
@@ -73,13 +73,13 @@ func printState(head Vector2i, tails []Vector2i) {
 
 func printTrail(visited map[Vector2i]struct{}) {
 	size := 35
-	m := utils.NewMatrix2iPopulated(size, size, 0)
+	m := utils.NewMatrixInt(size, size)
 	offset := Vector2i{size / 2, size / 2}
 
 	// origin
 	m.SetV(offset, -1)
 
-	for pos, _ := range visited {
+	for pos := range visited {
 		pos = pos.InvY().Add(offset)
 		m.SetV(pos, 1)
 	}

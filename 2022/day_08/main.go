@@ -7,7 +7,7 @@ import (
 	"math"
 )
 
-type Matrix2i = utils.Matrix2i
+type Matrix2i = utils.MatrixInt
 type Vector2i = utils.Vector2i
 
 func processColumn(col []int, x int, points map[Vector2i]struct{}, transposed bool, from, to int) {
@@ -111,7 +111,7 @@ func processTreeHouseVertically(heights Matrix2i, scores *Matrix2i) {
 
 func FindBestTreeHouseLocationScore(heights Matrix2i) int {
 	// default value is 1 because the score is multiplied
-	scores := utils.NewMatrix2iPopulated(heights.Width, heights.Height, 1)
+	scores := utils.NewMatrixInt(heights.Width, heights.Height).SetAll(1)
 
 	// process vertically
 	processTreeHouseVertically(heights, &scores)
@@ -126,6 +126,6 @@ func FindBestTreeHouseLocationScore(heights Matrix2i) int {
 	return max
 }
 
-func ParseInput(r io.Reader) utils.Matrix2i {
+func ParseInput(r io.Reader) utils.MatrixInt {
 	return utils.ParseToMatrixP(r)
 }

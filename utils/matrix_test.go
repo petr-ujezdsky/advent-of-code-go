@@ -7,7 +7,7 @@ import (
 )
 
 func TestNewMatrix2_data_locality(t *testing.T) {
-	matrix2 := NewMatrix2[int](2, 3)
+	matrix2 := NewMatrixInt(2, 3)
 
 	i := 0
 	for x := 0; x < 2; x++ {

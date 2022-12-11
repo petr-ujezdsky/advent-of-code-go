@@ -7,7 +7,7 @@ import (
 	"math"
 )
 
-type Matrix2i = utils.Matrix2i
+type Matrix2i = utils.MatrixInt
 type Vector2i = utils.Vector2i
 
 var iterNr = 0
@@ -92,7 +92,7 @@ func calcBestScores(scoreTillEnd int, pos Vector2i, m, scores Matrix2i) {
 }
 
 func CalcBestScore(m Matrix2i) (int, Matrix2i) {
-	bestScores := utils.NewMatrix2[int](m.Width, m.Height)
+	bestScores := utils.NewMatrixNumber[int](m.Width, m.Height)
 	bestScores.SetAll(math.MaxInt)
 
 	endPos := Vector2i{m.Width - 1, m.Height - 1}
@@ -141,7 +141,7 @@ func CalcBestScoreAStar(m Matrix2i) ([]Vector2i, int, bool) {
 
 func EnlargeWorld(m Matrix2i) Matrix2i {
 	factor := 5
-	enlarged := utils.NewMatrix2i(m.Width*factor, m.Height*factor)
+	enlarged := utils.NewMatrixInt(m.Width*factor, m.Height*factor)
 
 	for x, col := range enlarged.Columns {
 		for y := range col {

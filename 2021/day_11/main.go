@@ -22,7 +22,7 @@ var neighbourDirs = []utils.Vector2i{
 	{-1, 1},
 }
 
-func raiseNeighboursLevels(energyLevels utils.Matrix2i, pos utils.Vector2i) int {
+func raiseNeighboursLevels(energyLevels utils.MatrixInt, pos utils.Vector2i) int {
 	flashesCount := 0
 
 	for _, neighbourDir := range neighbourDirs {
@@ -42,7 +42,7 @@ func raiseNeighboursLevels(energyLevels utils.Matrix2i, pos utils.Vector2i) int 
 	return flashesCount
 }
 
-func inspectFlash(energyLevels utils.Matrix2i, pos utils.Vector2i) int {
+func inspectFlash(energyLevels utils.MatrixInt, pos utils.Vector2i) int {
 	energyLevel := energyLevels.Columns[pos.X][pos.Y]
 
 	// flashing
@@ -57,7 +57,7 @@ func inspectFlash(energyLevels utils.Matrix2i, pos utils.Vector2i) int {
 	return 0
 }
 
-func step(energyLevels utils.Matrix2i) int {
+func step(energyLevels utils.MatrixInt) int {
 	// increment levels by 1
 	for x := 0; x < energyLevels.Width; x++ {
 		for y := 0; y < energyLevels.Height; y++ {
@@ -76,7 +76,7 @@ func step(energyLevels utils.Matrix2i) int {
 	return flashesCount
 }
 
-func CountFlashes(energyLevels utils.Matrix2i, stepsCount int) (int, int) {
+func CountFlashes(energyLevels utils.MatrixInt, stepsCount int) (int, int) {
 	flashesCount := 0
 	allFlashedStepNumber := -1
 
@@ -103,6 +103,6 @@ func CountFlashes(energyLevels utils.Matrix2i, stepsCount int) (int, int) {
 	return flashesCount, allFlashedStepNumber
 }
 
-func ParseInput(r io.Reader) (utils.Matrix2i, error) {
+func ParseInput(r io.Reader) (utils.MatrixInt, error) {
 	return utils.ParseToMatrix(r)
 }

@@ -40,7 +40,7 @@ func ParseToStrings(r io.Reader) ([]string, error) {
 }
 
 // ParseToMatrix returns the matrix of integers
-func ParseToMatrix(r io.Reader) (Matrix2i, error) {
+func ParseToMatrix(r io.Reader) (MatrixInt, error) {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
 
@@ -58,11 +58,11 @@ func ParseToMatrix(r io.Reader) (Matrix2i, error) {
 		rows = append(rows, row)
 	}
 
-	return NewMatrix2RowNotation(rows), scanner.Err()
+	return NewMatrixNumberRowNotation(rows), scanner.Err()
 }
 
 // ParseToMatrixP returns the matrix of integers (panics in case of an error)
-func ParseToMatrixP(r io.Reader) Matrix2i {
+func ParseToMatrixP(r io.Reader) MatrixInt {
 	m, err := ParseToMatrix(r)
 	if err != nil {
 		panic("Problem parsing integer matrix")
