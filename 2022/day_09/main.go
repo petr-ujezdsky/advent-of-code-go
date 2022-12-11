@@ -17,21 +17,33 @@ type Step struct {
 	Amount    int
 }
 
-func moveTail(head, tail Vector2i, visited map[Vector2i]struct{}) Vector2i {
+func moveTails(rope []Vector2i, iHead int, visited map[Vector2i]struct{}) {
+	// at the end
+	if iHead == len(rope)-1 {
+		return
+	}
+
 	for true {
+		head := rope[iHead]
+		tail := rope[iHead+1]
+
 		dir := head.Subtract(tail)
 		ones := dir.Signum()
 
 		// exactly 1 step far -> exit
 		if dir == ones {
-			return tail
+			return
 		}
 
 		tail = tail.Add(ones)
+		rope[iHead+1] = tail
 
-		if visited != nil {
+		if iHead == len(rope)-2 {
 			visited[tail] = struct{}{}
 		}
+
+		// after just 1 step, move remaining tails
+		moveTails(rope, iHead+1, visited)
 	}
 
 	panic("Should not happen")
@@ -79,34 +91,21 @@ func printTrail(visited map[Vector2i]struct{}) {
 }
 
 func DoWithInput(steps []Step, tailsCount int) int {
-	head := Vector2i{0, 0}
-	tails := make([]Vector2i, tailsCount)
+	rope := make([]Vector2i, tailsCount)
 	visited := make(map[Vector2i]struct{})
-	visited[tails[0]] = struct{}{}
+	visited[rope[0]] = struct{}{}
 
-	printState(head, tails)
+	//printState(head, tails)
 	for _, step := range steps {
-		head = head.Add(step.DirVector)
-		headTail := head
-
 		fmt.Printf("Step: %v %v\n", string(step.Dir), step.Amount)
+		rope[0] = rope[0].Add(step.DirVector)
 
-		for i, tail := range tails {
-			if i == len(tails)-1 {
-				tails[i] = moveTail(headTail, tail, visited)
-			} else {
-				tails[i] = moveTail(headTail, tail, nil)
-			}
+		moveTails(rope, 0, visited)
 
-			headTail = tails[i]
-		}
-
-		printState(head, tails)
-		printTrail(visited)
+		//printState(head, tails)
+		//printTrail(visited)
 
 	}
-
-	printTrail(visited)
 
 	return len(visited)
 }
