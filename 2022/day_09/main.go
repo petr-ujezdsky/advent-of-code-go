@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	_ "embed"
+	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"io"
 	"strings"
@@ -16,24 +17,6 @@ type Step struct {
 	Amount    int
 }
 
-//
-//func tailLocation(head, tail Vector2i) Vector2i {
-//	dir := tail.Subtract(head)
-//	dirAbs := dir.Abs()
-//	ones := dir.Signum()
-//
-//	// move diagonally
-//	if dirAbs.X == dirAbs.Y {
-//		return ones
-//	}
-//
-//	// find smaller part
-//	i, _ := dirAbs.ArgMin()
-//
-//	// erase smaller part
-//	return ones.Change(i, 0)
-//}
-
 func moveTail(head, tail Vector2i, visited map[Vector2i]struct{}) Vector2i {
 	for true {
 		dir := head.Subtract(tail)
@@ -45,22 +28,85 @@ func moveTail(head, tail Vector2i, visited map[Vector2i]struct{}) Vector2i {
 		}
 
 		tail = tail.Add(ones)
-		visited[tail] = struct{}{}
+
+		if visited != nil {
+			visited[tail] = struct{}{}
+		}
 	}
 
 	panic("Should not happen")
 }
 
-func DoWithInput(steps []Step) int {
-	head := Vector2i{0, 0}
-	tail := Vector2i{0, 0}
-	visited := make(map[Vector2i]struct{})
-	visited[tail] = struct{}{}
+func printState(head Vector2i, tails []Vector2i) {
+	size := 35
+	m := utils.NewMatrix2iPopulated(size, size, 0)
+	offset := Vector2i{size / 2, size / 2}
 
+	// origin
+	m.SetV(offset, -1)
+
+	// tails
+	for i, tail := range utils.Reverse(tails) {
+		m.SetV(tail.InvY().Add(offset), len(tails)-1-i+1)
+	}
+
+	// head
+	m.SetV(head.InvY().Add(offset), 99)
+
+	fmt.Println(m.StringFmt(utils.FmtBooleanCustom(utils.FmtConstant[int](" ."), utils.FmtFmt[int]("%2d"))))
+	fmt.Println()
+	fmt.Println()
+	fmt.Println()
+}
+
+func printTrail(visited map[Vector2i]struct{}) {
+	size := 35
+	m := utils.NewMatrix2iPopulated(size, size, 0)
+	offset := Vector2i{size / 2, size / 2}
+
+	// origin
+	m.SetV(offset, -1)
+
+	for pos, _ := range visited {
+		pos = pos.InvY().Add(offset)
+		m.SetV(pos, 1)
+	}
+
+	fmt.Println(m.StringFmt(utils.FmtBoolean[int]))
+	fmt.Println()
+	fmt.Println()
+	fmt.Println()
+}
+
+func DoWithInput(steps []Step, tailsCount int) int {
+	head := Vector2i{0, 0}
+	tails := make([]Vector2i, tailsCount)
+	visited := make(map[Vector2i]struct{})
+	visited[tails[0]] = struct{}{}
+
+	printState(head, tails)
 	for _, step := range steps {
 		head = head.Add(step.DirVector)
-		tail = moveTail(head, tail, visited)
+		headTail := head
+
+		fmt.Printf("Step: %v %v\n", string(step.Dir), step.Amount)
+
+		for i, tail := range tails {
+			if i == len(tails)-1 {
+				tails[i] = moveTail(headTail, tail, visited)
+			} else {
+				tails[i] = moveTail(headTail, tail, nil)
+			}
+
+			headTail = tails[i]
+		}
+
+		printState(head, tails)
+		printTrail(visited)
+
 	}
+
+	printTrail(visited)
 
 	return len(visited)
 }

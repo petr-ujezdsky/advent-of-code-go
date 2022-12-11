@@ -23,7 +23,7 @@ func Test_01_example(t *testing.T) {
 
 	steps := ParseInput(reader)
 
-	result := DoWithInput(steps)
+	result := DoWithInput(steps, 1)
 	assert.Equal(t, 13, result)
 }
 
@@ -33,7 +33,7 @@ func Test_01(t *testing.T) {
 
 	steps := ParseInput(reader)
 
-	result := DoWithInput(steps)
+	result := DoWithInput(steps, 1)
 	assert.Equal(t, 6745, result)
 }
 
@@ -43,8 +43,18 @@ func Test_02_example(t *testing.T) {
 
 	steps := ParseInput(reader)
 
-	result := DoWithInput(steps)
-	assert.Equal(t, 0, result)
+	result := DoWithInput(steps, 10)
+	assert.Equal(t, 1, result)
+}
+
+func Test_02_example_2(t *testing.T) {
+	reader, err := os.Open("data-00-example-2.txt")
+	assert.Nil(t, err)
+
+	steps := ParseInput(reader)
+
+	result := DoWithInput(steps, 9)
+	assert.Equal(t, 36, result)
 }
 
 func Test_02(t *testing.T) {
@@ -53,6 +63,6 @@ func Test_02(t *testing.T) {
 
 	steps := ParseInput(reader)
 
-	result := DoWithInput(steps)
+	result := DoWithInput(steps, 9)
 	assert.Equal(t, 0, result)
 }

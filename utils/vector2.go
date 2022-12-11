@@ -82,6 +82,10 @@ func (v1 vector2n[T]) Reverse() vector2n[T] {
 	return vector2n[T]{v1.Y, v1.X}
 }
 
+func (v1 vector2n[T]) InvY() vector2n[T] {
+	return vector2n[T]{v1.X, -v1.Y}
+}
+
 func (v1 vector2n[T]) LengthSq() T {
 	return v1.X*v1.X + v1.Y*v1.Y
 }
