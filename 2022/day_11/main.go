@@ -12,9 +12,37 @@ import (
 
 type Operation func(int, int) int
 
+type ModuloNumber struct {
+	Modulos map[int]int
+}
+
+func NewModuloNumber(i int, modulos map[int]struct{}) ModuloNumber {
+	modulosMap := make(map[int]int, len(modulos))
+	for modulo := range modulos {
+		modulosMap[modulo] = 0
+	}
+
+	moduloNumber := ModuloNumber{modulosMap}
+
+	moduloNumber.Eval(add, i)
+
+	return moduloNumber
+}
+
+func (m ModuloNumber) Eval(op Operation, i int) {
+	for n, residue := range m.Modulos {
+		m.Modulos[n] = (op(residue, i)) % n
+	}
+}
+
+func (m ModuloNumber) String() string {
+	return fmt.Sprintf("%v", m.Modulos)
+}
+
 type Monkey struct {
 	Id                      int
 	Items                   []int
+	ModuloItems             []ModuloNumber
 	Operation               Operation
 	OperationArg            int
 	Test                    int
@@ -24,6 +52,10 @@ type Monkey struct {
 
 func (m *Monkey) AddItem(item int) {
 	m.Items = append(m.Items, item)
+}
+
+func (m *Monkey) AddModuloItem(item ModuloNumber) {
+	m.ModuloItems = append(m.ModuloItems, item)
 }
 
 func add(old, i int) int {
@@ -40,7 +72,13 @@ func square(old, _ int) int {
 
 func printState(monkeys []*Monkey) {
 	for _, monkey := range monkeys {
-		fmt.Printf("Monkey %d: %v (inspections %v)\n", monkey.Id, monkey.Items, monkey.Inspections)
+		fmt.Printf("Monkey %d: (inspections %6d) %v\n", monkey.Id, monkey.Inspections, monkey.Items)
+	}
+}
+
+func printModuloState(monkeys []*Monkey) {
+	for _, monkey := range monkeys {
+		fmt.Printf("Monkey %d: (inspections %6d) %v\n", monkey.Id, monkey.Inspections, monkey.ModuloItems)
 	}
 }
 
@@ -81,9 +119,91 @@ func PlayKeepAway(monkeys []*Monkey) int {
 	return first * second
 }
 
+//func PlayKeepAwayMany(monkeys []*Monkey) int {
+//	fmt.Println("Round 0")
+//	printState(monkeys)
+//	fmt.Println()
+//	//for round := 1; round <= 10_000; round++ {
+//	for round := 1; round <= 20; round++ {
+//		debug := true //round%1000 == 0 || round == 100 || round == 20 || round == 1
+//		if debug {
+//			fmt.Printf("Round %2d\n", round)
+//		}
+//
+//		for _, monkey := range monkeys {
+//			for _, item := range monkey.Items {
+//				worryLevel := monkey.Operation(item, monkey.OperationArg)
+//				//worryLevel /= 3
+//
+//				var acceptingMonkey int
+//				if worryLevel%monkey.Test == 0 {
+//					acceptingMonkey = monkey.MonkeyTrue
+//				} else {
+//					acceptingMonkey = monkey.MonkeyFalse
+//				}
+//
+//				fmt.Printf("%d (%2d) -> monkey %d\n", item, worryLevel, acceptingMonkey)
+//				monkeys[acceptingMonkey].AddItem(worryLevel)
+//				monkey.Inspections++
+//			}
+//			monkey.Items = []int{}
+//		}
+//
+//		if debug {
+//			printState(monkeys)
+//			fmt.Println()
+//		}
+//	}
+//
+//	first, second := top2inspections(monkeys)
+//
+//	return first * second
+//}
+
+func PlayKeepAwayFast(monkeys []*Monkey) int {
+	fmt.Println("Round 0")
+	printModuloState(monkeys)
+	fmt.Println()
+
+	for round := 1; round <= 10_000; round++ {
+		debug := round%1000 == 0 || round == 20 || round == 1
+		if debug {
+			fmt.Printf("Round %2d\n", round)
+		}
+
+		for _, monkey := range monkeys {
+			for _, moduloItem := range monkey.ModuloItems {
+				moduloItem.Eval(monkey.Operation, monkey.OperationArg)
+
+				var acceptingMonkey int
+				if moduloItem.Modulos[monkey.Test] == 0 {
+					acceptingMonkey = monkey.MonkeyTrue
+				} else {
+					acceptingMonkey = monkey.MonkeyFalse
+				}
+
+				monkeys[acceptingMonkey].AddModuloItem(moduloItem)
+				monkey.Inspections++
+			}
+			monkey.ModuloItems = []ModuloNumber{}
+		}
+
+		if debug {
+			printModuloState(monkeys)
+			fmt.Println()
+		}
+	}
+
+	first, second := top2inspections(monkeys)
+
+	return first * second
+}
+
 func ParseInput(r io.Reader) []*Monkey {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
+
+	modulos := make(map[int]struct{})
 
 	var monkeys []*Monkey
 	for scanner.Scan() {
@@ -126,6 +246,18 @@ func ParseInput(r io.Reader) []*Monkey {
 		}
 
 		monkeys = append(monkeys, &monkey)
+
+		// aggregate all possible modulos
+		modulos[test] = struct{}{}
+	}
+
+	// convert all items into ModuloNumber items
+	for _, monkey := range monkeys {
+		var moduloItems []ModuloNumber
+		for _, item := range monkey.Items {
+			moduloItems = append(moduloItems, NewModuloNumber(item, modulos))
+		}
+		monkey.ModuloItems = moduloItems
 	}
 
 	return monkeys

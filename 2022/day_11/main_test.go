@@ -13,6 +13,8 @@ func Test_01_parse(t *testing.T) {
 	monkeys := ParseInput(reader)
 
 	assert.Equal(t, 4, len(monkeys))
+	assert.Equal(t, 4, len(monkeys[1].Items))
+	assert.Equal(t, 4, len(monkeys[1].ModuloItems))
 }
 
 func Test_01_example(t *testing.T) {
@@ -41,8 +43,8 @@ func Test_02_example(t *testing.T) {
 
 	monkeys := ParseInput(reader)
 
-	result := PlayKeepAway(monkeys)
-	assert.Equal(t, 0, result)
+	result := PlayKeepAwayFast(monkeys)
+	assert.Equal(t, 2713310158, result)
 }
 
 func Test_02(t *testing.T) {
@@ -51,6 +53,6 @@ func Test_02(t *testing.T) {
 
 	monkeys := ParseInput(reader)
 
-	result := PlayKeepAway(monkeys)
+	result := PlayKeepAwayFast(monkeys)
 	assert.Equal(t, 0, result)
 }
