@@ -1,6 +1,7 @@
 package day_24
 
 import (
+	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"os"
 	"strings"
@@ -73,6 +74,185 @@ func Test_01(t *testing.T) {
 
 	assert.Equal(t, [...]int{9, 1, 18, 270493644}, Run(instructions, "99999999999999"))
 	assert.Equal(t, [...]int{1, 1, 10, 171640596}, Run(instructions, "11111111111111"))
+
+	// A @ 4
+	// B @ 5
+	// C @ 15
+	A, B, C := 0, 0, 0
+	iGroup := 0
+	//formula := "(z / A) * 26 + i + C"
+	for i, instruction := range instructions {
+		if i%18 == 4 {
+			//fmt.Printf("%v, %v\n", instruction.Name, instruction.VRight)
+			A = instruction.VRight
+		}
+
+		if i%18 == 5 {
+			//fmt.Printf("%v, %v\n", instruction.Name, instruction.VRight)
+			B = instruction.VRight
+		}
+
+		if i%18 == 15 {
+			//fmt.Printf("%v, %v\n", instruction.Name, instruction.VRight)
+			C = instruction.VRight
+
+			//fmt.Printf("Group #%2d: A=%2d, B=%3d, C=%2d\n", iGroup+1, A, B, C)
+			//fmt.Printf("Group #%2d: A=%2d, B=%3d, C=%2d   z = (z / %v) * 26 + i + %v\n", iGroup+1, A, B, C, A, C)
+			fmt.Printf("Group #%2d: z = (z / %v) * 26 + i + %v\n", iGroup+1, A, C)
+			iGroup++
+		}
+	}
+	_ = B
+}
+
+func Test_01_Run(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	instructions := ParseInput(reader)
+
+	//input := "13579246899999"
+	//input := "11111111111111"
+	input := "99999999999999"
+
+	//..................1111
+	//........01234567890123
+	//input := "99934999949999"
+	//input := "99934999949999"
+
+	//.................1111
+	//.......01234567890123
+	//input = "99934999944499"
+	//input = "99994999944399"
+	groups := groupInstructions(instructions)
+	//instructions = deGroupInstructions(groups, 8, 9, 10, 11, 12, 13)
+	instructions = deGroupInstructions(groups, 8, 9, 10, 11, 12, 13)
+	registers := Registers{}
+	//registers[3] = 6623276
+	registers[3] = 6623281
+	fmt.Printf("r=%v\n", RunRegisters(registers, instructions, input))
+	//assert.Equal(t, RunRegisters(registers, instructions, input)[3], RunDecompiledRegister(registers[3], instructions, input))
+	//assert.Equal(t, RunRegisters(registers, instructions, input)[3], RunDecompiledRegister(registers[3], instructions, input))
+}
+
+func Test_01_decompiled(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	instructions := ParseInput(reader)
+
+	//input := "13579246899999"
+	//input := "11111111111111"
+	input := "99999999999999"
+
+	//..................1111
+	//........01234567890123
+	//input := "99934999949999"
+	//input := "99934999949999"
+
+	//.................1111
+	//.......01234567890123
+	//input = "99934999944499"
+	//input = "99994999944399"
+	assert.Equal(t, Run(instructions, input)[3], RunDecompiled(instructions, input))
+}
+
+func Test_01_decompiled_cycle(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	instructions := ParseInput(reader)
+
+	index := 0
+	for i := 0; i < 9; i++ {
+		//.........................1111
+		//...............01234567890123
+		input := []rune("99999999999999")
+		input[index] = rune('1' + i)
+
+		RunDecompiled(instructions, string(input))
+		fmt.Println("======================")
+	}
+}
+
+func Test_01_decompiled_cycle2(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	instructions := ParseInput(reader)
+
+	groups := groupInstructions(instructions)
+
+	iGroup := 8
+	for z0 := 432; z0 < 432; z0++ {
+		for i := 0; i < 9; i++ {
+			//.........................1111
+			//...............01234567890123
+			inputStr := string(rune('1' + i))
+
+			registers := Registers{}
+			registers[3] = z0
+			r := RunRegisters(registers, groups[iGroup], inputStr)
+			fmt.Printf("Group #%v, z=%v, input=%v, r=%v\n", iGroup, z0, inputStr, r)
+			assert.Equal(t, r[3], RunDecompiledRegister(z0, groups[iGroup], inputStr))
+		}
+		fmt.Println("======================")
+	}
+}
+
+func Test_01_decompiled_cycle3(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	instructions := ParseInput(reader)
+
+	abcs := utils.Reverse(extractABC(instructions))
+
+	zDesiredFrom, zDesiredTo := 0, 0
+	for i, abc := range abcs {
+		A := abc.X
+		B := abc.Y
+		//C := abc.Z
+
+		zFrom := zDesiredFrom*A + 1 - B
+		zTo := zDesiredTo*A + 9 - B
+
+		fmt.Printf("z%2d = [%10d,%10d]  =>  z%2d =[%10d,%10d]\n", len(abcs)-i-1, zFrom, zTo, len(abcs)-i, zDesiredFrom, zDesiredTo)
+		zDesiredFrom = zFrom
+		zDesiredTo = zTo
+	}
+}
+
+func Test_01_decompiled_subgroups(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	instructions := ParseInput(reader)
+
+	//input := "13579246899999"
+	//input := "11111111111111"
+	input := "99999999999999"
+
+	//..................1111
+	//........01234567890123
+	//input := "99934999949999"
+	//input := "99934999949999"
+
+	//.................1111
+	//.......01234567890123
+	//input = "99934999944499"
+	//input = "99994999944399"
+	groups := groupInstructions(instructions)
+	//instructions = deGroupInstructions(groups, 8, 9, 10, 11, 12, 13)
+	instructions = deGroupInstructions(groups, 8, 9, 10, 11, 12, 13)
+	instructions = deGroupInstructions(groups, 8)
+	registers := Registers{}
+	//registers[3] = 6623276
+	registers[3] = 6623281
+	registers[3] = (100 - 9 - 1) / 26
+	fmt.Printf("%v -> r=%v\n", registers, RunRegisters(registers, instructions, input))
+	//assert.Equal(t, RunRegisters(registers, instructions, input)[3], RunDecompiledRegister(registers[3], instructions, input))
+	//assert.Equal(t, RunRegisters(registers, instructions, input)[3], RunDecompiledRegister(registers[3], instructions, input))
 }
 
 //

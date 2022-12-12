@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"io"
+	"strconv"
 	"strings"
 )
 
@@ -11,6 +12,7 @@ type InputStack = utils.Stack[int]
 type Registers = [4]int
 
 type Instruction struct {
+	Name                  string
 	Evaluator             Evaluator
 	ILeft, IRight, VRight int
 }
@@ -46,8 +48,11 @@ func div(left, right int, _ *InputStack) int {
 }
 
 func mod(left, right int, _ *InputStack) int {
-	if left < 0 || right <= 0 {
-		panic("Invalid modulo input")
+	if left < 0 {
+		panic("Invalid modulo input - left < 0, " + strconv.Itoa(left))
+	}
+	if right <= 0 {
+		panic("Invalid modulo input - right <= 0, " + strconv.Itoa(right))
 	}
 	return left % right
 }
@@ -84,20 +89,139 @@ func NewInputStack(input string) InputStack {
 }
 
 func Run(instructions []Instruction, input string) Registers {
-	inputStack := NewInputStack(input)
-	registers := Registers{}
+	return RunRegisters(Registers{}, instructions, input)
+}
 
-	for _, i := range instructions {
+func RunRegisters(registers Registers, instructions []Instruction, input string) Registers {
+	inputStack := NewInputStack(input)
+
+	debuggingGroupIndex := 0
+	iGroup := 0
+	for j, i := range instructions {
 		left := registers[i.ILeft]
 		right := i.VRight
 		if i.IRight != -1 {
 			right = registers[i.IRight]
 		}
 
+		if iGroup == debuggingGroupIndex {
+			//fmt.Printf("%v\n%v %2d %2d (%v,%v,%v)\n", registers, i.Name, left, right, i.ILeft, i.IRight, i.VRight)
+			//fmt.Printf("%v\n%v %v %2d\n", registers, i.Name, string(rune('w'+i.ILeft)), right)
+		}
+
+		if j%18 == 6 {
+			//fmt.Printf("input %2d -> %v\n", iGroup, left)
+		}
+
 		registers[i.ILeft] = i.Evaluator(left, right, &inputStack)
+
+		if j%18 == 17 {
+			//fmt.Printf("Group #%2d: z = %v\n", iGroup, registers[3])
+			iGroup++
+			if iGroup == 11 {
+				//fmt.Println()
+			}
+			if iGroup == 12 {
+				//fmt.Printf("%v, %v\n", i.Name, registers)
+			}
+		}
 	}
 
 	return registers
+}
+
+func groupInstructions(instructions []Instruction) [][]Instruction {
+	groups := make([][]Instruction, 14)
+
+	for i := 0; len(instructions) > 0; i++ {
+		groups[i], instructions = instructions[:18], instructions[18:]
+	}
+
+	return groups
+}
+
+func deGroupInstructions(groups [][]Instruction, indexes ...int) []Instruction {
+	var instructions []Instruction
+
+	for _, iGroup := range indexes {
+		instructions = append(instructions, groups[iGroup]...)
+	}
+
+	return instructions
+}
+
+func extractABC(instructions []Instruction) []utils.Vector3i {
+	var abcs []utils.Vector3i
+	A, B, C := 0, 0, 0
+	for i, instruction := range instructions {
+		if i%18 == 4 {
+			A = instruction.VRight
+		}
+
+		if i%18 == 5 {
+			B = instruction.VRight
+		}
+
+		if i%18 == 15 {
+			C = instruction.VRight
+
+			abcs = append(abcs, utils.Vector3i{A, B, C})
+		}
+	}
+
+	return abcs
+}
+
+func RunDecompiled(instructions []Instruction, input string) int {
+	return RunDecompiledRegister(0, instructions, input)
+}
+
+func RunDecompiledRegister(z int, instructions []Instruction, input string) int {
+	//fmt.Printf("Input %v\n", input)
+
+	abcs := extractABC(instructions)
+
+	//prevABC := utils.Vector3i{}
+	//prevIn := 10000
+	for i, abc := range abcs {
+		in := int(input[i] - '0')
+		A := abc.X
+		B := abc.Y
+		C := abc.Z
+
+		//fmt.Printf("Group #%2d: z = (%v", i, z)
+
+		if z%26+B == in {
+			z = z / A
+			//fmt.Printf(" / %v) = %v\n", A, z)
+		} else {
+			z = (z/A)*26 + in + C
+			//fmt.Printf(" / %v) * 26 + %v + %v = %v\n", A, in, C, z)
+			//fmt.Printf("input %2d -> %d\n", i, z%26+B)
+		}
+		//if prevABC.Z+B == in-prevIn {
+		//	z = z / A
+		//	prevDivided = true
+		//	fmt.Printf(" / %v) = %v\n", A, z)
+		//} else {
+		//	z = (z/A)*26 + in + C
+		//	prevDivided = false
+		//	fmt.Printf(" / %v) * 26 + %v + %v = %v\n", A, in, C, z)
+		//}
+
+		//
+		//z /= A
+		//z *= 26
+		//z += in + C
+
+		//fmt.Printf("input %2d - %2d = %2d (prev=%v, current=%v)\n", i, i-1, prevABC.Z+B, prevABC, abc)
+		//fmt.Printf("input %2d - %2d = %2d\n", i, i-1, prevABC.Z+B)
+
+		//prevABC = abc
+		//prevIn = in
+	}
+
+	return z
 }
 
 func ParseInput(r io.Reader) []Instruction {
@@ -114,6 +238,7 @@ func ParseInput(r io.Reader) []Instruction {
 
 		if name == "inp" {
 			instruction = Instruction{
+				Name:      name,
 				Evaluator: evaluator,
 				ILeft:     reg(parts[1]),
 			}
@@ -121,6 +246,7 @@ func ParseInput(r io.Reader) []Instruction {
 			iRight, vRight := regOrVal(parts[2])
 
 			instruction = Instruction{
+				Name:      name,
 				Evaluator: evaluator,
 				ILeft:     reg(parts[1]),
 				IRight:    iRight,
