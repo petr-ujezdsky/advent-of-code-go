@@ -30,7 +30,7 @@ func nodeWithLowestFScore[T comparable](openSet map[T]struct{}, fScore map[T]int
 // h(n) int - heuristic function to calculate expected cost from node n to the goal node
 // d(from, to) int - cost function for step from node "from" to node "to
 // neighbours(n) []T - function that returns all neighbours of node n
-func AStar[T comparable](start, goal T, h func(T) int, d func(T, T) int, neighbours func(T) []T) ([]T, int, bool) {
+func AStar[T comparable](start, goal T, h func(T) int, d func(T, T) int, neighbours func(T) []T) (path []T, score int, found bool) {
 	// The set of discovered nodes that may need to be (re-)expanded.
 	// Initially, only the start node is known.
 	// This is usually implemented as a min-heap or priority queue rather than a hash-set.
