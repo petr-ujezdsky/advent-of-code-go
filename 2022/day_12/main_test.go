@@ -22,7 +22,7 @@ func Test_01_example(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	result := DoWithInput(world)
+	result := ShortestPathScore(world)
 	assert.Equal(t, 31, result)
 }
 
@@ -32,7 +32,7 @@ func Test_01(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	result := DoWithInput(world)
+	result := ShortestPathScore(world)
 	assert.Equal(t, 504, result)
 }
 
@@ -42,8 +42,8 @@ func Test_02_example(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	result := DoWithInput(world)
-	assert.Equal(t, 0, result)
+	result := ShortestPathScoreManyStarts(world)
+	assert.Equal(t, 29, result)
 }
 
 func Test_02(t *testing.T) {
@@ -52,6 +52,6 @@ func Test_02(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	result := DoWithInput(world)
-	assert.Equal(t, 0, result)
+	result := ShortestPathScoreManyStarts(world)
+	assert.Equal(t, 500, result)
 }

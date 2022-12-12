@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"io"
+	"math"
 )
 
 type Vector2i = utils.Vector2i
@@ -58,15 +59,46 @@ func neighbours(heights MatrixInt) func(origin Vector2i) []Vector2i {
 	}
 }
 
-func DoWithInput(world World) int {
-	m := world.Heights
-	endPos := world.End
-	_, score, found := utils.AStar(world.Start, endPos, h(endPos), d(m), neighbours(m))
-	if found {
-		return score
+func shortestPathScore(heights MatrixInt, start, end Vector2i) (int, bool) {
+	_, score, found := utils.AStar(start, end, h(end), d(heights), neighbours(heights))
+
+	return score, found
+}
+
+func ShortestPathScore(world World) int {
+	score, found := shortestPathScore(world.Heights, world.Start, world.End)
+	if !found {
+		panic("No path found!")
 	}
 
-	panic("No path found!")
+	return score
+}
+
+func extractLowestPoints(heights MatrixInt) []Vector2i {
+	var lowest []Vector2i
+	for x := 0; x < heights.Width; x++ {
+		for y := 0; y < heights.Height; y++ {
+			if heights.Columns[x][y] == 0 {
+				lowest = append(lowest, Vector2i{x, y})
+			}
+		}
+	}
+
+	return lowest
+}
+
+func ShortestPathScoreManyStarts(world World) int {
+	lowest := extractLowestPoints(world.Heights)
+
+	min := math.MaxInt
+	for _, start := range lowest {
+		score, found := shortestPathScore(world.Heights, start, world.End)
+		if found {
+			min = utils.Min(min, score)
+		}
+	}
+
+	return min
 }
 
 func ParseInput(r io.Reader) World {
