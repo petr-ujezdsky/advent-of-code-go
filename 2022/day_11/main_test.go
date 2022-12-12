@@ -54,5 +54,5 @@ func Test_02(t *testing.T) {
 	monkeys := ParseInput(reader)
 
 	result := PlayKeepAwayFast(monkeys)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 15447387620, result)
 }

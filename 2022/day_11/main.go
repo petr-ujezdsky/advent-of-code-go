@@ -119,47 +119,6 @@ func PlayKeepAway(monkeys []*Monkey) int {
 	return first * second
 }
 
-//func PlayKeepAwayMany(monkeys []*Monkey) int {
-//	fmt.Println("Round 0")
-//	printState(monkeys)
-//	fmt.Println()
-//	//for round := 1; round <= 10_000; round++ {
-//	for round := 1; round <= 20; round++ {
-//		debug := true //round%1000 == 0 || round == 100 || round == 20 || round == 1
-//		if debug {
-//			fmt.Printf("Round %2d\n", round)
-//		}
-//
-//		for _, monkey := range monkeys {
-//			for _, item := range monkey.Items {
-//				worryLevel := monkey.Operation(item, monkey.OperationArg)
-//				//worryLevel /= 3
-//
-//				var acceptingMonkey int
-//				if worryLevel%monkey.Test == 0 {
-//					acceptingMonkey = monkey.MonkeyTrue
-//				} else {
-//					acceptingMonkey = monkey.MonkeyFalse
-//				}
-//
-//				fmt.Printf("%d (%2d) -> monkey %d\n", item, worryLevel, acceptingMonkey)
-//				monkeys[acceptingMonkey].AddItem(worryLevel)
-//				monkey.Inspections++
-//			}
-//			monkey.Items = []int{}
-//		}
-//
-//		if debug {
-//			printState(monkeys)
-//			fmt.Println()
-//		}
-//	}
-//
-//	first, second := top2inspections(monkeys)
-//
-//	return first * second
-//}
-
 func PlayKeepAwayFast(monkeys []*Monkey) int {
 	fmt.Println("Round 0")
 	printModuloState(monkeys)
