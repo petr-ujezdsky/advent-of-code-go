@@ -28,8 +28,8 @@ func Test_01_example(t *testing.T) {
 
 	pairs := ParseInput(reader)
 
-	result := DoWithInput(pairs)
-	assert.Equal(t, 0, result)
+	result := FindInOrder(pairs)
+	assert.Equal(t, 13, result)
 }
 
 func Test_01(t *testing.T) {
@@ -38,8 +38,8 @@ func Test_01(t *testing.T) {
 
 	pairs := ParseInput(reader)
 
-	result := DoWithInput(pairs)
-	assert.Equal(t, 0, result)
+	result := FindInOrder(pairs)
+	assert.Equal(t, 5605, result)
 }
 
 func Test_02_example(t *testing.T) {
@@ -48,7 +48,7 @@ func Test_02_example(t *testing.T) {
 
 	pairs := ParseInput(reader)
 
-	result := DoWithInput(pairs)
+	result := FindInOrder(pairs)
 	assert.Equal(t, 0, result)
 }
 
@@ -58,6 +58,6 @@ func Test_02(t *testing.T) {
 
 	pairs := ParseInput(reader)
 
-	result := DoWithInput(pairs)
+	result := FindInOrder(pairs)
 	assert.Equal(t, 0, result)
 }

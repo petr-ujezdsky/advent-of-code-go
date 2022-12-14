@@ -38,8 +38,57 @@ type NodePair struct {
 	Nodes [2]*Node
 }
 
-func DoWithInput(pairs []NodePair) int {
-	return len(pairs)
+// compareNodes compares two nodes
+//
+//	0: if (n1 = n2)
+//
+// -1: if (n1 < n2)
+//
+//	1: if (n1 > n2)
+func compareNodes(n1, n2 *Node) int {
+	// both nodes are values
+	if n1.Value != nil && n2.Value != nil {
+		return utils.Signum(*n1.Value - *n2.Value)
+	}
+
+	// both nodes are lists
+	if n1.Value == nil && n2.Value == nil {
+		for i := 0; i < utils.Min(len(n1.Children), len(n2.Children)); i++ {
+			cmp := compareNodes(n1.Children[i], n2.Children[i])
+			if cmp != 0 {
+				return cmp
+			}
+		}
+
+		return utils.Signum(len(n1.Children) - len(n2.Children))
+	}
+
+	// list vs value
+	if n1.Value == nil && n2.Value != nil {
+		n2 = &Node{
+			Children: []*Node{n2},
+		}
+		return compareNodes(n1, n2)
+	}
+
+	// value vs list
+	n1 = &Node{
+		Children: []*Node{n1},
+	}
+	return compareNodes(n1, n2)
+}
+
+func FindInOrder(pairs []NodePair) int {
+	indexSum := 0
+
+	for _, pair := range pairs {
+		cmp := compareNodes(pair.Nodes[0], pair.Nodes[1])
+		if cmp < 0 {
+			indexSum += pair.Index
+		}
+	}
+
+	return indexSum
 }
 
 func ParseNode(chars []rune) *Node {
@@ -95,7 +144,7 @@ func ParseInput(r io.Reader) []NodePair {
 	scanner.Split(bufio.ScanLines)
 
 	var pairs []NodePair
-	i := 0
+	i := 1
 	for scanner.Scan() {
 		node1 := ParseNode([]rune(scanner.Text()))
 		scanner.Scan()
