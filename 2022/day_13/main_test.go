@@ -11,7 +11,7 @@ func Test_01_parse(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
 
-	pairs := ParseInput(reader)
+	pairs, _ := ParseInput(reader)
 
 	assert.Equal(t, 8, len(pairs))
 
@@ -26,7 +26,7 @@ func Test_01_example(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
 
-	pairs := ParseInput(reader)
+	pairs, _ := ParseInput(reader)
 
 	result := FindInOrder(pairs)
 	assert.Equal(t, 13, result)
@@ -36,7 +36,7 @@ func Test_01(t *testing.T) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(t, err)
 
-	pairs := ParseInput(reader)
+	pairs, _ := ParseInput(reader)
 
 	result := FindInOrder(pairs)
 	assert.Equal(t, 5605, result)
@@ -46,18 +46,18 @@ func Test_02_example(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
 
-	pairs := ParseInput(reader)
+	_, nodes := ParseInput(reader)
 
-	result := FindInOrder(pairs)
-	assert.Equal(t, 0, result)
+	result := FindDecoderKey(nodes)
+	assert.Equal(t, 140, result)
 }
 
 func Test_02(t *testing.T) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(t, err)
 
-	pairs := ParseInput(reader)
+	_, nodes := ParseInput(reader)
 
-	result := FindInOrder(pairs)
-	assert.Equal(t, 0, result)
+	result := FindDecoderKey(nodes)
+	assert.Equal(t, 24969, result)
 }

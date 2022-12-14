@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"io"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -91,6 +92,25 @@ func FindInOrder(pairs []NodePair) int {
 	return indexSum
 }
 
+func FindDecoderKey(nodes []*Node) int {
+	// add divider nodes
+	divider1 := ParseNode([]rune("[[2]]"))
+	divider2 := ParseNode([]rune("[[6]]"))
+	nodes = append(nodes, divider1, divider2)
+
+	// sort
+	sort.Slice(nodes, func(i, j int) bool { return compareNodes(nodes[i], nodes[j]) < 0 })
+
+	key := 1
+	for i, node := range nodes {
+		if node == divider1 || node == divider2 {
+			key *= i + 1
+		}
+	}
+
+	return key
+}
+
 func ParseNode(chars []rune) *Node {
 	children := utils.NewStack[*Node]()
 
@@ -139,11 +159,13 @@ func ParseNode(chars []rune) *Node {
 	return children.Pop().Children[0]
 }
 
-func ParseInput(r io.Reader) []NodePair {
+func ParseInput(r io.Reader) ([]NodePair, []*Node) {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
 
 	var pairs []NodePair
+	var nodes []*Node
+
 	i := 1
 	for scanner.Scan() {
 		node1 := ParseNode([]rune(scanner.Text()))
@@ -157,8 +179,9 @@ func ParseInput(r io.Reader) []NodePair {
 		}
 
 		pairs = append(pairs, pair)
+		nodes = append(nodes, node1, node2)
 		i++
 	}
 
-	return pairs
+	return pairs, nodes
 }
