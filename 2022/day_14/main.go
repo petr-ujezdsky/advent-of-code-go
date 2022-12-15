@@ -36,7 +36,7 @@ type RockDef struct {
 	From, To Vector2i
 }
 
-func PourSand(world World) int {
+func PourSand(world World, untilSourceBlocked bool) int {
 	settledCount := 0
 	for true {
 		unitPos := sourcePos
@@ -62,6 +62,10 @@ func PourSand(world World) int {
 				if i == len(sandSteps)-1 {
 					settled = true
 					world.Cave.SetV(unitPos.Subtract(world.Offset), Sand)
+
+					if untilSourceBlocked && unitPos == sourcePos {
+						return settledCount + 1
+					}
 				}
 			}
 		}
@@ -71,11 +75,11 @@ func PourSand(world World) int {
 	panic("Should not get here!")
 }
 
-func ParseInput(r io.Reader) World {
+func ParseInput(r io.Reader, withFloor bool) World {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
 
-	var items []RockDef
+	var rocks []RockDef
 	// start with source dimension
 	rangeX, rangeY := utils.IntervalI{sourcePos.X, sourcePos.X}, utils.IntervalI{sourcePos.Y, sourcePos.Y}
 
@@ -91,15 +95,28 @@ func ParseInput(r io.Reader) World {
 			rangeX = rangeX.Enlarge(rock.From.X).Enlarge(rock.To.X)
 			rangeY = rangeY.Enlarge(rock.From.Y).Enlarge(rock.To.Y)
 
-			items = append(items, rock)
+			rocks = append(rocks, rock)
 		}
+	}
+
+	// add floor rock
+	if withFloor {
+		floorRock := RockDef{
+			From: Vector2i{-2 * sourcePos.X, rangeY.High + 2},
+			To:   Vector2i{3 * sourcePos.X, rangeY.High + 2},
+		}
+
+		rangeX = rangeX.Enlarge(floorRock.From.X).Enlarge(floorRock.To.X)
+		rangeY = rangeY.Enlarge(floorRock.From.Y).Enlarge(floorRock.To.Y)
+
+		rocks = append(rocks, floorRock)
 	}
 
 	cave := utils.NewMatrix[rune](rangeX.Size(), rangeY.Size()).SetAll(Air)
 	offset := Vector2i{rangeX.Low, rangeY.Low}
 
 	// fill rocks
-	for _, rock := range items {
+	for _, rock := range rocks {
 		step := rock.To.Subtract(rock.From).Signum()
 		to := rock.To.Add(step)
 		for pos := rock.From; pos != to; pos = pos.Add(step) {
