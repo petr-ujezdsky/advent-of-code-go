@@ -90,6 +90,14 @@ func (v1 vector2n[T]) LengthSq() T {
 	return v1.X*v1.X + v1.Y*v1.Y
 }
 
+func (v1 vector2n[T]) Sum() T {
+	return v1.X + v1.Y
+}
+
+func (v1 vector2n[T]) LengthManhattan() T {
+	return v1.Abs().Sum()
+}
+
 func (v1 vector2n[T]) String() string {
 	return fmt.Sprint([]T{v1.X, v1.Y})
 }

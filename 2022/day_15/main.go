@@ -8,30 +8,103 @@ import (
 )
 
 type Vector2i = utils.Vector2i
+type IntervalI = utils.IntervalI
+
+type Scanner struct {
+	Readouts []Readout
+	Beacons  []Vector2i
+}
 
 type Readout struct {
 	Sensor, NearestBeacon Vector2i
+	Distance              int
 }
 
-func DoWithInput(items []Readout) int {
-	return len(items)
+func beaconsAtY(beacons []Vector2i, y int) []Vector2i {
+	var beaconsFiltered []Vector2i
+
+	for _, beacon := range beacons {
+		if beacon.Y == y {
+			beaconsFiltered = append(beaconsFiltered, beacon)
+		}
+	}
+
+	return beaconsFiltered
 }
 
-func ParseInput(r io.Reader) []Readout {
+func unionSizeWithoutBeacons(union []IntervalI, beacons []Vector2i, y int) int {
+	// filter beacons to given y
+	beacons = beaconsAtY(beacons, y)
+
+	// calculate union size
+	totalSize := 0
+	for _, i := range union {
+		size := i.Size()
+		for _, beacon := range beacons {
+			if i.Contains(beacon.X) {
+				size--
+			}
+		}
+		if size > 0 {
+			totalSize += size
+		}
+	}
+
+	return totalSize
+}
+
+func NoBeaconPositionsCount(scanner Scanner, y int) int {
+	readouts := scanner.Readouts
+
+	var intervals []utils.IntervalI
+	for _, readout := range readouts {
+		sensor := readout.Sensor
+
+		// check intersection possibility
+		yDistance := utils.Abs(sensor.Y - y)
+		if yDistance <= readout.Distance {
+			xHalf := readout.Distance - yDistance
+			from := sensor.X - xHalf
+			to := sensor.X + xHalf
+
+			span := IntervalI{from, to}
+			intervals = append(intervals, span)
+		}
+	}
+
+	// find intervals union
+	union := utils.Union(intervals)
+
+	return unionSizeWithoutBeacons(union, scanner.Beacons, y)
+}
+
+func ParseInput(r io.Reader) Scanner {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
 
 	var readouts []Readout
+	beaconsMap := make(map[Vector2i]struct{})
+
 	for scanner.Scan() {
 		ints := utils.ExtractInts(scanner.Text(), true)
 
+		sensor := Vector2i{ints[0], ints[1]}
+		nearestBeacon := Vector2i{ints[2], ints[3]}
+
 		item := Readout{
-			Sensor:        Vector2i{ints[0], ints[1]},
-			NearestBeacon: Vector2i{ints[2], ints[3]},
+			Sensor:        sensor,
+			NearestBeacon: nearestBeacon,
+			Distance:      sensor.Subtract(nearestBeacon).LengthManhattan(),
 		}
 
 		readouts = append(readouts, item)
+		beaconsMap[nearestBeacon] = struct{}{}
 	}
 
-	return readouts
+	beacons := make([]Vector2i, len(beaconsMap))
+	for beacon := range beaconsMap {
+		beacons = append(beacons, beacon)
+	}
+
+	return Scanner{readouts, beacons}
 }

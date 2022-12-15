@@ -1,5 +1,7 @@
 package utils
 
+import "sort"
+
 type Interval[T Number] struct {
 	Low, High T
 }
@@ -67,4 +69,24 @@ func (i Interval[T]) Enlarge(value T) Interval[T] {
 	high := Max(i.High, value)
 
 	return NewInterval(low, high)
+}
+
+func Union[T Number](intervals []Interval[T]) []Interval[T] {
+	// sort using "low"
+	sort.Slice(intervals, func(i, j int) bool { return intervals[i].Low < intervals[j].Low })
+
+	union := []Interval[T]{intervals[0]}
+
+	for i := 1; i < len(intervals); i++ {
+		i1 := intervals[i]
+		last := union[len(union)-1]
+
+		if last.High < i1.Low {
+			union = append(union, i1)
+		} else {
+			union[len(union)-1] = last.Enlarge(i1.High)
+		}
+	}
+
+	return union
 }
