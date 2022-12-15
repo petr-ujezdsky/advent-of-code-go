@@ -47,8 +47,8 @@ func Test_02_example(t *testing.T) {
 
 	scanner := ParseInput(reader)
 
-	result := NoBeaconPositionsCount(scanner, 10)
-	assert.Equal(t, 0, result)
+	result := BeaconPositionFrequency(scanner, 20)
+	assert.Equal(t, 56000011, result)
 }
 
 func Test_02(t *testing.T) {
@@ -57,6 +57,6 @@ func Test_02(t *testing.T) {
 
 	scanner := ParseInput(reader)
 
-	result := NoBeaconPositionsCount(scanner, 10)
-	assert.Equal(t, 0, result)
+	result := BeaconPositionFrequency(scanner, 4_000_000)
+	assert.Equal(t, 13615843289729, result)
 }

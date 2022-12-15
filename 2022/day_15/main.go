@@ -53,7 +53,7 @@ func unionSizeWithoutBeacons(union []IntervalI, beacons []Vector2i, y int) int {
 	return totalSize
 }
 
-func NoBeaconPositionsCount(scanner Scanner, y int) int {
+func noBeaconPositions(scanner Scanner, y int) []IntervalI {
 	readouts := scanner.Readouts
 
 	var intervals []utils.IntervalI
@@ -73,9 +73,28 @@ func NoBeaconPositionsCount(scanner Scanner, y int) int {
 	}
 
 	// find intervals union
-	union := utils.Union(intervals)
+	return utils.Union(intervals)
+}
+
+func NoBeaconPositionsCount(scanner Scanner, y int) int {
+	union := noBeaconPositions(scanner, y)
 
 	return unionSizeWithoutBeacons(union, scanner.Beacons, y)
+}
+
+func BeaconPositionFrequency(scanner Scanner, yMax int) int {
+	for y := 0; y <= yMax; y++ {
+		union := noBeaconPositions(scanner, y)
+		if len(union) > 1 {
+			// found a spot
+
+			x := union[0].High + 1
+
+			return 4_000_000*x + y
+		}
+	}
+
+	panic("Found nothing")
 }
 
 func ParseInput(r io.Reader) Scanner {
