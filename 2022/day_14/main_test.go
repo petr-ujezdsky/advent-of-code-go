@@ -26,11 +26,11 @@ func Test_01_parse(t *testing.T) {
 ........#.
 #########.`)
 
-	assert.Equal(t, expected, world.StringFmtSeparator("", utils.FmtFmt[rune]("%c")))
+	assert.Equal(t, expected, world.Cave.StringFmtSeparator("", utils.FmtFmt[rune]("%c")))
 
 	fmt.Println(expected)
 	fmt.Println()
-	fmt.Println(world.StringFmtSeparator("", utils.FmtFmt[rune]("%c")))
+	fmt.Println(world.Cave.StringFmtSeparator("", utils.FmtFmt[rune]("%c")))
 }
 
 func Test_01_example(t *testing.T) {
@@ -39,8 +39,9 @@ func Test_01_example(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	result := DoWithInput(world)
-	assert.Equal(t, 0, result)
+	result := PourSand(world)
+	assert.Equal(t, 24, result)
+	fmt.Println(world.Cave.StringFmtSeparator("", utils.FmtFmt[rune]("%c")))
 }
 
 func Test_01(t *testing.T) {
@@ -49,8 +50,13 @@ func Test_01(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	result := DoWithInput(world)
-	assert.Equal(t, 0, result)
+	fmt.Println(world.Cave.StringFmtSeparator("", utils.FmtFmt[rune]("%c")))
+
+	result := PourSand(world)
+	assert.Equal(t, 888, result)
+
+	fmt.Println()
+	fmt.Println(world.Cave.StringFmtSeparator("", utils.FmtFmt[rune]("%c")))
 }
 
 func Test_02_example(t *testing.T) {
@@ -59,7 +65,7 @@ func Test_02_example(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	result := DoWithInput(world)
+	result := PourSand(world)
 	assert.Equal(t, 0, result)
 }
 
@@ -69,6 +75,6 @@ func Test_02(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	result := DoWithInput(world)
+	result := PourSand(world)
 	assert.Equal(t, 0, result)
 }

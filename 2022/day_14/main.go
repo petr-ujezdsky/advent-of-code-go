@@ -14,16 +14,61 @@ const (
 	Source      = '+'
 )
 
+var sandSteps = []Vector2i{
+	// down
+	{0, 1},
+	// down-left
+	{-1, 1},
+	// down-right
+	{1, 1},
+}
+
+var sourcePos = Vector2i{500, 0}
+
 type Vector2i = utils.Vector2i
 
-type World = utils.Matrix[rune]
+type World struct {
+	Cave   utils.Matrix[rune]
+	Offset Vector2i
+}
 
 type RockDef struct {
 	From, To Vector2i
 }
 
-func DoWithInput(world World) int {
-	return 0
+func PourSand(world World) int {
+	settledCount := 0
+	for true {
+		unitPos := sourcePos
+		settled := false
+
+		for !settled {
+			for i, step := range sandSteps {
+				unitPosNew := unitPos.Add(step)
+				item, ok := world.Cave.GetVSafe(unitPosNew.Subtract(world.Offset))
+
+				// out of world bounds -> end
+				if !ok {
+					return settledCount
+				}
+
+				// air -> accept position
+				if item == Air {
+					unitPos = unitPosNew
+					break
+				}
+
+				// last step and item is rock or sand -> can not move -> settled
+				if i == len(sandSteps)-1 {
+					settled = true
+					world.Cave.SetV(unitPos.Subtract(world.Offset), Sand)
+				}
+			}
+		}
+		settledCount++
+	}
+
+	panic("Should not get here!")
 }
 
 func ParseInput(r io.Reader) World {
@@ -32,7 +77,7 @@ func ParseInput(r io.Reader) World {
 
 	var items []RockDef
 	// start with source dimension
-	rangeX, rangeY := utils.IntervalI{500, 500}, utils.IntervalI{0, 0}
+	rangeX, rangeY := utils.IntervalI{sourcePos.X, sourcePos.X}, utils.IntervalI{sourcePos.Y, sourcePos.Y}
 
 	for scanner.Scan() {
 		ints := utils.ExtractInts(scanner.Text(), false)
@@ -50,19 +95,20 @@ func ParseInput(r io.Reader) World {
 		}
 	}
 
-	world := utils.NewMatrix[rune](rangeX.Size(), rangeY.Size()).SetAll(Air)
+	cave := utils.NewMatrix[rune](rangeX.Size(), rangeY.Size()).SetAll(Air)
+	offset := Vector2i{rangeX.Low, rangeY.Low}
 
 	// fill rocks
 	for _, rock := range items {
 		step := rock.To.Subtract(rock.From).Signum()
 		to := rock.To.Add(step)
 		for pos := rock.From; pos != to; pos = pos.Add(step) {
-			world.Columns[pos.X-rangeX.Low][pos.Y-rangeY.Low] = Rock
+			cave.SetV(pos.Subtract(offset), Rock)
 		}
 	}
 
 	// fill source
-	world.Columns[500-rangeX.Low][0-rangeY.Low] = Source
+	cave.SetV(sourcePos.Subtract(offset), Source)
 
-	return world
+	return World{cave, offset}
 }
