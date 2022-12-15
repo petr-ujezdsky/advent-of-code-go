@@ -82,19 +82,42 @@ func NoBeaconPositionsCount(scanner Scanner, y int) int {
 	return unionSizeWithoutBeacons(union, scanner.Beacons, y)
 }
 
+func inspectY(scanner Scanner, y int) (int, bool) {
+	union := noBeaconPositions(scanner, y)
+	if len(union) > 1 {
+		// found a spot
+
+		x := union[0].High + 1
+
+		return 4_000_000*x + y, true
+	}
+
+	return 0, false
+}
+
 func BeaconPositionFrequency(scanner Scanner, yMax int) int {
 	for y := 0; y <= yMax; y++ {
-		union := noBeaconPositions(scanner, y)
-		if len(union) > 1 {
-			// found a spot
-
-			x := union[0].High + 1
-
-			return 4_000_000*x + y
+		frequency, ok := inspectY(scanner, y)
+		if ok {
+			return frequency
 		}
 	}
 
 	panic("Found nothing")
+}
+
+func BeaconPositionFrequencyMultithreading(scanner Scanner, yMax int) int {
+	frequencyChan := make(chan int)
+	for y := 0; y <= yMax; y++ {
+		go func(f chan int, y int) {
+			frequency, ok := inspectY(scanner, y)
+			if ok {
+				f <- frequency
+			}
+		}(frequencyChan, y)
+	}
+
+	return <-frequencyChan
 }
 
 func ParseInput(r io.Reader) Scanner {

@@ -60,3 +60,43 @@ func Test_02(t *testing.T) {
 	result := BeaconPositionFrequency(scanner, 4_000_000)
 	assert.Equal(t, 13615843289729, result)
 }
+
+func Test_02_multithreading(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	scanner := ParseInput(reader)
+
+	result := BeaconPositionFrequencyMultithreading(scanner, 4_000_000)
+	assert.Equal(t, 13615843289729, result)
+}
+
+// Benchmark_02_single-10    	       1	1 975 770 917 ns/op
+func Benchmark_02_single(b *testing.B) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(b, err)
+
+	scanner := ParseInput(reader)
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		result := BeaconPositionFrequency(scanner, 4_000_000)
+		assert.Equal(b, 13615843289729, result)
+	}
+}
+
+// Benchmark_02_multithreading-10    	       1	3 209 842 084 ns/op
+func Benchmark_02_multithreading(b *testing.B) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(b, err)
+
+	scanner := ParseInput(reader)
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		result := BeaconPositionFrequencyMultithreading(scanner, 4_000_000)
+		assert.Equal(b, 13615843289729, result)
+	}
+}
