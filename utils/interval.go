@@ -60,3 +60,11 @@ func (i Interval[T]) Subtract(i2 Interval[T]) []Interval[T] {
 
 	return []Interval[T]{i}
 }
+
+// Enlarge grows interval to contain given value
+func (i Interval[T]) Enlarge(value T) Interval[T] {
+	low := Min(i.Low, value)
+	high := Max(i.High, value)
+
+	return NewInterval(low, high)
+}
