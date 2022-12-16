@@ -279,6 +279,19 @@ func FillSlice[T any](slice []T, value T) {
 	}
 }
 
+// MapValues returns slice of map values
+func MapValues[K comparable, V any](m map[K]V) []V {
+	values := make([]V, len(m))
+	i := 0
+
+	for _, value := range m {
+		values[i] = value
+		i++
+	}
+
+	return values
+}
+
 func Msg(str string) string {
 	return str[1:]
 }
