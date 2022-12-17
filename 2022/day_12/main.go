@@ -60,7 +60,7 @@ func neighbours(heights MatrixInt) func(origin Vector2i) []Vector2i {
 }
 
 func shortestPathScore(heights MatrixInt, start, end Vector2i) (int, bool) {
-	_, score, found := utils.AStar(start, end, h(end), d(heights), neighbours(heights))
+	_, _, score, found := utils.AStar(start, end, h(end), d(heights), neighbours(heights))
 
 	return score, found
 }

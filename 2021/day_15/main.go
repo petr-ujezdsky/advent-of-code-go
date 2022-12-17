@@ -134,7 +134,7 @@ func neighbours(m Matrix2i) func(origin Vector2i) []Vector2i {
 	}
 }
 
-func CalcBestScoreAStar(m Matrix2i) ([]Vector2i, int, bool) {
+func CalcBestScoreAStar(m Matrix2i) ([]Vector2i, map[Vector2i]int, int, bool) {
 	endPos := Vector2i{m.Width - 1, m.Height - 1}
 	return utils.AStar(Vector2i{0, 0}, endPos, h(endPos), d(m), neighbours(m))
 }
