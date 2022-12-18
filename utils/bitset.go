@@ -42,16 +42,20 @@ func NewBitSetInitialized[T UInteger](mask T) BitSet[T] {
 	return BitSet[T]{mask}
 }
 
-func (s *BitSet[T]) Contains(value T) bool {
+func (s *BitSet[T]) Contains(value int) bool {
 	return (s.mask & (1 << value)) != 0
 }
 
-func (s *BitSet[T]) Push(value T) {
+func (s *BitSet[T]) Push(value int) {
 	s.mask |= 1 << value
 }
 
-func (s *BitSet[T]) Remove(value T) {
+func (s *BitSet[T]) Remove(value int) {
 	s.mask &= ^(1 << value)
+}
+
+func (s *BitSet[T]) Clone() BitSet[T] {
+	return BitSet[T]{s.mask}
 }
 
 func (s *BitSet[T]) String() string {

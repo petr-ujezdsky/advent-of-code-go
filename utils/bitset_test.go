@@ -8,13 +8,13 @@ import (
 func TestBitSet_All(t *testing.T) {
 	bitSet := NewEmptyBitSet[uint8]()
 
-	for i := uint8(0); i < 8; i++ {
+	for i := 0; i < 8; i++ {
 		assert.Equal(t, false, bitSet.Contains(i))
 	}
 
 	bitSet.Push(7)
 
-	for i := uint8(0); i < 7; i++ {
+	for i := 0; i < 7; i++ {
 		assert.Equal(t, false, bitSet.Contains(i))
 	}
 	assert.Equal(t, true, bitSet.Contains(7))

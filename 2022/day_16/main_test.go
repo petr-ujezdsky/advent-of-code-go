@@ -21,8 +21,8 @@ func Test_01_example(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	result := DoWithInput(world)
-	assert.Equal(t, 0, result)
+	result := FindMaxPressureReleaseState(world)
+	assert.Equal(t, 1651, result)
 }
 
 func Test_01(t *testing.T) {
@@ -31,7 +31,7 @@ func Test_01(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	result := DoWithInput(world)
+	result := FindMaxPressureRelease(world)
 	assert.Equal(t, 0, result)
 }
 
@@ -41,7 +41,7 @@ func Test_02_example(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	result := DoWithInput(world)
+	result := FindMaxPressureRelease(world)
 	assert.Equal(t, 0, result)
 }
 
@@ -51,6 +51,6 @@ func Test_02(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	result := DoWithInput(world)
+	result := FindMaxPressureRelease(world)
 	assert.Equal(t, 0, result)
 }
