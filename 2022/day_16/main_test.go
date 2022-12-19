@@ -41,7 +41,7 @@ func Test_02_example(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	result := FindMaxPressureReleaseStateMinMax(world)
+	result := FindMaxPressureReleasedWithElephant(world)
 	assert.Equal(t, 0, result)
 }
 

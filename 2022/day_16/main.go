@@ -42,6 +42,22 @@ type WorldState2 struct {
 	PressureReleased int
 }
 
+type PlayerState struct {
+	CurrentNode *ValveNode
+	//NextNode *ValveNode
+	RemainingTime int
+}
+
+type WorldState3 struct {
+	Player1State, Player2State PlayerState
+	ValveOpenDuration          []int
+	//ClosedValvesSet    utils.BitSet128
+	//SoonToBeOpened     *ValveNode
+	//SoonToBeOpenedTime int
+	//RemainingTime    int
+	PressureReleased int
+}
+
 func maxPossibleReleasedPressure(state WorldState) int {
 	remainingTime := state.RemainingTime
 	maxReleasedPressure := state.PressureReleased
@@ -80,6 +96,44 @@ func maxPossibleReleasedPressure2(state *WorldState2, allNodesSorted []*ValveNod
 		maxReleasedPressure += (remainingTime - 2) * closedValve.FlowRate
 		remainingTime -= 2
 	}
+
+	return maxReleasedPressure
+}
+
+func maxPossibleRemainingReleasedPressurePlayer(state *WorldState3, player PlayerState, allNodesSorted []*ValveNode, playerId int) int {
+	remainingReleasedPressure := 0
+	remainingTime := player.RemainingTime
+
+	i := 0
+	for _, closedValve := range allNodesSorted {
+		if state.ValveOpenDuration[closedValve.Id] > 0 || closedValve.FlowRate == 0 {
+			continue
+		}
+
+		// not enough time to get here and open valve
+		if remainingTime < 2 {
+			break
+		}
+
+		if i%2 == playerId {
+			remainingReleasedPressure += (remainingTime - 2) * closedValve.FlowRate
+			remainingTime -= 2
+		}
+
+		i++
+	}
+
+	return remainingReleasedPressure
+}
+
+func maxPossibleReleasedPressure3(state *WorldState3, allNodesSorted []*ValveNode) int {
+	maxReleasedPressure := state.PressureReleased
+
+	// player 1
+	maxReleasedPressure += maxPossibleRemainingReleasedPressurePlayer(state, state.Player1State, allNodesSorted, 0)
+
+	// player 2
+	maxReleasedPressure += maxPossibleRemainingReleasedPressurePlayer(state, state.Player2State, allNodesSorted, 1)
 
 	return maxReleasedPressure
 }
@@ -199,6 +253,106 @@ func FindMaxPressureReleaseStateMinMaxGeneralized(world World) int {
 		ClosedValvesSet:  utils.NewFullBitSet128(),
 		RemainingTime:    30,
 		PressureReleased: 0,
+	}
+
+	maxPressureReleased, _ := utils.BranchAndBoundDeepFirst(initialState, cost, lowerBound, next)
+
+	return -maxPressureReleased
+}
+
+func nextPlayerState(player PlayerState, valveOpenDuration []int, allNodes []*ValveNode, distances utils.MatrixInt) ([]PlayerState, [][]int) {
+	var nextStates []PlayerState
+	var nextValveOpenDurations [][]int
+	for _, closedValve := range allNodes {
+		if valveOpenDuration[closedValve.Id] > 0 || closedValve.FlowRate == 0 {
+			continue
+		}
+
+		pathCost := distances.Columns[player.CurrentNode.Id][closedValve.Id]
+		moveAndOpenCost := pathCost + 1
+		// not enough time to get here and open valve
+		if moveAndOpenCost >= player.RemainingTime {
+			continue
+		}
+
+		nextRemainingTime := player.RemainingTime - moveAndOpenCost
+		//currentPressureReleased := nextRemainingTime * closedValve.FlowRate
+
+		nextValveOpenDuration := utils.ShallowCopy(valveOpenDuration)
+		nextValveOpenDuration[closedValve.Id] = nextRemainingTime
+
+		nextStates = append(nextStates, PlayerState{
+			CurrentNode:   closedValve,
+			RemainingTime: nextRemainingTime,
+		})
+
+		nextValveOpenDurations = append(nextValveOpenDurations, nextValveOpenDuration)
+	}
+
+	return nextStates, nextValveOpenDurations
+}
+
+func worldStateCost(valveOpenDuration []int, allNodes []*ValveNode) int {
+	sum := 0
+
+	for i, openDuration := range valveOpenDuration {
+		sum += openDuration * allNodes[i].FlowRate
+	}
+
+	return sum
+}
+
+func FindMaxPressureReleasedWithElephant(world World) int {
+	distances := computeDistances(world)
+
+	cost := func(state *WorldState3) int {
+		return -state.PressureReleased
+	}
+
+	lowerBound := func(state *WorldState3) int {
+		return -maxPossibleReleasedPressure3(state, world.AllNodesSorted)
+	}
+
+	next := func(state *WorldState3) []*WorldState3 {
+		var nextStates []*WorldState3
+
+		// player 1
+		nextP1States, nextP1ValveOpenDurations := nextPlayerState(state.Player1State, state.ValveOpenDuration, world.AllNodes, distances)
+
+		for ip1, p1 := range nextP1States {
+			p1ValveOpenDurations := nextP1ValveOpenDurations[ip1]
+
+			// player 2
+			nextP2States, nextP2ValveOpenDurations := nextPlayerState(state.Player2State, p1ValveOpenDurations, world.AllNodes, distances)
+
+			for ip2, p2 := range nextP2States {
+				p2ValveOpenDurations := nextP2ValveOpenDurations[ip2]
+
+				nextState := &WorldState3{
+					Player1State:      p1,
+					Player2State:      p2,
+					ValveOpenDuration: p2ValveOpenDurations,
+					PressureReleased:  worldStateCost(p2ValveOpenDurations, world.AllNodes),
+				}
+
+				nextStates = append(nextStates, nextState)
+			}
+		}
+
+		return nextStates
+	}
+
+	initialState := &WorldState3{
+		Player1State: PlayerState{
+			CurrentNode:   world.RootNode,
+			RemainingTime: 30,
+		},
+		Player2State: PlayerState{
+			CurrentNode:   world.RootNode,
+			RemainingTime: 30,
+		},
+		ValveOpenDuration: make([]int, len(world.AllNodes)),
+		PressureReleased:  0,
 	}
 
 	maxPressureReleased, _ := utils.BranchAndBoundDeepFirst(initialState, cost, lowerBound, next)
