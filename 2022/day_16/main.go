@@ -43,19 +43,14 @@ type WorldState2 struct {
 }
 
 type PlayerState struct {
-	CurrentNode *ValveNode
-	//NextNode *ValveNode
+	CurrentNode   *ValveNode
 	RemainingTime int
 }
 
 type WorldState3 struct {
 	Player1State, Player2State PlayerState
 	ValveOpenDuration          []int
-	//ClosedValvesSet    utils.BitSet128
-	//SoonToBeOpened     *ValveNode
-	//SoonToBeOpenedTime int
-	//RemainingTime    int
-	PressureReleased int
+	PressureReleased           int
 }
 
 func maxPossibleReleasedPressure(state WorldState) int {
