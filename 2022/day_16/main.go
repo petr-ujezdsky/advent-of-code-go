@@ -62,9 +62,10 @@ func (s WorldState2) ClosedValvesSlice(allNodes []*ValveNode) []*ValveNode {
 	return closed
 }
 
-func maxPossibleRemainingReleasedPressure(state WorldState) int {
+func maxPossibleReleasedPressure(state WorldState) int {
 	remainingTime := state.RemainingTime
-	maxReleasedPressure := 0
+	maxReleasedPressure := state.PressureReleased
+
 	for _, closedValve := range state.AllNodesSorted {
 		if !state.ClosedValvesSet.Contains(closedValve.Id) || closedValve.FlowRate == 0 {
 			continue
@@ -130,9 +131,7 @@ func findMaxPressureReleaseStateMinMax(state WorldState, distances utils.MatrixI
 			PressureReleased: state.PressureReleased + currentPressureReleased,
 		}
 
-		remainingMaxPossible := maxPossibleRemainingReleasedPressure(nextState)
-
-		if nextState.PressureReleased+remainingMaxPossible < *best {
+		if maxPossibleReleasedPressure(nextState) < *best {
 			continue
 		}
 

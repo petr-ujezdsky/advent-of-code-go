@@ -29,9 +29,11 @@ func BranchAndBound[T comparable](start T, cost func(T) int, lowerBound func(T) 
 		}
 
 		for _, next := range nextStates {
-			if lowerBound(next) <= min {
-				openSet[next] = struct{}{}
+			if lowerBound(next) > min {
+				continue
 			}
+
+			openSet[next] = struct{}{}
 		}
 	}
 
