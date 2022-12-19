@@ -72,7 +72,7 @@ func Benchmark_01_example(b *testing.B) {
 	}
 }
 
-// Benchmark_01_example_generalized-10    	    7190	    153 960 ns/op
+// Benchmark_01_example_generalized-10    	   10000	    102 752 ns/op
 func Benchmark_01_example_generalized(b *testing.B) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(b, err)
@@ -102,7 +102,7 @@ func Benchmark_01(b *testing.B) {
 	}
 }
 
-// Benchmark_01_generalized-10    	     177	   6 431 829 ns/op
+// Benchmark_01_generalized-10    	     247	   4 459 456 ns/op
 func Benchmark_01_generalized(b *testing.B) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(b, err)

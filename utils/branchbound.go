@@ -2,18 +2,39 @@ package utils
 
 import "math"
 
-// BranchAndBound finds state with minimal cost. It skips states having lower bound greater than found minimum.
-func BranchAndBound[T comparable](start T, cost func(T) int, lowerBound func(T) int, nextStatesProvider func(T) []T) (int, T) {
-	openSet := make(map[T]struct{})
-	openSet[start] = struct{}{}
+type storage[T any] interface {
+	Push(T)
+	Pop() T
+	Empty() bool
+}
+
+// BranchAndBoundDeepFirst finds state with minimal cost. It skips states having lower bound greater than currently
+// found minimum.
+// Uses deep-first search.
+func BranchAndBoundDeepFirst[T comparable](start T, cost func(T) int, lowerBound func(T) int, nextStatesProvider func(T) []T) (int, T) {
+	storage := NewStack[T]()
+	return branchAndBound[T](&storage, start, cost, lowerBound, nextStatesProvider)
+}
+
+// BranchAndBoundBreadthFirst finds state with minimal cost. It skips states having lower bound greater than currently
+// found minimum.
+// Uses breadth-first search.
+func BranchAndBoundBreadthFirst[T comparable](start T, cost func(T) int, lowerBound func(T) int, nextStatesProvider func(T) []T) (int, T) {
+	storage := NewQueue[T]()
+	return branchAndBound[T](&storage, start, cost, lowerBound, nextStatesProvider)
+}
+
+// branchAndBound finds state with minimal cost. It skips states having lower bound greater than currently found minimum.
+func branchAndBound[T any](storage storage[T], start T, cost func(T) int, lowerBound func(T) int, nextStatesProvider func(T) []T) (int, T) {
+	openSet := storage
+	openSet.Push(start)
 
 	min := math.MaxInt
 	minState := start
 
-	for len(openSet) > 0 {
+	for !openSet.Empty() {
 
-		current := FirstMapKey(openSet)
-		delete(openSet, current)
+		current := openSet.Pop()
 
 		nextStates := nextStatesProvider(current)
 
@@ -34,7 +55,7 @@ func BranchAndBound[T comparable](start T, cost func(T) int, lowerBound func(T) 
 				continue
 			}
 
-			openSet[next] = struct{}{}
+			openSet.Push(next)
 		}
 	}
 

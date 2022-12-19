@@ -215,7 +215,7 @@ func FindMaxPressureReleaseStateMinMaxGeneralized(world World) int {
 		PressureReleased: 0,
 	}
 
-	maxPressureReleased, _ := utils.BranchAndBound(initialState, cost, lowerBound, next)
+	maxPressureReleased, _ := utils.BranchAndBoundDeepFirst(initialState, cost, lowerBound, next)
 
 	return -maxPressureReleased
 }
