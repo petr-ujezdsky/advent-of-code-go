@@ -345,11 +345,11 @@ func FindMaxPressureReleasedWithElephant(world World) int {
 	initialState := &WorldState3{
 		Player1State: PlayerState{
 			CurrentNode:   world.RootNode,
-			RemainingTime: 30,
+			RemainingTime: 26,
 		},
 		Player2State: PlayerState{
 			CurrentNode:   world.RootNode,
-			RemainingTime: 30,
+			RemainingTime: 26,
 		},
 		ValveOpenDuration: make([]int, len(world.AllNodes)),
 		PressureReleased:  0,
