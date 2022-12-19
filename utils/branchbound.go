@@ -2,6 +2,7 @@ package utils
 
 import "math"
 
+// BranchAndBound finds state with minimal cost. It skips states having lower bound greater than found minimum.
 func BranchAndBound[T comparable](start T, cost func(T) int, lowerBound func(T) int, nextStatesProvider func(T) []T) (int, T) {
 	openSet := make(map[T]struct{})
 	openSet[start] = struct{}{}
