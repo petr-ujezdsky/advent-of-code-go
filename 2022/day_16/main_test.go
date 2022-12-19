@@ -72,6 +72,21 @@ func Benchmark_01_example(b *testing.B) {
 	}
 }
 
+// Benchmark_01_example_generalized-10    	    7190	    153 960 ns/op
+func Benchmark_01_example_generalized(b *testing.B) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(b, err)
+
+	world := ParseInput(reader)
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		result := FindMaxPressureReleaseStateMinMaxGeneralized(world)
+		assert.Equal(b, 1651, result)
+	}
+}
+
 // Benchmark_01-10    	     271	   4 130 114 ns/op
 func Benchmark_01(b *testing.B) {
 	reader, err := os.Open("data-01.txt")
@@ -83,6 +98,21 @@ func Benchmark_01(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		result := FindMaxPressureReleaseStateMinMax(world)
+		assert.Equal(b, 1944, result)
+	}
+}
+
+// Benchmark_01_generalized-10    	     177	   6 431 829 ns/op
+func Benchmark_01_generalized(b *testing.B) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(b, err)
+
+	world := ParseInput(reader)
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		result := FindMaxPressureReleaseStateMinMaxGeneralized(world)
 		assert.Equal(b, 1944, result)
 	}
 }

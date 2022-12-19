@@ -45,10 +45,48 @@ func (s WorldState) ClosedValvesSlice() []*ValveNode {
 	return closed
 }
 
+type WorldState2 struct {
+	CurrentNode      *ValveNode
+	ClosedValvesSet  utils.BitSet128
+	RemainingTime    int
+	PressureReleased int
+}
+
+func (s WorldState2) ClosedValvesSlice(allNodes []*ValveNode) []*ValveNode {
+	var closed []*ValveNode
+	for i, node := range allNodes {
+		if s.ClosedValvesSet.Contains(i) && node.FlowRate > 0 {
+			closed = append(closed, node)
+		}
+	}
+	return closed
+}
+
 func maxPossibleRemainingReleasedPressure(state WorldState) int {
 	remainingTime := state.RemainingTime
 	maxReleasedPressure := 0
 	for _, closedValve := range state.AllNodesSorted {
+		if !state.ClosedValvesSet.Contains(closedValve.Id) || closedValve.FlowRate == 0 {
+			continue
+		}
+
+		// not enough time to get here and open valve
+		if remainingTime < 2 {
+			return maxReleasedPressure
+		}
+
+		maxReleasedPressure += (remainingTime - 2) * closedValve.FlowRate
+		remainingTime -= 2
+	}
+
+	return maxReleasedPressure
+}
+
+func maxPossibleReleasedPressure2(state *WorldState2, allNodesSorted []*ValveNode) int {
+	remainingTime := state.RemainingTime
+	maxReleasedPressure := state.PressureReleased
+
+	for _, closedValve := range allNodesSorted {
 		if !state.ClosedValvesSet.Contains(closedValve.Id) || closedValve.FlowRate == 0 {
 			continue
 		}
@@ -127,6 +165,60 @@ func FindMaxPressureReleaseStateMinMax(world World) int {
 	maxPressureReleased := findMaxPressureReleaseStateMinMax(initialState, distances, &best)
 
 	return maxPressureReleased
+}
+
+func FindMaxPressureReleaseStateMinMaxGeneralized(world World) int {
+	distances := computeDistances(world)
+
+	cost := func(state *WorldState2) int {
+		return -state.PressureReleased
+	}
+
+	lowerBound := func(state *WorldState2) int {
+		return -maxPossibleReleasedPressure2(state, world.AllNodesSorted)
+	}
+
+	next := func(state *WorldState2) []*WorldState2 {
+		var nextStates []*WorldState2
+
+		closedValves := state.ClosedValvesSlice(world.AllNodes)
+		for _, closedValve := range closedValves {
+			pathCost := distances.Columns[state.CurrentNode.Id][closedValve.Id]
+			moveAndOpenCost := pathCost + 1
+			// not enough time to get here and open valve
+			if moveAndOpenCost >= state.RemainingTime {
+				continue
+			}
+
+			nextRemainingTime := state.RemainingTime - moveAndOpenCost
+			currentPressureReleased := nextRemainingTime * closedValve.FlowRate
+
+			nextClosedValvesSet := state.ClosedValvesSet.Clone()
+			nextClosedValvesSet.Remove(closedValve.Id)
+
+			nextState := &WorldState2{
+				CurrentNode:      closedValve,
+				ClosedValvesSet:  nextClosedValvesSet,
+				RemainingTime:    nextRemainingTime,
+				PressureReleased: state.PressureReleased + currentPressureReleased,
+			}
+
+			nextStates = append(nextStates, nextState)
+		}
+
+		return nextStates
+	}
+
+	initialState := &WorldState2{
+		CurrentNode:      world.RootNode,
+		ClosedValvesSet:  utils.NewFullBitSet128(),
+		RemainingTime:    30,
+		PressureReleased: 0,
+	}
+
+	maxPressureReleased, _ := utils.BranchAndBound(initialState, cost, lowerBound, next)
+
+	return -maxPressureReleased
 }
 
 func computeDistances(world World) utils.MatrixInt {
