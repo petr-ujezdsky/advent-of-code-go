@@ -35,31 +35,11 @@ type WorldState struct {
 	PressureReleased int
 }
 
-func (s WorldState) ClosedValvesSlice() []*ValveNode {
-	var closed []*ValveNode
-	for i, node := range s.AllNodes {
-		if s.ClosedValvesSet.Contains(i) && node.FlowRate > 0 {
-			closed = append(closed, node)
-		}
-	}
-	return closed
-}
-
 type WorldState2 struct {
 	CurrentNode      *ValveNode
 	ClosedValvesSet  utils.BitSet128
 	RemainingTime    int
 	PressureReleased int
-}
-
-func (s WorldState2) ClosedValvesSlice(allNodes []*ValveNode) []*ValveNode {
-	var closed []*ValveNode
-	for i, node := range allNodes {
-		if s.ClosedValvesSet.Contains(i) && node.FlowRate > 0 {
-			closed = append(closed, node)
-		}
-	}
-	return closed
 }
 
 func maxPossibleReleasedPressure(state WorldState) int {
@@ -107,8 +87,11 @@ func maxPossibleReleasedPressure2(state *WorldState2, allNodesSorted []*ValveNod
 func findMaxPressureReleaseStateMinMax(state WorldState, distances utils.MatrixInt, best *int) int {
 	max := state.PressureReleased
 
-	closedValves := state.ClosedValvesSlice()
-	for _, closedValve := range closedValves {
+	for _, closedValve := range state.AllNodes {
+		if !state.ClosedValvesSet.Contains(closedValve.Id) || closedValve.FlowRate == 0 {
+			continue
+		}
+
 		pathCost := distances.Columns[state.CurrentNode.Id][closedValve.Id]
 		moveAndOpenCost := pathCost + 1
 		// not enough time to get here and open valve
@@ -180,8 +163,11 @@ func FindMaxPressureReleaseStateMinMaxGeneralized(world World) int {
 	next := func(state *WorldState2) []*WorldState2 {
 		var nextStates []*WorldState2
 
-		closedValves := state.ClosedValvesSlice(world.AllNodes)
-		for _, closedValve := range closedValves {
+		for _, closedValve := range world.AllNodes {
+			if !state.ClosedValvesSet.Contains(closedValve.Id) || closedValve.FlowRate == 0 {
+				continue
+			}
+
 			pathCost := distances.Columns[state.CurrentNode.Id][closedValve.Id]
 			moveAndOpenCost := pathCost + 1
 			// not enough time to get here and open valve
