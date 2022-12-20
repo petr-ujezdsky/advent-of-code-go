@@ -23,8 +23,8 @@ func Test_01_example(t *testing.T) {
 
 	jetDirections := ParseInput(reader)
 
-	result := DoWithInput(jetDirections)
-	assert.Equal(t, 0, result)
+	result := InspectFallingRocks(jetDirections)
+	assert.Equal(t, 3068, result)
 }
 
 func Test_01(t *testing.T) {
@@ -33,8 +33,8 @@ func Test_01(t *testing.T) {
 
 	jetDirections := ParseInput(reader)
 
-	result := DoWithInput(jetDirections)
-	assert.Equal(t, 0, result)
+	result := InspectFallingRocks(jetDirections)
+	assert.Equal(t, 3227, result)
 }
 
 func Test_02_example(t *testing.T) {
@@ -43,7 +43,7 @@ func Test_02_example(t *testing.T) {
 
 	jetDirections := ParseInput(reader)
 
-	result := DoWithInput(jetDirections)
+	result := InspectFallingRocks(jetDirections)
 	assert.Equal(t, 0, result)
 }
 
@@ -53,6 +53,6 @@ func Test_02(t *testing.T) {
 
 	jetDirections := ParseInput(reader)
 
-	result := DoWithInput(jetDirections)
+	result := InspectFallingRocks(jetDirections)
 	assert.Equal(t, 0, result)
 }
