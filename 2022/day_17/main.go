@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	_ "embed"
+	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"io"
 	"math"
@@ -67,8 +68,8 @@ func (s1 PixelShape) GetPixel(pos utils.Vector2i) bool {
 
 func (s1 PixelShape) BoundingBox() utils.BoundingBox {
 	return utils.BoundingBox{
-		Horizontal: utils.IntervalI{s1.position.X, s1.position.X + s1.pixels.Width - 1},
-		Vertical:   utils.IntervalI{s1.position.Y, s1.position.Y + s1.pixels.Height - 1},
+		Horizontal: utils.IntervalI{Low: s1.position.X, High: s1.position.X + s1.pixels.Width - 1},
+		Vertical:   utils.IntervalI{Low: s1.position.Y, High: s1.position.Y + s1.pixels.Height - 1},
 	}
 }
 
@@ -92,7 +93,7 @@ func Collides(s1, s2 IShape) bool {
 
 	for x := boundingBox.Horizontal.Low; x <= boundingBox.Horizontal.High; x++ {
 		for y := boundingBox.Vertical.Low; y <= boundingBox.Vertical.High; y++ {
-			pos := utils.Vector2i{x, y}
+			pos := utils.Vector2i{X: x, Y: y}
 
 			s1pixel := s1.GetPixel(pos)
 			s2pixel := s2.GetPixel(pos)
@@ -131,18 +132,18 @@ func MoveOrStay(shape PixelShape, step utils.Vector2i, shapes []IShape, bounds [
 
 func initWorld() World {
 	left := BigShape{utils.BoundingBox{
-		Horizontal: utils.IntervalI{-1, -1},
-		Vertical:   utils.IntervalI{-1, math.MaxInt},
+		Horizontal: utils.IntervalI{Low: -1, High: -1},
+		Vertical:   utils.IntervalI{Low: -1, High: math.MaxInt},
 	}}
 
 	right := BigShape{utils.BoundingBox{
-		Horizontal: utils.IntervalI{7, 7},
-		Vertical:   utils.IntervalI{-1, math.MaxInt},
+		Horizontal: utils.IntervalI{Low: 7, High: 7},
+		Vertical:   utils.IntervalI{Low: -1, High: math.MaxInt},
 	}}
 
 	floor := BigShape{utils.BoundingBox{
-		Horizontal: utils.IntervalI{-1, 7},
-		Vertical:   utils.IntervalI{-1, -1},
+		Horizontal: utils.IntervalI{Low: -1, High: 7},
+		Vertical:   utils.IntervalI{Low: -1, High: -1},
 	}}
 
 	return World{[]IShape{
@@ -174,7 +175,7 @@ func InspectFallingRocks(jetDirections []JetDirection, rocksCount int) int {
 
 		shape := PixelShape{
 			pixels:   shapeType,
-			position: utils.Vector2i{2, height + 3},
+			position: utils.Vector2i{X: 2, Y: height + 3},
 		}
 
 		for {
@@ -182,11 +183,11 @@ func InspectFallingRocks(jetDirections []JetDirection, rocksCount int) int {
 			iJetDirection = (iJetDirection + 1) % len(jetDirections)
 
 			// move sideways using jet stream, if possible
-			shape, _ = MoveOrStay(shape, utils.Vector2i{jetDirection, 0}, shapes, world.Bounds)
+			shape, _ = MoveOrStay(shape, utils.Vector2i{X: jetDirection, Y: 0}, shapes, world.Bounds)
 
 			// move down
 			var moved bool
-			shape, moved = MoveOrStay(shape, utils.Vector2i{0, -1}, shapes, world.Bounds)
+			shape, moved = MoveOrStay(shape, utils.Vector2i{X: 0, Y: -1}, shapes, world.Bounds)
 
 			// could not move -> rest
 			if !moved {
