@@ -12,7 +12,7 @@ type JetDirection = int
 type ShapePixels = utils.Matrix[bool]
 
 type World struct {
-	Shapes []IShape
+	Bounds []IShape
 }
 
 var shapeLine = utils.NewMatrixRowNotation([][]bool{
@@ -116,11 +116,11 @@ func CollidesMany(shape IShape, shapes []IShape) bool {
 	return false
 }
 
-func MoveOrStay(shape PixelShape, step utils.Vector2i, shapes []IShape) (PixelShape, bool) {
+func MoveOrStay(shape PixelShape, step utils.Vector2i, shapes []IShape, bounds []IShape) (PixelShape, bool) {
 	shapeMoved := shape
 	shapeMoved.position = shapeMoved.position.Add(step)
 
-	if CollidesMany(shapeMoved, shapes) {
+	if CollidesMany(shapeMoved, bounds) || CollidesMany(shapeMoved, shapes) {
 		return shape, false
 	}
 
@@ -150,16 +150,22 @@ func initWorld() World {
 	}}
 }
 
+var metric = utils.Metric{
+	Name:    "Rocks count",
+	Enabled: true,
+}
+
 func InspectFallingRocks(jetDirections []JetDirection) int {
 	world := initWorld()
 
 	iShapeType := 0
 	iJetDirection := 0
 	height := 0
-	shapes := world.Shapes
+	var shapes []IShape
+
 	for iRock := 0; iRock < 2022; iRock++ {
-		shapeType := shapeTypes[iShapeType%len(shapeTypes)]
-		iShapeType++
+		shapeType := shapeTypes[iShapeType]
+		iShapeType = (iShapeType + 1) % len(shapeTypes)
 
 		shape := PixelShape{
 			pixels:   shapeType,
@@ -168,14 +174,14 @@ func InspectFallingRocks(jetDirections []JetDirection) int {
 
 		for {
 			jetDirection := jetDirections[iJetDirection%len(jetDirections)]
-			iJetDirection++
+			iJetDirection = (iJetDirection + 1) % len(jetDirections)
 
 			// move sideways using jet stream, if possible
-			shape, _ = MoveOrStay(shape, utils.Vector2i{jetDirection, 0}, shapes)
+			shape, _ = MoveOrStay(shape, utils.Vector2i{jetDirection, 0}, shapes, world.Bounds)
 
 			// move down
 			var moved bool
-			shape, moved = MoveOrStay(shape, utils.Vector2i{0, -1}, shapes)
+			shape, moved = MoveOrStay(shape, utils.Vector2i{0, -1}, shapes, world.Bounds)
 
 			// could not move -> rest
 			if !moved {
@@ -185,6 +191,13 @@ func InspectFallingRocks(jetDirections []JetDirection) int {
 
 		// rest the shape
 		shapes = append(shapes, shape)
+
+		// keep only last 30 shapes
+		if len(shapes) > 30 {
+			//shapes = utils.RemoveUnordered(shapes, 0)
+		}
+
+		metric.Tick(10_000)
 
 		// store new height if higher
 		height = utils.Max(height, shape.BoundingBox().Vertical.High+1)

@@ -32,6 +32,7 @@ func Test_01(t *testing.T) {
 	assert.Nil(t, err)
 
 	jetDirections := ParseInput(reader)
+	assert.Equal(t, 10091, len(jetDirections))
 
 	result := InspectFallingRocks(jetDirections)
 	assert.Equal(t, 3227, result)
