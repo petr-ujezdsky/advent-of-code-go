@@ -3,9 +3,9 @@ package utils
 import "fmt"
 
 type Metric struct {
-	Name       string
-	Ticks, Sum int
-	Enabled    bool
+	Name            string
+	Ticks, Sum, Max int
+	Enabled         bool
 }
 
 func NewMetric(name string) *Metric {
@@ -28,6 +28,15 @@ func (m *Metric) TickCurrent(period, v int) {
 
 	if m.Enabled && m.Ticks%period == 0 {
 		fmt.Printf("%v - tick #%d, current = %d\n", m.Name, m.Ticks, v)
+	}
+}
+
+func (m *Metric) TickMax(period, v int) {
+	m.Ticks++
+	m.Max = Max(m.Max, v)
+
+	if m.Enabled && m.Ticks%period == 0 {
+		fmt.Printf("%v - tick #%d, max = %d\n", m.Name, m.Ticks, v)
 	}
 }
 
