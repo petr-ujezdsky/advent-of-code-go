@@ -202,14 +202,13 @@ func InspectFallingRocks(jetDirections []JetDirection) int {
 
 		// keep only last 30 shapes
 		if len(shapes) > 30 {
-			//shapes = utils.RemoveUnordered(shapes, 0)
+			shapes = shapes[1:]
 		}
 
 		metric.Tick(10_000)
 
 		// store new height if higher
 		height = utils.Max(height, shape.BoundingBox().Vertical.High+1)
-
 	}
 
 	return height
