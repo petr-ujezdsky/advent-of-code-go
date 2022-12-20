@@ -58,18 +58,19 @@ type IShape interface {
 }
 
 type PixelShape struct {
-	pixels   ShapePixels
-	position utils.Vector2i
+	//pixels    ShapePixels
+	shapeTypeIndex int
+	position       utils.Vector2i
 }
 
 func (s1 PixelShape) GetPixel(pos utils.Vector2i) bool {
-	return s1.pixels.GetV(pos.Subtract(s1.position))
+	return shapeTypes[s1.shapeTypeIndex].GetV(pos.Subtract(s1.position))
 }
 
 func (s1 PixelShape) BoundingBox() utils.BoundingBox {
 	return utils.BoundingBox{
-		Horizontal: utils.IntervalI{Low: s1.position.X, High: s1.position.X + s1.pixels.Width - 1},
-		Vertical:   utils.IntervalI{Low: s1.position.Y, High: s1.position.Y + s1.pixels.Height - 1},
+		Horizontal: utils.IntervalI{Low: s1.position.X, High: s1.position.X + shapeTypes[s1.shapeTypeIndex].Width - 1},
+		Vertical:   utils.IntervalI{Low: s1.position.Y, High: s1.position.Y + shapeTypes[s1.shapeTypeIndex].Height - 1},
 	}
 }
 
@@ -170,13 +171,14 @@ func InspectFallingRocks(jetDirections []JetDirection, rocksCount int) int {
 
 		sameBeginning := iShapeType == 0 && iJetDirection == 0
 
-		shapeType := shapeTypes[iShapeType]
-		iShapeType = (iShapeType + 1) % len(shapeTypes)
+		//shapeType := shapeTypes[iShapeType]
 
 		shape := PixelShape{
-			pixels:   shapeType,
-			position: utils.Vector2i{X: 2, Y: height + 3},
+			//pixels:         shapeType,
+			shapeTypeIndex: iShapeType,
+			position:       utils.Vector2i{X: 2, Y: height + 3},
 		}
+		iShapeType = (iShapeType + 1) % len(shapeTypes)
 
 		for {
 			jetDirection := jetDirections[iJetDirection%len(jetDirections)]

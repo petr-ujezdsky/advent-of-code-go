@@ -58,7 +58,7 @@ func Test_02(t *testing.T) {
 	assert.Equal(t, 0, result)
 }
 
-// Benchmark_02-10    	      39	  29271319 ns/op
+// Benchmark_02-10    	      68	  16636609 ns/op
 func Benchmark_02(b *testing.B) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(b, err)
