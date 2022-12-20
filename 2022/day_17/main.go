@@ -107,7 +107,9 @@ func Collides(s1, s2 IShape) bool {
 }
 
 func CollidesMany(shape IShape, shapes []IShape) bool {
-	for _, other := range shapes {
+	// reverse order - the highest shapes are at the top
+	for i := len(shapes) - 1; i >= 0; i-- {
+		other := shapes[i]
 		if Collides(shape, other) {
 			return true
 		}
