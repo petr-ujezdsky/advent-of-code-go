@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	_ "embed"
+	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"io"
 	"math"
@@ -164,6 +165,9 @@ func InspectFallingRocks(jetDirections []JetDirection) int {
 	var shapes []IShape
 
 	for iRock := 0; iRock < 2022; iRock++ {
+
+		sameBeginning := iShapeType == 0 && iJetDirection == 0
+
 		shapeType := shapeTypes[iShapeType]
 		iShapeType = (iShapeType + 1) % len(shapeTypes)
 
@@ -187,6 +191,10 @@ func InspectFallingRocks(jetDirections []JetDirection) int {
 			if !moved {
 				break
 			}
+		}
+
+		if sameBeginning {
+			fmt.Printf("Same beginning! Resting pos %v\n", shape.position)
 		}
 
 		// rest the shape
