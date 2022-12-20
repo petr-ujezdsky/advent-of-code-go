@@ -23,7 +23,7 @@ func Test_01_example(t *testing.T) {
 
 	jetDirections := ParseInput(reader)
 
-	result := InspectFallingRocks(jetDirections)
+	result := InspectFallingRocks(jetDirections, 2022)
 	assert.Equal(t, 3068, result)
 }
 
@@ -34,7 +34,7 @@ func Test_01(t *testing.T) {
 	jetDirections := ParseInput(reader)
 	assert.Equal(t, 10091, len(jetDirections))
 
-	result := InspectFallingRocks(jetDirections)
+	result := InspectFallingRocks(jetDirections, 2022)
 	assert.Equal(t, 3227, result)
 }
 
@@ -44,7 +44,7 @@ func Test_02_example(t *testing.T) {
 
 	jetDirections := ParseInput(reader)
 
-	result := InspectFallingRocks(jetDirections)
+	result := InspectFallingRocks(jetDirections, 1_000_000_000_000)
 	assert.Equal(t, 0, result)
 }
 
@@ -54,6 +54,6 @@ func Test_02(t *testing.T) {
 
 	jetDirections := ParseInput(reader)
 
-	result := InspectFallingRocks(jetDirections)
+	result := InspectFallingRocks(jetDirections, 1_000_000_000_000)
 	assert.Equal(t, 0, result)
 }

@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	_ "embed"
-	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"io"
 	"math"
@@ -156,7 +155,7 @@ var metric = utils.Metric{
 	Enabled: true,
 }
 
-func InspectFallingRocks(jetDirections []JetDirection) int {
+func InspectFallingRocks(jetDirections []JetDirection, rocksCount int) int {
 	world := initWorld()
 
 	iShapeType := 0
@@ -164,7 +163,7 @@ func InspectFallingRocks(jetDirections []JetDirection) int {
 	height := 0
 	var shapes []IShape
 
-	for iRock := 0; iRock < 2022; iRock++ {
+	for iRock := 0; iRock < rocksCount; iRock++ {
 
 		sameBeginning := iShapeType == 0 && iJetDirection == 0
 
