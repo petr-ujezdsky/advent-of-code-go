@@ -154,10 +154,7 @@ func initWorld() World {
 	}}
 }
 
-var metric = utils.Metric{
-	Name:    "Rocks count",
-	Enabled: true,
-}
+var metric = utils.NewMetric("Rocks count").Enable()
 
 func InspectFallingRocks(jetDirections []JetDirection, rocksCount int) int {
 	world := initWorld()
@@ -209,11 +206,13 @@ func InspectFallingRocks(jetDirections []JetDirection, rocksCount int) int {
 			shapes = shapes[1:]
 		}
 
-		metric.Tick(10_000)
+		metric.TickTime(1_000_000)
 
 		// store new height if higher
 		height = utils.Max(height, shape.BoundingBox().Vertical.High+1)
 	}
+
+	metric.Finished()
 
 	return height
 }
