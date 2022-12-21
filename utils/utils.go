@@ -95,6 +95,15 @@ func ParseInt(str string) int {
 	return v
 }
 
+// ParseBinary8 parses string with zeros and ones to 8-bit number
+func ParseBinary8(onesAndZeros string) uint8 {
+	v, err := strconv.ParseUint(onesAndZeros, 2, 8)
+	if err != nil {
+		panic("Can not convert binary string " + onesAndZeros + " to number")
+	}
+	return uint8(v)
+}
+
 var regexIntNegative = regexp.MustCompile(`-?\d+`)
 var regexIntPositive = regexp.MustCompile(`\d+`)
 

@@ -117,3 +117,31 @@ func TestRemoveUnordered(t *testing.T) {
 	assert.Equal(t, []int{1, 3}, utils.RemoveUnordered([]int{1, 2, 3}, 1))
 	assert.Equal(t, []int{1, 2}, utils.RemoveUnordered([]int{1, 2, 3}, 2))
 }
+
+func TestParseBinary8(t *testing.T) {
+	type args struct {
+		onesAndZeros string
+	}
+	tests := []struct {
+		name string
+		args args
+		want uint8
+	}{
+		{"", args{"0"}, 0},
+		{"", args{"00000000"}, 0},
+		{"", args{"00000001"}, 1},
+		{"", args{"00000010"}, 2},
+		{"", args{"00000100"}, 4},
+		{"", args{"00001000"}, 8},
+		{"", args{"00010000"}, 16},
+		{"", args{"00100000"}, 32},
+		{"", args{"01000000"}, 64},
+		{"", args{"10000000"}, 128},
+		{"", args{"11111111"}, 255},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, utils.ParseBinary8(tt.args.onesAndZeros), "ParseBinary8(%v)", tt.args.onesAndZeros)
+		})
+	}
+}
