@@ -21,7 +21,7 @@ func Test_01_example(t *testing.T) {
 
 	numbers := ParseInput(reader)
 
-	result := DoWithInput(numbers)
+	result := MixNumbers(numbers)
 	assert.Equal(t, 0, result)
 }
 
@@ -31,7 +31,7 @@ func Test_01(t *testing.T) {
 
 	numbers := ParseInput(reader)
 
-	result := DoWithInput(numbers)
+	result := MixNumbers(numbers)
 	assert.Equal(t, 0, result)
 }
 
@@ -41,7 +41,7 @@ func Test_02_example(t *testing.T) {
 
 	numbers := ParseInput(reader)
 
-	result := DoWithInput(numbers)
+	result := MixNumbers(numbers)
 	assert.Equal(t, 0, result)
 }
 
@@ -51,6 +51,6 @@ func Test_02(t *testing.T) {
 
 	numbers := ParseInput(reader)
 
-	result := DoWithInput(numbers)
+	result := MixNumbers(numbers)
 	assert.Equal(t, 0, result)
 }

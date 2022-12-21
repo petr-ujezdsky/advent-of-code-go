@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-func DoWithInput(numbers []int) int {
+func MixNumbers(numbers []int) int {
 	return len(numbers)
 }
 
