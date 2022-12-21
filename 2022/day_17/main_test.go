@@ -69,7 +69,7 @@ func Test_02(t *testing.T) {
 	assert.Equal(t, 1597714285698, result)
 }
 
-// Benchmark_02-10    	    1226	    949280 ns/op
+// Benchmark_02-10    	     216	   5 516 270 ns/op
 func Benchmark_02(b *testing.B) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(b, err)
@@ -79,7 +79,7 @@ func Benchmark_02(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		result := InspectFallingRocks(jetDirections, 5000)
-		assert.Equal(b, 7959, result)
+		result := InspectFallingRocks(jetDirections, 1_000_000_000_000)
+		assert.Equal(b, 1597714285698, result)
 	}
 }

@@ -217,7 +217,9 @@ func InspectFallingRocks(jetDirections []JetDirection, rocksCount int) int {
 					world = world.Trunc(1)
 
 					iRock += towerRocksCount - 1
-					fmt.Printf("FULL ROW - moved by %d rocks!\n", towerRocksCount)
+					if metric.Enabled {
+						fmt.Printf("FULL ROW - moved by %d rocks!\n", towerRocksCount)
+					}
 					continue
 				}
 			}
@@ -229,7 +231,9 @@ func InspectFallingRocks(jetDirections []JetDirection, rocksCount int) int {
 			}
 
 			towerInfos[shapeAndJetState] = towerInfo
-			fmt.Printf("FULL ROW - stored info at %d rocks and %d height\n", towerInfo.iRock, towerInfo.yTop)
+			if metric.Enabled {
+				fmt.Printf("FULL ROW - stored info at %d rocks and %d height\n", towerInfo.iRock, towerInfo.yTop)
+			}
 
 			//fmt.Println(world.String())
 		}
