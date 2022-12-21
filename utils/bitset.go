@@ -3,6 +3,8 @@ package utils
 import (
 	"fmt"
 	"math"
+	"strconv"
+	"unsafe"
 )
 
 type UInteger interface {
@@ -59,5 +61,7 @@ func (s *BitSet[T]) Clone() BitSet[T] {
 }
 
 func (s *BitSet[T]) String() string {
-	return string(Reverse([]rune(fmt.Sprintf("%b", s.mask))))
+	bitsCount := int(unsafe.Sizeof(*s)) * 8
+	format := "%." + strconv.Itoa(bitsCount) + "b"
+	return string(Reverse([]rune(fmt.Sprintf(format, s.mask))))
 }
