@@ -75,6 +75,11 @@ func (m *Metric) Enable() *Metric {
 	return m
 }
 
+func (m *Metric) Disable() *Metric {
+	m.Enabled = false
+	return m
+}
+
 func (m *Metric) Finished() {
 	if m.Enabled {
 		fmt.Printf("%v - ticks = %d, sum = %d (finished)\n", m.Name, m.Ticks, m.Sum)

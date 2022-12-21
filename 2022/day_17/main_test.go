@@ -64,6 +64,7 @@ func Benchmark_02(b *testing.B) {
 	assert.Nil(b, err)
 
 	jetDirections := ParseInput(reader)
+	metric.Disable()
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {

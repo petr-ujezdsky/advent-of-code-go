@@ -218,7 +218,7 @@ func InspectFallingRocks(jetDirections []JetDirection, rocksCount int) int {
 			}
 		}
 
-		if sameBeginning {
+		if sameBeginning && iRock != 0 {
 			fmt.Printf("Same beginning! Resting pos %v\n", shape.yBottom)
 		}
 
