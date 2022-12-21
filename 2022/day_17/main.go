@@ -182,7 +182,6 @@ var metric = utils.NewMetric("Rocks count").Enable()
 func InspectFallingRocks(jetDirections []JetDirection, rocksCount int) int {
 	iShapeType := 0
 	iJetDirection := 0
-	height := 0
 
 	// start with floor
 	world := PixelShape{
@@ -198,7 +197,7 @@ func InspectFallingRocks(jetDirections []JetDirection, rocksCount int) int {
 
 		shape := PixelShape{
 			pixelRows: shapeTypes[iShapeType],
-			yBottom:   height + 4,
+			yBottom:   world.GetYTop() + 4,
 		}
 		iShapeType = (iShapeType + 1) % len(shapeTypes)
 
@@ -231,15 +230,12 @@ func InspectFallingRocks(jetDirections []JetDirection, rocksCount int) int {
 
 		metric.TickTime(1_000_000)
 
-		// store new height if higher
-		height = utils.Max(height, shape.GetYTop())
-
 		//fmt.Println(world.String())
 	}
 
 	metric.Finished()
 
-	return height
+	return world.GetYTop()
 }
 
 func ParseInput(r io.Reader) []JetDirection {
