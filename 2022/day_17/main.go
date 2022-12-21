@@ -53,8 +53,7 @@ var (
 
 type PixelShape struct {
 	pixelRows ShapeRowPixels
-	//shapeTypeIndex int
-	yBottom int
+	yBottom   int
 }
 
 func (s1 PixelShape) GetYTop() int {
@@ -89,7 +88,6 @@ func (s1 PixelShape) AddShape(shape PixelShape) PixelShape {
 
 		// add bits
 		s1 = s1.SetPixelRow(y, pixelRowShape|pixelRowWorld)
-		//s1.pixelRows[y-s1.yBottom] = pixelRowShape | pixelRowWorld
 	}
 
 	return s1
@@ -179,6 +177,15 @@ func MoveOrStay(shape PixelShape, step utils.Vector2i, world PixelShape) (PixelS
 
 var metric = utils.NewMetric("Rocks count").Enable()
 
+type ShapeAndJetState struct {
+	iShapeType, iJetDirection int
+}
+
+type TowerInfo struct {
+	yTop  int
+	iRock int
+}
+
 func InspectFallingRocks(jetDirections []JetDirection, rocksCount int) int {
 	iShapeType := 0
 	iJetDirection := 0
@@ -189,11 +196,43 @@ func InspectFallingRocks(jetDirections []JetDirection, rocksCount int) int {
 		yBottom:   0,
 	}
 
-	//fmt.Println(world.String())
+	towerInfos := make(map[ShapeAndJetState]TowerInfo)
 
 	for iRock := 0; iRock < rocksCount; iRock++ {
 
-		sameBeginning := iShapeType == 0 && iJetDirection == 0
+		topPixelRow := world.pixelRows[len(world.pixelRows)-1]
+		if iRock != 0 && topPixelRow == fullPixelRow {
+			shapeAndJetState := ShapeAndJetState{
+				iShapeType:    iShapeType,
+				iJetDirection: iJetDirection,
+			}
+
+			// look up if we have seen this before
+			if towerInfo, ok := towerInfos[shapeAndJetState]; ok {
+				towerRocksCount := iRock - towerInfo.iRock
+				towerHeight := world.GetYTop() - towerInfo.yTop
+
+				if iRock+towerRocksCount < rocksCount {
+					world.yBottom += towerHeight
+					world = world.Trunc(1)
+
+					iRock += towerRocksCount - 1
+					fmt.Printf("FULL ROW - moved by %d rocks!\n", towerRocksCount)
+					continue
+				}
+			}
+
+			// never seen before -> store whole tower
+			towerInfo := TowerInfo{
+				yTop:  world.GetYTop(),
+				iRock: iRock,
+			}
+
+			towerInfos[shapeAndJetState] = towerInfo
+			fmt.Printf("FULL ROW - stored info at %d rocks and %d height\n", towerInfo.iRock, towerInfo.yTop)
+
+			//fmt.Println(world.String())
+		}
 
 		shape := PixelShape{
 			pixelRows: shapeTypes[iShapeType],
@@ -218,10 +257,6 @@ func InspectFallingRocks(jetDirections []JetDirection, rocksCount int) int {
 			}
 		}
 
-		if sameBeginning && iRock != 0 {
-			fmt.Printf("Same beginning! Resting pos %v\n", shape.yBottom)
-		}
-
 		// rest the shape
 		world = world.AddShape(shape)
 
@@ -229,11 +264,11 @@ func InspectFallingRocks(jetDirections []JetDirection, rocksCount int) int {
 		world = world.Trunc(256)
 
 		metric.TickTime(1_000_000)
-
-		//fmt.Println(world.String())
 	}
 
 	metric.Finished()
+
+	//fmt.Println(world.String())
 
 	return world.GetYTop()
 }

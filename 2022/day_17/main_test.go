@@ -44,8 +44,19 @@ func Test_02_example(t *testing.T) {
 
 	jetDirections := ParseInput(reader)
 
+	// this never finishes - it seems that there are no repeated "floors" in example data!
 	result := InspectFallingRocks(jetDirections, 1_000_000_000_000)
 	assert.Equal(t, 0, result)
+}
+
+func Test_02_smaller(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	jetDirections := ParseInput(reader)
+
+	result := InspectFallingRocks(jetDirections, 20_000_000)
+	assert.Equal(t, 31954267, result)
 }
 
 func Test_02(t *testing.T) {
@@ -55,7 +66,7 @@ func Test_02(t *testing.T) {
 	jetDirections := ParseInput(reader)
 
 	result := InspectFallingRocks(jetDirections, 1_000_000_000_000)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 1597714285698, result)
 }
 
 // Benchmark_02-10    	    1226	    949280 ns/op
