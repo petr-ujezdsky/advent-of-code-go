@@ -40,7 +40,7 @@ func (m *Metric) TickMax(period, v int) {
 	m.Max = Max(m.Max, v)
 
 	if m.Enabled && m.Ticks%period == 0 {
-		fmt.Printf("%v - tick #%d, max = %d\n", m.Name, m.Ticks, v)
+		fmt.Printf("%v - tick #%d, max = %d\n", m.Name, m.Ticks, m.Max)
 	}
 }
 
