@@ -12,17 +12,27 @@ func ParseToInts(r io.Reader) ([]int, error) {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
 
-	var result []int
+	var ints []int
 
 	for scanner.Scan() {
 		x, err := strconv.Atoi(scanner.Text())
 		if err != nil {
-			return result, err
+			return ints, err
 		}
-		result = append(result, x)
+		ints = append(ints, x)
 	}
 
-	return result, scanner.Err()
+	return ints, scanner.Err()
+}
+
+// ParseToIntsP parses each line as integer and returns the list, panics in case of an error
+func ParseToIntsP(r io.Reader) []int {
+	ints, err := ParseToInts(r)
+	if err != nil {
+		panic(err)
+	}
+
+	return ints
 }
 
 // ParseToStrings returns the list of lines
