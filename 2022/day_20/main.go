@@ -77,6 +77,10 @@ func MixNumbers(numbers []int) int {
 		// find target node
 		targetNode := getNode(node, node.Value, len(nodes))
 
+		if targetNode == node {
+			continue
+		}
+
 		// remove source node
 		//node.Left.Right, node.Right.Left = node.Right, node.Left
 		if node == firstNode {
@@ -102,10 +106,7 @@ func MixNumbers(numbers []int) int {
 		}
 
 		printNodes(firstNode, nodes)
-
 	}
-
-	printNodes(firstNode, nodes)
 
 	a := getNode(zeroNode, 1000, len(nodes)).Value
 	b := getNode(zeroNode, 2000, len(nodes)).Value
