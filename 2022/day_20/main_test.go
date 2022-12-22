@@ -32,6 +32,7 @@ func Test_01(t *testing.T) {
 	numbers := ParseInput(reader)
 
 	result := MixNumbers(numbers)
+	// 10949 is too low
 	assert.Equal(t, 0, result)
 }
 
@@ -53,4 +54,52 @@ func Test_02(t *testing.T) {
 
 	result := MixNumbers(numbers)
 	assert.Equal(t, 0, result)
+}
+
+func TestMixNumberForTest(t *testing.T) {
+	type args struct {
+		i         int
+		firstNode *Node
+		nodes     []*Node
+	}
+	createArgs := func(i int, ints []int) args {
+		nodes, first, _ := toNodes(ints)
+		return args{
+			i:         i,
+			firstNode: first,
+			nodes:     nodes,
+		}
+	}
+	tests := []struct {
+		name string
+		args args
+		want []int
+	}{
+		{name: "", args: createArgs(2, []int{0, 0, 1, 0, 0, 0, 0}), want: []int{0, 0, 0, 1, 0, 0, 0}},
+		{name: "", args: createArgs(2, []int{0, 0, 2, 0, 0, 0, 0}), want: []int{0, 0, 0, 0, 2, 0, 0}},
+		{name: "", args: createArgs(2, []int{0, 0, 3, 0, 0, 0, 0}), want: []int{0, 0, 0, 0, 0, 3, 0}},
+		{name: "", args: createArgs(2, []int{0, 0, 4, 0, 0, 0, 0}), want: []int{0, 0, 0, 0, 0, 0, 4}},
+		{name: "", args: createArgs(2, []int{0, 0, 5, 0, 0, 0, 0}), want: []int{0, 5, 0, 0, 0, 0, 0}},
+		{name: "", args: createArgs(2, []int{0, 0, 6, 0, 0, 0, 0}), want: []int{0, 0, 6, 0, 0, 0, 0}},
+		{name: "", args: createArgs(2, []int{0, 0, 7, 0, 0, 0, 0}), want: []int{0, 0, 0, 7, 0, 0, 0}},
+		{name: "", args: createArgs(2, []int{0, 0, 8, 0, 0, 0, 0}), want: []int{0, 0, 0, 0, 8, 0, 0}},
+		{name: "", args: createArgs(2, []int{0, 0, 9, 0, 0, 0, 0}), want: []int{0, 0, 0, 0, 0, 9, 0}},
+		{name: "", args: createArgs(2, []int{0, 0, 10, 0, 0, 0, 0}), want: []int{0, 0, 0, 0, 0, 0, 10}},
+		{name: "", args: createArgs(2, []int{0, 0, 11, 0, 0, 0, 0}), want: []int{0, 11, 0, 0, 0, 0, 0}},
+
+		{name: "", args: createArgs(2, []int{0, 0, -1, 0, 0, 0, 0}), want: []int{0, -1, 0, 0, 0, 0, 0}},
+		{name: "", args: createArgs(2, []int{0, 0, -2, 0, 0, 0, 0}), want: []int{0, 0, 0, 0, 0, 0, -2}},
+		{name: "", args: createArgs(2, []int{0, 0, -3, 0, 0, 0, 0}), want: []int{0, 0, 0, 0, 0, -3, 0}},
+		{name: "", args: createArgs(2, []int{0, 0, -4, 0, 0, 0, 0}), want: []int{0, 0, 0, 0, -4, 0, 0}},
+		{name: "", args: createArgs(2, []int{0, 0, -5, 0, 0, 0, 0}), want: []int{0, 0, 0, -5, 0, 0, 0}},
+		{name: "", args: createArgs(2, []int{0, 0, -6, 0, 0, 0, 0}), want: []int{0, 0, -6, 0, 0, 0, 0}},
+		{name: "", args: createArgs(2, []int{0, 0, -7, 0, 0, 0, 0}), want: []int{0, -7, 0, 0, 0, 0, 0}},
+		{name: "", args: createArgs(2, []int{0, 0, -8, 0, 0, 0, 0}), want: []int{0, 0, 0, 0, 0, 0, -8}},
+		{name: "", args: createArgs(2, []int{0, 0, -9, 0, 0, 0, 0}), want: []int{0, 0, 0, 0, 0, -9, 0}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, MixNumberForTest(tt.args.i, tt.args.firstNode, tt.args.nodes), "MixNumberForTest(%v, %v, %v)", tt.args.i, tt.args.firstNode, tt.args.nodes)
+		})
+	}
 }

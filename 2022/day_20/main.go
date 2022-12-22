@@ -18,6 +18,10 @@ type Node struct {
 // 4, -2, 5, 6, 7,  8, 9
 // 4,  5, 6, 7, 8, -2, 9
 
+// 1, [-3], 2, 3, -2, 0, 4
+// -3 moves between -2 and 0:
+//1, 2, 3, -2, [-3], 0, 4
+
 func toNodes(numbers []int) ([]*Node, *Node, *Node) {
 	nodes := make([]*Node, len(numbers))
 	var zero *Node
@@ -51,18 +55,60 @@ func printNodes(firstNode *Node, nodes []*Node) {
 	fmt.Println()
 }
 
+func toNumbers(firstNode *Node, nodes []*Node) []int {
+	numbers := make([]int, len(nodes))
+	node := firstNode
+
+	for i := 0; i < len(nodes); i++ {
+		numbers[i] = node.Value
+		node = node.Right
+	}
+
+	return numbers
+}
+
 func getNode(node *Node, steps, totalNodesCount int) *Node {
-	count := utils.Abs(steps) % totalNodesCount
+	//count := utils.Abs(steps) % (totalNodesCount - 1)
+	count := (steps + 2*(totalNodesCount-1)) % (totalNodesCount - 1)
 
 	for j := 0; j < count; j++ {
-		if steps > 0 {
-			node = node.Right
-		} else {
-			node = node.Left
-		}
+		node = node.Right
 	}
 
 	return node
+}
+
+func MixNumberForTest(i int, firstNode *Node, nodes []*Node) []int {
+	MixNumber(nodes[i], firstNode, len(nodes))
+	return toNumbers(firstNode, nodes)
+}
+
+func MixNumber(node, firstNode *Node, totalNodesCount int) {
+	if node.Value == 0 {
+		return
+	}
+
+	// find target node
+	targetNode := getNode(node, node.Value, totalNodesCount)
+
+	if targetNode == node {
+		return
+	}
+
+	// remove source node
+	//node.Left.Right, node.Right.Left = node.Right, node.Left
+	if node == firstNode {
+		firstNode = node.Right
+	}
+
+	node.Left.Right = node.Right
+	node.Right.Left = node.Left
+
+	// put it to the right of the target node
+	node.Left = targetNode
+	node.Right = targetNode.Right
+	targetNode.Right.Left = node
+	targetNode.Right = node
 }
 
 func MixNumbers(numbers []int) int {
@@ -70,40 +116,7 @@ func MixNumbers(numbers []int) int {
 
 	printNodes(firstNode, nodes)
 	for _, node := range nodes {
-		if node.Value == 0 {
-			continue
-		}
-
-		// find target node
-		targetNode := getNode(node, node.Value, len(nodes))
-
-		if targetNode == node {
-			continue
-		}
-
-		// remove source node
-		//node.Left.Right, node.Right.Left = node.Right, node.Left
-		if node == firstNode {
-			firstNode = node.Right
-		}
-
-		node.Left.Right = node.Right
-		node.Right.Left = node.Left
-
-		// put it next to target node
-		if node.Value > 0 {
-			// to the right
-			node.Left = targetNode
-			node.Right = targetNode.Right
-			targetNode.Right.Left = node
-			targetNode.Right = node
-		} else {
-			// to the left
-			node.Right = targetNode
-			node.Left = targetNode.Left
-			targetNode.Left.Right = node
-			targetNode.Left = node
-		}
+		MixNumber(node, firstNode, len(nodes))
 
 		printNodes(firstNode, nodes)
 	}
@@ -113,7 +126,6 @@ func MixNumbers(numbers []int) int {
 	c := getNode(zeroNode, 3000, len(nodes)).Value
 
 	return a + b + c
-
 }
 
 func ParseInput(r io.Reader) []int {
