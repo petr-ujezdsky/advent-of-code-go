@@ -32,8 +32,7 @@ func Test_01(t *testing.T) {
 	numbers := ParseInput(reader)
 
 	result := MixNumbers(numbers)
-	// 10949 is too low
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 14888, result)
 }
 
 func Test_02_example(t *testing.T) {

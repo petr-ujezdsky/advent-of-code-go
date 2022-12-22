@@ -78,6 +78,16 @@ func getNode(node *Node, steps, totalNodesCount int) *Node {
 	return node
 }
 
+func getNodeDirect(node *Node, steps, totalNodesCount int) *Node {
+	count := steps % totalNodesCount
+
+	for j := 0; j < count; j++ {
+		node = node.Right
+	}
+
+	return node
+}
+
 func MixNumberForTest(i int, firstNode *Node, nodes []*Node) []int {
 	MixNumber(nodes[i], firstNode, len(nodes))
 	return toNumbers(firstNode, nodes)
@@ -96,7 +106,6 @@ func MixNumber(node, firstNode *Node, totalNodesCount int) {
 	}
 
 	// remove source node
-	//node.Left.Right, node.Right.Left = node.Right, node.Left
 	if node == firstNode {
 		firstNode = node.Right
 	}
@@ -114,16 +123,16 @@ func MixNumber(node, firstNode *Node, totalNodesCount int) {
 func MixNumbers(numbers []int) int {
 	nodes, firstNode, zeroNode := toNodes(numbers)
 
-	printNodes(firstNode, nodes)
+	//printNodes(firstNode, nodes)
 	for _, node := range nodes {
 		MixNumber(node, firstNode, len(nodes))
 
-		printNodes(firstNode, nodes)
+		//printNodes(firstNode, nodes)
 	}
 
-	a := getNode(zeroNode, 1000, len(nodes)).Value
-	b := getNode(zeroNode, 2000, len(nodes)).Value
-	c := getNode(zeroNode, 3000, len(nodes)).Value
+	a := getNodeDirect(zeroNode, 1000, len(nodes)).Value
+	b := getNodeDirect(zeroNode, 2000, len(nodes)).Value
+	c := getNodeDirect(zeroNode, 3000, len(nodes)).Value
 
 	return a + b + c
 }
