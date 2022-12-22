@@ -1,6 +1,9 @@
-package utils
+package alg
 
-import "math"
+import (
+	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"math"
+)
 
 type storage[T any] interface {
 	Push(T)
@@ -12,7 +15,7 @@ type storage[T any] interface {
 // found minimum.
 // Uses deep-first search.
 func BranchAndBoundDeepFirst[T comparable](start T, cost func(T) int, lowerBound func(T) int, nextStatesProvider func(T) []T) (int, T) {
-	storage := NewStack[T]()
+	storage := utils.NewStack[T]()
 	return branchAndBound[T](&storage, start, cost, lowerBound, nextStatesProvider)
 }
 
@@ -20,7 +23,7 @@ func BranchAndBoundDeepFirst[T comparable](start T, cost func(T) int, lowerBound
 // found minimum.
 // Uses breadth-first search.
 func BranchAndBoundBreadthFirst[T comparable](start T, cost func(T) int, lowerBound func(T) int, nextStatesProvider func(T) []T) (int, T) {
-	storage := NewQueue[T]()
+	storage := utils.NewQueue[T]()
 	return branchAndBound[T](&storage, start, cost, lowerBound, nextStatesProvider)
 }
 

@@ -4,6 +4,7 @@ import (
 	"bufio"
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/alg"
 	"io"
 	"math"
 	"regexp"
@@ -250,7 +251,7 @@ func FindMaxPressureReleaseStateMinMaxGeneralized(world World) int {
 		PressureReleased: 0,
 	}
 
-	maxPressureReleased, _ := utils.BranchAndBoundDeepFirst(initialState, cost, lowerBound, next)
+	maxPressureReleased, _ := alg.BranchAndBoundDeepFirst(initialState, cost, lowerBound, next)
 
 	return -maxPressureReleased
 }
@@ -350,7 +351,7 @@ func FindMaxPressureReleasedWithElephant(world World) int {
 		PressureReleased:  0,
 	}
 
-	maxPressureReleased, _ := utils.BranchAndBoundDeepFirst(initialState, cost, lowerBound, next)
+	maxPressureReleased, _ := alg.BranchAndBoundDeepFirst(initialState, cost, lowerBound, next)
 
 	return -maxPressureReleased
 }
@@ -363,7 +364,7 @@ func computeDistances(world World) utils.MatrixInt {
 	neighbours := func(node *ValveNode) []*ValveNode { return node.Children }
 
 	for i, nodeFrom := range world.AllNodes {
-		_, allCosts, _, _ := utils.AStar(nodeFrom, nil, h, d, neighbours)
+		_, allCosts, _, _ := alg.AStar(nodeFrom, nil, h, d, neighbours)
 
 		for j, nodeTo := range world.AllNodes {
 			distances.Columns[i][j] = allCosts[nodeTo]
