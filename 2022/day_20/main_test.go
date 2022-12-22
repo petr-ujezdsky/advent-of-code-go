@@ -22,7 +22,7 @@ func Test_01_example(t *testing.T) {
 	numbers := ParseInput(reader)
 
 	result := MixNumbers(numbers)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 3, result)
 }
 
 func Test_01(t *testing.T) {
