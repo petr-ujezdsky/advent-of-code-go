@@ -15,7 +15,7 @@ const (
 	Wall
 )
 
-type Direction int
+type Direction = int
 
 const (
 	Right Direction = iota
@@ -34,6 +34,7 @@ type Step struct {
 type Node struct {
 	Neighbours [4]*Node
 	Type       NodeType
+	Position   utils.Vector2i
 }
 
 type World struct {
@@ -41,8 +42,24 @@ type World struct {
 	Steps     []Step
 }
 
-func DoWithInput(world World) int {
-	return len(world.Steps)
+func Walk(world World) int {
+	node := world.FirstNode
+	direction := Right
+	for _, step := range world.Steps {
+		// rotation
+		direction = (direction + step.Rotation + 4) % 4
+
+		// translation
+		for i := 0; i < step.Translation; i++ {
+			nextNode := node.Neighbours[direction]
+			if nextNode.Type == Wall {
+				break
+			}
+			node = nextNode
+		}
+	}
+
+	return 1000*node.Position.Y + 4*node.Position.X + direction
 }
 
 func toNodeType(char rune) NodeType {
@@ -68,6 +85,7 @@ func ParseInput(r io.Reader) World {
 	firstVerticalNodes := make([]*Node, maxWidth)
 	lastVerticalNodes := make([]*Node, maxWidth)
 	var firstNode *Node
+	y := 1
 
 	for scanner.Scan() && scanner.Text() != "" {
 		var firstHorizontalNode *Node
@@ -86,6 +104,10 @@ func ParseInput(r io.Reader) World {
 			node := &Node{
 				Neighbours: neighbours,
 				Type:       toNodeType(char),
+				Position: utils.Vector2i{
+					X: i + 1,
+					Y: y,
+				},
 			}
 
 			if lastHorizontalNode != nil {
@@ -114,6 +136,7 @@ func ParseInput(r io.Reader) World {
 
 		firstHorizontalNode.Neighbours[Left] = lastHorizontalNode
 		lastHorizontalNode.Neighbours[Right] = firstHorizontalNode
+		y++
 	}
 
 	for i, firstVerticalNode := range firstVerticalNodes {
