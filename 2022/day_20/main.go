@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"io"
+	"math"
 )
 
 type Node struct {
@@ -68,8 +69,8 @@ func toNumbers(firstNode *Node, nodes []*Node) []int {
 }
 
 func getNode(node *Node, steps, totalNodesCount int) *Node {
-	//count := utils.Abs(steps) % (totalNodesCount - 1)
-	count := (steps + 2*(totalNodesCount-1)) % (totalNodesCount - 1)
+	// 8104529281858 is max number in the set, adding modulo does not change output - it solves negative steps
+	count := (steps + 8104529281858*(totalNodesCount-1)) % (totalNodesCount - 1)
 
 	for j := 0; j < count; j++ {
 		node = node.Right
@@ -120,14 +121,16 @@ func MixNumber(node, firstNode *Node, totalNodesCount int) {
 	targetNode.Right = node
 }
 
-func MixNumbers(numbers []int) int {
+func MixNumbers(numbers []int, mixingCount int) int {
 	nodes, firstNode, zeroNode := toNodes(numbers)
 
 	//printNodes(firstNode, nodes)
-	for _, node := range nodes {
-		MixNumber(node, firstNode, len(nodes))
+	for i := 0; i < mixingCount; i++ {
+		for _, node := range nodes {
+			MixNumber(node, firstNode, len(nodes))
 
-		//printNodes(firstNode, nodes)
+			//printNodes(firstNode, nodes)
+		}
 	}
 
 	a := getNodeDirect(zeroNode, 1000, len(nodes)).Value
@@ -135,6 +138,15 @@ func MixNumbers(numbers []int) int {
 	c := getNodeDirect(zeroNode, 3000, len(nodes)).Value
 
 	return a + b + c
+}
+
+func MixNumbersWithDecryptionKey(numbers []int) int {
+	max := math.MinInt
+	for i := range numbers {
+		numbers[i] *= 811589153
+		max = utils.Max(max, numbers[i])
+	}
+	return MixNumbers(numbers, 10)
 }
 
 func ParseInput(r io.Reader) []int {

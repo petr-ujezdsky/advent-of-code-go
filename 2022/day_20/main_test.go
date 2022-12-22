@@ -21,7 +21,7 @@ func Test_01_example(t *testing.T) {
 
 	numbers := ParseInput(reader)
 
-	result := MixNumbers(numbers)
+	result := MixNumbers(numbers, 1)
 	assert.Equal(t, 3, result)
 }
 
@@ -31,7 +31,7 @@ func Test_01(t *testing.T) {
 
 	numbers := ParseInput(reader)
 
-	result := MixNumbers(numbers)
+	result := MixNumbers(numbers, 1)
 	assert.Equal(t, 14888, result)
 }
 
@@ -41,8 +41,8 @@ func Test_02_example(t *testing.T) {
 
 	numbers := ParseInput(reader)
 
-	result := MixNumbers(numbers)
-	assert.Equal(t, 0, result)
+	result := MixNumbersWithDecryptionKey(numbers)
+	assert.Equal(t, 1623178306, result)
 }
 
 func Test_02(t *testing.T) {
@@ -51,8 +51,8 @@ func Test_02(t *testing.T) {
 
 	numbers := ParseInput(reader)
 
-	result := MixNumbers(numbers)
-	assert.Equal(t, 0, result)
+	result := MixNumbersWithDecryptionKey(numbers)
+	assert.Equal(t, 3760092545849, result)
 }
 
 func TestMixNumberForTest(t *testing.T) {
