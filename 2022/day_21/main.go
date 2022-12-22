@@ -57,7 +57,8 @@ func FindEqualityForRootMonkey(monkeys map[string]*Monkey) int {
 
 	me := monkeys["humn"]
 
-	iZero, zero := alg.ArgZeroSecant(-1000, 1000, func(i int) int { return tryInput(i, me, rootMonkey) })
+	iZeroF, zeroF := alg.ArgZeroSecant(-1000, 1000, 1, func(i float64) float64 { return float64(tryInput(int(i), me, rootMonkey)) })
+	iZero, zero := int(iZeroF), int(zeroF)
 	fmt.Printf("%3d\t%d\n", iZero, zero)
 	fmt.Println()
 

@@ -52,9 +52,5 @@ func Test_02(t *testing.T) {
 	monkeys := ParseInput(reader)
 
 	result := FindEqualityForRootMonkey(monkeys)
-	// there are 3 solutions, my alg finds :(
-	// 3032671800353   <- accepted
-	// 3032671800354
-	// 3032671800355   <- computed
-	assert.Equal(t, 3032671800353+2, result)
+	assert.Equal(t, 3032671800355, result)
 }
