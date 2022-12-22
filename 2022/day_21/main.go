@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/alg"
 	"io"
 	"strings"
 )
@@ -44,18 +45,6 @@ func EvaluateRootMonkey(monkeys map[string]*Monkey) int {
 	return rootMonkey.GetValue()
 }
 
-func ArgZeroSecant(x0, x1 int, f func(i int) int) (int, int) {
-	for {
-		x2 := x1 - int((f(x1)*(x1-x0))/(f(x1)-f(x0)))
-		//x2 := x1 - int(float64(f(x1)*(x1-x0))/float64(f(x1)-f(x0)))
-		x0, x1 = x1, x2
-
-		if x0-x1 == 0 {
-			return x1, f(x1)
-		}
-	}
-}
-
 func tryInput(input int, me, root *Monkey) int {
 	me.Value = &input
 	return root.GetValue()
@@ -68,7 +57,7 @@ func FindEqualityForRootMonkey(monkeys map[string]*Monkey) int {
 
 	me := monkeys["humn"]
 
-	iZero, zero := ArgZeroSecant(-1000, 1000, func(i int) int { return tryInput(i, me, rootMonkey) })
+	iZero, zero := alg.ArgZeroSecant(-1000, 1000, func(i int) int { return tryInput(i, me, rootMonkey) })
 	fmt.Printf("%3d\t%d\n", iZero, zero)
 	fmt.Println()
 
