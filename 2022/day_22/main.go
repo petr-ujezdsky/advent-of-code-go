@@ -35,11 +35,15 @@ type Node struct {
 	Neighbours [4]*Node
 	Type       NodeType
 	Position   utils.Vector2i
+	Rotation   int
 }
+
+type Matrix = utils.Matrix[*Node]
 
 type World struct {
 	FirstNode *Node
 	Steps     []Step
+	Matrix    Matrix
 }
 
 func Walk(world World) int {
@@ -60,6 +64,64 @@ func Walk(world World) int {
 	}
 
 	return 1000*node.Position.Y + 4*node.Position.X + direction
+}
+
+type Edge struct {
+	From, To utils.Vector2i
+}
+
+type PatchDef struct {
+	Edge               Edge
+	NewDirection       int
+	OtherEdgeDirection Direction
+}
+
+func patchEdge(patch1, patch2 PatchDef, m Matrix) {
+
+}
+func patchEdges(m Matrix) {
+	l := 4
+
+	// vertical edges, left to right, top to bottom
+	patchEdge(PatchDef{
+		Edge: Edge{
+			From: utils.Vector2i{X: 0, Y: l},
+			To:   utils.Vector2i{X: 0, Y: 2 * l},
+		},
+		NewDirection:       Right,
+		OtherEdgeDirection: Left,
+	}, PatchDef{
+		Edge: Edge{
+			From: utils.Vector2i{X: 3 * l, Y: 3 * l},
+			To:   utils.Vector2i{X: 2 * l, Y: 3 * l},
+		},
+		NewDirection:       Up,
+		OtherEdgeDirection: Down,
+	}, m)
+
+	patchEdge(PatchDef{
+		Edge: Edge{
+			From: utils.Vector2i{X: 2 * l, Y: l},
+			To:   utils.Vector2i{X: 2 * l, Y: 0},
+		},
+		NewDirection:       Right,
+		OtherEdgeDirection: Left,
+	}, PatchDef{
+		Edge: Edge{
+			From: utils.Vector2i{X: 2 * l, Y: l},
+			To:   utils.Vector2i{X: l, Y: l},
+		},
+		NewDirection:       Down,
+		OtherEdgeDirection: Up,
+	}, m)
+}
+
+func Walk3D(world World) int {
+	// patch edges
+	patchEdges(world.Matrix)
+
+	// standard walk
+	return Walk(world)
 }
 
 func toNodeType(char rune) NodeType {
@@ -86,6 +148,7 @@ func ParseInput(r io.Reader) World {
 	lastVerticalNodes := make([]*Node, maxWidth)
 	var firstNode *Node
 	y := 1
+	m := utils.NewMatrix[*Node](maxWidth, maxWidth)
 
 	for scanner.Scan() && scanner.Text() != "" {
 		var firstHorizontalNode *Node
@@ -108,7 +171,10 @@ func ParseInput(r io.Reader) World {
 					X: i + 1,
 					Y: y,
 				},
+				Rotation: 0,
 			}
+
+			m.SetV(node.Position, node)
 
 			if lastHorizontalNode != nil {
 				lastHorizontalNode.Neighbours[Right] = node
@@ -171,5 +237,6 @@ func ParseInput(r io.Reader) World {
 	return World{
 		FirstNode: firstNode,
 		Steps:     steps,
+		Matrix:    m,
 	}
 }
