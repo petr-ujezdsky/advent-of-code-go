@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	_ "embed"
+	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"io"
 	"regexp"
@@ -23,6 +24,13 @@ const (
 	Left
 	Up
 )
+
+var steps = [4]utils.Vector2i{
+	{X: 1, Y: 0},
+	{X: 0, Y: 1},
+	{X: -1, Y: 0},
+	{X: 0, Y: -1},
+}
 
 const maxWidth = 150
 
@@ -73,12 +81,13 @@ func Walk(world World) int {
 }
 
 type Edge struct {
-	From, To utils.Vector2i
+	From      utils.Vector2i
+	Direction Direction
 }
 
-func (e Edge) Direction() utils.Vector2i {
-	return e.To.Subtract(e.From)
-}
+//func (e Edge) Direction() utils.Vector2i {
+//	return e.To.Subtract(e.From)
+//}
 
 type PatchDef struct {
 	Edge               Edge
@@ -86,17 +95,19 @@ type PatchDef struct {
 	OtherEdgeDirection Direction
 }
 
-func patchEdge(patch1, patch2 PatchDef, m Matrix) {
-	step1 := patch1.Edge.Direction().Signum()
-	step2 := patch2.Edge.Direction().Signum()
-	length := patch1.Edge.Direction().LengthManhattan()
+func patchEdge(patch1, patch2 PatchDef, m Matrix, edgeLength int) {
+	step1 := steps[patch1.Edge.Direction]
+	step2 := steps[patch2.Edge.Direction]
 
 	pos1 := patch1.Edge.From
 	pos2 := patch2.Edge.From
-	for i := 0; i <= length; i++ {
+	for i := 0; i < edgeLength; i++ {
 		node1 := m.GetV(pos1)
 		node2 := m.GetV(pos2)
 
+		if node1 == nil || node2 == nil {
+			fmt.Print("Nil!")
+		}
 		// connect nodes
 		node1.Neighbours[patch1.OtherEdgeDirection] = node2
 		node2.Neighbours[patch2.OtherEdgeDirection] = node1
@@ -116,122 +127,121 @@ func patchEdges(m Matrix) {
 	// 1
 	patchEdge(PatchDef{
 		Edge: Edge{
-			From: utils.Vector2i{X: 2 * l, Y: l},
-			To:   utils.Vector2i{X: 2 * l, Y: 0},
+			From:      utils.Vector2i{X: 2 * l, Y: l - 1},
+			Direction: Up,
 		},
 		NewDirection:       Right,
 		OtherEdgeDirection: Left,
 	}, PatchDef{
 		Edge: Edge{
-			From: utils.Vector2i{X: 2 * l, Y: l},
-			To:   utils.Vector2i{X: l, Y: l},
+			From:      utils.Vector2i{X: 2*l - 1, Y: l},
+			Direction: Left,
 		},
 		NewDirection:       Down,
 		OtherEdgeDirection: Up,
-	}, m)
+	}, m, l)
 
 	// 2
 	patchEdge(PatchDef{
 		Edge: Edge{
-			From: utils.Vector2i{X: 2 * l, Y: 0},
-			To:   utils.Vector2i{X: 3 * l, Y: 0},
+			From:      utils.Vector2i{X: 2 * l, Y: 0},
+			Direction: Right,
 		},
 		NewDirection:       Down,
 		OtherEdgeDirection: Up,
 	}, PatchDef{
 		Edge: Edge{
-			From: utils.Vector2i{X: l, Y: l},
-			To:   utils.Vector2i{X: 0, Y: l},
+			From:      utils.Vector2i{X: l - 1, Y: l},
+			Direction: Left,
 		},
 		NewDirection:       Down,
 		OtherEdgeDirection: Up,
-	}, m)
+	}, m, l)
 
 	// 3
 	patchEdge(PatchDef{
 		Edge: Edge{
-			From: utils.Vector2i{X: 2 * l, Y: 2 * l},
-			To:   utils.Vector2i{X: 1 * l, Y: 2 * l},
+			From:      utils.Vector2i{X: 2*l - 1, Y: 2*l - 1},
+			Direction: Left,
 		},
 		NewDirection:       Up,
 		OtherEdgeDirection: Down,
 	}, PatchDef{
 		Edge: Edge{
-			From: utils.Vector2i{X: 2 * l, Y: 2 * l},
-			To:   utils.Vector2i{X: 2 * l, Y: 3 * l},
+			From:      utils.Vector2i{X: 2 * l, Y: 2 * l},
+			Direction: Down,
 		},
 		NewDirection:       Right,
 		OtherEdgeDirection: Left,
-	}, m)
+	}, m, l)
 
 	// 4
 	patchEdge(PatchDef{
 		Edge: Edge{
-			From: utils.Vector2i{X: 2 * l, Y: 3 * l},
-			To:   utils.Vector2i{X: 3 * l, Y: 3 * l},
+			From:      utils.Vector2i{X: 2 * l, Y: 3*l - 1},
+			Direction: Right,
 		},
 		NewDirection:       Up,
 		OtherEdgeDirection: Down,
 	}, PatchDef{
 		Edge: Edge{
-			From: utils.Vector2i{X: l, Y: 2 * l},
-			To:   utils.Vector2i{X: 0, Y: 2 * l},
+			From:      utils.Vector2i{X: l - 1, Y: 2*l - 1},
+			Direction: Left,
 		},
 		NewDirection:       Up,
 		OtherEdgeDirection: Down,
-	}, m)
+	}, m, l)
 
 	// 5
 	patchEdge(PatchDef{
 		Edge: Edge{
-			From: utils.Vector2i{X: 3 * l, Y: 2 * l},
-			To:   utils.Vector2i{X: 4 * l, Y: 2 * l},
+			From:      utils.Vector2i{X: 3 * l, Y: 2 * l},
+			Direction: Right,
 		},
 		NewDirection:       Down,
 		OtherEdgeDirection: Up,
 	}, PatchDef{
 		Edge: Edge{
-			From: utils.Vector2i{X: 3 * l, Y: 2 * l},
-			To:   utils.Vector2i{X: 3 * l, Y: 1 * l},
+			From:      utils.Vector2i{X: 3*l - 1, Y: 2*l - 1},
+			Direction: Up,
 		},
 		NewDirection:       Left,
 		OtherEdgeDirection: Right,
-	}, m)
+	}, m, l)
 
 	// 6
 	patchEdge(PatchDef{
 		Edge: Edge{
-			From: utils.Vector2i{X: 0, Y: l},
-			To:   utils.Vector2i{X: 0, Y: 2 * l},
+			From:      utils.Vector2i{X: 0, Y: l},
+			Direction: Down,
 		},
 		NewDirection:       Right,
 		OtherEdgeDirection: Left,
 	}, PatchDef{
 		Edge: Edge{
-			From: utils.Vector2i{X: 4 * l, Y: 3 * l},
-			To:   utils.Vector2i{X: 3 * l, Y: 3 * l},
+			From:      utils.Vector2i{X: 4*l - 1, Y: 3*l - 1},
+			Direction: Left,
 		},
 		NewDirection:       Up,
 		OtherEdgeDirection: Down,
-	}, m)
+	}, m, l)
 
 	// 7
 	patchEdge(PatchDef{
 		Edge: Edge{
-			From: utils.Vector2i{X: 3 * l, Y: 0},
-			To:   utils.Vector2i{X: 3 * l, Y: l},
+			From:      utils.Vector2i{X: 3*l - 1, Y: 0},
+			Direction: Down,
 		},
 		NewDirection:       Left,
 		OtherEdgeDirection: Right,
 	}, PatchDef{
 		Edge: Edge{
-			From: utils.Vector2i{X: 4 * l, Y: 3 * l},
-			To:   utils.Vector2i{X: 4 * l, Y: 2 * l},
+			From:      utils.Vector2i{X: 4*l - 1, Y: 3*l - 1},
+			Direction: Up,
 		},
 		NewDirection:       Left,
 		OtherEdgeDirection: Right,
-	}, m)
-
+	}, m, l)
 }
 
 func Walk3D(world World) int {
@@ -292,7 +302,8 @@ func ParseInput(r io.Reader) World {
 				Direction: nil,
 			}
 
-			m.SetV(node.Position, node)
+			// store node, at zero based index
+			m.SetV(node.Position.Subtract(utils.Vector2i{X: 1, Y: 1}), node)
 
 			if lastHorizontalNode != nil {
 				lastHorizontalNode.Neighbours[Right] = node
