@@ -35,7 +35,7 @@ type Node struct {
 	Neighbours [4]*Node
 	Type       NodeType
 	Position   utils.Vector2i
-	Direction  int
+	Direction  *int
 }
 
 type Matrix = utils.Matrix[*Node]
@@ -59,6 +59,12 @@ func Walk(world World) int {
 			if nextNode.Type == Wall {
 				break
 			}
+
+			// moved across the edge
+			if node.Direction != nil && nextNode.Direction != nil {
+				direction = *nextNode.Direction
+			}
+
 			node = nextNode
 		}
 	}
@@ -96,8 +102,8 @@ func patchEdge(patch1, patch2 PatchDef, m Matrix) {
 		node2.Neighbours[patch2.OtherEdgeDirection] = node1
 
 		// set directions
-		node1.Direction = patch1.NewDirection
-		node2.Direction = patch2.NewDirection
+		node1.Direction = &patch1.NewDirection
+		node2.Direction = &patch2.NewDirection
 
 		// move to next index
 		pos1 = pos1.Add(step1)
@@ -283,7 +289,7 @@ func ParseInput(r io.Reader) World {
 					X: i + 1,
 					Y: y,
 				},
-				Direction: 0,
+				Direction: nil,
 			}
 
 			m.SetV(node.Position, node)
