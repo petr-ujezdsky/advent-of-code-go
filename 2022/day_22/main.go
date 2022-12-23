@@ -96,13 +96,13 @@ func Walk(world World) int {
 				break
 			}
 
-			// moved across the edge
-			if node.Direction != nil && nextNode.Direction != nil {
-				direction = *nextNode.Direction
-			}
-
 			nextNode.Footstep = &footsteps[direction]
 			node.Footstep = &footsteps[direction]
+
+			// moved across the edge
+			if node.FaceId != nextNode.FaceId && nextNode.Direction != nil {
+				direction = *nextNode.Direction
+			}
 
 			node = nextNode
 		}
@@ -325,8 +325,8 @@ func ParseInput(r io.Reader, edgeLength int) World {
 			neighbours[Up] = lastVerticalNodes[i]
 
 			// face id
-			xFace := i % edgeLength
-			yFace := y % edgeLength
+			xFace := i / edgeLength
+			yFace := y / edgeLength
 			faceId := xFace + edgeLength*yFace
 
 			node := &Node{
