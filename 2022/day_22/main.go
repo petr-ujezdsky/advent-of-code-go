@@ -46,6 +46,21 @@ type Node struct {
 	Direction  *int
 }
 
+func (n *Node) String() string {
+	if n == nil {
+		return " "
+	}
+
+	switch n.Type {
+	case Open:
+		return "."
+	case Wall:
+		return "#"
+	}
+
+	return " "
+}
+
 type Matrix = utils.Matrix[*Node]
 
 type World struct {
@@ -249,7 +264,9 @@ func Walk3D(world World) int {
 	patchEdges(world.Matrix)
 
 	// standard walk
-	return Walk(world)
+	walk := Walk(world)
+	fmt.Println(world.Matrix.StringFmtSeparator("", func(node *Node) string { return node.String() }))
+	return walk
 }
 
 func toNodeType(char rune) NodeType {
