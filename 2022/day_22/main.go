@@ -167,6 +167,7 @@ func patchEdges(m Matrix) {
 		OtherEdgeDirection: Right,
 	}, m)
 
+	// 6
 	patchEdge(PatchDef{
 		Edge: Edge{
 			From: utils.Vector2i{X: 0, Y: l},
@@ -176,8 +177,8 @@ func patchEdges(m Matrix) {
 		OtherEdgeDirection: Left,
 	}, PatchDef{
 		Edge: Edge{
-			From: utils.Vector2i{X: 3 * l, Y: 3 * l},
-			To:   utils.Vector2i{X: 2 * l, Y: 3 * l},
+			From: utils.Vector2i{X: 4 * l, Y: 3 * l},
+			To:   utils.Vector2i{X: 3 * l, Y: 3 * l},
 		},
 		NewDirection:       Up,
 		OtherEdgeDirection: Down,
