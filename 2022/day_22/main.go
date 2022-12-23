@@ -184,6 +184,23 @@ func patchEdges(m Matrix) {
 		OtherEdgeDirection: Down,
 	}, m)
 
+	// 7
+	patchEdge(PatchDef{
+		Edge: Edge{
+			From: utils.Vector2i{X: 3 * l, Y: 0},
+			To:   utils.Vector2i{X: 3 * l, Y: l},
+		},
+		NewDirection:       Left,
+		OtherEdgeDirection: Right,
+	}, PatchDef{
+		Edge: Edge{
+			From: utils.Vector2i{X: 4 * l, Y: 3 * l},
+			To:   utils.Vector2i{X: 4 * l, Y: 2 * l},
+		},
+		NewDirection:       Left,
+		OtherEdgeDirection: Right,
+	}, m)
+
 }
 
 func Walk3D(world World) int {
