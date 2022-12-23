@@ -39,7 +39,7 @@ var footsteps = [4]string{
 	"^",
 }
 
-const maxWidth = 150
+const maxWidth = 200
 
 type Step struct {
 	Rotation    int
@@ -47,22 +47,17 @@ type Step struct {
 }
 
 type Node struct {
-	Neighbours        [4]*Node
-	Type              NodeType
-	Position          utils.Vector2i
-	Direction         *int
-	FootstepDirection *int
-	Footstep          *string
+	Neighbours [4]*Node
+	Type       NodeType
+	Position   utils.Vector2i
+	Direction  *int
+	Footstep   *string
 }
 
 func (n *Node) String() string {
 	if n == nil {
 		return " "
 	}
-
-	//if n.FootstepDirection != nil {
-	//	return footsteps[*n.FootstepDirection]
-	//}
 
 	if n.Footstep != nil {
 		return *n.Footstep
@@ -89,7 +84,6 @@ type World struct {
 func Walk(world World) int {
 	node := world.FirstNode
 	direction := Right
-	node.FootstepDirection = &direction
 	node.Footstep = &footsteps[direction]
 
 	for _, step := range world.Steps {
@@ -107,10 +101,6 @@ func Walk(world World) int {
 			if node.Direction != nil && nextNode.Direction != nil {
 				direction = *nextNode.Direction
 			}
-
-			dir := direction
-			nextNode.FootstepDirection = &dir
-			node.FootstepDirection = &dir
 
 			nextNode.Footstep = &footsteps[direction]
 			node.Footstep = &footsteps[direction]
@@ -131,10 +121,6 @@ type Edge struct {
 	From      utils.Vector2i
 	Direction Direction
 }
-
-//func (e Edge) Direction() utils.Vector2i {
-//	return e.To.Subtract(e.From)
-//}
 
 type PatchDef struct {
 	Edge               Edge
