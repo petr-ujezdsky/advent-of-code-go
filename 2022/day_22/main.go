@@ -35,7 +35,7 @@ type Node struct {
 	Neighbours [4]*Node
 	Type       NodeType
 	Position   utils.Vector2i
-	Rotation   int
+	Direction  int
 }
 
 type Matrix = utils.Matrix[*Node]
@@ -70,6 +70,10 @@ type Edge struct {
 	From, To utils.Vector2i
 }
 
+func (e Edge) Direction() utils.Vector2i {
+	return e.To.Subtract(e.From)
+}
+
 type PatchDef struct {
 	Edge               Edge
 	NewDirection       int
@@ -77,7 +81,28 @@ type PatchDef struct {
 }
 
 func patchEdge(patch1, patch2 PatchDef, m Matrix) {
+	step1 := patch1.Edge.Direction().Signum()
+	step2 := patch2.Edge.Direction().Signum()
+	length := patch1.Edge.Direction().LengthManhattan()
 
+	pos1 := patch1.Edge.From
+	pos2 := patch2.Edge.From
+	for i := 0; i <= length; i++ {
+		node1 := m.GetV(pos1)
+		node2 := m.GetV(pos2)
+
+		// connect nodes
+		node1.Neighbours[patch1.OtherEdgeDirection] = node2
+		node2.Neighbours[patch2.OtherEdgeDirection] = node1
+
+		// set directions
+		node1.Direction = patch1.NewDirection
+		node2.Direction = patch2.NewDirection
+
+		// move to next index
+		pos1 = pos1.Add(step1)
+		pos2 = pos2.Add(step2)
+	}
 }
 func patchEdges(m Matrix) {
 	l := 4
@@ -258,7 +283,7 @@ func ParseInput(r io.Reader) World {
 					X: i + 1,
 					Y: y,
 				},
-				Rotation: 0,
+				Direction: 0,
 			}
 
 			m.SetV(node.Position, node)
