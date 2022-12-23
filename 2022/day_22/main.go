@@ -72,6 +72,19 @@ func (n *Node) String() string {
 	panic("Unknown node type")
 }
 
+func (n *Node) StringFaceId() string {
+	if n == nil {
+		return " "
+	}
+
+	if n.Direction != nil {
+		crossNode := n.Neighbours[(*n.Direction+2)%4]
+		return fmt.Sprintf("%x", crossNode.FaceId)
+	}
+
+	return fmt.Sprintf("%x", n.FaceId)
+}
+
 type Matrix = utils.Matrix[*Node]
 
 type World struct {
@@ -111,7 +124,7 @@ func Walk(world World) int {
 	f := "x"
 	node.Footstep = &f
 
-	fmt.Println(world.Matrix.StringFmtSeparator("", func(node *Node) string { return node.String() }))
+	fmt.Println(world.Matrix.StringFmtSeparator("", func(node *Node) string { return node.StringFaceId() }))
 
 	return 1000*node.Position.Y + 4*node.Position.X + direction
 }
