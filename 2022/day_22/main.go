@@ -449,7 +449,7 @@ func ParseInput(r io.Reader, edgeLength int) World {
 			// face id
 			xFace := i / edgeLength
 			yFace := y / edgeLength
-			faceId := xFace + edgeLength*yFace
+			faceId := xFace + 4*yFace
 
 			node := &Node{
 				Neighbours: neighbours,
