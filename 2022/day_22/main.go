@@ -32,6 +32,13 @@ var steps = [4]utils.Vector2i{
 	{X: 0, Y: -1},
 }
 
+var footsteps = [4]string{
+	">",
+	"v",
+	"<",
+	"^",
+}
+
 const maxWidth = 150
 
 type Step struct {
@@ -40,15 +47,25 @@ type Step struct {
 }
 
 type Node struct {
-	Neighbours [4]*Node
-	Type       NodeType
-	Position   utils.Vector2i
-	Direction  *int
+	Neighbours        [4]*Node
+	Type              NodeType
+	Position          utils.Vector2i
+	Direction         *int
+	FootstepDirection *int
+	Footstep          *string
 }
 
 func (n *Node) String() string {
 	if n == nil {
 		return " "
+	}
+
+	//if n.FootstepDirection != nil {
+	//	return footsteps[*n.FootstepDirection]
+	//}
+
+	if n.Footstep != nil {
+		return *n.Footstep
 	}
 
 	switch n.Type {
@@ -58,7 +75,7 @@ func (n *Node) String() string {
 		return "#"
 	}
 
-	return " "
+	panic("Unknown node type")
 }
 
 type Matrix = utils.Matrix[*Node]
@@ -72,6 +89,9 @@ type World struct {
 func Walk(world World) int {
 	node := world.FirstNode
 	direction := Right
+	node.FootstepDirection = &direction
+	node.Footstep = &footsteps[direction]
+
 	for _, step := range world.Steps {
 		// rotation
 		direction = (direction + step.Rotation + 4) % 4
@@ -88,9 +108,21 @@ func Walk(world World) int {
 				direction = *nextNode.Direction
 			}
 
+			dir := direction
+			nextNode.FootstepDirection = &dir
+			node.FootstepDirection = &dir
+
+			nextNode.Footstep = &footsteps[direction]
+			node.Footstep = &footsteps[direction]
+
 			node = nextNode
 		}
 	}
+
+	f := "x"
+	node.Footstep = &f
+
+	fmt.Println(world.Matrix.StringFmtSeparator("", func(node *Node) string { return node.String() }))
 
 	return 1000*node.Position.Y + 4*node.Position.X + direction
 }
@@ -264,9 +296,7 @@ func Walk3D(world World) int {
 	patchEdges(world.Matrix)
 
 	// standard walk
-	walk := Walk(world)
-	fmt.Println(world.Matrix.StringFmtSeparator("", func(node *Node) string { return node.String() }))
-	return walk
+	return Walk(world)
 }
 
 func toNodeType(char rune) NodeType {
