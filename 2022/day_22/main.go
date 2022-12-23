@@ -82,7 +82,22 @@ func patchEdge(patch1, patch2 PatchDef, m Matrix) {
 func patchEdges(m Matrix) {
 	l := 4
 
-	// vertical edges, left to right, top to bottom
+	patchEdge(PatchDef{
+		Edge: Edge{
+			From: utils.Vector2i{X: 2 * l, Y: l},
+			To:   utils.Vector2i{X: 2 * l, Y: 0},
+		},
+		NewDirection:       Right,
+		OtherEdgeDirection: Left,
+	}, PatchDef{
+		Edge: Edge{
+			From: utils.Vector2i{X: 2 * l, Y: l},
+			To:   utils.Vector2i{X: l, Y: l},
+		},
+		NewDirection:       Down,
+		OtherEdgeDirection: Up,
+	}, m)
+
 	patchEdge(PatchDef{
 		Edge: Edge{
 			From: utils.Vector2i{X: 0, Y: l},
@@ -99,21 +114,6 @@ func patchEdges(m Matrix) {
 		OtherEdgeDirection: Down,
 	}, m)
 
-	patchEdge(PatchDef{
-		Edge: Edge{
-			From: utils.Vector2i{X: 2 * l, Y: l},
-			To:   utils.Vector2i{X: 2 * l, Y: 0},
-		},
-		NewDirection:       Right,
-		OtherEdgeDirection: Left,
-	}, PatchDef{
-		Edge: Edge{
-			From: utils.Vector2i{X: 2 * l, Y: l},
-			To:   utils.Vector2i{X: l, Y: l},
-		},
-		NewDirection:       Down,
-		OtherEdgeDirection: Up,
-	}, m)
 }
 
 func Walk3D(world World) int {
