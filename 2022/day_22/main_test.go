@@ -52,5 +52,5 @@ func Test_02(t *testing.T) {
 	world := ParseInput(reader, 50)
 
 	result := Walk3D(world, patchEdgesMain)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 34426, result)
 }

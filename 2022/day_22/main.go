@@ -7,6 +7,7 @@ import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"io"
 	"regexp"
+	"strings"
 )
 
 type NodeType int
@@ -49,7 +50,7 @@ type Node struct {
 	Type       NodeType
 	Position   utils.Vector2i
 	FaceId     int
-	Direction  *int
+	Directions [4]*int
 	Footstep   *string
 }
 
@@ -72,17 +73,36 @@ func (n *Node) String() string {
 	panic("Unknown node type")
 }
 
-func (n *Node) StringFaceId() string {
+//func (n *Node) StringFaceId() string {
+//	if n == nil {
+//		return " "
+//	}
+//
+//	if n.Direction != nil {
+//		crossNode := n.Neighbours[(*n.Direction+2)%4]
+//		return fmt.Sprintf("%x", crossNode.FaceId)
+//	}
+//
+//	return fmt.Sprintf("%x", n.FaceId)
+//}
+
+func (n *Node) StringDirections() string {
 	if n == nil {
 		return " "
 	}
 
-	if n.Direction != nil {
-		crossNode := n.Neighbours[(*n.Direction+2)%4]
-		return fmt.Sprintf("%x", crossNode.FaceId)
+	sb := &strings.Builder{}
+	for _, inputDirection := range []int{Right, Down, Left, Up} {
+		outputDirection := n.Directions[inputDirection]
+		if outputDirection != nil {
+			sb.WriteString(fmt.Sprintf("%d:%d,", inputDirection, *outputDirection))
+		}
+	}
+	if sb.Len() > 0 {
+		return "[" + sb.String() + "]"
 	}
 
-	return fmt.Sprintf("%x", n.FaceId)
+	return fmt.Sprintf(" %x ", n.FaceId)
 }
 
 type Matrix = utils.Matrix[*Node]
@@ -113,8 +133,8 @@ func Walk(world World) int {
 			node.Footstep = &footsteps[direction]
 
 			// moved across the edge
-			if node.FaceId != nextNode.FaceId && nextNode.Direction != nil {
-				direction = *nextNode.Direction
+			if node.FaceId != nextNode.FaceId && nextNode.Directions[direction] != nil {
+				direction = *nextNode.Directions[direction]
 			}
 
 			node = nextNode
@@ -124,7 +144,7 @@ func Walk(world World) int {
 	f := "x"
 	node.Footstep = &f
 
-	fmt.Println(world.Matrix.StringFmtSeparator("", func(node *Node) string { return node.StringFaceId() }))
+	fmt.Println(world.Matrix.StringFmtSeparator("", func(node *Node) string { return node.String() }))
 
 	return 1000*node.Position.Y + 4*node.Position.X + direction
 }
@@ -158,8 +178,8 @@ func patchEdge(patch1, patch2 PatchDef, m Matrix, edgeLength int) {
 		node2.Neighbours[patch2.OtherEdgeDirection] = node1
 
 		// set directions
-		node1.Direction = &patch1.NewDirection
-		node2.Direction = &patch2.NewDirection
+		node1.Directions[patch2.OtherEdgeDirection] = &patch1.NewDirection
+		node2.Directions[patch1.OtherEdgeDirection] = &patch2.NewDirection
 
 		// move to next index
 		pos1 = pos1.Add(step1)
@@ -297,7 +317,8 @@ func patchEdgesMain(m Matrix) {
 			From:      utils.Vector2i{X: l, Y: 2*l - 1},
 			Direction: Up,
 		},
-		NewDirection:       Right,
+		NewDirection: Right,
+
 		OtherEdgeDirection: Left,
 	}, PatchDef{
 		Edge: Edge{
@@ -471,8 +492,8 @@ func ParseInput(r io.Reader, edgeLength int) World {
 					X: i + 1,
 					Y: y + 1,
 				},
-				Direction: nil,
-				FaceId:    faceId,
+				Directions: [4]*int{},
+				FaceId:     faceId,
 			}
 
 			// store node, at zero based index
