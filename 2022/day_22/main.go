@@ -39,8 +39,6 @@ var footsteps = [4]string{
 	"^",
 }
 
-const maxWidth = 200
-
 type Step struct {
 	Rotation    int
 	Translation int
@@ -50,6 +48,7 @@ type Node struct {
 	Neighbours [4]*Node
 	Type       NodeType
 	Position   utils.Vector2i
+	FaceId     int
 	Direction  *int
 	Footstep   *string
 }
@@ -301,15 +300,15 @@ func toRotation(char uint8) int {
 	return -1
 }
 
-func ParseInput(r io.Reader) World {
+func ParseInput(r io.Reader, edgeLength int) World {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
 
-	firstVerticalNodes := make([]*Node, maxWidth)
-	lastVerticalNodes := make([]*Node, maxWidth)
+	firstVerticalNodes := make([]*Node, 4*edgeLength)
+	lastVerticalNodes := make([]*Node, 4*edgeLength)
 	var firstNode *Node
-	y := 1
-	m := utils.NewMatrix[*Node](maxWidth, maxWidth)
+	y := 0
+	m := utils.NewMatrix[*Node](4*edgeLength, 4*edgeLength)
 
 	for scanner.Scan() && scanner.Text() != "" {
 		var firstHorizontalNode *Node
@@ -325,14 +324,20 @@ func ParseInput(r io.Reader) World {
 			neighbours[Left] = lastHorizontalNode
 			neighbours[Up] = lastVerticalNodes[i]
 
+			// face id
+			xFace := i % edgeLength
+			yFace := y % edgeLength
+			faceId := xFace + edgeLength*yFace
+
 			node := &Node{
 				Neighbours: neighbours,
 				Type:       toNodeType(char),
 				Position: utils.Vector2i{
 					X: i + 1,
-					Y: y,
+					Y: y + 1,
 				},
 				Direction: nil,
+				FaceId:    faceId,
 			}
 
 			// store node, at zero based index
