@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/alg"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/maps"
 	"io"
 	"math"
 	"regexp"
@@ -409,7 +410,7 @@ func ParseInput(r io.Reader) World {
 		node.Children = append(node.Children, getOrCreateNodes(names[1:], nodes)...)
 	}
 
-	allNodes := utils.MapValues(nodes)
+	allNodes := maps.Values(nodes)
 	for i, node := range allNodes {
 		node.Id = i
 	}
