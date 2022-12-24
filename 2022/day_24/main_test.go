@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/stretchr/testify/assert"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -14,6 +17,28 @@ func Test_01_parse(t *testing.T) {
 
 	assert.Equal(t, 6, world.BoundingRectangle.Width())
 	assert.Equal(t, 4, world.BoundingRectangle.Height())
+}
+
+func Test_01_blizzard_movement(t *testing.T) {
+	reader := strings.NewReader(utils.Msg(`
+#.######
+#......#
+#..<...#
+#...^..#
+#......#
+######.#`))
+
+	world := ParseInput(reader)
+
+	for i := 0; i < 7; i++ {
+		remainingTime := 30 - i
+		state := State{
+			Position:      Vector2i{},
+			RemainingTime: remainingTime,
+		}
+		fmt.Println(state.String(world))
+		fmt.Println()
+	}
 }
 
 func Test_01_example(t *testing.T) {
