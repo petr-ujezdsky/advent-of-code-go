@@ -41,8 +41,8 @@ func Test_02_example(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	result := SurfaceArea(world)
-	assert.Equal(t, 0, result)
+	result := OuterSurfaceArea(world)
+	assert.Equal(t, 58, result)
 }
 
 func Test_02(t *testing.T) {
@@ -51,6 +51,6 @@ func Test_02(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	result := SurfaceArea(world)
-	assert.Equal(t, 0, result)
+	result := OuterSurfaceArea(world)
+	assert.Equal(t, 2106, result)
 }
