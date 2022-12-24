@@ -21,3 +21,11 @@ func (b1 BoundingBox) Intersection(b2 BoundingBox) (BoundingBox, bool) {
 
 	return BoundingBox{horizontal, vertical}, true
 }
+
+// Enlarge grows bounding box to contain given point
+func (b1 BoundingBox) Enlarge(point Vector2i) BoundingBox {
+	return BoundingBox{
+		Horizontal: b1.Horizontal.Enlarge(point.X),
+		Vertical:   b1.Vertical.Enlarge(point.Y),
+	}
+}

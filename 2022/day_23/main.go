@@ -9,7 +9,7 @@ import (
 
 type Vector2i = utils.Vector2i
 
-type Elf Vector2i
+type Elf = Vector2i
 
 type World map[Elf]struct{}
 
@@ -18,7 +18,7 @@ type Proposition struct {
 	Direction         utils.Direction4
 }
 
-var propositions = [4]Proposition{
+var propositionRules = [4]Proposition{
 	{
 		DirectionsToCheck: [3]Vector2i{utils.North.ToStep(), utils.NorthEast.ToStep(), utils.NorthWest.ToStep()},
 		Direction:         utils.Up,
@@ -37,8 +37,78 @@ var propositions = [4]Proposition{
 	},
 }
 
+func containsAnyElf(elf Elf, directions [3]Vector2i, elves World) bool {
+	for _, direction := range directions {
+		if _, ok := elves[elf.Add(direction)]; ok {
+			return true
+		}
+	}
+
+	return false
+}
+
+func propositionStep(elf Elf, propositionOffset int, elves World) utils.Vector2i {
+	emptyCount := 0
+	var firstEmpty *Proposition
+
+	for j := 0; j < len(propositionRules); j++ {
+		rule := propositionRules[(j+propositionOffset)%len(propositionRules)]
+
+		if containsAnyElf(elf, rule.DirectionsToCheck, elves) {
+			if firstEmpty != nil {
+				break
+			}
+
+			continue
+		}
+
+		emptyCount++
+		if firstEmpty == nil {
+			firstEmpty = &rule
+		}
+	}
+
+	// all empty -> no movement
+	if emptyCount == len(propositionRules) {
+		return Vector2i{}
+	}
+
+	return firstEmpty.Direction.ToStep()
+}
+
 func DoWithInput(elves World) int {
-	iProposition := 0
+	propositionOffset := 0
+	for i := 0; i < 10; i++ {
+		proposedPositions := make(map[Vector2i][]Elf)
+		// propositions phase
+		for elf, _ := range elves {
+			// make proposition
+			step := propositionStep(elf, propositionOffset, elves)
+
+			proposedPosition := elf.Add(step)
+			proposedPositions[proposedPosition] = append(proposedPositions[proposedPosition], elf)
+		}
+
+		// move elves
+		for elfNew, elvesSamePosition := range proposedPositions {
+			if len(elvesSamePosition) > 1 {
+				continue
+			}
+
+			elfOld := elvesSamePosition[0]
+			delete(elves, elfOld)
+			elves[elfNew] = struct{}{}
+		}
+		propositionOffset++
+	}
+
+	// bounding box
+	boundingBox := utils.BoundingBox{}
+	for elf, _ := range elves {
+		boundingBox = boundingBox.Enlarge(elf)
+	}
+
+	return boundingBox.Horizontal.Size()*boundingBox.Vertical.Size() - len(elves)
 }
 
 func ParseInput(r io.Reader) World {
