@@ -68,8 +68,8 @@ func propositionStep(elf Elf, propositionOffset int, elves World) utils.Vector2i
 		}
 	}
 
-	// all empty -> no movement
-	if emptyCount == len(propositionRules) {
+	// all empty or all occupied -> no movement
+	if emptyCount == len(propositionRules) || firstEmpty == nil {
 		return Vector2i{}
 	}
 
