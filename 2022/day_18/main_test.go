@@ -22,7 +22,7 @@ func Test_01_example(t *testing.T) {
 	cubes := ParseInput(reader)
 
 	result := SurfaceArea(cubes)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 64, result)
 }
 
 func Test_01(t *testing.T) {
@@ -32,7 +32,7 @@ func Test_01(t *testing.T) {
 	cubes := ParseInput(reader)
 
 	result := SurfaceArea(cubes)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 3564, result)
 }
 
 func Test_02_example(t *testing.T) {
