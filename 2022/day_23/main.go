@@ -115,7 +115,7 @@ func ShuffleElves(elves World, rounds int) (int, int) {
 	}
 
 	// bounding box
-	boundingBox := utils.BoundingBox{}
+	boundingBox := utils.BoundingRectangle{}
 	for elf := range elves {
 		boundingBox = boundingBox.Enlarge(elf)
 	}
