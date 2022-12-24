@@ -20,3 +20,14 @@ func Values[K comparable, V any](m map[K]V) []V {
 
 	return values
 }
+
+// Copy returns shallow copy of the map
+func Copy[K comparable, V any](source map[K]V) map[K]V {
+	dest := make(map[K]V, len(source))
+
+	for key, value := range source {
+		dest[key] = value
+	}
+
+	return dest
+}
