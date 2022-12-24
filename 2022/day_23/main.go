@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"io"
+	"math"
 )
 
 type Vector2i = utils.Vector2i
@@ -120,6 +121,11 @@ func ShuffleElves(elves World, rounds int) (int, int) {
 	}
 
 	return boundingBox.Horizontal.Size()*boundingBox.Vertical.Size() - len(elves), settledRound
+}
+
+func ShuffleElvesUntilSettled(elves World) int {
+	_, settledRound := ShuffleElves(elves, math.MaxInt)
+	return settledRound
 }
 
 func ParseInput(r io.Reader) World {

@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/stretchr/testify/assert"
-	"math"
 	"os"
 	"testing"
 )
@@ -42,8 +41,8 @@ func Test_02_example(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	result, _ := ShuffleElves(world, math.MaxInt)
-	assert.Equal(t, 0, result)
+	result := ShuffleElvesUntilSettled(world)
+	assert.Equal(t, 20, result)
 }
 
 func Test_02(t *testing.T) {
@@ -52,6 +51,6 @@ func Test_02(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	result, _ := ShuffleElves(world, 10)
-	assert.Equal(t, 0, result)
+	result := ShuffleElvesUntilSettled(world)
+	assert.Equal(t, 1055, result)
 }
