@@ -7,6 +7,7 @@ import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/alg"
 	"io"
+	"strconv"
 	"strings"
 )
 
@@ -21,6 +22,11 @@ type World struct {
 }
 
 func (w World) IsBlizzardAt(remainingTime int, pos Vector2i) bool {
+	// start state
+	if pos.Y < 0 {
+		return false
+	}
+
 	elapsedTime := w.StartRemainingTime - remainingTime
 
 	for _, blizzard := range w.ColumnBlizzards[pos.X] {
@@ -38,9 +44,34 @@ func (w World) IsBlizzardAt(remainingTime int, pos Vector2i) bool {
 	return false
 }
 
+func (w World) BlizzardsAt(remainingTime int, pos Vector2i) []Blizzard {
+	// start state
+	if pos.Y < 0 {
+		return []Blizzard{}
+	}
+
+	var blizzards []Blizzard
+	elapsedTime := w.StartRemainingTime - remainingTime
+
+	for _, blizzard := range w.ColumnBlizzards[pos.X] {
+		if pos.Y == blizzard.Position(elapsedTime, w.Height) {
+			blizzards = append(blizzards, blizzard)
+		}
+	}
+
+	for _, blizzard := range w.RowBlizzards[pos.Y] {
+		if pos.X == blizzard.Position(elapsedTime, w.Width) {
+			blizzards = append(blizzards, blizzard)
+		}
+	}
+
+	return blizzards
+}
+
 type Blizzard struct {
 	InitialPosition int
 	Direction       int
+	Char            rune
 }
 
 func (b Blizzard) Position(time, size int) int {
@@ -65,10 +96,15 @@ func (s State) String(world World) string {
 				continue
 			}
 
-			if world.IsBlizzardAt(s.RemainingTime, pos) {
-				sb.WriteString("@")
-			} else {
+			blizzards := world.BlizzardsAt(s.RemainingTime, pos)
+			switch len(blizzards) {
+			case 0:
 				sb.WriteString(".")
+			case 1:
+				sb.WriteRune(blizzards[0].Char)
+
+			default:
+				sb.WriteString(strconv.Itoa(len(blizzards)))
 			}
 		}
 		sb.WriteString("#\n")
@@ -224,24 +260,28 @@ func ParseInput(r io.Reader) World {
 				blizzard := Blizzard{
 					InitialPosition: x,
 					Direction:       1,
+					Char:            char,
 				}
 				rowBlizzards[y] = append(rowBlizzards[y], blizzard)
 			case '<':
 				blizzard := Blizzard{
 					InitialPosition: x,
 					Direction:       -1,
+					Char:            char,
 				}
 				rowBlizzards[y] = append(rowBlizzards[y], blizzard)
 			case '^':
 				blizzard := Blizzard{
 					InitialPosition: y,
 					Direction:       -1,
+					Char:            char,
 				}
 				columnBlizzards[x] = append(columnBlizzards[x], blizzard)
 			case 'v':
 				blizzard := Blizzard{
 					InitialPosition: y,
 					Direction:       1,
+					Char:            char,
 				}
 				columnBlizzards[x] = append(columnBlizzards[x], blizzard)
 			default:
