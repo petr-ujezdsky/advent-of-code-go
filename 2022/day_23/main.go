@@ -47,7 +47,7 @@ func containsAnyElf(elf Elf, directions [3]Vector2i, elves World) bool {
 	return false
 }
 
-func propositionStep(elf Elf, propositionOffset int, elves World) utils.Vector2i {
+func propositionStep(elf Elf, propositionOffset int, elves World) (utils.Vector2i, bool) {
 	emptyCount := 0
 	var firstEmpty *Proposition
 
@@ -70,35 +70,46 @@ func propositionStep(elf Elf, propositionOffset int, elves World) utils.Vector2i
 
 	// all empty or all occupied -> no movement
 	if emptyCount == len(propositionRules) || firstEmpty == nil {
-		return Vector2i{}
+		return Vector2i{}, false
 	}
 
-	return firstEmpty.Direction.ToStep()
+	return firstEmpty.Direction.ToStep(), true
 }
 
-func DoWithInput(elves World) int {
+func ShuffleElves(elves World, rounds int) (int, int) {
 	propositionOffset := 0
-	for i := 0; i < 10; i++ {
+	settledRound := 0
+	for i := 0; i < rounds; i++ {
 		proposedPositions := make(map[Vector2i][]Elf)
 		// propositions phase
 		for elf := range elves {
 			// make proposition
-			step := propositionStep(elf, propositionOffset, elves)
-
-			proposedPosition := elf.Add(step)
-			proposedPositions[proposedPosition] = append(proposedPositions[proposedPosition], elf)
+			if step, ok := propositionStep(elf, propositionOffset, elves); ok {
+				proposedPosition := elf.Add(step)
+				proposedPositions[proposedPosition] = append(proposedPositions[proposedPosition], elf)
+			}
 		}
 
 		// move elves
+		anyMoved := false
 		for elfNew, elvesSamePosition := range proposedPositions {
+			// multiple propositions -> do not move
 			if len(elvesSamePosition) > 1 {
 				continue
 			}
 
+			// move
+			anyMoved = true
 			elfOld := elvesSamePosition[0]
 			delete(elves, elfOld)
 			elves[elfNew] = struct{}{}
 		}
+
+		if !anyMoved {
+			settledRound = i + 1
+			break
+		}
+
 		propositionOffset++
 	}
 
@@ -108,7 +119,7 @@ func DoWithInput(elves World) int {
 		boundingBox = boundingBox.Enlarge(elf)
 	}
 
-	return boundingBox.Horizontal.Size()*boundingBox.Vertical.Size() - len(elves)
+	return boundingBox.Horizontal.Size()*boundingBox.Vertical.Size() - len(elves), settledRound
 }
 
 func ParseInput(r io.Reader) World {
