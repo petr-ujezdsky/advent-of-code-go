@@ -9,7 +9,7 @@ const (
 	Left
 )
 
-var direction4ToStep = [4]Vector2i{
+var Direction4Steps = [4]Vector2i{
 	{X: 0, Y: 1},
 	{X: 1, Y: 0},
 	{X: 0, Y: -1},
@@ -17,7 +17,7 @@ var direction4ToStep = [4]Vector2i{
 }
 
 func (d Direction4) ToStep() Vector2i {
-	return direction4ToStep[d]
+	return Direction4Steps[d]
 }
 
 func (d Direction4) Rotate(steps int) Direction4 {

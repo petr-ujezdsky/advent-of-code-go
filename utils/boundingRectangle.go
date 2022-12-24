@@ -29,3 +29,11 @@ func (b1 BoundingRectangle) Enlarge(point Vector2i) BoundingRectangle {
 		Vertical:   b1.Vertical.Enlarge(point.Y),
 	}
 }
+
+func (b1 BoundingRectangle) Width() int {
+	return b1.Horizontal.Size()
+}
+
+func (b1 BoundingRectangle) Height() int {
+	return b1.Vertical.Size()
+}
