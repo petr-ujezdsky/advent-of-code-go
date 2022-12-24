@@ -81,7 +81,7 @@ func DoWithInput(elves World) int {
 	for i := 0; i < 10; i++ {
 		proposedPositions := make(map[Vector2i][]Elf)
 		// propositions phase
-		for elf, _ := range elves {
+		for elf := range elves {
 			// make proposition
 			step := propositionStep(elf, propositionOffset, elves)
 
@@ -104,7 +104,7 @@ func DoWithInput(elves World) int {
 
 	// bounding box
 	boundingBox := utils.BoundingBox{}
-	for elf, _ := range elves {
+	for elf := range elves {
 		boundingBox = boundingBox.Enlarge(elf)
 	}
 
