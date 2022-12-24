@@ -15,7 +15,7 @@ type World struct {
 	BoundingBox utils.BoundingBox
 }
 
-type Cubes map[Cube]*int
+type Cubes map[Cube]struct{}
 
 func SurfaceArea(world World) int {
 	cubes := world.Cubes
@@ -23,7 +23,7 @@ func SurfaceArea(world World) int {
 
 	for len(cubes) > 0 {
 		// take 1 cube
-		cube, faceCount := maps.FirstEntry(cubes)
+		cube, _ := maps.FirstEntry(cubes)
 		delete(cubes, cube)
 
 		// inspect neighbours
@@ -31,9 +31,7 @@ func SurfaceArea(world World) int {
 			neighbour := cube.Add(direction)
 
 			// neighbour exists
-			if neighbourFaceCount, ok := cubes[neighbour]; ok {
-				*neighbourFaceCount--
-				*faceCount--
+			if _, ok := cubes[neighbour]; ok {
 				totalFaceCount -= 2
 			}
 		}
@@ -60,8 +58,7 @@ func ParseInput(r io.Reader) World {
 			boundingBox = boundingBox.Enlarge(cube)
 		}
 
-		fc := 6
-		cubes[cube] = &fc
+		cubes[cube] = struct{}{}
 	}
 
 	return World{
