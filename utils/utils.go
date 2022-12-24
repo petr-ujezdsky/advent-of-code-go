@@ -245,6 +245,7 @@ func NextPowOf2(n int) int {
 // ModFloor modifies modulo operator to work with negative values
 // -2 % 10          = -2
 // ModFloor(-2, 10) = 8
+// see https://stackoverflow.com/a/43827557/1310733
 func ModFloor(value, size int) int {
 	return (((value) % size) + size) % size
 }
