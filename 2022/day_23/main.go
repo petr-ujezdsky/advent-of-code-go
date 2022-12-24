@@ -7,12 +7,38 @@ import (
 	"io"
 )
 
-type Elf utils.Vector2i
+type Vector2i = utils.Vector2i
+
+type Elf Vector2i
 
 type World map[Elf]struct{}
 
+type Proposition struct {
+	DirectionsToCheck [3]Vector2i
+	Direction         utils.Direction4
+}
+
+var propositions = [4]Proposition{
+	{
+		DirectionsToCheck: [3]Vector2i{utils.North.ToStep(), utils.NorthEast.ToStep(), utils.NorthWest.ToStep()},
+		Direction:         utils.Up,
+	},
+	{
+		DirectionsToCheck: [3]Vector2i{utils.South.ToStep(), utils.SouthEast.ToStep(), utils.SouthWest.ToStep()},
+		Direction:         utils.Down,
+	},
+	{
+		DirectionsToCheck: [3]Vector2i{utils.West.ToStep(), utils.NorthWest.ToStep(), utils.SouthWest.ToStep()},
+		Direction:         utils.Left,
+	},
+	{
+		DirectionsToCheck: [3]Vector2i{utils.East.ToStep(), utils.NorthEast.ToStep(), utils.SouthEast.ToStep()},
+		Direction:         utils.Right,
+	},
+}
+
 func DoWithInput(elves World) int {
-	return len(elves)
+	iProposition := 0
 }
 
 func ParseInput(r io.Reader) World {
@@ -31,7 +57,7 @@ func ParseInput(r io.Reader) World {
 			elf := Elf{X: x, Y: y}
 			elves[elf] = struct{}{}
 		}
-		y++
+		y--
 	}
 
 	return elves
