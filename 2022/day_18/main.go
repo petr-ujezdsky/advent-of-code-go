@@ -10,9 +10,15 @@ import (
 
 type Vector3i = utils.Vector3i
 type Cube = Vector3i
+type World struct {
+	Cubes       Cubes
+	BoundingBox utils.BoundingBox
+}
+
 type Cubes map[Cube]*int
 
-func SurfaceArea(cubes Cubes) int {
+func SurfaceArea(world World) int {
+	cubes := world.Cubes
 	totalFaceCount := 6 * len(cubes)
 
 	for len(cubes) > 0 {
@@ -36,20 +42,30 @@ func SurfaceArea(cubes Cubes) int {
 	return totalFaceCount
 }
 
-func ParseInput(r io.Reader) Cubes {
+func ParseInput(r io.Reader) World {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
 
 	cubes := make(Cubes)
+	var boundingBox utils.BoundingBox
 
 	for scanner.Scan() {
 		ints := utils.ExtractInts(scanner.Text(), false)
 
 		cube := Cube{X: ints[0], Y: ints[1], Z: ints[2]}
 
+		if len(cubes) == 0 {
+			boundingBox = utils.NewBoundingBox(cube)
+		} else {
+			boundingBox = boundingBox.Enlarge(cube)
+		}
+
 		fc := 6
 		cubes[cube] = &fc
 	}
 
-	return cubes
+	return World{
+		Cubes:       cubes,
+		BoundingBox: boundingBox,
+	}
 }
