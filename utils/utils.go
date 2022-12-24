@@ -242,6 +242,13 @@ func NextPowOf2(n int) int {
 	return k
 }
 
+// ModFloor modifies modulo operator to work with negative values
+// -2 % 10          = -2
+// ModFloor(-2, 10) = 8
+func ModFloor(value, size int) int {
+	return (((value) % size) + size) % size
+}
+
 // ShallowCopy creates shallow copy of the given slice
 func ShallowCopy[T any](slice []T) []T {
 	// prepare destination slice

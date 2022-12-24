@@ -145,3 +145,25 @@ func TestParseBinary8(t *testing.T) {
 		})
 	}
 }
+
+func TestModFloor(t *testing.T) {
+	type args struct {
+		value int
+		size  int
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{"", args{2, 10}, 2},
+		{"", args{12, 10}, 2},
+		{"", args{-2, 10}, 8},
+		{"", args{-12, 10}, 8},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, utils.ModFloor(tt.args.value, tt.args.size), "ModFloor(%v, %v)", tt.args.value, tt.args.size)
+		})
+	}
+}
