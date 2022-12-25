@@ -196,10 +196,10 @@ func neighbours(world World) func(state State) []State {
 	}
 }
 
-func ShortestPath(world World) int {
+func shortestPath(world World, elapsedTime int) int {
 	start := State{
 		Position:    world.StartPosition,
-		ElapsedTime: 0,
+		ElapsedTime: elapsedTime,
 	}
 
 	path, _, score, found := alg.AStarEndFunc[State](start, isEnd(world), h(world), d(world), neighbours(world))
@@ -213,6 +213,29 @@ func ShortestPath(world World) int {
 	}
 
 	return score
+}
+
+func ShortestPath(world World) int {
+	return shortestPath(world, 0)
+}
+
+func ShortestPathBackForSnack(world World) int {
+	// go to finish
+	world1 := world
+	tripTime1 := ShortestPath(world1)
+
+	// then return for snack
+	world2 := world1
+	world2.StartPosition = world1.EndPosition
+	world2.EndPosition = world1.StartPosition
+	world2.PreEndPosition = world2.EndPosition.Add(utils.Up.ToStep())
+	tripTime2 := shortestPath(world2, tripTime1)
+
+	// and finally back to finish
+	world3 := world1
+	tripTime3 := shortestPath(world3, tripTime2)
+
+	return tripTime3
 }
 
 func ParseInput(r io.Reader) World {
