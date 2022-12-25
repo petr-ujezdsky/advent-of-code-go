@@ -3,8 +3,10 @@ package main
 import (
 	"bufio"
 	_ "embed"
+	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/alg"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
 )
 
@@ -92,7 +94,7 @@ func maxGeodeCountInTime(blueprint Blueprint) int {
 	}
 
 	lowerBound := func(state State) int {
-		return -state.RemainingTime
+		return cost(state) - state.RemainingTime
 	}
 
 	nextStatesProvider := func(state State) []State {
@@ -112,7 +114,7 @@ func maxGeodeCountInTime(blueprint Blueprint) int {
 					SinceRemainingTime: state.RemainingTime,
 				}
 
-				nextRobots := append(state.Robots, robot)
+				nextRobots := slices.CloneAndAdd(state.Robots, robot)
 
 				// calculate mats, including new robot
 				nextRemainingTime := state.RemainingTime - 1
@@ -146,15 +148,17 @@ func maxGeodeCountInTime(blueprint Blueprint) int {
 	}
 
 	min, _ := alg.BranchAndBoundDeepFirst(initialState, cost, lowerBound, nextStatesProvider)
-	return min
+	return -min
 }
 
 func DoWithInput(world World) int {
 	sum := 0
 
 	for _, blueprint := range world.Blueprints {
+		fmt.Printf("Computing blueprint #%v...\n", blueprint.Id)
 		geodes := maxGeodeCountInTime(blueprint)
 		sum += blueprint.Id * geodes
+		fmt.Printf(" - produces max %v geodes\n\n", geodes)
 	}
 
 	return sum
