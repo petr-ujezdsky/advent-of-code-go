@@ -171,9 +171,14 @@ func maxGeodeCountInTime(blueprint Blueprint) int {
 }
 
 func DoWithInput(world World) int {
-	maxBlueprint, max := utils.SliceArgMax(world.Blueprints, func(blueprint Blueprint) int { return maxGeodeCountInTime(blueprint) })
+	sum := 0
 
-	return max * maxBlueprint.Id
+	for _, blueprint := range world.Blueprints {
+		geodes := maxGeodeCountInTime(blueprint)
+		sum += blueprint.Id * geodes
+	}
+
+	return sum
 }
 
 func ParseInput(r io.Reader) World {
