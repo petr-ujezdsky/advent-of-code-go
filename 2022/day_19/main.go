@@ -6,7 +6,6 @@ import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/alg"
 	"io"
-	"math"
 )
 
 type World struct {
@@ -94,11 +93,11 @@ func maxGeodeCountInTime(blueprint Blueprint) int {
 	}
 
 	lowerBound := func(state State) int {
-		return math.MinInt
+		return -state.RemainingTime
 	}
 
 	nextStatesProvider := func(state State) []State {
-		if state.RemainingTime < 0 {
+		if state.RemainingTime <= 0 {
 			return nil
 		}
 
@@ -160,10 +159,11 @@ func maxGeodeCountInTime(blueprint Blueprint) int {
 		return states
 	}
 
+	remainingTime := 24
 	initialState := State{
-		RemainingTime: 24,
+		RemainingTime: remainingTime,
 		Materials:     [4]int{},
-		Robots:        nil,
+		Robots:        []Robot{{Type: Ore, SinceRemainingTime: remainingTime}},
 	}
 
 	min, _ := alg.BranchAndBoundDeepFirst(initialState, cost, lowerBound, nextStatesProvider)
