@@ -1,7 +1,5 @@
 package slices
 
-import "github.com/petr-ujezdsky/advent-of-code-go/utils"
-
 // Clone creates shallow copy of the given slice
 func Clone[T any](slice []T) []T {
 	// prepare destination slice
@@ -80,19 +78,4 @@ func Fill[T any](slice []T, value T) {
 	for i := 0; i < len(slice); i++ {
 		slice[i] = value
 	}
-}
-
-func ArgMax[T any, R utils.Number](slice []T, fValue func(T) R) (T, R) {
-	maxItem := slice[0]
-	max := fValue(maxItem)
-
-	for _, item := range slice {
-		value := fValue(item)
-		if value > max {
-			max = value
-			maxItem = item
-		}
-	}
-
-	return maxItem, max
 }
