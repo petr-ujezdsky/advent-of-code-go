@@ -157,11 +157,12 @@ func moveStates(state State, world World, neighbours []State) []State {
 
 func waitingStates(state State, world World) []State {
 	var states []State
-	nextElapsedTime := state.ElapsedTime + 1
 	position := state.Position
 
+	nextElapsedTime := state.ElapsedTime + 1
+	waitingDuration := 1
 	nextState := &state
-	for !world.IsBlizzardAt(nextElapsedTime, position) {
+	for !world.IsBlizzardAt(nextElapsedTime, position) && waitingDuration < world.Width*world.Height {
 		nextState = &State{
 			Position:      position,
 			ElapsedTime:   nextElapsedTime,
@@ -170,6 +171,7 @@ func waitingStates(state State, world World) []State {
 		states = append(states, *nextState)
 
 		nextElapsedTime++
+		waitingDuration++
 	}
 
 	return states
