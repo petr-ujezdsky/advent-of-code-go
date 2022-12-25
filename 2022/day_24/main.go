@@ -161,7 +161,7 @@ func waitingStates(state State, world World) []State {
 	position := state.Position
 
 	nextState := &state
-	for world.IsBlizzardAt(nextElapsedTime, position) {
+	for !world.IsBlizzardAt(nextElapsedTime, position) {
 		nextState = &State{
 			Position:      position,
 			ElapsedTime:   nextElapsedTime,
