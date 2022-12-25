@@ -4,6 +4,7 @@ import (
 	"bufio"
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/alg"
 	"io"
 )
 
@@ -25,8 +26,32 @@ type Blueprint struct {
 	RobotsCosts [4]RobotCosts
 }
 
+type Robot struct {
+	Type      int
+	SinceTime int
+}
+
+type State struct {
+	RemainingTime int
+	Materials     [4]int
+	Robots        []Robot
+}
+
 func DoWithInput(world World) int {
-	return len(world.Blueprints)
+	cost := func(state State) int {}
+
+	lowerBound := func(state State) int {}
+
+	nextStatesProvider := func(state State) []State {}
+
+	initialState := State{
+		RemainingTime: 24,
+		Materials:     [4]int{},
+		Robots:        nil,
+	}
+
+	min, _ := alg.BranchAndBoundDeepFirst(initialState, cost, lowerBound, nextStatesProvider)
+	return min
 }
 
 func ParseInput(r io.Reader) World {
