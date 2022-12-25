@@ -124,7 +124,7 @@ func h(world World) func(State) int {
 
 func d(_ World) func(State, State) int {
 	return func(state1, state2 State) int {
-		return state2.Position.Subtract(state1.Position).LengthManhattan()
+		return state2.ElapsedTime - state1.ElapsedTime
 	}
 }
 

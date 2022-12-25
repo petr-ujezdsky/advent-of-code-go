@@ -57,7 +57,7 @@ func Test_01(t *testing.T) {
 	world := ParseInput(reader)
 
 	result := ShortestPathAStar(world)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 326, result)
 }
 
 func Test_02_example(t *testing.T) {
