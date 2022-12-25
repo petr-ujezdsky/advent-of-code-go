@@ -75,9 +75,8 @@ func (b Blizzard) Position(time, size int) int {
 }
 
 type State struct {
-	Position      Vector2i
-	ElapsedTime   int
-	PreviousState *State
+	Position    Vector2i
+	ElapsedTime int
 }
 
 func (s State) String(world World) string {
@@ -146,9 +145,8 @@ func moveStates(state State, world World, neighbours []State) []State {
 
 		// all ok -> move there
 		nextState := State{
-			Position:      nextPos,
-			ElapsedTime:   nextElapsedTime,
-			PreviousState: &state,
+			Position:    nextPos,
+			ElapsedTime: nextElapsedTime,
 		}
 		neighbours = append(neighbours, nextState)
 	}
@@ -164,9 +162,8 @@ func waitingStates(state State, world World) []State {
 	nextState := &state
 	for !world.IsBlizzardAt(nextElapsedTime, position) && waitingDuration < world.Width*world.Height {
 		nextState = &State{
-			Position:      position,
-			ElapsedTime:   nextElapsedTime,
-			PreviousState: nextState,
+			Position:    position,
+			ElapsedTime: nextElapsedTime,
 		}
 		states = append(states, *nextState)
 
@@ -182,9 +179,8 @@ func neighbours(world World) func(state State) []State {
 		// state just before end
 		if state.Position == world.PreEndPosition {
 			return []State{{
-				Position:      world.EndPosition,
-				ElapsedTime:   state.ElapsedTime + 1,
-				PreviousState: &state,
+				Position:    world.EndPosition,
+				ElapsedTime: state.ElapsedTime + 1,
 			}}
 		}
 
@@ -200,7 +196,7 @@ func neighbours(world World) func(state State) []State {
 	}
 }
 
-func ShortestPathAStar(world World) int {
+func ShortestPath(world World) int {
 	start := State{
 		Position:    world.StartPosition,
 		ElapsedTime: 0,
@@ -217,32 +213,6 @@ func ShortestPathAStar(world World) int {
 	}
 
 	return score
-}
-
-func ShortestPathBranchAndBound(world World) int {
-	cost := func(state State) int {
-		return state.ElapsedTime
-	}
-
-	lowerBound := func(state State) int {
-		return cost(state) + state.Position.Subtract(world.EndPosition).LengthManhattan()
-	}
-
-	start := State{
-		Position:    world.StartPosition,
-		ElapsedTime: 0,
-	}
-
-	min, minState := alg.BranchAndBoundDeepFirst(start, cost, lowerBound, neighbours(world))
-
-	state := &minState
-	for state != nil {
-		fmt.Println(state.String(world))
-		fmt.Println()
-		state = state.PreviousState
-	}
-
-	return min
 }
 
 func ParseInput(r io.Reader) World {
