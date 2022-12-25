@@ -77,5 +77,5 @@ func Test_02(t *testing.T) {
 	world := ParseInput(reader)
 
 	result := ShortestPathBackForSnack(world)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 976, result)
 }
