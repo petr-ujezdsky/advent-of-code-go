@@ -143,7 +143,7 @@ func maxGeodeCountInTime(blueprint Blueprint) int {
 	remainingTime := 24
 	initialState := State{
 		RemainingTime: remainingTime,
-		Materials:     [4]int{},
+		Materials:     [4]int{0, 0, 0, 0},
 		Robots:        []Robot{{Type: Ore, SinceRemainingTime: remainingTime}},
 	}
 
