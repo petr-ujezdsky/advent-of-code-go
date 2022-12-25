@@ -229,25 +229,22 @@ func DoWithInput2(world World) int {
 	return score
 }
 
-func cost(world World) func(State) int {
-	return func(state State) int {
+func DoWithInput(world World) int {
+	cost := func(state State) int {
 		// elapsed time
 		return world.StartRemainingTime - state.RemainingTime
 	}
-}
-func lowerBound(world World) func(State) int {
-	return func(state State) int {
-		return state.Position.Subtract(world.EndPosition).LengthManhattan()
-	}
-}
 
-func DoWithInput(world World) int {
+	lowerBound := func(state State) int {
+		return cost(state) + state.Position.Subtract(world.EndPosition).LengthManhattan()
+	}
+
 	start := State{
 		Position:      world.StartPosition,
 		RemainingTime: world.StartRemainingTime,
 	}
 
-	min, minState := alg.BranchAndBoundDeepFirst(start, cost(world), lowerBound(world), neighbours(world))
+	min, minState := alg.BranchAndBoundDeepFirst(start, cost, lowerBound, neighbours(world))
 
 	state := &minState
 	for state != nil {
