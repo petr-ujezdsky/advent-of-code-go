@@ -16,6 +16,24 @@ func Test_01_parse(t *testing.T) {
 	assert.Equal(t, 8, world.Blueprints[1].RobotsCosts[Obsidian][Clay])
 }
 
+func Test_01_example_blueprint_1(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	world := ParseInput(reader)
+
+	assert.Equal(t, 9, maxGeodeCountInTime(world.Blueprints[0]))
+}
+
+func Test_01_example_blueprint_2(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	world := ParseInput(reader)
+
+	assert.Equal(t, 12, maxGeodeCountInTime(world.Blueprints[1]))
+}
+
 func Test_01_example(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
