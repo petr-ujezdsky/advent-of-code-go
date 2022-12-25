@@ -211,7 +211,7 @@ func shortestPath(world World, elapsedTime int) int {
 	//	fmt.Println()
 	//}
 
-	return score
+	return elapsedTime + tripTime
 }
 
 func ShortestPath(world World) int {
