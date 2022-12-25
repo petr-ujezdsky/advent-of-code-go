@@ -22,8 +22,8 @@ type World struct {
 }
 
 func (w World) IsBlizzardAt(remainingTime int, pos Vector2i) bool {
-	// start state
-	if pos.Y < 0 {
+	// start / end state
+	if !w.BoundingRectangle.Contains(pos) {
 		return false
 	}
 
@@ -81,6 +81,7 @@ func (b Blizzard) Position(time, size int) int {
 type State struct {
 	Position      Vector2i
 	RemainingTime int
+	PreviousState *State
 }
 
 func (s State) String(world World) string {
@@ -151,26 +152,30 @@ func moveStates(state State, world World, neighbours []State) []State {
 		nextState := State{
 			Position:      nextPos,
 			RemainingTime: nextRemainingTime,
+			PreviousState: &state,
 		}
 		neighbours = append(neighbours, nextState)
 	}
 	return neighbours
 }
 
-func waitingStates(remainingTime int, position Vector2i, world World) []State {
+func waitingStates(state State, world World) []State {
 	var states []State
-	nextRemainingTime := remainingTime - 1
+	nextRemainingTime := state.RemainingTime - 1
+	position := state.Position
 
+	nextState := &state
 	for nextRemainingTime > 1 {
 		if world.IsBlizzardAt(nextRemainingTime, position) {
 			break
 		}
 
-		nextState := State{
+		nextState = &State{
 			Position:      position,
 			RemainingTime: nextRemainingTime,
+			PreviousState: nextState,
 		}
-		states = append(states, nextState)
+		states = append(states, *nextState)
 
 		nextRemainingTime--
 	}
@@ -189,6 +194,7 @@ func neighbours(world World) func(state State) []State {
 			return []State{{
 				Position:      world.EndPosition,
 				RemainingTime: state.RemainingTime - 1,
+				PreviousState: &state,
 			}}
 		}
 
@@ -198,13 +204,13 @@ func neighbours(world World) func(state State) []State {
 		nextStates = moveStates(state, world, nextStates)
 
 		// wait
-		nextStates = append(nextStates, waitingStates(state.RemainingTime, state.Position, world)...)
+		nextStates = append(nextStates, waitingStates(state, world)...)
 
 		return nextStates
 	}
 }
 
-func DoWithInput(world World) int {
+func DoWithInput2(world World) int {
 	start := State{
 		Position:      world.StartPosition,
 		RemainingTime: world.StartRemainingTime,
@@ -221,6 +227,36 @@ func DoWithInput(world World) int {
 	}
 
 	return score
+}
+
+func cost(world World) func(State) int {
+	return func(state State) int {
+		// elapsed time
+		return world.StartRemainingTime - state.RemainingTime
+	}
+}
+func lowerBound(world World) func(State) int {
+	return func(state State) int {
+		return state.Position.Subtract(world.EndPosition).LengthManhattan()
+	}
+}
+
+func DoWithInput(world World) int {
+	start := State{
+		Position:      world.StartPosition,
+		RemainingTime: world.StartRemainingTime,
+	}
+
+	min, minState := alg.BranchAndBoundDeepFirst(start, cost(world), lowerBound(world), neighbours(world))
+
+	state := &minState
+	for state != nil {
+		fmt.Println(state.String(world))
+		fmt.Println()
+		state = state.PreviousState
+	}
+
+	return min
 }
 
 func ParseInput(r io.Reader) World {
