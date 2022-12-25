@@ -198,7 +198,7 @@ func neighbours(world World) func(state State) []State {
 	}
 }
 
-func DoWithInput2(world World) int {
+func ShortestPathAStar(world World) int {
 	start := State{
 		Position:    world.StartPosition,
 		ElapsedTime: 0,
@@ -217,7 +217,7 @@ func DoWithInput2(world World) int {
 	return score
 }
 
-func DoWithInput(world World) int {
+func ShortestPathBranchAndBound(world World) int {
 	cost := func(state State) int {
 		return state.ElapsedTime
 	}
