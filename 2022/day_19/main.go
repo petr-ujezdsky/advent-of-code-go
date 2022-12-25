@@ -86,7 +86,6 @@ func generateMaterials(remainingTime int, robots []Robot) Materials {
 }
 
 func maxGeodeCountInTime(blueprint Blueprint) int {
-
 	cost := func(state State) int {
 		// maximizing geodes count
 		return -state.Materials[Geode]
@@ -103,26 +102,6 @@ func maxGeodeCountInTime(blueprint Blueprint) int {
 
 		var states []State
 
-		//// buy ore robot
-		//matsBuyedOreRobot, buyable := state.Materials.SubtractAndRemainder(blueprint.RobotsCosts[Ore])
-		//if buyable {
-		//	// add robot
-		//	robot := Robot{
-		//		Type:               Ore,
-		//		SinceRemainingTime: state.RemainingTime,
-		//	}
-		//
-		//	robots := append(utils.ShallowCopy(state.Robots), robot)
-		//
-		//	// calculate mats, including new robot
-		//	nextState := State{
-		//		RemainingTime: state.RemainingTime - 1,
-		//		Materials:     matsBuyedOreRobot.Add(robot.GenerateMaterials()),
-		//		Robots:        robots,
-		//	}
-		//
-		//	states = append(states, nextState)
-		//}
 		for _, materialType := range [4]MaterialType{Geode, Obsidian, Clay, Ore} {
 			// buy robot
 			matsBuyedRobot, buyable := state.Materials.SubtractAndRemainder(blueprint.RobotsCosts[materialType])
