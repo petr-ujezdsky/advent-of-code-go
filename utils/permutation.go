@@ -21,7 +21,7 @@ func permute[T any](quit chan interface{}, values []T, left, right int, output c
 	if left == right {
 		// output slice copy
 		select {
-		case output <- slices.ShallowCopy(values):
+		case output <- slices.Clone(values):
 		case <-quit:
 			return false
 		}

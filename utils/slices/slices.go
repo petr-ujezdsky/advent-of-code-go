@@ -2,8 +2,8 @@ package slices
 
 import "github.com/petr-ujezdsky/advent-of-code-go/utils"
 
-// ShallowCopy creates shallow copy of the given slice
-func ShallowCopy[T any](slice []T) []T {
+// Clone creates shallow copy of the given slice
+func Clone[T any](slice []T) []T {
 	// prepare destination slice
 	cloned := make([]T, len(slice))
 

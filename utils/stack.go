@@ -49,5 +49,5 @@ func (stack *Stack[T]) Length() int {
 }
 
 func (stack *Stack[T]) Clone() Stack[T] {
-	return NewStackFilled(slices.ShallowCopy(stack.list))
+	return NewStackFilled(slices.Clone(stack.list))
 }

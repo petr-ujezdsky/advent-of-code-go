@@ -105,7 +105,7 @@ func (b Building) IsSorted() bool {
 
 func (b Building) Clone() Building {
 	b2 := Building{
-		Hallway:        slices.ShallowCopy(b.Hallway),
+		Hallway:        slices.Clone(b.Hallway),
 		Rooms:          make([]Room, 4),
 		ConsumedEnergy: b.ConsumedEnergy,
 		Previous:       &b,

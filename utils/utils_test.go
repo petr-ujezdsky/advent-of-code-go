@@ -89,7 +89,7 @@ func TestClamp(t *testing.T) {
 
 func TestShallowCopy(t *testing.T) {
 	data := []int{1, 2, 3}
-	clone := slices.ShallowCopy(data)
+	clone := slices.Clone(data)
 
 	// modify original data
 	data[0] = 9

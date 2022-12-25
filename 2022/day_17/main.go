@@ -65,7 +65,7 @@ func (s1 PixelShape) Move(step utils.Vector2i) PixelShape {
 	pixelRows := s1.pixelRows
 
 	if step.X != 0 {
-		pixelRows = slices.ShallowCopy(s1.pixelRows)
+		pixelRows = slices.Clone(s1.pixelRows)
 
 		for i := range pixelRows {
 			if step.X > 0 {

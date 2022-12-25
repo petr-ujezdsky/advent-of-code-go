@@ -98,7 +98,7 @@ func (q *Queue[T]) Length() int {
 
 func (q *Queue[T]) Clone() Queue[T] {
 	return Queue[T]{
-		list:   slices.ShallowCopy(q.list),
+		list:   slices.Clone(q.list),
 		front:  q.front,
 		rear:   q.rear,
 		length: q.length,

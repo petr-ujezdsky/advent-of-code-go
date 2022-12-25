@@ -276,7 +276,7 @@ func nextPlayerState(player PlayerState, valveOpenDuration []int, allNodes []*Va
 		nextRemainingTime := player.RemainingTime - moveAndOpenCost
 		//currentPressureReleased := nextRemainingTime * closedValve.FlowRate
 
-		nextValveOpenDuration := slices.ShallowCopy(valveOpenDuration)
+		nextValveOpenDuration := slices.Clone(valveOpenDuration)
 		nextValveOpenDuration[closedValve.Id] = nextRemainingTime
 
 		nextStates = append(nextStates, PlayerState{
@@ -417,7 +417,7 @@ func ParseInput(r io.Reader) World {
 	}
 
 	// sort valves by flow rate
-	allNodesSorted := slices.ShallowCopy(allNodes)
+	allNodesSorted := slices.Clone(allNodes)
 	sort.Slice(allNodesSorted, func(i, j int) bool { return allNodesSorted[i].FlowRate > allNodesSorted[j].FlowRate })
 
 	return World{
