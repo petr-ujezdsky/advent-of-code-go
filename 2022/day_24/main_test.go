@@ -31,10 +31,9 @@ func Test_01_blizzard_movement(t *testing.T) {
 	world := ParseInput(reader)
 
 	for i := 0; i < 7; i++ {
-		remainingTime := 30 - i
 		state := State{
-			Position:      Vector2i{},
-			RemainingTime: remainingTime,
+			Position:    Vector2i{},
+			ElapsedTime: i,
 		}
 		fmt.Println(state.String(world))
 		fmt.Println()

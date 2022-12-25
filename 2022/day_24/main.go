@@ -18,16 +18,13 @@ type World struct {
 	Width, Height                              int
 	BoundingRectangle                          utils.BoundingRectangle
 	StartPosition, PreEndPosition, EndPosition Vector2i
-	StartRemainingTime                         int
 }
 
-func (w World) IsBlizzardAt(remainingTime int, pos Vector2i) bool {
+func (w World) IsBlizzardAt(elapsedTime int, pos Vector2i) bool {
 	// start / end state
 	if !w.BoundingRectangle.Contains(pos) {
 		return false
 	}
-
-	elapsedTime := w.StartRemainingTime - remainingTime
 
 	for _, blizzard := range w.ColumnBlizzards[pos.X] {
 		if pos.Y == blizzard.Position(elapsedTime, w.Height) {
@@ -44,14 +41,13 @@ func (w World) IsBlizzardAt(remainingTime int, pos Vector2i) bool {
 	return false
 }
 
-func (w World) BlizzardsAt(remainingTime int, pos Vector2i) []Blizzard {
+func (w World) BlizzardsAt(elapsedTime int, pos Vector2i) []Blizzard {
 	// start state
 	if pos.Y < 0 {
 		return []Blizzard{}
 	}
 
 	var blizzards []Blizzard
-	elapsedTime := w.StartRemainingTime - remainingTime
 
 	for _, blizzard := range w.ColumnBlizzards[pos.X] {
 		if pos.Y == blizzard.Position(elapsedTime, w.Height) {
@@ -80,7 +76,7 @@ func (b Blizzard) Position(time, size int) int {
 
 type State struct {
 	Position      Vector2i
-	RemainingTime int
+	ElapsedTime   int
 	PreviousState *State
 }
 
@@ -97,7 +93,7 @@ func (s State) String(world World) string {
 				continue
 			}
 
-			blizzards := world.BlizzardsAt(s.RemainingTime, pos)
+			blizzards := world.BlizzardsAt(s.ElapsedTime, pos)
 			switch len(blizzards) {
 			case 0:
 				sb.WriteString(".")
@@ -133,7 +129,7 @@ func d(_ World) func(State, State) int {
 }
 
 func moveStates(state State, world World, neighbours []State) []State {
-	nextRemainingTime := state.RemainingTime - 1
+	nextElapsedTime := state.ElapsedTime + 1
 
 	for _, step := range utils.Direction4Steps {
 		nextPos := state.Position.Add(step)
@@ -144,14 +140,14 @@ func moveStates(state State, world World, neighbours []State) []State {
 		}
 
 		// ensure there is no blizzard
-		if world.IsBlizzardAt(nextRemainingTime, nextPos) {
+		if world.IsBlizzardAt(nextElapsedTime, nextPos) {
 			continue
 		}
 
 		// all ok -> move there
 		nextState := State{
 			Position:      nextPos,
-			RemainingTime: nextRemainingTime,
+			ElapsedTime:   nextElapsedTime,
 			PreviousState: &state,
 		}
 		neighbours = append(neighbours, nextState)
@@ -161,23 +157,19 @@ func moveStates(state State, world World, neighbours []State) []State {
 
 func waitingStates(state State, world World) []State {
 	var states []State
-	nextRemainingTime := state.RemainingTime - 1
+	nextElapsedTime := state.ElapsedTime + 1
 	position := state.Position
 
 	nextState := &state
-	for nextRemainingTime > 1 {
-		if world.IsBlizzardAt(nextRemainingTime, position) {
-			break
-		}
-
+	for world.IsBlizzardAt(nextElapsedTime, position) {
 		nextState = &State{
 			Position:      position,
-			RemainingTime: nextRemainingTime,
+			ElapsedTime:   nextElapsedTime,
 			PreviousState: nextState,
 		}
 		states = append(states, *nextState)
 
-		nextRemainingTime--
+		nextElapsedTime++
 	}
 
 	return states
@@ -185,15 +177,11 @@ func waitingStates(state State, world World) []State {
 
 func neighbours(world World) func(state State) []State {
 	return func(state State) []State {
-		if state.RemainingTime <= 0 {
-			return nil
-		}
-
 		// state just before end
 		if state.Position == world.PreEndPosition {
 			return []State{{
 				Position:      world.EndPosition,
-				RemainingTime: state.RemainingTime - 1,
+				ElapsedTime:   state.ElapsedTime + 1,
 				PreviousState: &state,
 			}}
 		}
@@ -212,8 +200,8 @@ func neighbours(world World) func(state State) []State {
 
 func DoWithInput2(world World) int {
 	start := State{
-		Position:      world.StartPosition,
-		RemainingTime: world.StartRemainingTime,
+		Position:    world.StartPosition,
+		ElapsedTime: 0,
 	}
 
 	path, _, score, found := alg.AStarEndFunc[State](start, isEnd(world), h(world), d(world), neighbours(world))
@@ -231,8 +219,7 @@ func DoWithInput2(world World) int {
 
 func DoWithInput(world World) int {
 	cost := func(state State) int {
-		// elapsed time
-		return world.StartRemainingTime - state.RemainingTime
+		return state.ElapsedTime
 	}
 
 	lowerBound := func(state State) int {
@@ -240,8 +227,8 @@ func DoWithInput(world World) int {
 	}
 
 	start := State{
-		Position:      world.StartPosition,
-		RemainingTime: world.StartRemainingTime,
+		Position:    world.StartPosition,
+		ElapsedTime: 0,
 	}
 
 	min, minState := alg.BranchAndBoundDeepFirst(start, cost, lowerBound, neighbours(world))
@@ -331,14 +318,13 @@ func ParseInput(r io.Reader) World {
 	}
 
 	return World{
-		ColumnBlizzards:    columnBlizzards[0:width],
-		RowBlizzards:       rowBlizzards[0:height],
-		Width:              width,
-		Height:             height,
-		BoundingRectangle:  boundingRectangle,
-		StartPosition:      Vector2i{X: 0, Y: -1},
-		PreEndPosition:     Vector2i{X: width - 1, Y: height - 1},
-		EndPosition:        Vector2i{X: width - 1, Y: height},
-		StartRemainingTime: 30,
+		ColumnBlizzards:   columnBlizzards[0:width],
+		RowBlizzards:      rowBlizzards[0:height],
+		Width:             width,
+		Height:            height,
+		BoundingRectangle: boundingRectangle,
+		StartPosition:     Vector2i{X: 0, Y: -1},
+		PreEndPosition:    Vector2i{X: width - 1, Y: height - 1},
+		EndPosition:       Vector2i{X: width - 1, Y: height},
 	}
 }
