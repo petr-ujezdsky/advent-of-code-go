@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	_ "embed"
-	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/alg"
 	"io"
@@ -202,15 +201,15 @@ func shortestPath(world World, elapsedTime int) int {
 		ElapsedTime: elapsedTime,
 	}
 
-	path, _, score, found := alg.AStarEndFunc[State](start, isEnd(world), h(world), d(world), neighbours(world))
+	_, _, tripTime, found := alg.AStarEndFunc[State](start, isEnd(world), h(world), d(world), neighbours(world))
 	if !found {
 		panic("Not found!")
 	}
 
-	for _, state := range path {
-		fmt.Println(state.String(world))
-		fmt.Println()
-	}
+	//for _, state := range path {
+	//	fmt.Println(state.String(world))
+	//	fmt.Println()
+	//}
 
 	return score
 }
