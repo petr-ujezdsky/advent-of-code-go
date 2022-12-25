@@ -4,6 +4,7 @@ import (
 	"bufio"
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
 )
 
@@ -64,7 +65,7 @@ func ParseInput(r io.Reader) ([]*CratesStack, []Operation) {
 	// last char in last line is last stack number -> count
 	stacksCount := lines[len(lines)-1][len(lines[len(lines)-1])-1] - '0'
 	stacks := make([]*utils.Stack[rune], stacksCount)
-	for _, line := range utils.Reverse(lines[:len(lines)-1]) {
+	for _, line := range slices.Reverse(lines[:len(lines)-1]) {
 		for i, stack := range stacks {
 			index := i*4 + 1
 

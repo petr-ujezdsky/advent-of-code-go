@@ -6,6 +6,7 @@ import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/alg"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/maps"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
 	"math"
 	"regexp"
@@ -275,7 +276,7 @@ func nextPlayerState(player PlayerState, valveOpenDuration []int, allNodes []*Va
 		nextRemainingTime := player.RemainingTime - moveAndOpenCost
 		//currentPressureReleased := nextRemainingTime * closedValve.FlowRate
 
-		nextValveOpenDuration := utils.ShallowCopy(valveOpenDuration)
+		nextValveOpenDuration := slices.ShallowCopy(valveOpenDuration)
 		nextValveOpenDuration[closedValve.Id] = nextRemainingTime
 
 		nextStates = append(nextStates, PlayerState{
@@ -416,7 +417,7 @@ func ParseInput(r io.Reader) World {
 	}
 
 	// sort valves by flow rate
-	allNodesSorted := utils.ShallowCopy(allNodes)
+	allNodesSorted := slices.ShallowCopy(allNodes)
 	sort.Slice(allNodesSorted, func(i, j int) bool { return allNodesSorted[i].FlowRate > allNodesSorted[j].FlowRate })
 
 	return World{

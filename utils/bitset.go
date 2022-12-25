@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"math"
 	"strconv"
 	"unsafe"
@@ -63,5 +64,5 @@ func (s *BitSet[T]) Clone() BitSet[T] {
 func (s *BitSet[T]) String() string {
 	bitsCount := int(unsafe.Sizeof(*s)) * 8
 	format := "%." + strconv.Itoa(bitsCount) + "b"
-	return string(Reverse([]rune(fmt.Sprintf(format, s.mask))))
+	return string(slices.Reverse([]rune(fmt.Sprintf(format, s.mask))))
 }

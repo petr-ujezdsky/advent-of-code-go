@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"strings"
 )
 
@@ -97,7 +98,7 @@ func (q *Queue[T]) Length() int {
 
 func (q *Queue[T]) Clone() Queue[T] {
 	return Queue[T]{
-		list:   ShallowCopy(q.list),
+		list:   slices.ShallowCopy(q.list),
 		front:  q.front,
 		rear:   q.rear,
 		length: q.length,

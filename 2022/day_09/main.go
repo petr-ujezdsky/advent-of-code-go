@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
 	"strings"
 )
@@ -58,7 +59,7 @@ func printState(head Vector2i, tails []Vector2i) {
 	m.SetV(offset, -1)
 
 	// tails
-	for i, tail := range utils.Reverse(tails) {
+	for i, tail := range slices.Reverse(tails) {
 		m.SetV(tail.InvY().Add(offset), len(tails)-1-i+1)
 	}
 

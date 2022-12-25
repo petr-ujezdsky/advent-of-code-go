@@ -1,5 +1,7 @@
 package utils
 
+import "github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
+
 // see https://www.geeksforgeeks.org/write-a-c-program-to-print-all-permutations-of-a-given-string/
 
 func Permute[T any](quit chan interface{}, values []T) chan []T {
@@ -19,7 +21,7 @@ func permute[T any](quit chan interface{}, values []T, left, right int, output c
 	if left == right {
 		// output slice copy
 		select {
-		case output <- ShallowCopy(values):
+		case output <- slices.ShallowCopy(values):
 		case <-quit:
 			return false
 		}

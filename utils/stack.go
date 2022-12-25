@@ -1,5 +1,7 @@
 package utils
 
+import "github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
+
 // see https://www.folkstalk.com/2022/09/golang-stack-with-code-examples.html
 
 type Stack[T any] struct {
@@ -47,5 +49,5 @@ func (stack *Stack[T]) Length() int {
 }
 
 func (stack *Stack[T]) Clone() Stack[T] {
-	return NewStackFilled(ShallowCopy(stack.list))
+	return NewStackFilled(slices.ShallowCopy(stack.list))
 }

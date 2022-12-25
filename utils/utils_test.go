@@ -89,7 +89,7 @@ func TestClamp(t *testing.T) {
 
 func TestShallowCopy(t *testing.T) {
 	data := []int{1, 2, 3}
-	clone := utils.ShallowCopy(data)
+	clone := slices.ShallowCopy(data)
 
 	// modify original data
 	data[0] = 9
@@ -102,20 +102,20 @@ func TestCopy(t *testing.T) {
 	source := []int{1, 2, 3}
 	target := make([]int, 3)
 
-	utils.Copy(source, target)
+	slices.Copy(source, target)
 
 	assert.Equal(t, []int{1, 2, 3}, target)
 }
 
 func TestReverse(t *testing.T) {
-	assert.Equal(t, []int{3, 2, 1}, utils.Reverse([]int{1, 2, 3}))
-	assert.Equal(t, []int{4, 3, 2, 1}, utils.Reverse([]int{1, 2, 3, 4}))
+	assert.Equal(t, []int{3, 2, 1}, slices.Reverse([]int{1, 2, 3}))
+	assert.Equal(t, []int{4, 3, 2, 1}, slices.Reverse([]int{1, 2, 3, 4}))
 }
 
 func TestRemoveUnordered(t *testing.T) {
-	assert.Equal(t, []int{3, 2}, utils.RemoveUnordered([]int{1, 2, 3}, 0))
-	assert.Equal(t, []int{1, 3}, utils.RemoveUnordered([]int{1, 2, 3}, 1))
-	assert.Equal(t, []int{1, 2}, utils.RemoveUnordered([]int{1, 2, 3}, 2))
+	assert.Equal(t, []int{3, 2}, slices.RemoveUnordered([]int{1, 2, 3}, 0))
+	assert.Equal(t, []int{1, 3}, slices.RemoveUnordered([]int{1, 2, 3}, 1))
+	assert.Equal(t, []int{1, 2}, slices.RemoveUnordered([]int{1, 2, 3}, 2))
 }
 
 func TestParseBinary8(t *testing.T) {

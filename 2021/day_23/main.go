@@ -3,6 +3,7 @@ package day_22
 import (
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"math"
 	"strings"
 )
@@ -104,7 +105,7 @@ func (b Building) IsSorted() bool {
 
 func (b Building) Clone() Building {
 	b2 := Building{
-		Hallway:        utils.ShallowCopy(b.Hallway),
+		Hallway:        slices.ShallowCopy(b.Hallway),
 		Rooms:          make([]Room, 4),
 		ConsumedEnergy: b.ConsumedEnergy,
 		Previous:       &b,
@@ -386,7 +387,7 @@ func Sort(building Building) (int, *Building) {
 		metricGlobal.TickCurrent(500_000, len(buildings))
 
 		b := buildings[0]
-		buildings = utils.RemoveUnordered(buildings, 0)
+		buildings = slices.RemoveUnordered(buildings, 0)
 
 		nextBuildings, currentWinner := Move(b, &lowestEnergy)
 		buildings = append(buildings, nextBuildings...)
