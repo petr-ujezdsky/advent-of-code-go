@@ -14,6 +14,21 @@ func Clone[T any](slice []T) []T {
 	return cloned
 }
 
+// CloneAndAdd creates shallow copy of the given slice and adds new item
+func CloneAndAdd[T any](slice []T, item T) []T {
+	// prepare destination slice
+	cloned := make([]T, len(slice)+1)
+
+	// copy elements
+	copy(cloned, slice)
+
+	// add item at the end
+	cloned[len(cloned)-1] = item
+
+	// return
+	return cloned
+}
+
 // Copy copies all values from source slice into target slice
 func Copy[T any](source []T, target []T) {
 	for i, v := range source {
