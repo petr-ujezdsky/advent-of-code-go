@@ -17,6 +17,7 @@ func Test_01_parse(t *testing.T) {
 }
 
 func Test_01_example_blueprint_1(t *testing.T) {
+	//reader := strings.NewReader("Blueprint 1: Each ore robot costs 5000 ore. Each clay robot costs 5000 ore. Each obsidian robot costs 5000 ore and 5000 clay. Each geode robot costs 0 ore and 0 obsidian.")
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
 

@@ -82,7 +82,7 @@ type State struct {
 }
 
 func (s State) String() string {
-	return fmt.Sprintf("Remaining time: %2d, mats: %v, robots: %v", s.RemainingTime, s.Materials, s.RobotsCounts)
+	return fmt.Sprintf("%2d | Remaining time: %2d, mats: %v, robots: %v", 24-s.RemainingTime, s.RemainingTime, s.Materials, s.RobotsCounts)
 }
 
 func printState(state *State) {
@@ -111,18 +111,34 @@ func maxGeodeCountInTime(blueprint Blueprint) (int, State) {
 
 		var states []State
 
-		for _, materialType := range [4]MaterialType{Geode, Obsidian, Clay, Ore} {
+		// do not buy anything
+		//nextRemainingTime := state.RemainingTime - 1
+		//nextState := State{
+		//	RemainingTime: nextRemainingTime,
+		//	Materials:     state.Materials.AddFromRobots(state.RobotsCounts),
+		//	RobotsCounts:  state.RobotsCounts,
+		//	PreviousState: &state,
+		//}
+		//states = append(states, nextState)
+
+		//for _, materialType := range [4]MaterialType{Geode, Obsidian, Clay, Ore} {
+		for _, materialType := range [4]MaterialType{Ore, Clay, Obsidian, Geode} {
 			// buy robot
 			matsBuyedRobot, buyable := state.Materials.SubtractAndRemainder(blueprint.RobotsCosts[materialType])
 			if buyable {
+				// collect materials, without new robot
+				nextMaterials := matsBuyedRobot.AddFromRobots(state.RobotsCounts)
+
 				// add robot
 				nextRobotsCounts := state.RobotsCounts.AddRobot(materialType)
 
-				// calculate mats, including new robot
+				// shift time
 				nextRemainingTime := state.RemainingTime - 1
+
+				// next state
 				nextState := State{
 					RemainingTime: nextRemainingTime,
-					Materials:     matsBuyedRobot.AddFromRobots(nextRobotsCounts),
+					Materials:     nextMaterials,
 					RobotsCounts:  nextRobotsCounts,
 					PreviousState: &state,
 				}
