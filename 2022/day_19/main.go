@@ -42,6 +42,13 @@ func (m1 Materials) Add(m2 Materials) Materials {
 
 	return m1
 }
+func (m1 Materials) AddFromRobots(robotsCounts RobotsCounts) Materials {
+	for i, robotsCount := range robotsCounts {
+		materialType := MaterialType(i)
+		m1[materialType] += robotsCount
+	}
+	return m1
+}
 
 func (m1 Materials) SubtractAndRemainder(m2 Materials) (m Materials, valid bool) {
 	valid = true
@@ -55,35 +62,27 @@ func (m1 Materials) SubtractAndRemainder(m2 Materials) (m Materials, valid bool)
 	return m1, valid
 }
 
+type RobotsCounts [4]int
+
+func (r RobotsCounts) AddRobot(materialType MaterialType) RobotsCounts {
+	r[materialType]++
+	return r
+}
+
 type Blueprint struct {
 	Id          int
 	RobotsCosts [4]Materials
 }
 
-type Robot struct {
-	Type               MaterialType
-	SinceRemainingTime int
-}
-
-func (r Robot) String() string {
-	return fmt.Sprintf("%d", r.Type)
-}
-
-func (r Robot) GenerateMaterials() Materials {
-	m := Materials{}
-	m[r.Type] = 1
-	return m
-}
-
 type State struct {
 	RemainingTime int
 	Materials     Materials
-	Robots        []Robot
+	RobotsCounts  RobotsCounts
 	PreviousState *State
 }
 
 func (s State) String() string {
-	return fmt.Sprintf("Remaining time: %2d, mats: %v, robots: %v", s.RemainingTime, s.Materials, s.Robots)
+	return fmt.Sprintf("Remaining time: %2d, mats: %v, robots: %v", s.RemainingTime, s.Materials, s.RobotsCounts)
 }
 
 func printState(state *State) {
@@ -93,16 +92,6 @@ func printState(state *State) {
 
 	printState(state.PreviousState)
 	fmt.Println(state)
-}
-
-func generateMaterials(remainingTime int, robots []Robot) Materials {
-	mats := Materials{}
-	for _, robot := range robots {
-		if robot.SinceRemainingTime > remainingTime {
-			mats = mats.Add(robot.GenerateMaterials())
-		}
-	}
-	return mats
 }
 
 func maxGeodeCountInTime(blueprint Blueprint) (int, State) {
@@ -127,19 +116,14 @@ func maxGeodeCountInTime(blueprint Blueprint) (int, State) {
 			matsBuyedRobot, buyable := state.Materials.SubtractAndRemainder(blueprint.RobotsCosts[materialType])
 			if buyable {
 				// add robot
-				robot := Robot{
-					Type:               materialType,
-					SinceRemainingTime: state.RemainingTime,
-				}
-
-				nextRobots := slices.CloneAndAdd(state.Robots, robot)
+				nextRobotsCounts := state.RobotsCounts.AddRobot(materialType)
 
 				// calculate mats, including new robot
 				nextRemainingTime := state.RemainingTime - 1
 				nextState := State{
 					RemainingTime: nextRemainingTime,
-					Materials:     matsBuyedRobot.Add(generateMaterials(nextRemainingTime, nextRobots)),
-					Robots:        nextRobots,
+					Materials:     matsBuyedRobot.AddFromRobots(nextRobotsCounts),
+					RobotsCounts:  nextRobotsCounts,
 					PreviousState: &state,
 				}
 
@@ -151,8 +135,8 @@ func maxGeodeCountInTime(blueprint Blueprint) (int, State) {
 		nextRemainingTime := state.RemainingTime - 1
 		nextState := State{
 			RemainingTime: nextRemainingTime,
-			Materials:     state.Materials.Add(generateMaterials(nextRemainingTime, state.Robots)),
-			Robots:        state.Robots,
+			Materials:     state.Materials.AddFromRobots(state.RobotsCounts),
+			RobotsCounts:  state.RobotsCounts,
 			PreviousState: &state,
 		}
 		states = append(states, nextState)
@@ -164,7 +148,7 @@ func maxGeodeCountInTime(blueprint Blueprint) (int, State) {
 	initialState := State{
 		RemainingTime: remainingTime,
 		Materials:     [4]int{0, 0, 0, 0},
-		Robots:        []Robot{{Type: Ore, SinceRemainingTime: remainingTime}},
+		RobotsCounts:  RobotsCounts{1, 0, 0, 0},
 	}
 
 	min, minState := alg.BranchAndBoundDeepFirst(initialState, cost, lowerBound, nextStatesProvider)
