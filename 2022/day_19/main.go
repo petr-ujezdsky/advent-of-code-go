@@ -49,7 +49,7 @@ func (m1 Materials) AddFromRobots(robotsCounts RobotsCounts) Materials {
 	return m1
 }
 
-func (m1 Materials) SubtractAndRemainder(m2 Materials) (m Materials, valid bool) {
+func (m1 Materials) SubtractAndValidate(m2 Materials) (m Materials, valid bool) {
 	valid = true
 	for i := range m1 {
 		m1[i] -= m2[i]
@@ -124,7 +124,7 @@ func maxGeodeCountInTime(blueprint Blueprint) (int, State) {
 
 		for _, materialType := range [4]MaterialType{Ore, Clay, Obsidian, Geode} {
 			// buy robot
-			matsBuyedRobot, buyable := state.Materials.SubtractAndRemainder(blueprint.RobotsCosts[materialType])
+			matsBuyedRobot, buyable := state.Materials.SubtractAndValidate(blueprint.RobotsCosts[materialType])
 			if buyable {
 				// collect materials, without new robot
 				nextMaterials := matsBuyedRobot.AddFromRobots(state.RobotsCounts)
