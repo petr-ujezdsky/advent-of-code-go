@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/alg"
-	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
 )
 
@@ -114,16 +113,15 @@ func maxGeodeCountInTime(blueprint Blueprint) (int, State) {
 		var states []State
 
 		// do not buy anything
-		//nextRemainingTime := state.RemainingTime - 1
-		//nextState := State{
-		//	RemainingTime: nextRemainingTime,
-		//	Materials:     state.Materials.AddFromRobots(state.RobotsCounts),
-		//	RobotsCounts:  state.RobotsCounts,
-		//	PreviousState: &state,
-		//}
-		//states = append(states, nextState)
+		nextRemainingTime := state.RemainingTime - 1
+		nextState := State{
+			RemainingTime: nextRemainingTime,
+			Materials:     state.Materials.AddFromRobots(state.RobotsCounts),
+			RobotsCounts:  state.RobotsCounts,
+			PreviousState: &state,
+		}
+		states = append(states, nextState)
 
-		//for _, materialType := range [4]MaterialType{Geode, Obsidian, Clay, Ore} {
 		for _, materialType := range [4]MaterialType{Ore, Clay, Obsidian, Geode} {
 			// buy robot
 			matsBuyedRobot, buyable := state.Materials.SubtractAndRemainder(blueprint.RobotsCosts[materialType])
@@ -148,16 +146,6 @@ func maxGeodeCountInTime(blueprint Blueprint) (int, State) {
 				states = append(states, nextState)
 			}
 		}
-
-		// do not buy anything
-		nextRemainingTime := state.RemainingTime - 1
-		nextState := State{
-			RemainingTime: nextRemainingTime,
-			Materials:     state.Materials.AddFromRobots(state.RobotsCounts),
-			RobotsCounts:  state.RobotsCounts,
-			PreviousState: &state,
-		}
-		states = append(states, nextState)
 
 		return states
 	}
