@@ -174,6 +174,28 @@ func DoWithInput(world World) int {
 	return sum
 }
 
+func DoWithInputParallel(world World) int {
+	qualityLevelChannels := make([]<-chan int, len(world.Blueprints))
+
+	for i, blueprint := range world.Blueprints {
+		channel := make(chan int)
+		qualityLevelChannels[i] = channel
+		go func(b Blueprint, ch chan int) {
+			fmt.Printf("Computing blueprint #%v...\n", b.Id)
+			geodes, _ := maxGeodeCountInTime(b)
+			fmt.Printf("%v produces max %v geodes\n", b.Id, geodes)
+			ch <- b.Id * geodes
+		}(blueprint, channel)
+	}
+
+	sum := 0
+	for _, channel := range qualityLevelChannels {
+		sum += <-channel
+	}
+
+	return sum
+}
+
 func ParseInput(r io.Reader) World {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
