@@ -65,6 +65,10 @@ type Robot struct {
 	SinceRemainingTime int
 }
 
+func (r Robot) String() string {
+	return fmt.Sprintf("%d", r.Type)
+}
+
 func (r Robot) GenerateMaterials() Materials {
 	m := Materials{}
 	m[r.Type] = 1
@@ -75,6 +79,20 @@ type State struct {
 	RemainingTime int
 	Materials     Materials
 	Robots        []Robot
+	PreviousState *State
+}
+
+func (s State) String() string {
+	return fmt.Sprintf("Remaining time: %2d, mats: %v, robots: %v", s.RemainingTime, s.Materials, s.Robots)
+}
+
+func printState(state *State) {
+	if state == nil {
+		return
+	}
+
+	printState(state.PreviousState)
+	fmt.Println(state)
 }
 
 func generateMaterials(remainingTime int, robots []Robot) Materials {
@@ -87,7 +105,7 @@ func generateMaterials(remainingTime int, robots []Robot) Materials {
 	return mats
 }
 
-func maxGeodeCountInTime(blueprint Blueprint) int {
+func maxGeodeCountInTime(blueprint Blueprint) (int, State) {
 	cost := func(state State) int {
 		// maximizing geodes count
 		return -state.Materials[Geode]
@@ -122,6 +140,7 @@ func maxGeodeCountInTime(blueprint Blueprint) int {
 					RemainingTime: nextRemainingTime,
 					Materials:     matsBuyedRobot.Add(generateMaterials(nextRemainingTime, nextRobots)),
 					Robots:        nextRobots,
+					PreviousState: &state,
 				}
 
 				states = append(states, nextState)
@@ -134,6 +153,7 @@ func maxGeodeCountInTime(blueprint Blueprint) int {
 			RemainingTime: nextRemainingTime,
 			Materials:     state.Materials.Add(generateMaterials(nextRemainingTime, state.Robots)),
 			Robots:        state.Robots,
+			PreviousState: &state,
 		}
 		states = append(states, nextState)
 
@@ -147,8 +167,8 @@ func maxGeodeCountInTime(blueprint Blueprint) int {
 		Robots:        []Robot{{Type: Ore, SinceRemainingTime: remainingTime}},
 	}
 
-	min, _ := alg.BranchAndBoundDeepFirst(initialState, cost, lowerBound, nextStatesProvider)
-	return -min
+	min, minState := alg.BranchAndBoundDeepFirst(initialState, cost, lowerBound, nextStatesProvider)
+	return -min, minState
 }
 
 func DoWithInput(world World) int {
@@ -156,7 +176,7 @@ func DoWithInput(world World) int {
 
 	for _, blueprint := range world.Blueprints {
 		fmt.Printf("Computing blueprint #%v...\n", blueprint.Id)
-		geodes := maxGeodeCountInTime(blueprint)
+		geodes, _ := maxGeodeCountInTime(blueprint)
 		sum += blueprint.Id * geodes
 		fmt.Printf(" - produces max %v geodes\n\n", geodes)
 	}

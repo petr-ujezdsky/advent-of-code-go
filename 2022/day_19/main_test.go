@@ -22,7 +22,9 @@ func Test_01_example_blueprint_1(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	assert.Equal(t, 9, maxGeodeCountInTime(world.Blueprints[0]))
+	geodes, state := maxGeodeCountInTime(world.Blueprints[0])
+	printState(&state)
+	assert.Equal(t, 9, geodes)
 }
 
 func Test_01_example_blueprint_2(t *testing.T) {
@@ -31,7 +33,9 @@ func Test_01_example_blueprint_2(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	assert.Equal(t, 12, maxGeodeCountInTime(world.Blueprints[1]))
+	geodes, state := maxGeodeCountInTime(world.Blueprints[1])
+	printState(&state)
+	assert.Equal(t, 12, geodes)
 }
 
 func Test_01_example(t *testing.T) {
