@@ -69,7 +69,7 @@ func Test_02_example_blueprint_1(t *testing.T) {
 
 	geodes, state := maxGeodeCountInTime(world.Blueprints[0], 32)
 	printState(&state)
-	assert.Equal(t, 9, geodes)
+	assert.Equal(t, 56, geodes)
 }
 
 func Test_02_example_blueprint_2(t *testing.T) {
@@ -80,7 +80,7 @@ func Test_02_example_blueprint_2(t *testing.T) {
 
 	geodes, state := maxGeodeCountInTime(world.Blueprints[1], 32)
 	printState(&state)
-	assert.Equal(t, 12, geodes)
+	assert.Equal(t, 62, geodes)
 }
 
 func Test_02_example(t *testing.T) {
