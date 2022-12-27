@@ -92,8 +92,9 @@ func (bh *BinaryHeapInt[T]) Push(item T, cost int) {
 	bh.binaryHeap.Push(heapItem)
 }
 
-func (bh *BinaryHeapInt[T]) Pop() T {
-	return bh.binaryHeap.Pop().value
+func (bh *BinaryHeapInt[T]) Pop() (T, int) {
+	item := bh.binaryHeap.Pop()
+	return item.value, item.cost
 }
 
 func (bh *BinaryHeapInt[T]) Empty() bool {

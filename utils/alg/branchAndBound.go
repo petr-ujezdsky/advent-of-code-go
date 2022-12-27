@@ -15,7 +15,7 @@ type storage[T any] interface {
 // found minimum.
 // Uses best-first search.
 func BranchAndBoundBestFirst[T any](start T, cost func(T) int, lowerBound func(T) int, nextStatesProvider func(T) []T) (min int, minState T) {
-	storage := utils.NewBinaryHeapInt[T]()
+	storage := newMinHeapStorage[T]()
 	return branchAndBound[T](&storage, start, cost, lowerBound, nextStatesProvider)
 }
 
@@ -106,4 +106,27 @@ func (s *stackStorage[T]) Pop() T {
 
 func (s *stackStorage[T]) Empty() bool {
 	return s.storage.Empty()
+}
+
+// Min-heap adapter to storage interface
+
+type heapAdapter[T any] struct {
+	heap utils.BinaryHeapInt[T]
+}
+
+func newMinHeapStorage[T any]() heapAdapter[T] {
+	return heapAdapter[T]{heap: utils.NewBinaryHeapInt[T]()}
+}
+
+func (h *heapAdapter[T]) Push(item T, cost int) {
+	h.heap.Push(item, cost)
+}
+
+func (h *heapAdapter[T]) Pop() T {
+	item, _ := h.heap.Pop()
+	return item
+}
+
+func (h *heapAdapter[T]) Empty() bool {
+	return h.heap.Empty()
 }
