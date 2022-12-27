@@ -1,5 +1,7 @@
 package utils
 
+// BinaryHeap is implementation of binary min-heap
+// see https://maupanelo.com/posts/how-to-write-a-binary-heap-in-golang/
 type BinaryHeap[T any] struct {
 	heap []T
 	less func(i, j T) bool
