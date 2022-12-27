@@ -6,16 +6,24 @@ import (
 )
 
 type storage[T any] interface {
-	Push(T)
+	Push(T, int)
 	Pop() T
 	Empty() bool
+}
+
+// BranchAndBoundBestFirst finds state with minimal cost. It skips states having lower bound greater than currently
+// found minimum.
+// Uses best-first search.
+func BranchAndBoundBestFirst[T any](start T, cost func(T) int, lowerBound func(T) int, nextStatesProvider func(T) []T) (min int, minState T) {
+	storage := utils.NewBinaryHeapInt[T]()
+	return branchAndBound[T](&storage, start, cost, lowerBound, nextStatesProvider)
 }
 
 // BranchAndBoundDeepFirst finds state with minimal cost. It skips states having lower bound greater than currently
 // found minimum.
 // Uses deep-first search.
 func BranchAndBoundDeepFirst[T any](start T, cost func(T) int, lowerBound func(T) int, nextStatesProvider func(T) []T) (min int, minState T) {
-	storage := utils.NewStack[T]()
+	storage := newStackStorage[T]()
 	return branchAndBound[T](&storage, start, cost, lowerBound, nextStatesProvider)
 }
 
@@ -23,14 +31,14 @@ func BranchAndBoundDeepFirst[T any](start T, cost func(T) int, lowerBound func(T
 // found minimum.
 // Uses breadth-first search.
 func BranchAndBoundBreadthFirst[T any](start T, cost func(T) int, lowerBound func(T) int, nextStatesProvider func(T) []T) (min int, minState T) {
-	storage := utils.NewQueue[T]()
+	storage := newQueueStorage[T]()
 	return branchAndBound[T](&storage, start, cost, lowerBound, nextStatesProvider)
 }
 
 // branchAndBound finds state with minimal cost. It skips states having lower bound greater than currently found minimum.
 func branchAndBound[T any](storage storage[T], start T, cost func(T) int, lowerBound func(T) int, nextStatesProvider func(T) []T) (min int, minState T) {
 	openSet := storage
-	openSet.Push(start)
+	openSet.Push(start, lowerBound(start))
 
 	min = math.MaxInt
 	minState = start
@@ -54,13 +62,48 @@ func branchAndBound[T any](storage storage[T], start T, cost func(T) int, lowerB
 		}
 
 		for _, next := range nextStates {
-			if lowerBound(next) > min {
+			bound := lowerBound(next)
+			if bound > min {
 				continue
 			}
 
-			openSet.Push(next)
+			openSet.Push(next, bound)
 		}
 	}
 
 	return min, minState
+}
+
+// Adapters to storage interface
+
+type basicStorage[T any] interface {
+	Push(T)
+	Pop() T
+	Empty() bool
+}
+
+type stackStorage[T any] struct {
+	storage basicStorage[T]
+}
+
+func newStackStorage[T any]() stackStorage[T] {
+	stack := utils.NewStack[T]()
+	return stackStorage[T]{storage: &stack}
+}
+
+func newQueueStorage[T any]() stackStorage[T] {
+	queue := utils.NewQueue[T]()
+	return stackStorage[T]{storage: &queue}
+}
+
+func (s *stackStorage[T]) Push(item T, _ int) {
+	s.storage.Push(item)
+}
+
+func (s *stackStorage[T]) Pop() T {
+	return s.storage.Pop()
+}
+
+func (s *stackStorage[T]) Empty() bool {
+	return s.storage.Empty()
 }
