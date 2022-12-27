@@ -50,8 +50,7 @@ func (bh *MinHeap[T]) bubbleDown(index int) {
 	for 2*index+1 < len(bh.heap) {
 		minChildIndex := bh.minChildIndex(index)
 
-		// this is actually >= and intended was only >, but it should be OK
-		if !bh.less(bh.heap[minChildIndex], bh.heap[index]) {
+		if bh.less(bh.heap[index], bh.heap[minChildIndex]) {
 			return
 		}
 
