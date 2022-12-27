@@ -111,12 +111,14 @@ func maxGeodeCountInTime(blueprint Blueprint, remainingTime int) (int, State) {
 	cost := func(state State) int {
 		// maximizing geodes count
 		return -state.Materials[Geode]
+		//return -state.Materials[Clay]
 	}
 
 	lowerBound := func(state State) int {
 		// start with current geodes count, then add all geodes collected by current robots and finally add all geodes
 		// collected from by robots created each remaining minute
 		return -(state.Materials[Geode] + state.RemainingTime*state.RobotsCounts[Geode] + utils.SumNtoM(0, state.RemainingTime-1))
+		//return -(state.Materials[Clay] + state.RemainingTime*state.RobotsCounts[Clay] + utils.SumNtoM(0, state.RemainingTime-1))
 		//return math.MinInt
 	}
 
@@ -145,6 +147,7 @@ func maxGeodeCountInTime(blueprint Blueprint, remainingTime int) (int, State) {
 
 			// buy robot
 			matsBuyedRobot, buyable := state.Materials.SubtractAndValidate(blueprint.RobotsCosts[materialType])
+			//if buyable && (materialType != Ore || state.RobotsCounts[Ore] < 2) {
 			if buyable {
 				// collect materials, without new robot
 				nextMaterials := matsBuyedRobot.AddFromRobots(state.RobotsCounts)
