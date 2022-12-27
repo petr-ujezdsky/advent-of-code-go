@@ -23,7 +23,7 @@ func Test_01_example_blueprint_1(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	geodes, state := maxGeodeCountInTime(world.Blueprints[0])
+	geodes, state := maxGeodeCountInTime(world.Blueprints[0], 24)
 	printState(&state)
 	assert.Equal(t, 9, geodes)
 }
@@ -34,7 +34,7 @@ func Test_01_example_blueprint_2(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	geodes, state := maxGeodeCountInTime(world.Blueprints[1])
+	geodes, state := maxGeodeCountInTime(world.Blueprints[1], 24)
 	printState(&state)
 	assert.Equal(t, 12, geodes)
 }
@@ -55,8 +55,9 @@ func Test_01(t *testing.T) {
 
 	world := ParseInput(reader)
 
+	// very slow, about 4h
 	result := DoWithInputParallel(world)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 1192, result)
 }
 
 func Test_02_example(t *testing.T) {
