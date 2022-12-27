@@ -1,22 +1,22 @@
 package utils
 
-// BinaryHeap is implementation of binary min-heap
+// MinHeap is implementation of binary min-heap
 // see https://maupanelo.com/posts/how-to-write-a-binary-heap-in-golang/
-type BinaryHeap[T any] struct {
+type MinHeap[T any] struct {
 	heap []T
 	less func(i, j T) bool
 }
 
-func NewBinaryHeap[T any](less func(i, j T) bool) BinaryHeap[T] {
-	return BinaryHeap[T]{heap: nil, less: less}
+func NewMinHeap[T any](less func(i, j T) bool) MinHeap[T] {
+	return MinHeap[T]{heap: nil, less: less}
 }
 
-func (bh *BinaryHeap[T]) Push(item T) {
+func (bh *MinHeap[T]) Push(item T) {
 	bh.heap = append(bh.heap, item)
 	bh.bubbleUp(len(bh.heap) - 1)
 }
 
-func (bh *BinaryHeap[T]) Pop() T {
+func (bh *MinHeap[T]) Pop() T {
 	popped := bh.heap[0]
 	heapSize := len(bh.heap)
 
@@ -29,11 +29,11 @@ func (bh *BinaryHeap[T]) Pop() T {
 	return popped
 }
 
-func (bh *BinaryHeap[T]) Empty() bool {
+func (bh *MinHeap[T]) Empty() bool {
 	return len(bh.heap) == 0
 }
 
-func (bh *BinaryHeap[T]) bubbleUp(index int) {
+func (bh *MinHeap[T]) bubbleUp(index int) {
 	for index > 0 {
 		parentIndex := (index - 1) / 2
 
@@ -46,7 +46,7 @@ func (bh *BinaryHeap[T]) bubbleUp(index int) {
 	}
 }
 
-func (bh *BinaryHeap[T]) bubbleDown(index int) {
+func (bh *MinHeap[T]) bubbleDown(index int) {
 	for 2*index+1 < len(bh.heap) {
 		minChildIndex := bh.minChildIndex(index)
 
@@ -60,7 +60,7 @@ func (bh *BinaryHeap[T]) bubbleDown(index int) {
 	}
 }
 
-func (bh *BinaryHeap[T]) minChildIndex(index int) int {
+func (bh *MinHeap[T]) minChildIndex(index int) int {
 	if 2*index+2 >= len(bh.heap) {
 		return 2*index + 1
 	}
@@ -74,8 +74,8 @@ func (bh *BinaryHeap[T]) minChildIndex(index int) int {
 
 // Integer cost heap simplification
 
-type BinaryHeapInt[T any] struct {
-	binaryHeap BinaryHeap[heapItemInt[T]]
+type MinHeapInt[T any] struct {
+	minHeap MinHeap[heapItemInt[T]]
 }
 
 type heapItemInt[T any] struct {
@@ -83,20 +83,24 @@ type heapItemInt[T any] struct {
 	cost  int
 }
 
-func NewBinaryHeapInt[T any]() BinaryHeapInt[T] {
-	return BinaryHeapInt[T]{binaryHeap: NewBinaryHeap[heapItemInt[T]](func(i, j heapItemInt[T]) bool { return i.cost < j.cost })}
+func NewMinHeapInt[T any]() MinHeapInt[T] {
+	return MinHeapInt[T]{minHeap: NewMinHeap[heapItemInt[T]](func(i, j heapItemInt[T]) bool { return i.cost < j.cost })}
 }
 
-func (bh *BinaryHeapInt[T]) Push(item T, cost int) {
+func (bh *MinHeapInt[T]) Push(item T, cost int) {
 	heapItem := heapItemInt[T]{value: item, cost: cost}
-	bh.binaryHeap.Push(heapItem)
+	bh.minHeap.Push(heapItem)
 }
 
-func (bh *BinaryHeapInt[T]) Pop() (T, int) {
-	item := bh.binaryHeap.Pop()
+func (bh *MinHeapInt[T]) PopWithCost() (T, int) {
+	item := bh.minHeap.Pop()
 	return item.value, item.cost
 }
 
-func (bh *BinaryHeapInt[T]) Empty() bool {
-	return bh.binaryHeap.Empty()
+func (bh *MinHeapInt[T]) Pop() T {
+	return bh.minHeap.Pop().value
+}
+
+func (bh *MinHeapInt[T]) Empty() bool {
+	return bh.minHeap.Empty()
 }

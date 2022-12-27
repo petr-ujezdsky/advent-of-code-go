@@ -5,8 +5,8 @@ import (
 	"testing"
 )
 
-func TestBinaryHeap_Push(t *testing.T) {
-	minHeap := NewBinaryHeap(func(i, j int) bool { return i < j })
+func TestMinHeap_Push(t *testing.T) {
+	minHeap := NewMinHeap(func(i, j int) bool { return i < j })
 
 	assert.True(t, minHeap.Empty())
 
@@ -25,8 +25,8 @@ func TestBinaryHeap_Push(t *testing.T) {
 	assert.True(t, minHeap.Empty())
 }
 
-func TestBinaryHeapInt_Push(t *testing.T) {
-	minHeap := NewBinaryHeapInt[string]()
+func TestMinHeapInt_Push(t *testing.T) {
+	minHeap := NewMinHeapInt[string]()
 
 	assert.True(t, minHeap.Empty())
 
