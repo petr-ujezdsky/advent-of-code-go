@@ -93,7 +93,7 @@ func printState(state *State) {
 	fmt.Println(state)
 }
 
-func maxGeodeCountInTime(blueprint Blueprint) (int, State) {
+func maxGeodeCountInTime(blueprint Blueprint, remainingTime int) (int, State) {
 	cost := func(state State) int {
 		// maximizing geodes count
 		return -state.Materials[Geode]
@@ -150,7 +150,6 @@ func maxGeodeCountInTime(blueprint Blueprint) (int, State) {
 		return states
 	}
 
-	remainingTime := 24
 	initialState := State{
 		RemainingTime: remainingTime,
 		Materials:     [4]int{0, 0, 0, 0},
@@ -166,7 +165,7 @@ func DoWithInput(world World) int {
 
 	for _, blueprint := range world.Blueprints {
 		fmt.Printf("Computing blueprint #%v...\n", blueprint.Id)
-		geodes, _ := maxGeodeCountInTime(blueprint)
+		geodes, _ := maxGeodeCountInTime(blueprint, 24)
 		sum += blueprint.Id * geodes
 		fmt.Printf(" - produces max %v geodes\n\n", geodes)
 	}
@@ -182,7 +181,7 @@ func DoWithInputParallel(world World) int {
 		qualityLevelChannels[i] = channel
 		go func(b Blueprint, ch chan int) {
 			fmt.Printf("Computing blueprint #%v...\n", b.Id)
-			geodes, _ := maxGeodeCountInTime(b)
+			geodes, _ := maxGeodeCountInTime(b, 24)
 			fmt.Printf("%v produces max %v geodes\n", b.Id, geodes)
 			ch <- b.Id * geodes
 		}(blueprint, channel)
@@ -194,6 +193,28 @@ func DoWithInputParallel(world World) int {
 	}
 
 	return sum
+}
+
+func DoWithInputParallelFirstThree(world World) int {
+	qualityLevelChannels := make([]<-chan int, len(world.Blueprints))
+
+	for i, blueprint := range world.Blueprints[0:3] {
+		channel := make(chan int)
+		qualityLevelChannels[i] = channel
+		go func(b Blueprint, ch chan int) {
+			fmt.Printf("Computing blueprint #%v...\n", b.Id)
+			geodes, _ := maxGeodeCountInTime(b, 32)
+			fmt.Printf("%v produces max %v geodes\n", b.Id, geodes)
+			ch <- b.Id * geodes
+		}(blueprint, channel)
+	}
+
+	product := 1
+	for _, channel := range qualityLevelChannels {
+		product *= <-channel
+	}
+
+	return product
 }
 
 func ParseInput(r io.Reader) World {
