@@ -37,7 +37,9 @@ func (bh *MinHeap[T]) bubbleUp(index int) {
 	for index > 0 {
 		parentIndex := (index - 1) / 2
 
-		if bh.less(bh.heap[parentIndex], bh.heap[index]) {
+		// less(i,j)  ~ i <  j
+		// !less(j,i) ~ i <= j
+		if !bh.less(bh.heap[index], bh.heap[parentIndex]) {
 			return
 		}
 
@@ -50,7 +52,9 @@ func (bh *MinHeap[T]) bubbleDown(index int) {
 	for 2*index+1 < len(bh.heap) {
 		minChildIndex := bh.minChildIndex(index)
 
-		if bh.less(bh.heap[index], bh.heap[minChildIndex]) {
+		// less(i,j)  ~ i <  j
+		// !less(j,i) ~ i <= j
+		if !bh.less(bh.heap[minChildIndex], bh.heap[index]) {
 			return
 		}
 
