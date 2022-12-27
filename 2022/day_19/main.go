@@ -7,6 +7,7 @@ import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/alg"
 	"io"
+	"time"
 )
 
 type World struct {
@@ -41,6 +42,7 @@ func (m1 Materials) Add(m2 Materials) Materials {
 
 	return m1
 }
+
 func (m1 Materials) AddFromRobots(robotsCounts RobotsCounts) Materials {
 	for i, robotsCount := range robotsCounts {
 		materialType := MaterialType(i)
@@ -93,7 +95,19 @@ func printState(state *State) {
 	fmt.Println(state)
 }
 
+func maxMaterials(m [4]Materials) (max Materials) {
+	max = m[0]
+	for _, materials := range m {
+		for i, material := range materials {
+			max[i] = utils.Max(max[i], material)
+		}
+	}
+
+	return max
+}
 func maxGeodeCountInTime(blueprint Blueprint, remainingTime int) (int, State) {
+	maxPrice := maxMaterials(blueprint.RobotsCosts)
+
 	cost := func(state State) int {
 		// maximizing geodes count
 		return -state.Materials[Geode]
@@ -124,6 +138,11 @@ func maxGeodeCountInTime(blueprint Blueprint, remainingTime int) (int, State) {
 		states = append(states, nextState)
 
 		for _, materialType := range [4]MaterialType{Ore, Clay, Obsidian, Geode} {
+			// no need to have more robots than the max price
+			if state.RobotsCounts[materialType] == maxPrice[materialType] && maxPrice[materialType] > 0 {
+				continue
+			}
+
 			// buy robot
 			matsBuyedRobot, buyable := state.Materials.SubtractAndValidate(blueprint.RobotsCosts[materialType])
 			if buyable {

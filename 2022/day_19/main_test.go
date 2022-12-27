@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/stretchr/testify/assert"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -23,6 +24,7 @@ func Test_01_example_blueprint_1(t *testing.T) {
 
 	world := ParseInput(reader)
 
+	// 3s
 	geodes, state := maxGeodeCountInTime(world.Blueprints[0], 24)
 	printState(&state)
 	assert.Equal(t, 9, geodes)
@@ -34,6 +36,7 @@ func Test_01_example_blueprint_2(t *testing.T) {
 
 	world := ParseInput(reader)
 
+	// 2s
 	geodes, state := maxGeodeCountInTime(world.Blueprints[1], 24)
 	printState(&state)
 	assert.Equal(t, 12, geodes)
@@ -71,6 +74,7 @@ func Test_02_example_blueprint_1(t *testing.T) {
 
 	world := ParseInput(reader)
 
+	// 32s
 	geodes, state := maxGeodeCountInTime(world.Blueprints[0], 32)
 	printState(&state)
 	assert.Equal(t, 56, geodes)
@@ -82,6 +86,7 @@ func Test_02_example_blueprint_2(t *testing.T) {
 
 	world := ParseInput(reader)
 
+	// 18s
 	geodes, state := maxGeodeCountInTime(world.Blueprints[1], 32)
 	printState(&state)
 	assert.Equal(t, 62, geodes)
