@@ -196,17 +196,17 @@ func DoWithInputParallel(world World) int {
 	return sum
 }
 
-func DoWithInputParallelFirstThree(world World) int {
+func DoWithInputParallelFirstN(world World, n int) int {
 	qualityLevelChannels := make([]<-chan int, len(world.Blueprints))
 
-	for i, blueprint := range world.Blueprints[0:3] {
+	for i, blueprint := range world.Blueprints[0:n] {
 		channel := make(chan int)
 		qualityLevelChannels[i] = channel
 		go func(b Blueprint, ch chan int) {
 			fmt.Printf("Computing blueprint #%v...\n", b.Id)
 			geodes, _ := maxGeodeCountInTime(b, 32)
 			fmt.Printf("%v produces max %v geodes\n", b.Id, geodes)
-			ch <- b.Id * geodes
+			ch <- geodes
 		}(blueprint, channel)
 	}
 

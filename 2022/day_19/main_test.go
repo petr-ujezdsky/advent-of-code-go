@@ -93,8 +93,8 @@ func Test_02_example(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	result := DoWithInputParallelFirstThree(world)
-	assert.Equal(t, 0, result)
+	result := DoWithInputParallelFirstN(world, 2)
+	assert.Equal(t, 3472, result)
 }
 
 func Test_02(t *testing.T) {
@@ -103,6 +103,6 @@ func Test_02(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	result := DoWithInputParallelFirstThree(world)
+	result := DoWithInputParallelFirstN(world, 3)
 	assert.Equal(t, 0, result)
 }
