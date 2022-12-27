@@ -69,3 +69,31 @@ func (bh *BinaryHeap[T]) minChildIndex(index int) int {
 
 	return 2*index + 1
 }
+
+// Integer cost heap simplification
+
+type BinaryHeapInt[T any] struct {
+	binaryHeap BinaryHeap[heapItemInt[T]]
+}
+
+type heapItemInt[T any] struct {
+	value T
+	cost  int
+}
+
+func NewBinaryHeapInt[T any]() BinaryHeapInt[T] {
+	return BinaryHeapInt[T]{binaryHeap: NewBinaryHeap[heapItemInt[T]](func(i, j heapItemInt[T]) bool { return i.cost < j.cost })}
+}
+
+func (bh *BinaryHeapInt[T]) Push(item T, cost int) {
+	heapItem := heapItemInt[T]{value: item, cost: cost}
+	bh.binaryHeap.Push(heapItem)
+}
+
+func (bh *BinaryHeapInt[T]) Pop() T {
+	return bh.binaryHeap.Pop().value
+}
+
+func (bh *BinaryHeapInt[T]) Empty() bool {
+	return bh.binaryHeap.Empty()
+}
