@@ -102,7 +102,8 @@ func maxGeodeCountInTime(blueprint Blueprint, remainingTime int) (int, State) {
 	lowerBound := func(state State) int {
 		// start with current geodes count, then add all geodes collected by current robots and finally add all geodes
 		// collected from by robots created each remaining minute
-		return -(state.Materials[Geode] + state.RemainingTime*state.RobotsCounts[Geode] + utils.SumNtoM(0, state.RemainingTime))
+		return -(state.Materials[Geode] + state.RemainingTime*state.RobotsCounts[Geode] + utils.SumNtoM(0, state.RemainingTime-1))
+		//return math.MinInt
 	}
 
 	nextStatesProvider := func(state State) []State {
