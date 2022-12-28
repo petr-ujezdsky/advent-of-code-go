@@ -119,6 +119,7 @@ func Test_02(t *testing.T) {
 
 	world := ParseInput(reader)
 
+	// 13 minutes
 	result := DoWithInputParallelFirstN(world, 3)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 14725, result)
 }
