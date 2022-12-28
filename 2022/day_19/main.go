@@ -219,7 +219,7 @@ func DoWithInputParallel(world World) int {
 }
 
 func DoWithInputParallelFirstN(world World, n int) int {
-	qualityLevelChannels := make([]<-chan int, len(world.Blueprints))
+	qualityLevelChannels := make([]<-chan int, n)
 
 	for i, blueprint := range world.Blueprints[0:n] {
 		channel := make(chan int)
