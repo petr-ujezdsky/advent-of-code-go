@@ -6,25 +6,74 @@ import (
 	"testing"
 )
 
-func Test_01_parseSNAFU(t *testing.T) {
-	assert.Equal(t, 0, ParseSNAFU("0"))
-	assert.Equal(t, 1, ParseSNAFU("1"))
-	assert.Equal(t, 2, ParseSNAFU("2"))
-	assert.Equal(t, 3, ParseSNAFU("1="))
-	assert.Equal(t, 4, ParseSNAFU("1-"))
-	assert.Equal(t, 5, ParseSNAFU("10"))
-	assert.Equal(t, 6, ParseSNAFU("11"))
-	assert.Equal(t, 7, ParseSNAFU("12"))
-	assert.Equal(t, 8, ParseSNAFU("2="))
-	assert.Equal(t, 9, ParseSNAFU("2-"))
-	assert.Equal(t, 10, ParseSNAFU("20"))
+func TestParseSNAFU(t *testing.T) {
+	type args struct {
+		str string
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{"", args{"0"}, 0},
+		{"", args{"1"}, 1},
+		{"", args{"2"}, 2},
+		{"", args{"1="}, 3},
+		{"", args{"1-"}, 4},
+		{"", args{"10"}, 5},
+		{"", args{"11"}, 6},
+		{"", args{"12"}, 7},
+		{"", args{"2="}, 8},
+		{"", args{"2-"}, 9},
+		{"", args{"20"}, 10},
 
-	assert.Equal(t, 15, ParseSNAFU("1=0"))
-	assert.Equal(t, 20, ParseSNAFU("1-0"))
-	assert.Equal(t, 2022, ParseSNAFU("1=11-2"))
-	assert.Equal(t, 12345, ParseSNAFU("1-0---0"))
-	assert.Equal(t, 314159265, ParseSNAFU("1121-1110-1=0"))
+		{"", args{"1=0"}, 15},
+		{"", args{"1-0"}, 20},
+		{"", args{"1=11-2"}, 2022},
+		{"", args{"1-0---0"}, 12345},
+		{"", args{"1121-1110-1=0"}, 314159265},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, ParseSNAFU(tt.args.str), "ParseSNAFU(%v)", tt.args.str)
+		})
+	}
 }
+
+func TestCreateSNAFU(t *testing.T) {
+	type args struct {
+		n int
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{"", args{0}, "0"},
+		{"", args{1}, "1"},
+		{"", args{2}, "2"},
+		{"", args{3}, "1="},
+		{"", args{4}, "1-"},
+		{"", args{5}, "10"},
+		{"", args{6}, "11"},
+		{"", args{7}, "12"},
+		{"", args{8}, "2="},
+		{"", args{9}, "2-"},
+		{"", args{10}, "20"},
+
+		{"", args{15}, "1=0"},
+		{"", args{20}, "1-0"},
+		{"", args{2022}, "1=11-2"},
+		{"", args{12345}, "1-0---0"},
+		{"", args{314159265}, "1121-1110-1=0"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, CreateSNAFU(tt.args.n), "CreateSNAFU(%v)", tt.args.n)
+		})
+	}
+}
+
 func Test_01_parse(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)

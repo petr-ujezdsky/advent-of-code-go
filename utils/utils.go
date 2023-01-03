@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bufio"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
 	"regexp"
 	"strconv"
@@ -154,6 +155,10 @@ func ExtractInts(str string, allowNegative bool) []int {
 	}
 
 	return ints
+}
+
+func ReverseString(str string) string {
+	return string(slices.Reverse([]rune(str)))
 }
 
 // Abs returns absolute value
