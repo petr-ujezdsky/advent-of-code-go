@@ -89,10 +89,10 @@ func (q *Queue[T]) Pop() T {
 }
 
 func (q *Queue[T]) Empty() bool {
-	return q.Length() == 0
+	return q.Len() == 0
 }
 
-func (q *Queue[T]) Length() int {
+func (q *Queue[T]) Len() int {
 	return q.length
 }
 
