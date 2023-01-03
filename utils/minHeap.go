@@ -23,7 +23,11 @@ func (h MinHeap[T, N]) PopWithValue() (T, N) {
 	return item.item, item.value
 }
 
-func (h *MinHeap[T, N]) Empty() bool {
+func (h MinHeap[T, N]) Len() int {
+	return h.adapter.Len()
+}
+
+func (h MinHeap[T, N]) Empty() bool {
 	return h.adapter.Len() == 0
 }
 
@@ -32,7 +36,7 @@ func NewMinHeap[T any, N Number]() MinHeap[T, N] {
 }
 
 func NewMinHeapInt[T any]() MinHeap[T, int] {
-	return MinHeap[T, int]{adapter: nil}
+	return MinHeap[T, int]{adapter: &minHeapAdapter[T, int]{}}
 }
 
 type heapItem[T any, N Number] struct {
