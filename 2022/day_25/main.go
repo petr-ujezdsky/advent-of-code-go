@@ -85,8 +85,13 @@ func ParseSNAFU(str string) int {
 	return sum
 }
 
-func DoWithInput(snafus []string) int {
-	return len(snafus)
+func SumSnafuNumbers(snafuNumbers []string) string {
+	sum := 0
+	for _, snafu := range snafuNumbers {
+		sum += ParseSNAFU(snafu)
+	}
+
+	return CreateSNAFU(sum)
 }
 
 func ParseInput(r io.Reader) []string {
