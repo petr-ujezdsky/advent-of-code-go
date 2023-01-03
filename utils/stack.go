@@ -44,7 +44,7 @@ func (stack *Stack[T]) Empty() bool {
 	return len(stack.list) == 0
 }
 
-func (stack *Stack[T]) Length() int {
+func (stack *Stack[T]) Len() int {
 	return len(stack.list)
 }
 

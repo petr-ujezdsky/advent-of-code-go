@@ -29,11 +29,11 @@ func (r Room) ContainsOnly(ch rune) bool {
 		}
 	}
 
-	return r.Length() > 0
+	return r.Len() > 0
 }
 
 func (r Room) CanAccept(ch rune) bool {
-	return r.Length() == 0 || r.Length() < r.Capacity && r.ContainsOnly(ch)
+	return r.Len() == 0 || r.Len() < r.Capacity && r.ContainsOnly(ch)
 }
 
 func (r Room) Clone() Room {
@@ -95,7 +95,7 @@ func dot2nothing(chars []rune) []rune {
 func (b Building) IsSorted() bool {
 	for iRoom := 0; iRoom < 4; iRoom++ {
 		room := b.Rooms[iRoom]
-		if !room.ContainsOnly(rune('A'+iRoom)) || room.Length() != room.Capacity {
+		if !room.ContainsOnly(rune('A'+iRoom)) || room.Len() != room.Capacity {
 			return false
 		}
 	}
@@ -223,7 +223,7 @@ func Move(building Building, lowestEnergy *int) ([]Building, *Building) {
 			continue
 		}
 
-		stepsUp := room.Capacity + 1 - room.Length()
+		stepsUp := room.Capacity + 1 - room.Len()
 
 		// index of room in hallway
 		iRoomHallway := iRoom*2 + 2
@@ -347,7 +347,7 @@ HALLWAY:
 
 		// calculate energy
 		stepsSide := utils.Abs(iHallway - iRoomHallway)
-		stepsDown := room.Capacity - room.Length()
+		stepsDown := room.Capacity - room.Len()
 		stepsTotal := stepsSide + stepsDown
 		energy := building.ConsumedEnergy + stepsTotal*stepEnergy(ch)
 
