@@ -56,7 +56,7 @@ func Test_01(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	// 9s200ms
+	// 140ms
 	result := ShortestPath(world)
 	assert.Equal(t, 326, result)
 }
@@ -77,7 +77,7 @@ func Test_02(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	// 26s
+	// 400ms
 	result := ShortestPathBackForSnack(world)
 	assert.Equal(t, 976, result)
 }

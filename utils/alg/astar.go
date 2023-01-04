@@ -1,6 +1,8 @@
 package alg
 
-import "math"
+import (
+	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+)
 
 func reconstructPath[T comparable](cameFrom map[T]T, current T) []T {
 	totalPath := []T{current}
@@ -9,21 +11,6 @@ func reconstructPath[T comparable](cameFrom map[T]T, current T) []T {
 	}
 
 	return totalPath
-}
-
-func nodeWithLowestFScore[T comparable](openSet map[T]struct{}, fScore map[T]int) (T, int) {
-	minScore := math.MaxInt
-	var minNode T
-
-	for node := range openSet {
-		score, ok := fScore[node]
-		if ok && score < minScore {
-			minScore = score
-			minNode = node
-		}
-	}
-
-	return minNode, minScore
 }
 
 // AStar algorithm as in https://en.wikipedia.org/wiki/A%2A_search_algorithm
@@ -39,11 +26,13 @@ func AStar[T comparable](start, goal T, h func(T) int, d func(T, T) int, neighbo
 // d(from, to) int - cost function for step from node "from" to node "to
 // neighbours(n) []T - function that returns all neighbours of node n
 func AStarEndFunc[T comparable](start T, isEnd func(T) bool, h func(T) int, d func(T, T) int, neighbours func(T) []T) (path []T, scores map[T]int, score int, found bool) {
+	hStart := h(start)
+
 	// The set of discovered nodes that may need to be (re-)expanded.
 	// Initially, only the start node is known.
 	// This is usually implemented as a min-heap or priority queue rather than a hash-set.
-	openSet := make(map[T]struct{})
-	openSet[start] = struct{}{}
+	openSet := utils.NewMinHeapInt[T]()
+	openSet.Push(start, hStart)
 
 	// For node n, cameFrom[n] is the node immediately preceding it on the cheapest path from start
 	// to n currently known.
@@ -56,16 +45,15 @@ func AStarEndFunc[T comparable](start T, isEnd func(T) bool, h func(T) int, d fu
 	// For node n, fScore[n] := gScore[n] + h(n). fScore[n] represents our current best guess as to
 	// how cheap a path could be from start to finish if it goes through n.
 	fScore := make(map[T]int) // map with default value of Infinity
-	fScore[start] = h(start)
+	fScore[start] = hStart
 
-	for len(openSet) > 0 {
+	for !openSet.Empty() {
 		// This operation can occur in O(Log(N)) time if openSet is a min-heap or a priority queue
-		current, currentFScore := nodeWithLowestFScore(openSet, fScore) // the node in openSet having the lowest fScore[] value
+		current, currentFScore := openSet.PopWithValue() // the node in openSet having the lowest fScore[] value
+
 		if isEnd(current) {
 			return reconstructPath(cameFrom, current), gScore, currentFScore, true
 		}
-
-		delete(openSet, current)
 
 		for _, neighbour := range neighbours(current) {
 
@@ -81,10 +69,14 @@ func AStarEndFunc[T comparable](start T, isEnd func(T) bool, h func(T) int, d fu
 				// This path to neighbor is better than any previous one. Record it!
 				cameFrom[neighbour] = current
 				gScore[neighbour] = tentativeGScore
-				fScore[neighbour] = tentativeGScore + h(neighbour)
 
-				if _, ok := openSet[neighbour]; !ok {
-					openSet[neighbour] = struct{}{}
+				neighbourFScore := tentativeGScore + h(neighbour)
+				fScore[neighbour] = neighbourFScore
+
+				if openSet.Contains(neighbour) {
+					openSet.Fix(neighbour, neighbourFScore)
+				} else {
+					openSet.Push(neighbour, neighbourFScore)
 				}
 			}
 		}

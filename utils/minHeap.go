@@ -38,6 +38,11 @@ func (h MinHeap[T, N]) Empty() bool {
 	return h.adapter.Len() == 0
 }
 
+func (h MinHeap[T, N]) Contains(item T) bool {
+	_, ok := h.adapter.item2heapItem[item]
+	return ok
+}
+
 func NewMinHeap[T comparable, N Number]() MinHeap[T, N] {
 	return MinHeap[T, N]{adapter: nil}
 }
