@@ -4,7 +4,7 @@ import "container/heap"
 
 // MinHeap is implementation of binary min-heap
 // see https://maupanelo.com/posts/how-to-write-a-binary-heap-in-golang/
-type MinHeap[T any, N Number] struct {
+type MinHeap[T comparable, N Number] struct {
 	adapter *minHeapAdapter[T, N]
 }
 
@@ -19,8 +19,15 @@ func (h MinHeap[T, N]) Pop() T {
 }
 
 func (h MinHeap[T, N]) PopWithValue() (T, N) {
-	item := heap.Pop(h.adapter).(heapItem[T, N])
+	item := heap.Pop(h.adapter).(*heapItem[T, N])
 	return item.item, item.value
+}
+
+func (h MinHeap[T, N]) Fix(item T, value N) {
+	// lookup heap item for it's index
+	hi := h.adapter.item2heapItem[item]
+	hi.value = value
+	heap.Fix(h.adapter, hi.index)
 }
 
 func (h MinHeap[T, N]) Len() int {
@@ -31,35 +38,52 @@ func (h MinHeap[T, N]) Empty() bool {
 	return h.adapter.Len() == 0
 }
 
-func NewMinHeap[T any, N Number]() MinHeap[T, N] {
+func NewMinHeap[T comparable, N Number]() MinHeap[T, N] {
 	return MinHeap[T, N]{adapter: nil}
 }
 
-func NewMinHeapInt[T any]() MinHeap[T, int] {
-	return MinHeap[T, int]{adapter: &minHeapAdapter[T, int]{}}
+func NewMinHeapInt[T comparable]() MinHeap[T, int] {
+	adapter := minHeapAdapter[T, int]{item2heapItem: make(map[T]*heapItem[T, int])}
+	return MinHeap[T, int]{adapter: &adapter}
 }
 
 type heapItem[T any, N Number] struct {
 	item  T
+	index int
 	value N
 }
 
-type minHeapAdapter[T any, N Number] []heapItem[T, N]
+type minHeapAdapter[T comparable, N Number] struct {
+	heapItems     []*heapItem[T, N]
+	item2heapItem map[T]*heapItem[T, N]
+}
 
-func (h minHeapAdapter[T, N]) Len() int           { return len(h) }
-func (h minHeapAdapter[T, N]) Less(i, j int) bool { return h[i].value < h[j].value }
-func (h minHeapAdapter[T, N]) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+func (h minHeapAdapter[T, N]) Len() int           { return len(h.heapItems) }
+func (h minHeapAdapter[T, N]) Less(i, j int) bool { return h.heapItems[i].value < h.heapItems[j].value }
+func (h minHeapAdapter[T, N]) Swap(i, j int) {
+	h.heapItems[i], h.heapItems[j] = h.heapItems[j], h.heapItems[i]
+
+	h.heapItems[i].index = i
+	h.heapItems[j].index = j
+}
 
 func (h *minHeapAdapter[T, N]) Push(item any) {
 	// Push and Pop use pointer receivers because they modify the slice's length,
 	// not just its contents.
-	*h = append(*h, item.(heapItem[T, N]))
+	hi := item.(heapItem[T, N])
+	hi.index = len(h.heapItems)
+	h.heapItems = append(h.heapItems, &hi)
+
+	h.item2heapItem[hi.item] = &hi
 }
 
 func (h *minHeapAdapter[T, N]) Pop() any {
-	old := *h
+	old := h.heapItems
 	n := len(old)
 	x := old[n-1]
-	*h = old[0 : n-1]
+	h.heapItems = old[0 : n-1]
+
+	delete(h.item2heapItem, x.item)
+
 	return x
 }

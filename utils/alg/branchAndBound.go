@@ -14,7 +14,7 @@ type storage[T any] interface {
 // BranchAndBoundBestFirst finds state with minimal cost. It skips states having lower bound greater than currently
 // found minimum.
 // Uses best-first search.
-func BranchAndBoundBestFirst[T any](start T, cost func(T) int, lowerBound func(T) int, nextStatesProvider func(T) []T) (min int, minState T) {
+func BranchAndBoundBestFirst[T comparable](start T, cost func(T) int, lowerBound func(T) int, nextStatesProvider func(T) []T) (min int, minState T) {
 	storage := utils.NewMinHeapInt[T]()
 	return branchAndBound[T](&storage, start, cost, lowerBound, nextStatesProvider)
 }
