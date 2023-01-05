@@ -4,13 +4,14 @@ import (
 	"bufio"
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/maps"
 	"io"
 )
 
 type World struct {
 	CucumbersRight map[Cucumber]struct{}
 	CucumbersDown  map[Cucumber]struct{}
-	Area           utils.BoundingRectangle
+	Dimensions     utils.Vector2i
 }
 
 type Cucumber struct {
@@ -18,8 +19,69 @@ type Cucumber struct {
 	Direction utils.Direction4
 }
 
-func DoWithInput(world World) int {
-	return len(world.CucumbersRight)
+func moduloV(v1 utils.Vector2i, m utils.Vector2i) utils.Vector2i {
+	return utils.Vector2i{
+		X: v1.X % m.X,
+		Y: v1.Y % m.Y,
+	}
+}
+
+func moveDirection(moving, other map[Cucumber]struct{}, dimensions utils.Vector2i) (next map[Cucumber]struct{}, anyMoved bool) {
+	otherDirection := maps.FirstKey(other).Direction
+	next = make(map[Cucumber]struct{})
+	anyMoved = false
+
+	for cucumber := range moving {
+		nextPos := cucumber.Position.Add(cucumber.Direction.ToStep())
+		nextPos = moduloV(nextPos, dimensions)
+
+		// check moving set
+		if _, ok := moving[Cucumber{Position: nextPos, Direction: cucumber.Direction}]; ok {
+			next[cucumber] = struct{}{}
+			continue
+		}
+
+		// check other set
+		if _, ok := other[Cucumber{Position: nextPos, Direction: otherDirection}]; ok {
+			next[cucumber] = struct{}{}
+			continue
+		}
+
+		// position is free -> move
+		movedCucumber := Cucumber{
+			Position:  nextPos,
+			Direction: cucumber.Direction,
+		}
+		next[movedCucumber] = struct{}{}
+		anyMoved = true
+	}
+
+	return next, anyMoved
+}
+
+func moveRound(world *World) bool {
+	anyMoved := false
+
+	// move right
+	nextCucumbers, moved := moveDirection(world.CucumbersRight, world.CucumbersDown, world.Dimensions)
+	world.CucumbersRight = nextCucumbers
+	anyMoved = anyMoved || moved
+
+	// move move down
+	nextCucumbers, moved = moveDirection(world.CucumbersDown, world.CucumbersRight, world.Dimensions)
+	world.CucumbersDown = nextCucumbers
+	anyMoved = anyMoved || moved
+
+	return anyMoved
+}
+
+func RoundsUntilStill(world World) int {
+	rounds := 1
+	for moveRound(&world) {
+		rounds++
+	}
+
+	return rounds
 }
 
 func ParseInput(r io.Reader) World {
@@ -57,20 +119,11 @@ func ParseInput(r io.Reader) World {
 		y++
 	}
 
-	area := utils.BoundingRectangle{
-		Horizontal: utils.IntervalI{
-			Low:  0,
-			High: xMax - 1,
-		},
-		Vertical: utils.IntervalI{
-			Low:  0,
-			High: y - 1,
-		},
-	}
+	dimensions := utils.Vector2i{X: xMax, Y: y}
 
 	return World{
 		CucumbersRight: cucumbersRight,
 		CucumbersDown:  cucumbersDown,
-		Area:           area,
+		Dimensions:     dimensions,
 	}
 }
