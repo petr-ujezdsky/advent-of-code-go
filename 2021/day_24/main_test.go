@@ -108,7 +108,7 @@ func Test_01(t *testing.T) {
 
 	instructions := ParseInput(reader)
 
-	modelNumber := BruteForcePossibleValues(instructions)
+	modelNumber := BruteForcePossibleValues(instructions, 9, 1)
 	assert.Equal(t, "12934998949199", modelNumber)
 }
 
@@ -118,6 +118,6 @@ func Test_02(t *testing.T) {
 
 	instructions := ParseInput(reader)
 
-	modelNumber := BruteForcePossibleValues(instructions)
-	assert.Equal(t, "12934998949199", modelNumber)
+	modelNumber := BruteForcePossibleValues(instructions, 1, 9)
+	assert.Equal(t, "11711691612189", modelNumber)
 }

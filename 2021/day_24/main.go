@@ -157,12 +157,14 @@ func tryRegisterGroup(registers Registers, input int, iGroup int, instructions [
 	return registers, true
 }
 
-func tryRegisterGroupRecursive(registers Registers, iGroup int, groups [][]Instruction) (Registers, bool, *utils.Stack[int]) {
+func tryRegisterGroupRecursive(registers Registers, iGroup int, from, to int, groups [][]Instruction) (Registers, bool, *utils.Stack[int]) {
 	if iGroup == len(groups) {
 		return registers, true, &utils.Stack[int]{}
 	}
 
-	for input := 9; input > 0; input-- {
+	step := utils.Signum(to - from)
+
+	for input := from; input != to+step; input += step {
 		localRegisters, ok := tryRegisterGroup(registers, input, iGroup, groups[iGroup])
 
 		// not feasible input
@@ -171,7 +173,7 @@ func tryRegisterGroupRecursive(registers Registers, iGroup int, groups [][]Instr
 		}
 
 		// verification is OK, continue
-		nextRegisters, ok, resultInputs := tryRegisterGroupRecursive(localRegisters, iGroup+1, groups)
+		nextRegisters, ok, resultInputs := tryRegisterGroupRecursive(localRegisters, iGroup+1, from, to, groups)
 		if ok {
 			resultInputs.Push(input)
 			return nextRegisters, true, resultInputs
@@ -181,10 +183,10 @@ func tryRegisterGroupRecursive(registers Registers, iGroup int, groups [][]Instr
 	return Registers{}, false, nil
 }
 
-func BruteForcePossibleValues(instructions []Instruction) string {
+func BruteForcePossibleValues(instructions []Instruction, from, to int) string {
 	groups := groupInstructions(instructions)
 
-	registers, ok, resultInputs := tryRegisterGroupRecursive(Registers{}, 0, groups)
+	registers, ok, resultInputs := tryRegisterGroupRecursive(Registers{}, 0, from, to, groups)
 	if !ok {
 		panic("Not found any")
 	}
