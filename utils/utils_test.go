@@ -89,7 +89,7 @@ func TestClamp(t *testing.T) {
 
 func TestShallowCopy(t *testing.T) {
 	data := []int{1, 2, 3}
-	clone := utils.ShallowCopy(data)
+	clone := slices.Clone(data)
 
 	// modify original data
 	data[0] = 9
@@ -102,18 +102,68 @@ func TestCopy(t *testing.T) {
 	source := []int{1, 2, 3}
 	target := make([]int, 3)
 
-	utils.Copy(source, target)
+	slices.Copy(source, target)
 
 	assert.Equal(t, []int{1, 2, 3}, target)
 }
 
 func TestReverse(t *testing.T) {
-	assert.Equal(t, []int{3, 2, 1}, utils.Reverse([]int{1, 2, 3}))
-	assert.Equal(t, []int{4, 3, 2, 1}, utils.Reverse([]int{1, 2, 3, 4}))
+	assert.Equal(t, []int{3, 2, 1}, slices.Reverse([]int{1, 2, 3}))
+	assert.Equal(t, []int{4, 3, 2, 1}, slices.Reverse([]int{1, 2, 3, 4}))
 }
 
 func TestRemoveUnordered(t *testing.T) {
-	assert.Equal(t, []int{3, 2}, utils.RemoveUnordered([]int{1, 2, 3}, 0))
-	assert.Equal(t, []int{1, 3}, utils.RemoveUnordered([]int{1, 2, 3}, 1))
-	assert.Equal(t, []int{1, 2}, utils.RemoveUnordered([]int{1, 2, 3}, 2))
+	assert.Equal(t, []int{3, 2}, slices.RemoveUnordered([]int{1, 2, 3}, 0))
+	assert.Equal(t, []int{1, 3}, slices.RemoveUnordered([]int{1, 2, 3}, 1))
+	assert.Equal(t, []int{1, 2}, slices.RemoveUnordered([]int{1, 2, 3}, 2))
+}
+
+func TestParseBinary8(t *testing.T) {
+	type args struct {
+		onesAndZeros string
+	}
+	tests := []struct {
+		name string
+		args args
+		want uint8
+	}{
+		{"", args{"0"}, 0},
+		{"", args{"00000000"}, 0},
+		{"", args{"00000001"}, 1},
+		{"", args{"00000010"}, 2},
+		{"", args{"00000100"}, 4},
+		{"", args{"00001000"}, 8},
+		{"", args{"00010000"}, 16},
+		{"", args{"00100000"}, 32},
+		{"", args{"01000000"}, 64},
+		{"", args{"10000000"}, 128},
+		{"", args{"11111111"}, 255},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, utils.ParseBinary8(tt.args.onesAndZeros), "ParseBinary8(%v)", tt.args.onesAndZeros)
+		})
+	}
+}
+
+func TestModFloor(t *testing.T) {
+	type args struct {
+		value int
+		size  int
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{"", args{2, 10}, 2},
+		{"", args{12, 10}, 2},
+		{"", args{-2, 10}, 8},
+		{"", args{-12, 10}, 8},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, utils.ModFloor(tt.args.value, tt.args.size), "ModFloor(%v, %v)", tt.args.value, tt.args.size)
+		})
+	}
 }

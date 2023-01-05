@@ -3,6 +3,7 @@ package day_24
 import (
 	"bufio"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
 	"strconv"
 	"strings"
@@ -78,7 +79,7 @@ func regOrVal(str string) (int, int) {
 }
 
 func NewInputStack(input string) InputStack {
-	reversed := utils.Reverse([]rune(input))
+	reversed := slices.Reverse([]rune(input))
 
 	digits := make([]int, len(input))
 	for i, d := range reversed {

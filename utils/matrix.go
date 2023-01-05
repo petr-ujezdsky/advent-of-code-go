@@ -153,6 +153,9 @@ func (m Matrix[T]) String() string {
 type ValueFormatter[T any] func(value T) string
 
 func (m Matrix[T]) StringFmt(formatter ValueFormatter[T]) string {
+	return m.StringFmtSeparator(" ", formatter)
+}
+func (m Matrix[T]) StringFmtSeparator(separator string, formatter ValueFormatter[T]) string {
 	var sb strings.Builder
 
 	for y := 0; y < m.Height; y++ {
@@ -160,7 +163,7 @@ func (m Matrix[T]) StringFmt(formatter ValueFormatter[T]) string {
 			val := m.Columns[x][y]
 
 			if x > 0 {
-				sb.WriteString(" ")
+				sb.WriteString(separator)
 			}
 			sb.WriteString(formatter(val))
 		}
@@ -181,9 +184,16 @@ func FmtFmt[T any](format string) func(v T) string {
 		return fmt.Sprintf(format, val)
 	}
 }
+
 func FmtConstant[T any](value string) func(v T) string {
 	return func(val T) string {
 		return value
+	}
+}
+
+func FmtMap[T comparable](mapper map[T]string) func(v T) string {
+	return func(val T) string {
+		return mapper[val]
 	}
 }
 

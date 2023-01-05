@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bufio"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
 	"regexp"
 	"strconv"
@@ -12,17 +13,27 @@ func ParseToInts(r io.Reader) ([]int, error) {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
 
-	var result []int
+	var ints []int
 
 	for scanner.Scan() {
 		x, err := strconv.Atoi(scanner.Text())
 		if err != nil {
-			return result, err
+			return ints, err
 		}
-		result = append(result, x)
+		ints = append(ints, x)
 	}
 
-	return result, scanner.Err()
+	return ints, scanner.Err()
+}
+
+// ParseToIntsP parses each line as integer and returns the list, panics in case of an error
+func ParseToIntsP(r io.Reader) []int {
+	ints, err := ParseToInts(r)
+	if err != nil {
+		panic(err)
+	}
+
+	return ints
 }
 
 // ParseToStrings returns the list of lines
@@ -37,6 +48,16 @@ func ParseToStrings(r io.Reader) ([]string, error) {
 	}
 
 	return result, scanner.Err()
+}
+
+// ParseToStringsP returns the list of lines, panics in case of an error
+func ParseToStringsP(r io.Reader) []string {
+	strings, err := ParseToStrings(r)
+	if err != nil {
+		panic(err)
+	}
+
+	return strings
 }
 
 // ParseToMatrix returns the matrix of integers
@@ -95,6 +116,24 @@ func ParseInt(str string) int {
 	return v
 }
 
+// ParseBinary8 parses string with zeros and ones to 8-bit number
+func ParseBinary8(onesAndZeros string) uint8 {
+	v, err := strconv.ParseUint(onesAndZeros, 2, 8)
+	if err != nil {
+		panic("Can not convert binary string " + onesAndZeros + " to number")
+	}
+	return uint8(v)
+}
+
+// ParseBinary16 parses string with zeros and ones to 16-bit number
+func ParseBinary16(onesAndZeros string) uint16 {
+	v, err := strconv.ParseUint(onesAndZeros, 2, 16)
+	if err != nil {
+		panic("Can not convert binary string " + onesAndZeros + " to number")
+	}
+	return uint16(v)
+}
+
 var regexIntNegative = regexp.MustCompile(`-?\d+`)
 var regexIntPositive = regexp.MustCompile(`\d+`)
 
@@ -116,6 +155,10 @@ func ExtractInts(str string, allowNegative bool) []int {
 	}
 
 	return ints
+}
+
+func ReverseString(str string) string {
+	return string(slices.Reverse([]rune(str)))
 }
 
 // Abs returns absolute value
@@ -214,69 +257,12 @@ func NextPowOf2(n int) int {
 	return k
 }
 
-// ShallowCopy creates shallow copy of the given slice
-func ShallowCopy[T any](slice []T) []T {
-	// prepare destination slice
-	cloned := make([]T, len(slice))
-
-	// copy elements
-	copy(cloned, slice)
-
-	// return
-	return cloned
-}
-
-// Copy copies all values from source slice into target slice
-func Copy[T any](source []T, target []T) {
-	for i, v := range source {
-		target[i] = v
-	}
-}
-
-func Reverse[T any](slice []T) []T {
-	length := len(slice)
-	reversed := make([]T, length)
-
-	for i, v := range slice {
-		reversed[length-i-1] = v
-	}
-
-	return reversed
-}
-
-// RemoveUnordered removes element at index i and returns slice without this element. Changes items order in slice.
-func RemoveUnordered[T any](s []T, i int) []T {
-	// swap i-th and last element
-	s[i] = s[len(s)-1]
-
-	// return len-1 elements
-	return s[:len(s)-1]
-}
-
-func EqualSlice[T comparable](a, b []T) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i, av := range a {
-		if av != b[i] {
-			return false
-		}
-	}
-	return true
-}
-
-func FilledSlice[T any](v T, length int) []T {
-	s := make([]T, length)
-	for i := 0; i < len(s); i++ {
-		s[i] = v
-	}
-	return s
-}
-
-func FillSlice[T any](slice []T, value T) {
-	for i := 0; i < len(slice); i++ {
-		slice[i] = value
-	}
+// ModFloor modifies modulo operator to work with negative values
+// -2 % 10          = -2
+// ModFloor(-2, 10) = 8
+// see https://stackoverflow.com/a/43827557/1310733
+func ModFloor(value, size int) int {
+	return (((value) % size) + size) % size
 }
 
 func Msg(str string) string {

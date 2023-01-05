@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
 	"math"
 	"regexp"
@@ -156,7 +157,7 @@ func largestManhattanDistance(origins []Vector3i) int {
 func SearchAndConsume(scanners []BeaconScanner) (int, int) {
 	// all scanners will be rotated, translated and merged into this one
 	mainScanner := scanners[0]
-	scanners = utils.RemoveUnordered(scanners, 0)
+	scanners = slices.RemoveUnordered(scanners, 0)
 
 	// all scanner origins, start with 0,0,0 for the main scanner (#0)
 	scannerOrigins := []Vector3i{{0, 0, 0}}
@@ -174,7 +175,7 @@ func SearchAndConsume(scanners []BeaconScanner) (int, int) {
 				mainScanner = consume(mainScanner, scanner.RotatedBeacons[irot], step)
 
 				// remove scanner
-				scanners = utils.RemoveUnordered(scanners, i)
+				scanners = slices.RemoveUnordered(scanners, i)
 
 				// save origin
 				scannerOrigins = append(scannerOrigins, step)

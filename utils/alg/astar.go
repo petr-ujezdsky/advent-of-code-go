@@ -1,4 +1,4 @@
-package utils
+package alg
 
 import "math"
 
@@ -26,11 +26,19 @@ func nodeWithLowestFScore[T comparable](openSet map[T]struct{}, fScore map[T]int
 	return minNode, minScore
 }
 
-// AStar algorithm as in https://en.wikipedia.org/wiki/A*_search_algorithm
+// AStar algorithm as in https://en.wikipedia.org/wiki/A%2A_search_algorithm
 // h(n) int - heuristic function to calculate expected cost from node n to the goal node
 // d(from, to) int - cost function for step from node "from" to node "to
 // neighbours(n) []T - function that returns all neighbours of node n
-func AStar[T comparable](start, goal T, h func(T) int, d func(T, T) int, neighbours func(T) []T) (path []T, score int, found bool) {
+func AStar[T comparable](start, goal T, h func(T) int, d func(T, T) int, neighbours func(T) []T) (path []T, scores map[T]int, score int, found bool) {
+	return AStarEndFunc(start, func(state T) bool { return state == goal }, h, d, neighbours)
+}
+
+// AStarEndFunc algorithm as in https://en.wikipedia.org/wiki/A%2A_search_algorithm
+// h(n) int - heuristic function to calculate expected cost from node n to the goal node
+// d(from, to) int - cost function for step from node "from" to node "to
+// neighbours(n) []T - function that returns all neighbours of node n
+func AStarEndFunc[T comparable](start T, isEnd func(T) bool, h func(T) int, d func(T, T) int, neighbours func(T) []T) (path []T, scores map[T]int, score int, found bool) {
 	// The set of discovered nodes that may need to be (re-)expanded.
 	// Initially, only the start node is known.
 	// This is usually implemented as a min-heap or priority queue rather than a hash-set.
@@ -53,8 +61,8 @@ func AStar[T comparable](start, goal T, h func(T) int, d func(T, T) int, neighbo
 	for len(openSet) > 0 {
 		// This operation can occur in O(Log(N)) time if openSet is a min-heap or a priority queue
 		current, currentFScore := nodeWithLowestFScore(openSet, fScore) // the node in openSet having the lowest fScore[] value
-		if current == goal {
-			return reconstructPath(cameFrom, current), currentFScore, true
+		if isEnd(current) {
+			return reconstructPath(cameFrom, current), gScore, currentFScore, true
 		}
 
 		delete(openSet, current)
@@ -83,5 +91,5 @@ func AStar[T comparable](start, goal T, h func(T) int, d func(T, T) int, neighbo
 	}
 
 	// Open set is empty but goal was never reached
-	return []T{}, 0, false
+	return []T{}, gScore, 0, false
 }

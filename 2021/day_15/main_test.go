@@ -73,7 +73,7 @@ func Test_01_example_a_star(t *testing.T) {
 	levels, err := ParseInput(reader)
 	assert.Nil(t, err)
 
-	path, score, ok := CalcBestScoreAStar(levels)
+	path, _, score, ok := CalcBestScoreAStar(levels)
 	assert.True(t, ok)
 	assert.NotNil(t, path)
 	assert.Equal(t, 40, score)
@@ -100,7 +100,7 @@ func Test_01_a_star(t *testing.T) {
 	levels, err := ParseInput(reader)
 	assert.Nil(t, err)
 
-	_, score, ok := CalcBestScoreAStar(levels)
+	_, _, score, ok := CalcBestScoreAStar(levels)
 	assert.True(t, ok)
 	assert.Equal(t, 462, score)
 }
@@ -115,7 +115,7 @@ func Test_02_example(t *testing.T) {
 	enlargedLevels := EnlargeWorld(levels)
 	//fmt.Println(enlargedLevels.StringFmt(utils.FmtFmt[int]("%2d")))
 
-	_, score, ok := CalcBestScoreAStar(enlargedLevels)
+	_, _, score, ok := CalcBestScoreAStar(enlargedLevels)
 	assert.True(t, ok)
 	assert.Equal(t, 315, score)
 }
@@ -129,7 +129,7 @@ func Test_02(t *testing.T) {
 
 	enlargedLevels := EnlargeWorld(levels)
 
-	_, score, ok := CalcBestScoreAStar(enlargedLevels)
+	_, _, score, ok := CalcBestScoreAStar(enlargedLevels)
 	assert.True(t, ok)
 	assert.Equal(t, 2846, score)
 }
@@ -161,7 +161,7 @@ func Benchmark_a_star(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		path, score, ok := CalcBestScoreAStar(levels)
+		path, _, score, ok := CalcBestScoreAStar(levels)
 		assert.True(b, ok)
 		assert.NotNil(b, path)
 		assert.Equal(b, 40, score)
@@ -195,7 +195,7 @@ func Benchmark_a_star_big(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		path, score, ok := CalcBestScoreAStar(levels)
+		path, _, score, ok := CalcBestScoreAStar(levels)
 		assert.True(b, ok)
 		assert.NotNil(b, path)
 		assert.Equal(b, 462, score)
