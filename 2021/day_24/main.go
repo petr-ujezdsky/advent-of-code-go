@@ -2,6 +2,7 @@ package day_24
 
 import (
 	"bufio"
+	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
@@ -131,6 +132,76 @@ func RunRegisters(registers Registers, instructions []Instruction, input string)
 	return registers
 }
 
+func tryRegisterGroup(registers Registers, input int, iGroup int, instructions []Instruction) (Registers, bool) {
+	inputStack := InputStack{}
+	inputStack.Push(input)
+
+	for j, i := range instructions {
+		left := registers[i.ILeft]
+		right := i.VRight
+		if i.IRight != -1 {
+			right = registers[i.IRight]
+		}
+
+		registers[i.ILeft] = i.Evaluator(left, right, &inputStack)
+
+		// second eql instruction in groups with potential to small the z register
+		if j == 7 && (iGroup == 3 || iGroup == 5 || iGroup >= 9 && iGroup <= 13) {
+			// x needs to be 0 to perform division on z in the end (lowers te z value)
+			if registers[1] != 0 {
+				return Registers{}, false
+			}
+		}
+	}
+
+	return registers, true
+}
+
+func tryRegisterGroupRecursive(registers Registers, iGroup int, groups [][]Instruction) (Registers, bool, *utils.Stack[int]) {
+	if iGroup == len(groups) {
+		return registers, true, &utils.Stack[int]{}
+	}
+
+	for input := 9; input > 0; input-- {
+		localRegisters, ok := tryRegisterGroup(registers, input, iGroup, groups[iGroup])
+
+		// not feasible input
+		if !ok {
+			continue
+		}
+
+		// verification is OK, continue
+		nextRegisters, ok, resultInputs := tryRegisterGroupRecursive(localRegisters, iGroup+1, groups)
+		if ok {
+			resultInputs.Push(input)
+			return nextRegisters, true, resultInputs
+		}
+	}
+
+	return Registers{}, false, nil
+}
+
+func BruteForcePossibleValues(instructions []Instruction) string {
+	groups := groupInstructions(instructions)
+
+	registers, ok, resultInputs := tryRegisterGroupRecursive(Registers{}, 0, groups)
+	if !ok {
+		panic("Not found any")
+	}
+
+	if registers[3] != 0 {
+		panic(fmt.Sprintf("Z is not 0, registers: %v", registers))
+	}
+
+	digits := slices.Reverse(resultInputs.PeekAll())
+	sb := &strings.Builder{}
+	for _, digit := range digits {
+		sb.WriteString(strconv.Itoa(digit))
+	}
+
+	return sb.String()
+}
+
 func groupInstructions(instructions []Instruction) [][]Instruction {
 	groups := make([][]Instruction, 14)
 
@@ -139,16 +210,6 @@ func groupInstructions(instructions []Instruction) [][]Instruction {
 	}
 
 	return groups
-}
-
-func deGroupInstructions(groups [][]Instruction, indexes ...int) []Instruction {
-	var instructions []Instruction
-
-	for _, iGroup := range indexes {
-		instructions = append(instructions, groups[iGroup]...)
-	}
-
-	return instructions
 }
 
 func extractABC(instructions []Instruction) []utils.Vector3i {
@@ -171,58 +232,6 @@ func extractABC(instructions []Instruction) []utils.Vector3i {
 	}
 
 	return abcs
-}
-
-func RunDecompiled(instructions []Instruction, input string) int {
-	return RunDecompiledRegister(0, instructions, input)
-}
-
-func RunDecompiledRegister(z int, instructions []Instruction, input string) int {
-	//fmt.Printf("Input %v\n", input)
-
-	abcs := extractABC(instructions)
-
-	//prevABC := utils.Vector3i{}
-	//prevIn := 10000
-	for i, abc := range abcs {
-		in := int(input[i] - '0')
-		A := abc.X
-		B := abc.Y
-		C := abc.Z
-
-		//fmt.Printf("Group #%2d: z = (%v", i, z)
-
-		if z%26+B == in {
-			z = z / A
-			//fmt.Printf(" / %v) = %v\n", A, z)
-		} else {
-			z = (z/A)*26 + in + C
-			//fmt.Printf(" / %v) * 26 + %v + %v = %v\n", A, in, C, z)
-			//fmt.Printf("input %2d -> %d\n", i, z%26+B)
-		}
-		//if prevABC.Z+B == in-prevIn {
-		//	z = z / A
-		//	prevDivided = true
-		//	fmt.Printf(" / %v) = %v\n", A, z)
-		//} else {
-		//	z = (z/A)*26 + in + C
-		//	prevDivided = false
-		//	fmt.Printf(" / %v) * 26 + %v + %v = %v\n", A, in, C, z)
-		//}
-
-		//
-		//z /= A
-		//z *= 26
-		//z += in + C
-
-		//fmt.Printf("input %2d - %2d = %2d (prev=%v, current=%v)\n", i, i-1, prevABC.Z+B, prevABC, abc)
-		//fmt.Printf("input %2d - %2d = %2d\n", i, i-1, prevABC.Z+B)
-
-		//prevABC = abc
-		//prevIn = in
-	}
-
-	return z
 }
 
 func ParseInput(r io.Reader) []Instruction {
