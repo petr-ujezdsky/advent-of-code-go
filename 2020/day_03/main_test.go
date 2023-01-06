@@ -22,7 +22,7 @@ func Test_01_example(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	result := DoWithInput(world)
+	result := TreesCount(world)
 	assert.Equal(t, 7, result)
 }
 
@@ -32,7 +32,7 @@ func Test_01(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	result := DoWithInput(world)
+	result := TreesCount(world)
 	assert.Equal(t, 259, result)
 }
 
@@ -42,8 +42,8 @@ func Test_02_example(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	result := DoWithInput(world)
-	assert.Equal(t, 0, result)
+	result := TreesCountManySteps(world)
+	assert.Equal(t, 336, result)
 }
 
 func Test_02(t *testing.T) {
@@ -52,6 +52,6 @@ func Test_02(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	result := DoWithInput(world)
-	assert.Equal(t, 0, result)
+	result := TreesCountManySteps(world)
+	assert.Equal(t, 2224913600, result)
 }

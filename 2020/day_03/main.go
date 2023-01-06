@@ -9,8 +9,7 @@ import (
 
 type World = utils.Matrix[bool]
 
-func DoWithInput(world World) int {
-	step := utils.Vector2i{X: 3, Y: 1}
+func treesCountForStep(world World, step utils.Vector2i) int {
 	pos := utils.Vector2i{}
 
 	treesCount := 0
@@ -24,6 +23,28 @@ func DoWithInput(world World) int {
 	}
 
 	return treesCount
+}
+
+func TreesCount(world World) int {
+	step := utils.Vector2i{X: 3, Y: 1}
+	return treesCountForStep(world, step)
+}
+
+func TreesCountManySteps(world World) int {
+	steps := []utils.Vector2i{
+		{X: 1, Y: 1},
+		{X: 3, Y: 1},
+		{X: 5, Y: 1},
+		{X: 7, Y: 1},
+		{X: 1, Y: 2},
+	}
+	result := 1
+
+	for _, step := range steps {
+		result *= treesCountForStep(world, step)
+	}
+
+	return result
 }
 
 func ParseInput(r io.Reader) World {
