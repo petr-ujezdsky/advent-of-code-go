@@ -161,6 +161,10 @@ func ReverseString(str string) string {
 	return string(slices.Reverse([]rune(str)))
 }
 
+func Substring(str string, from, to int) string {
+	return string(([]rune(str))[from:to])
+}
+
 // Abs returns absolute value
 func Abs[T Number](i T) T {
 	if i < 0 {

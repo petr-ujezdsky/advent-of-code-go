@@ -1,6 +1,7 @@
 package utils_test
 
 import (
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"os"
 	"testing"
 
@@ -105,6 +106,28 @@ func TestCopy(t *testing.T) {
 	slices.Copy(source, target)
 
 	assert.Equal(t, []int{1, 2, 3}, target)
+}
+
+func TestSubstring(t *testing.T) {
+	type args struct {
+		str  string
+		from int
+		to   int
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{"", args{"text", 1, 3}, "ex"},
+		{"", args{"text", 1, 2}, "e"},
+		{"", args{"text", 1, 1}, ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, utils.Substring(tt.args.str, tt.args.from, tt.args.to), "Substring(%v, %v, %v)", tt.args.str, tt.args.from, tt.args.to)
+		})
+	}
 }
 
 func TestReverse(t *testing.T) {

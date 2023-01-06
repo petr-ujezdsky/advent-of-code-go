@@ -21,7 +21,7 @@ func Test_01_example(t *testing.T) {
 
 	passwordRecords := ParseInput(reader)
 
-	result := ValidatePasswords(passwordRecords)
+	result := ValidatePasswords1(passwordRecords)
 	assert.Equal(t, 2, result)
 }
 
@@ -31,7 +31,7 @@ func Test_01(t *testing.T) {
 
 	passwordRecords := ParseInput(reader)
 
-	result := ValidatePasswords(passwordRecords)
+	result := ValidatePasswords1(passwordRecords)
 	assert.Equal(t, 483, result)
 }
 
@@ -41,8 +41,8 @@ func Test_02_example(t *testing.T) {
 
 	passwordRecords := ParseInput(reader)
 
-	result := ValidatePasswords(passwordRecords)
-	assert.Equal(t, 0, result)
+	result := ValidatePasswords2(passwordRecords)
+	assert.Equal(t, 1, result)
 }
 
 func Test_02(t *testing.T) {
@@ -51,6 +51,6 @@ func Test_02(t *testing.T) {
 
 	passwordRecords := ParseInput(reader)
 
-	result := ValidatePasswords(passwordRecords)
-	assert.Equal(t, 0, result)
+	result := ValidatePasswords2(passwordRecords)
+	assert.Equal(t, 482, result)
 }
