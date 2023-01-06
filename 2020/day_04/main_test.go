@@ -41,8 +41,8 @@ func Test_02_example(t *testing.T) {
 
 	passports := ParseInput(reader)
 
-	result := ValidatePassports(passports, RequiredFieldsValidator)
-	assert.Equal(t, 0, result)
+	result := ValidatePassports(passports, FieldsContentValidator)
+	assert.Equal(t, 2, result)
 }
 
 func Test_02(t *testing.T) {
@@ -51,6 +51,6 @@ func Test_02(t *testing.T) {
 
 	passports := ParseInput(reader)
 
-	result := ValidatePassports(passports, RequiredFieldsValidator)
-	assert.Equal(t, 0, result)
+	result := ValidatePassports(passports, FieldsContentValidator)
+	assert.Equal(t, 153, result)
 }
