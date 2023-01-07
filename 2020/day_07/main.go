@@ -22,7 +22,7 @@ func multiplyCounts(amount int, neededCounts, expandedCounts ExpandedNeededCount
 	}
 }
 
-func expandRules(color string, rules map[string]BagRule, cache map[string]*ExpandedNeededCounts) *ExpandedNeededCounts {
+func expandRules(color string, rules map[string]BagRule, cache map[string]ExpandedNeededCounts) ExpandedNeededCounts {
 	if expandedRule, ok := cache[color]; ok {
 		return expandedRule
 	}
@@ -32,22 +32,22 @@ func expandRules(color string, rules map[string]BagRule, cache map[string]*Expan
 	for subColor, neededCount := range rule.NeededCounts {
 		subRuleNeededCounts := expandRules(subColor, rules, cache)
 
-		multiplyCounts(neededCount, *subRuleNeededCounts, expandedCounts)
+		multiplyCounts(neededCount, subRuleNeededCounts, expandedCounts)
 		expandedCounts[subColor] += neededCount
 	}
 
-	cache[color] = &expandedCounts
+	cache[color] = expandedCounts
 
-	return &expandedCounts
+	return expandedCounts
 }
 
 func ExpandRules(color string, rules map[string]BagRule) ExpandedNeededCounts {
-	expandedNeededCounts := expandRules(color, rules, make(map[string]*ExpandedNeededCounts))
-	return *expandedNeededCounts
+	expandedNeededCounts := expandRules(color, rules, make(map[string]ExpandedNeededCounts))
+	return expandedNeededCounts
 }
 
-func ExpandAllRules(rules map[string]BagRule) map[string]*ExpandedNeededCounts {
-	allExpandedNeededCounts := make(map[string]*ExpandedNeededCounts)
+func ExpandAllRules(rules map[string]BagRule) map[string]ExpandedNeededCounts {
+	allExpandedNeededCounts := make(map[string]ExpandedNeededCounts)
 
 	for color := range rules {
 		expandRules(color, rules, allExpandedNeededCounts)
@@ -62,7 +62,7 @@ func DoWithInput(bagRules map[string]BagRule) int {
 	count := 0
 	for color := range bagRules {
 		expandedNeededCounts := allExpandedNeededCounts[color]
-		if neededCount, ok := (*expandedNeededCounts)["shiny gold"]; ok && neededCount >= 1 {
+		if neededCount, ok := expandedNeededCounts["shiny gold"]; ok && neededCount >= 1 {
 			count++
 		}
 	}
