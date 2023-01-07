@@ -44,22 +44,12 @@ func Test_01(t *testing.T) {
 	assert.Equal(t, 864, result)
 }
 
-func Test_02_example(t *testing.T) {
-	reader, err := os.Open("data-00-example.txt")
-	assert.Nil(t, err)
-
-	boardingPasses := ParseInput(reader)
-
-	result := FindMaxSeatId(boardingPasses)
-	assert.Equal(t, 0, result)
-}
-
 func Test_02(t *testing.T) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(t, err)
 
 	boardingPasses := ParseInput(reader)
 
-	result := FindMaxSeatId(boardingPasses)
+	result := FindMissingSeatId(boardingPasses)
 	assert.Equal(t, 0, result)
 }

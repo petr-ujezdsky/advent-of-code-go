@@ -4,7 +4,9 @@ import (
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
+	"sort"
 )
 
 type BoardingPass struct {
@@ -59,6 +61,23 @@ func FindMaxSeatId(boardingPasses []BoardingPass) int {
 	}
 
 	return maxId
+}
+
+func FindMissingSeatId(boardingPasses []BoardingPass) int {
+	seatIds := slices.Map(boardingPasses, func(bp BoardingPass) int { return bp.getSeatId() })
+
+	sort.Ints(seatIds)
+
+	for i := 0; i < len(seatIds)-1; i++ {
+		s1 := seatIds[i]
+		s2 := seatIds[i+1]
+
+		if s1+1 != s2 {
+			return s1 + 1
+		}
+	}
+
+	panic("Nothing found")
 }
 
 func ParseInput(r io.Reader) []BoardingPass {

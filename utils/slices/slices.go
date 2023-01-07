@@ -79,3 +79,13 @@ func Fill[T any](slice []T, value T) {
 		slice[i] = value
 	}
 }
+
+func Map[S, T any](slice []S, mapper func(s S) T) []T {
+	mapped := make([]T, len(slice))
+
+	for i, s := range slice {
+		mapped[i] = mapper(s)
+	}
+
+	return mapped
+}
