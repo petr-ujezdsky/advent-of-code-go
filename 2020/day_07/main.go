@@ -1,9 +1,10 @@
 package main
 
 import (
-	"bufio"
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
 	"regexp"
 	"strings"
@@ -87,38 +88,34 @@ func TotalBagsCount(bagRules map[string]BagRule) int {
 var regexRules = regexp.MustCompile(`^(.+) bags contain (.+)\.$`)
 var regexRule = regexp.MustCompile(`(\d+) (.+) bags?`)
 
-func ParseInput(r io.Reader) map[string]BagRule {
-	scanner := bufio.NewScanner(r)
-	scanner.Split(bufio.ScanLines)
+func ParseRule(str string) BagRule {
+	parts := regexRules.FindStringSubmatch(str)
 
-	bagRules := make(map[string]BagRule)
-	for scanner.Scan() {
-		parts := regexRules.FindStringSubmatch(scanner.Text())
+	color := parts[1]
 
-		color := parts[1]
+	rulesParts := strings.Split(parts[2], ", ")
 
-		rulesParts := strings.Split(parts[2], ", ")
+	neededCounts := make(map[string]int)
 
-		neededCounts := make(map[string]int)
-
-		for _, rule := range rulesParts {
-			ruleParts := regexRule.FindStringSubmatch(rule)
-			if len(ruleParts) != 3 {
-				continue
-			}
-			ruleCount := utils.ParseInt(ruleParts[1])
-			ruleColor := ruleParts[2]
-
-			neededCounts[ruleColor] = ruleCount
+	for _, rule := range rulesParts {
+		ruleParts := regexRule.FindStringSubmatch(rule)
+		if len(ruleParts) != 3 {
+			continue
 		}
+		ruleCount := utils.ParseInt(ruleParts[1])
+		ruleColor := ruleParts[2]
 
-		bagRule := BagRule{
-			Color:        color,
-			NeededCounts: neededCounts,
-		}
-
-		bagRules[color] = bagRule
+		neededCounts[ruleColor] = ruleCount
 	}
 
-	return bagRules
+	return BagRule{
+		Color:        color,
+		NeededCounts: neededCounts,
+	}
+}
+
+func ParseInput(r io.Reader) map[string]BagRule {
+	bagRules := parsers.ParseToObjects(r, ParseRule)
+
+	return slices.ToMap[BagRule](bagRules, func(barRule BagRule) string { return barRule.Color })
 }

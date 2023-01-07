@@ -89,3 +89,13 @@ func Map[S, T any](slice []S, mapper func(s S) T) []T {
 
 	return mapped
 }
+
+func ToMap[T any, K comparable](slice []T, keyMapper func(v T) K) map[K]T {
+	m := make(map[K]T, len(slice))
+
+	for _, value := range slice {
+		m[keyMapper(value)] = value
+	}
+
+	return m
+}
