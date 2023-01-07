@@ -13,11 +13,25 @@ type Group struct {
 	Size        int
 }
 
-func CountTrueAnswersPerGroup(groups []Group) int {
+func CountTrueAnswersPerGroupAnyone(groups []Group) int {
 	sum := 0
 
 	for _, group := range groups {
 		sum += len(group.TrueAnswers)
+	}
+
+	return sum
+}
+
+func CountTrueAnswersPerGroupEveryone(groups []Group) int {
+	sum := 0
+
+	for _, group := range groups {
+		for _, count := range group.TrueAnswers {
+			if count == group.Size {
+				sum++
+			}
+		}
 	}
 
 	return sum

@@ -21,7 +21,7 @@ func Test_01_example(t *testing.T) {
 
 	groups := ParseInput(reader)
 
-	result := CountTrueAnswersPerGroup(groups)
+	result := CountTrueAnswersPerGroupAnyone(groups)
 	assert.Equal(t, 11, result)
 }
 
@@ -31,7 +31,7 @@ func Test_01(t *testing.T) {
 
 	groups := ParseInput(reader)
 
-	result := CountTrueAnswersPerGroup(groups)
+	result := CountTrueAnswersPerGroupAnyone(groups)
 	assert.Equal(t, 6249, result)
 }
 
@@ -41,8 +41,8 @@ func Test_02_example(t *testing.T) {
 
 	groups := ParseInput(reader)
 
-	result := CountTrueAnswersPerGroup(groups)
-	assert.Equal(t, 0, result)
+	result := CountTrueAnswersPerGroupEveryone(groups)
+	assert.Equal(t, 6, result)
 }
 
 func Test_02(t *testing.T) {
@@ -51,6 +51,6 @@ func Test_02(t *testing.T) {
 
 	groups := ParseInput(reader)
 
-	result := CountTrueAnswersPerGroup(groups)
-	assert.Equal(t, 0, result)
+	result := CountTrueAnswersPerGroupEveryone(groups)
+	assert.Equal(t, 3103, result)
 }
