@@ -62,8 +62,8 @@ func ParseToObjectsIndexed[T any](r io.Reader, mapper func(line string, i int) T
 	i := 0
 	for scanner.Scan() {
 		object := mapper(scanner.Text(), i)
-
 		objects = append(objects, object)
+		i++
 	}
 
 	if scanner.Err() != nil {
@@ -71,4 +71,32 @@ func ParseToObjectsIndexed[T any](r io.Reader, mapper func(line string, i int) T
 	}
 
 	return objects
+}
+
+// ParseToGroups returns slice of groups of objects. Groups are divided by empty row.
+func ParseToGroups[T any](r io.Reader, mapper func(lines []string, i int) T) []T {
+	scanner := bufio.NewScanner(r)
+	scanner.Split(bufio.ScanLines)
+
+	var groups []T
+
+	i := 0
+	for scanner.Scan() {
+		var lines []string
+
+		for len(scanner.Text()) > 0 {
+			lines = append(lines, scanner.Text())
+			scanner.Scan()
+		}
+
+		group := mapper(lines, i)
+		groups = append(groups, group)
+		i++
+	}
+
+	if scanner.Err() != nil {
+		panic("Error parsing input")
+	}
+
+	return groups
 }

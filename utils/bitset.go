@@ -61,6 +61,18 @@ func (s *BitSet[T]) Clone() BitSet[T] {
 	return BitSet[T]{s.mask}
 }
 
+func (s *BitSet[T]) PushAll(s2 BitSet[T]) {
+	s.mask = s.mask | s2.mask
+}
+
+func (s *BitSet[T]) And(s2 BitSet[T]) BitSet[T] {
+	return BitSet[T]{mask: s.mask & s2.mask}
+}
+
+func (s *BitSet[T]) Or(s2 BitSet[T]) BitSet[T] {
+	return BitSet[T]{mask: s.mask | s2.mask}
+}
+
 func (s *BitSet[T]) String() string {
 	bitsCount := int(unsafe.Sizeof(*s)) * 8
 	format := "%." + strconv.Itoa(bitsCount) + "b"

@@ -24,6 +24,39 @@ func TestBitSet_All(t *testing.T) {
 	assert.Equal(t, false, bitSet.Contains(7))
 }
 
+func TestBitSet_And(t *testing.T) {
+	bitSet1 := NewEmptyBitSet[uint8]()
+	bitSet2 := NewEmptyBitSet[uint8]()
+
+	bitSet1.Push(1)
+	bitSet1.Push(2)
+	bitSet1.Push(3)
+
+	bitSet2.Push(2)
+
+	bitSet := bitSet1.And(bitSet2)
+	assert.Equal(t, false, bitSet.Contains(1))
+	assert.Equal(t, true, bitSet.Contains(2))
+	assert.Equal(t, false, bitSet.Contains(3))
+}
+
+func TestBitSet_Or(t *testing.T) {
+	bitSet1 := NewEmptyBitSet[uint8]()
+	bitSet2 := NewEmptyBitSet[uint8]()
+
+	bitSet1.Push(1)
+	bitSet1.Push(2)
+	bitSet1.Push(3)
+
+	bitSet2.Push(4)
+
+	bitSet := bitSet1.Or(bitSet2)
+	assert.Equal(t, true, bitSet.Contains(1))
+	assert.Equal(t, true, bitSet.Contains(2))
+	assert.Equal(t, true, bitSet.Contains(3))
+	assert.Equal(t, true, bitSet.Contains(4))
+}
+
 func TestNewFullBitSet8(t *testing.T) {
 	bitSet := NewFullBitSet8()
 	assert.Equal(t, "11111111", bitSet.String())
