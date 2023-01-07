@@ -40,7 +40,7 @@ func Test_01_example(t *testing.T) {
 
 	bagRules := ParseInput(reader)
 
-	result := DoWithInput(bagRules)
+	result := ContainableByBagsCount(bagRules)
 	assert.Equal(t, 4, result)
 }
 
@@ -50,7 +50,7 @@ func Test_01(t *testing.T) {
 
 	bagRules := ParseInput(reader)
 
-	result := DoWithInput(bagRules)
+	result := ContainableByBagsCount(bagRules)
 	assert.Equal(t, 326, result)
 }
 
@@ -60,8 +60,8 @@ func Test_02_example(t *testing.T) {
 
 	bagRules := ParseInput(reader)
 
-	result := DoWithInput(bagRules)
-	assert.Equal(t, 0, result)
+	result := TotalBagsCount(bagRules)
+	assert.Equal(t, 32, result)
 }
 
 func Test_02(t *testing.T) {
@@ -70,6 +70,6 @@ func Test_02(t *testing.T) {
 
 	bagRules := ParseInput(reader)
 
-	result := DoWithInput(bagRules)
-	assert.Equal(t, 0, result)
+	result := TotalBagsCount(bagRules)
+	assert.Equal(t, 5635, result)
 }

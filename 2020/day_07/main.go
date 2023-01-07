@@ -56,7 +56,7 @@ func ExpandAllRules(rules map[string]BagRule) map[string]ExpandedNeededCounts {
 	return allExpandedNeededCounts
 }
 
-func DoWithInput(bagRules map[string]BagRule) int {
+func ContainableByBagsCount(bagRules map[string]BagRule) int {
 	allExpandedNeededCounts := ExpandAllRules(bagRules)
 
 	count := 0
@@ -65,6 +65,18 @@ func DoWithInput(bagRules map[string]BagRule) int {
 		if neededCount, ok := expandedNeededCounts["shiny gold"]; ok && neededCount >= 1 {
 			count++
 		}
+	}
+
+	return count
+}
+
+func TotalBagsCount(bagRules map[string]BagRule) int {
+	allExpandedNeededCounts := ExpandAllRules(bagRules)
+
+	count := 0
+	expandedNeededCounts := allExpandedNeededCounts["shiny gold"]
+	for _, neededCount := range expandedNeededCounts {
+		count += neededCount
 	}
 
 	return count
