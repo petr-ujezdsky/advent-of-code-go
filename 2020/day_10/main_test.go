@@ -51,8 +51,18 @@ func Test_02_example(t *testing.T) {
 
 	adapters := ParseInput(reader)
 
-	result := DoWithInput(adapters)
-	assert.Equal(t, 0, result)
+	result := DoWithInput2(adapters)
+	assert.Equal(t, 8, result)
+}
+
+func Test_02_example2(t *testing.T) {
+	reader, err := os.Open("data-00-example-2.txt")
+	assert.Nil(t, err)
+
+	adapters := ParseInput(reader)
+
+	result := DoWithInput2(adapters)
+	assert.Equal(t, 19208, result)
 }
 
 func Test_02(t *testing.T) {
@@ -61,6 +71,6 @@ func Test_02(t *testing.T) {
 
 	adapters := ParseInput(reader)
 
-	result := DoWithInput(adapters)
+	result := DoWithInput2(adapters)
 	assert.Equal(t, 0, result)
 }

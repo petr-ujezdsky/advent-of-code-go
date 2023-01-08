@@ -1,6 +1,10 @@
 package slices
 
-import "github.com/petr-ujezdsky/advent-of-code-go/utils"
+import (
+	"fmt"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"strings"
+)
 
 // Clone creates shallow copy of the given slice
 func Clone[T any](slice []T) []T {
@@ -119,4 +123,29 @@ func Max[T utils.Number](slice []T) T {
 		max = utils.Max(max, value)
 	}
 	return max
+}
+
+// Differentials returns slice of differentials, result[i] = source[i+1] - source[i]
+func Differentials[T utils.Number](slice []T) []T {
+	diffs := make([]T, len(slice)-1)
+	for i, value := range slice[0 : len(slice)-1] {
+		diffs[i] = slice[i+1] - value
+	}
+	return diffs
+}
+
+// Sprintf converts slice into string using custom item formatter
+func Sprintf[T any](slice []T, format string) string {
+	sb := &strings.Builder{}
+	sb.WriteRune('[')
+
+	for i, value := range slice {
+		if i != 0 {
+			sb.WriteRune(' ')
+		}
+		sb.WriteString(fmt.Sprintf(format, value))
+	}
+
+	sb.WriteRune(']')
+	return sb.String()
 }
