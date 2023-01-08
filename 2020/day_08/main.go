@@ -13,7 +13,6 @@ type Operation struct {
 	Name        string
 	Arg         int
 	Instruction Instruction
-	Visited     bool
 }
 
 var instructions = map[string]Instruction{
@@ -25,18 +24,20 @@ var instructions = map[string]Instruction{
 func ValueBeforeCycle(operations []*Operation) int {
 	i := 0
 	global := 0
+	visited := make([]bool, len(operations))
+
 	for {
 		op := operations[i]
 
-		if op.Visited {
+		if visited[i] {
 			return global
 		}
 
 		newGlobal, offset := op.Instruction(global, op.Arg)
 
 		global = newGlobal
+		visited[i] = true
 		i += offset
-		op.Visited = true
 	}
 }
 
@@ -49,7 +50,6 @@ func parseInstruction(str string) *Operation {
 		Name:        name,
 		Arg:         arg,
 		Instruction: instruction,
-		Visited:     false,
 	}
 }
 
