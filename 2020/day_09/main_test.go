@@ -41,8 +41,8 @@ func Test_02_example(t *testing.T) {
 
 	numbers := ParseInput(reader)
 
-	result := FindInvalidNumber(numbers, 25)
-	assert.Equal(t, 0, result)
+	result := FindRange(numbers, 5)
+	assert.Equal(t, 62, result)
 }
 
 func Test_02(t *testing.T) {
@@ -51,6 +51,6 @@ func Test_02(t *testing.T) {
 
 	numbers := ParseInput(reader)
 
-	result := FindInvalidNumber(numbers, 25)
-	assert.Equal(t, 0, result)
+	result := FindRange(numbers, 25)
+	assert.Equal(t, 3012420, result)
 }
