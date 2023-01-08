@@ -1,4 +1,4 @@
-package utils
+package collections
 
 type BitSet128 struct {
 	maskLow, maskHigh BitSet64

@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/alg"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/collections"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/maps"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
@@ -31,7 +32,7 @@ type World struct {
 
 type WorldState struct {
 	CurrentNode      *ValveNode
-	ClosedValvesSet  utils.BitSet128
+	ClosedValvesSet  collections.BitSet128
 	AllNodes         []*ValveNode
 	AllNodesSorted   []*ValveNode
 	RemainingTime    int
@@ -40,7 +41,7 @@ type WorldState struct {
 
 type WorldState2 struct {
 	CurrentNode      *ValveNode
-	ClosedValvesSet  utils.BitSet128
+	ClosedValvesSet  collections.BitSet128
 	RemainingTime    int
 	PressureReleased int
 }
@@ -189,7 +190,7 @@ func FindMaxPressureReleaseStateMinMax(world World) int {
 		AllNodes:         world.AllNodes,
 		AllNodesSorted:   world.AllNodesSorted,
 		CurrentNode:      world.RootNode,
-		ClosedValvesSet:  utils.NewFullBitSet128(),
+		ClosedValvesSet:  collections.NewFullBitSet128(),
 		RemainingTime:    30,
 		PressureReleased: 0,
 	}
@@ -248,7 +249,7 @@ func FindMaxPressureReleaseStateMinMaxGeneralized(world World) int {
 
 	initialState := &WorldState2{
 		CurrentNode:      world.RootNode,
-		ClosedValvesSet:  utils.NewFullBitSet128(),
+		ClosedValvesSet:  collections.NewFullBitSet128(),
 		RemainingTime:    30,
 		PressureReleased: 0,
 	}
