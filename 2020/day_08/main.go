@@ -5,6 +5,7 @@ import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/strs"
 	"io"
 )
 
@@ -98,7 +99,7 @@ func FixTheCode(operations []*Operation) int {
 }
 
 func parseInstruction(str string) *Operation {
-	name := utils.Substring(str, 0, 3)
+	name := strs.Substring(str, 0, 3)
 	arg := utils.ExtractInts(str, true)[0]
 	instruction := instructions[name]
 

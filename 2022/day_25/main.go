@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/strs"
 	"io"
 	"strconv"
 	"strings"
@@ -65,7 +66,7 @@ func base5ReversedToSNAFU(base5 []int) string {
 		snafu.WriteString(strconv.Itoa(transfer))
 	}
 
-	return utils.ReverseString(snafu.String())
+	return strs.ReverseString(snafu.String())
 }
 
 func CreateSNAFU(n int) string {

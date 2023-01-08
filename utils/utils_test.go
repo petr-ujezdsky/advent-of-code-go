@@ -2,6 +2,7 @@ package utils_test
 
 import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/strs"
 	"os"
 	"testing"
 
@@ -125,7 +126,7 @@ func TestSubstring(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, utils.Substring(tt.args.str, tt.args.from, tt.args.to), "Substring(%v, %v, %v)", tt.args.str, tt.args.from, tt.args.to)
+			assert.Equalf(t, tt.want, strs.Substring(tt.args.str, tt.args.from, tt.args.to), "Substring(%v, %v, %v)", tt.args.str, tt.args.from, tt.args.to)
 		})
 	}
 }
