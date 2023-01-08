@@ -26,7 +26,7 @@ func isValid(i int, window Window) bool {
 	return false
 }
 
-func DoWithInput(numbers []int, windowSize int) int {
+func FindInvalidNumber(numbers []int, windowSize int) int {
 	// init window
 	window := make(Window, windowSize)
 	for i := 0; i < windowSize; i++ {
