@@ -1,10 +1,13 @@
-package utils
+package collections
 
-import "container/heap"
+import (
+	"container/heap"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+)
 
 // MinHeap is implementation of binary min-heap
 // see https://maupanelo.com/posts/how-to-write-a-binary-heap-in-golang/
-type MinHeap[T comparable, N Number] struct {
+type MinHeap[T comparable, N utils.Number] struct {
 	adapter *minHeapAdapter[T, N]
 }
 
@@ -43,7 +46,7 @@ func (h MinHeap[T, N]) Contains(item T) bool {
 	return ok
 }
 
-func NewMinHeap[T comparable, N Number]() MinHeap[T, N] {
+func NewMinHeap[T comparable, N utils.Number]() MinHeap[T, N] {
 	return MinHeap[T, N]{adapter: nil}
 }
 
@@ -52,13 +55,13 @@ func NewMinHeapInt[T comparable]() MinHeap[T, int] {
 	return MinHeap[T, int]{adapter: &adapter}
 }
 
-type heapItem[T any, N Number] struct {
+type heapItem[T any, N utils.Number] struct {
 	item  T
 	index int
 	value N
 }
 
-type minHeapAdapter[T comparable, N Number] struct {
+type minHeapAdapter[T comparable, N utils.Number] struct {
 	heapItems     []*heapItem[T, N]
 	item2heapItem map[T]*heapItem[T, N]
 }

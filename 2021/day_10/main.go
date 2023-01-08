@@ -2,6 +2,7 @@ package day_10
 
 import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/collections"
 	"io"
 	"sort"
 )
@@ -94,8 +95,8 @@ func charIncompleteScore(char rune) int {
 	}
 }
 
-func checkCorruption(row string) (Char, utils.Stack[Char], bool) {
-	openersStack := utils.NewStack[Char]()
+func checkCorruption(row string) (Char, collections.Stack[Char], bool) {
+	openersStack := collections.NewStack[Char]()
 
 	for _, charRune := range []rune(row) {
 		char := NewChar(charRune)

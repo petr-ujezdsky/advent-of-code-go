@@ -1,7 +1,7 @@
 package alg
 
 import (
-	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/collections"
 )
 
 func reconstructPath[T comparable](cameFrom map[T]T, current T) []T {
@@ -31,7 +31,7 @@ func AStarEndFunc[T comparable](start T, isEnd func(T) bool, h func(T) int, d fu
 	// The set of discovered nodes that may need to be (re-)expanded.
 	// Initially, only the start node is known.
 	// This is usually implemented as a min-heap or priority queue rather than a hash-set.
-	openSet := utils.NewMinHeapInt[T]()
+	openSet := collections.NewMinHeapInt[T]()
 	openSet.Push(start, hStart)
 
 	// For node n, cameFrom[n] is the node immediately preceding it on the cheapest path from start

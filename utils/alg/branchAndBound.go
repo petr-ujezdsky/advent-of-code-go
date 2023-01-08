@@ -1,7 +1,7 @@
 package alg
 
 import (
-	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/collections"
 	"math"
 )
 
@@ -15,7 +15,7 @@ type storage[T any] interface {
 // found minimum.
 // Uses best-first search.
 func BranchAndBoundBestFirst[T comparable](start T, cost func(T) int, lowerBound func(T) int, nextStatesProvider func(T) []T) (min int, minState T) {
-	storage := utils.NewMinHeapInt[T]()
+	storage := collections.NewMinHeapInt[T]()
 	return branchAndBound[T](&storage, start, cost, lowerBound, nextStatesProvider)
 }
 
@@ -87,12 +87,12 @@ type stackStorage[T any] struct {
 }
 
 func newStackStorage[T any]() stackStorage[T] {
-	stack := utils.NewStack[T]()
+	stack := collections.NewStack[T]()
 	return stackStorage[T]{storage: &stack}
 }
 
 func newQueueStorage[T any]() stackStorage[T] {
-	queue := utils.NewQueue[T]()
+	queue := collections.NewQueue[T]()
 	return stackStorage[T]{storage: &queue}
 }
 

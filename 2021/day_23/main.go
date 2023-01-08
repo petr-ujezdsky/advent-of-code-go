@@ -3,6 +3,7 @@ package day_22
 import (
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/collections"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"math"
 	"strings"
@@ -18,7 +19,7 @@ import (
 */
 
 type Room struct {
-	utils.Stack[rune]
+	collections.Stack[rune]
 	Capacity int
 }
 
@@ -66,10 +67,10 @@ func NewBuildingFull(hallway, room1, room2, room3, room4 string, consumedEnergy 
 		ConsumedEnergy: consumedEnergy,
 	}
 
-	b.Rooms[0] = Room{Stack: utils.NewStackFilled(dot2nothing([]rune(room1))), Capacity: len(room1)}
-	b.Rooms[1] = Room{Stack: utils.NewStackFilled(dot2nothing([]rune(room2))), Capacity: len(room1)}
-	b.Rooms[2] = Room{Stack: utils.NewStackFilled(dot2nothing([]rune(room3))), Capacity: len(room1)}
-	b.Rooms[3] = Room{Stack: utils.NewStackFilled(dot2nothing([]rune(room4))), Capacity: len(room1)}
+	b.Rooms[0] = Room{Stack: collections.NewStackFilled(dot2nothing([]rune(room1))), Capacity: len(room1)}
+	b.Rooms[1] = Room{Stack: collections.NewStackFilled(dot2nothing([]rune(room2))), Capacity: len(room1)}
+	b.Rooms[2] = Room{Stack: collections.NewStackFilled(dot2nothing([]rune(room3))), Capacity: len(room1)}
+	b.Rooms[3] = Room{Stack: collections.NewStackFilled(dot2nothing([]rune(room4))), Capacity: len(room1)}
 
 	return b
 }

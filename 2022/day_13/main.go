@@ -4,6 +4,7 @@ import (
 	"bufio"
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/collections"
 	"io"
 	"sort"
 	"strconv"
@@ -112,7 +113,7 @@ func FindDecoderKey(nodes []*Node) int {
 }
 
 func ParseNode(chars []rune) *Node {
-	children := utils.NewStack[*Node]()
+	children := collections.NewStack[*Node]()
 
 	// root node
 	children.Push(&Node{})

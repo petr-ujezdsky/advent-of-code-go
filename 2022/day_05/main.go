@@ -4,11 +4,12 @@ import (
 	"bufio"
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/collections"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
 )
 
-type CratesStack = utils.Stack[rune]
+type CratesStack = collections.Stack[rune]
 
 type Operation struct {
 	From, To, Count int
@@ -21,7 +22,7 @@ func moveByOne(from, to *CratesStack, count int) {
 }
 
 func moveAll(from, to *CratesStack, count int) {
-	stack := utils.NewStack[rune]()
+	stack := collections.NewStack[rune]()
 
 	for i := 0; i < count; i++ {
 		stack.Push(from.Pop())
@@ -64,7 +65,7 @@ func ParseInput(r io.Reader) ([]*CratesStack, []Operation) {
 
 	// last char in last line is last stack number -> count
 	stacksCount := lines[len(lines)-1][len(lines[len(lines)-1])-1] - '0'
-	stacks := make([]*utils.Stack[rune], stacksCount)
+	stacks := make([]*collections.Stack[rune], stacksCount)
 	for _, line := range slices.Reverse(lines[:len(lines)-1]) {
 		for i, stack := range stacks {
 			index := i*4 + 1
@@ -74,7 +75,7 @@ func ParseInput(r io.Reader) ([]*CratesStack, []Operation) {
 			}
 
 			if stack == nil {
-				s := utils.NewStack[rune]()
+				s := collections.NewStack[rune]()
 				stack = &s
 				stacks[i] = &s
 			}

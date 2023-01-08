@@ -4,13 +4,14 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/collections"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
 	"strconv"
 	"strings"
 )
 
-type InputStack = utils.Stack[int]
+type InputStack = collections.Stack[int]
 type Registers = [4]int
 
 type Instruction struct {
@@ -87,7 +88,7 @@ func NewInputStack(input string) InputStack {
 		digits[i] = int(d - '0')
 	}
 
-	return utils.NewStackFilled(digits)
+	return collections.NewStackFilled(digits)
 }
 
 func Run(instructions []Instruction, input string) Registers {
@@ -157,9 +158,9 @@ func tryRegisterGroup(registers Registers, input int, iGroup int, instructions [
 	return registers, true
 }
 
-func tryRegisterGroupRecursive(registers Registers, iGroup int, from, to int, groups [][]Instruction) (Registers, bool, *utils.Stack[int]) {
+func tryRegisterGroupRecursive(registers Registers, iGroup int, from, to int, groups [][]Instruction) (Registers, bool, *collections.Stack[int]) {
 	if iGroup == len(groups) {
-		return registers, true, &utils.Stack[int]{}
+		return registers, true, &collections.Stack[int]{}
 	}
 
 	step := utils.Signum(to - from)

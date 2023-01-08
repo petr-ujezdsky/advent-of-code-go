@@ -1,4 +1,4 @@
-package utils
+package collections
 
 import "github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 

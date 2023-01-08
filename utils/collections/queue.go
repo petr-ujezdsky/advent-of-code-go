@@ -1,7 +1,8 @@
-package utils
+package collections
 
 import (
 	"fmt"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"strings"
 )
@@ -51,7 +52,7 @@ func (q *Queue[T]) PeekAll() []T {
 func (q *Queue[T]) Push(elm T) {
 	// check size end enlarge if needed
 	if q.length == len(q.list) {
-		list := make([]T, Max(1, 2*len(q.list)))
+		list := make([]T, utils.Max(1, 2*len(q.list)))
 
 		j := 0
 		if len(q.list) > 0 {
