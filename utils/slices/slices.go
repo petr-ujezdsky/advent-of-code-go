@@ -1,5 +1,7 @@
 package slices
 
+import "github.com/petr-ujezdsky/advent-of-code-go/utils"
+
 // Clone creates shallow copy of the given slice
 func Clone[T any](slice []T) []T {
 	// prepare destination slice
@@ -98,4 +100,23 @@ func ToMap[T any, K comparable](slice []T, keyMapper func(v T) K) map[K]T {
 	}
 
 	return m
+}
+
+func ToSet[T comparable](slice []T) map[T]struct{} {
+	m := make(map[T]struct{})
+
+	for _, value := range slice {
+		m[value] = struct{}{}
+	}
+
+	return m
+}
+
+// Max returns maximum value in the slice
+func Max[T utils.Number](slice []T) T {
+	max := slice[0]
+	for _, value := range slice {
+		max = utils.Max(max, value)
+	}
+	return max
 }
