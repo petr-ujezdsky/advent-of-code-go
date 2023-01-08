@@ -6,7 +6,45 @@ import (
 	"io"
 )
 
-func DoWithInput(numbers []int) int {
+type Window = map[int]struct{}
+
+func isValid(i int, window Window) bool {
+	for windowNumber := range window {
+		remainder := i - windowNumber
+
+		if remainder == windowNumber {
+			// pair consists of 2 different numbers
+			continue
+		}
+
+		// check remainder existence
+		if _, ok := window[remainder]; ok {
+			return true
+		}
+	}
+
+	return false
+}
+
+func DoWithInput(numbers []int, windowSize int) int {
+	// init window
+	window := make(Window, windowSize)
+	for i := 0; i < windowSize; i++ {
+		window[numbers[i]] = struct{}{}
+	}
+
+	for i := windowSize; i < len(numbers); i++ {
+		number := numbers[i]
+		if !isValid(number, window) {
+			return number
+		}
+
+		// remove the left-most number from window
+		delete(window, numbers[i-windowSize])
+		// add current number
+		window[number] = struct{}{}
+	}
+
 	return len(numbers)
 }
 
