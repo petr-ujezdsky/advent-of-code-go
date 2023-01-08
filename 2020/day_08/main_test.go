@@ -41,8 +41,8 @@ func Test_02_example(t *testing.T) {
 
 	operations := ParseInput(reader)
 
-	result := ValueBeforeCycle(operations)
-	assert.Equal(t, 0, result)
+	result := FixTheCode(operations)
+	assert.Equal(t, 8, result)
 }
 
 func Test_02(t *testing.T) {
@@ -51,6 +51,6 @@ func Test_02(t *testing.T) {
 
 	operations := ParseInput(reader)
 
-	result := ValueBeforeCycle(operations)
-	assert.Equal(t, 0, result)
+	result := FixTheCode(operations)
+	assert.Equal(t, 733, result)
 }
