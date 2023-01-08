@@ -20,6 +20,10 @@ func MapperBoolean(trueChar, falseChar rune) func(ch rune, i, j int) bool {
 	}
 }
 
+func MapperIntegers(line string) int {
+	return utils.ParseInt(line)
+}
+
 // ParseToMatrix returns the matrix of objects
 func ParseToMatrix[T any](r io.Reader, mapper func(ch rune) T) utils.Matrix[T] {
 	indexedMapper := func(line rune, i, j int) T { return mapper(line) }
