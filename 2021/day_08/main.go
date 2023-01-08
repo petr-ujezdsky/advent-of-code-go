@@ -3,7 +3,7 @@ package day_08
 import (
 	"bufio"
 	"fmt"
-	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/combi"
 	"io"
 	"math"
 	"strings"
@@ -153,7 +153,7 @@ func TryDecodeOutput(mapping []rune, entry Entry) (int, bool) {
 func BruteForceDecode(entry Entry) (int, []rune, int, bool) {
 	quit := make(chan interface{})
 	initialDecoder := []rune("abcdefg")
-	decoders := utils.Permute(quit, initialDecoder)
+	decoders := combi.Permute(quit, initialDecoder)
 
 	i := 0
 	for decoder := range decoders {
@@ -192,7 +192,7 @@ func DecodeAndSum(entries []Entry) (int, bool) {
 func BruteForceDecodeParallel(entry Entry) (int, []rune, int, bool) {
 	quit := make(chan interface{})
 	initialDecoder := []rune("abcdefg")
-	decoders := utils.Permute(quit, initialDecoder)
+	decoders := combi.Permute(quit, initialDecoder)
 
 	resultChan := make(chan Result)
 	i := 0
