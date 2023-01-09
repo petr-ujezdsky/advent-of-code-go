@@ -9,40 +9,6 @@ import (
 	"sort"
 )
 
-func chain(adapter int, adapters map[int]struct{}, device int) (stepCounts map[int]int, steps []int, ok bool) {
-	if adapter == device {
-		stepCounts = make(map[int]int)
-		steps = make([]int, 0, len(adapters)+2)
-		return stepCounts, steps, true
-	}
-
-	for step := 1; step <= 3; step++ {
-		nextAdapter := adapter + step
-		if _, ok = adapters[nextAdapter]; ok || nextAdapter == device {
-			stepCounts, steps, ok = chain(nextAdapter, adapters, device)
-			if ok {
-				stepCounts[step]++
-				steps = append(steps, step)
-				return stepCounts, steps, true
-			}
-		}
-	}
-
-	return nil, nil, false
-}
-
-func DoWithInput3(adapters []int) int {
-	device := slices.Max(adapters) + 3
-	set := slices.ToSet(adapters)
-
-	stepCounts, _, ok := chain(0, set, device)
-	if !ok {
-		panic("No solution found")
-	}
-
-	return stepCounts[1] * stepCounts[3]
-}
-
 func DoWithInput(adapters []int) int {
 	device := slices.Max(adapters) + 3
 
