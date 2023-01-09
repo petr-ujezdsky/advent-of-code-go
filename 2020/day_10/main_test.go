@@ -72,5 +72,5 @@ func Test_02(t *testing.T) {
 	adapters := ParseInput(reader)
 
 	result := DoWithInput2(adapters)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 24803586664192, result)
 }

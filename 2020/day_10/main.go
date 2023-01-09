@@ -61,6 +61,37 @@ func DoWithInput(adapters []int) int {
 	return stepCounts[1] * stepCounts[3]
 }
 
+func countArrangements(targetValue1, targetValue2 int, sums2, sums3, sums4 []int, arrangementsCount int) int {
+	i := 0
+	for i < len(sums2) {
+		for i < len(sums2) && sums2[i] != targetValue1 && sums2[i] != targetValue2 {
+			i++
+		}
+		groupSize := 0
+		iGroupStart := i
+		for i < len(sums2) && (sums2[i] == targetValue1 || sums2[i] == targetValue2) {
+			i++
+			groupSize++
+		}
+		groupSize3 := 0
+		j := iGroupStart
+		for j < len(sums3) && (sums3[j] == 3) {
+			j++
+			groupSize3++
+		}
+		groupSize4 := 0
+		j = iGroupStart
+		for j < len(sums4) && (sums4[j] == 4) {
+			j++
+			groupSize4++
+		}
+
+		arrangementsCount *= (groupSize + groupSize3 + groupSize4) + 1
+	}
+
+	return arrangementsCount
+}
+
 func DoWithInput2(adapters []int) int {
 	device := slices.Max(adapters) + 3
 
@@ -72,31 +103,27 @@ func DoWithInput2(adapters []int) int {
 	fmt.Printf("Differentials:    %v\n", slices.Sprintf(differentials, "%2d"))
 
 	arrangementsCount := 1
-	skippable1s := 0
+
 	sums2 := make([]int, len(differentials)-1)
-	for i := range differentials[0 : len(differentials)-1] {
-		sum := differentials[i] + differentials[i+1]
-		if sum <= 3 {
-			// skippable
-			skippable1s++
-			arrangementsCount *= 2
+	sums3 := make([]int, len(differentials)-2)
+	sums4 := make([]int, len(differentials)-3)
+
+	for i := 0; i < len(differentials)-1; i++ {
+		sums2[i] = differentials[i] + differentials[i+1]
+
+		if i < len(differentials)-2 {
+			sums3[i] = differentials[i] + differentials[i+1] + differentials[i+2]
 		}
-		sums2[i] = sum
+
+		if i < len(differentials)-3 {
+			sums4[i] = differentials[i] + differentials[i+1] + differentials[i+2] + differentials[i+3]
+		}
 	}
 	fmt.Printf("Sums 2:           %v\n", slices.Sprintf(sums2, "%2d"))
-
-	skippable2s := 0
-	sums3 := make([]int, len(differentials)-2)
-	for i := range differentials[0 : len(differentials)-2] {
-		sum := differentials[i] + differentials[i+1] + differentials[i+2]
-		if sum == 3 {
-			// skippable
-			skippable2s++
-			arrangementsCount *= 2
-		}
-		sums3[i] = sum
-	}
 	fmt.Printf("Sums 3:           %v\n", slices.Sprintf(sums3, "%2d"))
+	fmt.Printf("Sums 4:           %v\n", slices.Sprintf(sums4, "%2d"))
+
+	arrangementsCount = countArrangements(2, 3, sums2, sums3, sums4, arrangementsCount)
 
 	return arrangementsCount
 }
