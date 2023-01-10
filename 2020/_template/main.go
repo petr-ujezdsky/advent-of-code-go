@@ -33,3 +33,19 @@ func ParseInput(r io.Reader) []Item {
 
 	return items
 }
+
+//func ParseInput(r io.Reader) []Item {
+//	parseItem := func(str string) Item {
+//		return Item{}
+//	}
+//
+//	return parsers.ParseToObjects(r, parseItem)
+//}
+
+//func ParseInput(r io.Reader) utils.Matrix[Item] {
+//	parseItem := func(char rune) Item {
+//		return Item{}
+//	}
+//
+//	return parsers.ParseToMatrix(r, parseItem)
+//}
