@@ -37,7 +37,7 @@ const (
 	NorthWest
 )
 
-var direction8ToStep = [8]Vector2i{
+var Direction8Steps = [8]Vector2i{
 	{X: 0, Y: 1},
 	{X: 1, Y: 1},
 	{X: 1, Y: 0},
@@ -49,7 +49,7 @@ var direction8ToStep = [8]Vector2i{
 }
 
 func (d Direction8) ToStep() Vector2i {
-	return direction8ToStep[d]
+	return Direction8Steps[d]
 }
 
 func (d Direction8) Rotate(steps int) Direction8 {

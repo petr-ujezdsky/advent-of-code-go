@@ -6,8 +6,8 @@ import (
 	"io"
 )
 
-func MapperBoolean(trueChar, falseChar rune) func(ch rune, i, j int) bool {
-	return func(ch rune, i, j int) bool {
+func MapperBoolean(trueChar, falseChar rune) func(ch rune, x, y int) bool {
+	return func(ch rune, x, y int) bool {
 		if ch == trueChar {
 			return true
 		}
@@ -26,20 +26,20 @@ func MapperIntegers(line string) int {
 
 // ParseToMatrix returns the matrix of objects
 func ParseToMatrix[T any](r io.Reader, mapper func(ch rune) T) utils.Matrix[T] {
-	indexedMapper := func(line rune, i, j int) T { return mapper(line) }
+	indexedMapper := func(line rune, x, y int) T { return mapper(line) }
 	return ParseToMatrixIndexed(r, indexedMapper)
 
 }
 
 // ParseToMatrixIndexed returns the matrix of objects, uses row and column index
-func ParseToMatrixIndexed[T any](r io.Reader, mapper func(ch rune, i, j int) T) utils.Matrix[T] {
-	lineMapper := func(line string, i int) []T {
+func ParseToMatrixIndexed[T any](r io.Reader, mapper func(ch rune, x, y int) T) utils.Matrix[T] {
+	lineMapper := func(line string, y int) []T {
 		var row []T
-		j := 0
+		x := 0
 		for _, char := range []rune(line) {
-			item := mapper(char, i, j)
+			item := mapper(char, x, y)
 			row = append(row, item)
-			j++
+			x++
 		}
 
 		return row
