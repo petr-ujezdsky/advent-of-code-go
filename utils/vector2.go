@@ -29,6 +29,13 @@ func (v1 vector2n[T]) Subtract(v2 vector2n[T]) vector2n[T] {
 	}
 }
 
+func (v1 vector2n[T]) Multiply(amount T) vector2n[T] {
+	return vector2n[T]{
+		X: v1.X * amount,
+		Y: v1.Y * amount,
+	}
+}
+
 func (v1 vector2n[T]) Abs() vector2n[T] {
 	return vector2n[T]{
 		X: Abs(v1.X),
