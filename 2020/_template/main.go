@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bufio"
 	_ "embed"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"io"
 )
 
@@ -18,28 +18,28 @@ func DoWithInputPart02(items []Item) int {
 }
 
 func ParseInput(r io.Reader) []Item {
-	scanner := bufio.NewScanner(r)
-	scanner.Split(bufio.ScanLines)
-
-	var items []Item
-	for scanner.Scan() {
-		//parts := strings.Split(scanner.Text(), ",")
-		//ints := utils.ExtractInts(scanner.Text(), false)
-
-		item := Item{}
-
-		items = append(items, item)
+	parseItem := func(str string) Item {
+		return Item{}
 	}
 
-	return items
+	return parsers.ParseToObjects(r, parseItem)
 }
 
 //func ParseInput(r io.Reader) []Item {
-//	parseItem := func(str string) Item {
-//		return Item{}
+//	scanner := bufio.NewScanner(r)
+//	scanner.Split(bufio.ScanLines)
+//
+//	var items []Item
+//	for scanner.Scan() {
+//		//parts := strings.Split(scanner.Text(), ",")
+//		//ints := utils.ExtractInts(scanner.Text(), false)
+//
+//		item := Item{}
+//
+//		items = append(items, item)
 //	}
 //
-//	return parsers.ParseToObjects(r, parseItem)
+//	return items
 //}
 
 //func ParseInput(r io.Reader) utils.Matrix[Item] {
