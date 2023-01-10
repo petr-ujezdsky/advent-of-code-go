@@ -9,7 +9,11 @@ import (
 type Item struct {
 }
 
-func DoWithInput(items []Item) int {
+func DoWithInputPart01(items []Item) int {
+	return len(items)
+}
+
+func DoWithInputPart02(items []Item) int {
 	return len(items)
 }
 
