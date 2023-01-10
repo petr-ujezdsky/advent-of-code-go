@@ -89,6 +89,27 @@ func (v1 vector2n[T]) Reverse() vector2n[T] {
 	return vector2n[T]{v1.Y, v1.X}
 }
 
+func (v1 vector2n[T]) Rotate90CounterClockwise(steps int) vector2n[T] {
+	steps = ModFloor(steps, 4)
+
+	switch steps {
+	case 0:
+		return v1
+	case 1:
+		return vector2n[T]{X: -v1.Y, Y: v1.X}
+	case 2:
+		return vector2n[T]{X: -v1.X, Y: -v1.Y}
+	case 3:
+		return vector2n[T]{X: v1.Y, Y: -v1.X}
+	}
+
+	panic("Can not happen")
+}
+
+func (v1 vector2n[T]) Rotate90CounterClockwisePivot(steps int, pivot vector2n[T]) vector2n[T] {
+	return v1.Subtract(pivot).Rotate90CounterClockwise(steps).Add(pivot)
+}
+
 func (v1 vector2n[T]) InvY() vector2n[T] {
 	return vector2n[T]{v1.X, -v1.Y}
 }
