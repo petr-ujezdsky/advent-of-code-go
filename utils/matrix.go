@@ -146,6 +146,19 @@ func (m MatrixNumber[T]) ArgMax() (Vector2i, T) {
 	return Vector2i{xmax, ymax}, max
 }
 
+func (m Matrix[T]) Bounds() BoundingRectangle {
+	return BoundingRectangle{
+		Horizontal: IntervalI{
+			Low:  0,
+			High: m.Width,
+		},
+		Vertical: IntervalI{
+			Low:  0,
+			High: m.Height,
+		},
+	}
+}
+
 func (m Matrix[T]) String() string {
 	return m.StringFmt(FmtNative[T])
 }

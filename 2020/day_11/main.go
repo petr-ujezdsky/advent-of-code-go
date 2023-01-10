@@ -7,14 +7,46 @@ import (
 	"io"
 )
 
+type World struct {
+	SeatsOccupancy SeatsOccupancy
+	Bounds         utils.BoundingRectangle
+}
 type SeatsOccupancy = map[utils.Vector2i]bool
 
-func neighboursOccupiedCountInInterval(pos utils.Vector2i, allowedCount utils.IntervalI, occupancy SeatsOccupancy) bool {
+type OccupiedNeighbourDetector = func(pos, step utils.Vector2i, occupancy SeatsOccupancy, bounds utils.BoundingRectangle) bool
+
+func directNeighbour(pos, step utils.Vector2i, occupancy SeatsOccupancy, _ utils.BoundingRectangle) bool {
+	neighbour := pos.Add(step)
+	if neighbourOccupied, ok := occupancy[neighbour]; ok && neighbourOccupied {
+		return true
+	}
+
+	return false
+}
+
+func seenNeighbour(pos, step utils.Vector2i, occupancy SeatsOccupancy, bounds utils.BoundingRectangle) bool {
+	for {
+		pos = pos.Add(step)
+
+		if !bounds.Contains(pos) {
+			return false
+		}
+
+		neighbourOccupied, ok := occupancy[pos]
+		if !ok {
+			continue
+		}
+
+		return neighbourOccupied
+	}
+}
+
+func neighboursOccupiedCountInInterval(pos utils.Vector2i, allowedCount utils.IntervalI, occupiedNeighbourDetector OccupiedNeighbourDetector, occupancy SeatsOccupancy, bounds utils.BoundingRectangle) bool {
 	neighboursOccupiedCount := 0
 
 	for _, step := range utils.Direction8Steps {
-		neighbour := pos.Add(step)
-		if neighbourOccupied, ok := occupancy[neighbour]; ok && neighbourOccupied {
+		// is there an occupied neighbour?
+		if occupiedNeighbourDetector(pos, step, occupancy, bounds) {
 			neighboursOccupiedCount++
 		}
 
@@ -26,20 +58,20 @@ func neighboursOccupiedCountInInterval(pos utils.Vector2i, allowedCount utils.In
 	return true
 }
 
-func round(occupancy SeatsOccupancy) (SeatsOccupancy, bool) {
+func round(occupiedNeighbourDetector OccupiedNeighbourDetector, countLimit int, occupancy SeatsOccupancy, bounds utils.BoundingRectangle) (SeatsOccupancy, bool) {
 	nextOccupancy := make(SeatsOccupancy)
 	anySeatChanged := false
 
 	for pos, occupied := range occupancy {
 		if occupied {
-			if !neighboursOccupiedCountInInterval(pos, utils.IntervalI{Low: 0, High: 3}, occupancy) {
+			if !neighboursOccupiedCountInInterval(pos, utils.IntervalI{Low: 0, High: countLimit - 1}, occupiedNeighbourDetector, occupancy, bounds) {
 				// empty the seat
 				nextOccupancy[pos] = false
 				anySeatChanged = true
 				continue
 			}
 		} else {
-			if neighboursOccupiedCountInInterval(pos, utils.IntervalI{Low: 0, High: 0}, occupancy) {
+			if neighboursOccupiedCountInInterval(pos, utils.IntervalI{Low: 0, High: 0}, occupiedNeighbourDetector, occupancy, bounds) {
 				// fill the seat
 				nextOccupancy[pos] = true
 				anySeatChanged = true
@@ -54,10 +86,11 @@ func round(occupancy SeatsOccupancy) (SeatsOccupancy, bool) {
 	return nextOccupancy, anySeatChanged
 }
 
-func DoWithInputPart01(occupancy SeatsOccupancy) int {
+func countSeats(occupiedNeighbourDetector OccupiedNeighbourDetector, countLimit int, world World) int {
+	occupancy := world.SeatsOccupancy
 	i := 0
 	for {
-		nextOccupancy, anySeatChanged := round(occupancy)
+		nextOccupancy, anySeatChanged := round(occupiedNeighbourDetector, countLimit, occupancy, world.Bounds)
 		if !anySeatChanged {
 			occupiedCount := 0
 
@@ -74,11 +107,15 @@ func DoWithInputPart01(occupancy SeatsOccupancy) int {
 	}
 }
 
-func DoWithInputPart02(occupancy SeatsOccupancy) int {
-	return 0
+func DoWithInputPart01(world World) int {
+	return countSeats(directNeighbour, 4, world)
 }
 
-func ParseInput(r io.Reader) SeatsOccupancy {
+func DoWithInputPart02(world World) int {
+	return countSeats(seenNeighbour, 5, world)
+}
+
+func ParseInput(r io.Reader) World {
 	seatsOccupancy := make(SeatsOccupancy)
 
 	parseItem := func(char rune, x, y int) int {
@@ -89,7 +126,10 @@ func ParseInput(r io.Reader) SeatsOccupancy {
 		return 0
 	}
 
-	parsers.ParseToMatrixIndexed(r, parseItem)
+	m := parsers.ParseToMatrixIndexed(r, parseItem)
 
-	return seatsOccupancy
+	return World{
+		SeatsOccupancy: seatsOccupancy,
+		Bounds:         m.Bounds(),
+	}
 }
