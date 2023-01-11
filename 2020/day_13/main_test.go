@@ -12,7 +12,7 @@ func Test_01_parse(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	assert.Equal(t, 5, len(world.BusIds))
+	assert.Equal(t, 5, len(world.Buses))
 }
 
 func Test_01_example(t *testing.T) {

@@ -6,29 +6,35 @@ import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"io"
 	"math"
+	"strings"
 )
+
+type Bus struct {
+	Id         int
+	TimeOffset int
+}
 
 type World struct {
 	ArriveTime int
-	BusIds     []int
+	Buses      []Bus
 }
 
 func DoWithInputPart01(world World) int {
 	minWaitTime := math.MaxInt
 	minBusId := -1
 
-	for _, busId := range world.BusIds {
+	for _, bus := range world.Buses {
 		var waitTime int
 
-		if world.ArriveTime%busId == 0 {
+		if world.ArriveTime%bus.Id == 0 {
 			waitTime = 0
 		} else {
-			waitTime = busId - world.ArriveTime%busId
+			waitTime = bus.Id - world.ArriveTime%bus.Id
 		}
 
 		if waitTime < minWaitTime {
 			minWaitTime = waitTime
-			minBusId = busId
+			minBusId = bus.Id
 		}
 	}
 
@@ -47,10 +53,21 @@ func ParseInput(r io.Reader) World {
 	arriveTime := utils.ParseInt(scanner.Text())
 
 	scanner.Scan()
-	busIds := utils.ExtractInts(scanner.Text(), false)
+	var buses []Bus
+	parts := strings.Split(scanner.Text(), ",")
+	for i, part := range parts {
+		if part == "x" {
+			continue
+		}
+
+		buses = append(buses, Bus{
+			Id:         utils.ParseInt(part),
+			TimeOffset: i,
+		})
+	}
 
 	return World{
 		ArriveTime: arriveTime,
-		BusIds:     busIds,
+		Buses:      buses,
 	}
 }
