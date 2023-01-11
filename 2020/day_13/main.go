@@ -6,6 +6,7 @@ import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"io"
 	"math"
+	"sort"
 	"strings"
 )
 
@@ -42,7 +43,24 @@ func DoWithInputPart01(world World) int {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	// sort by busId, the largest first
+	buses := world.Buses
+	sort.Slice(buses, func(i, j int) bool { return buses[i].Id > buses[j].Id })
+
+	t := 0
+	i := 0
+	step := 1
+	for i < len(buses) {
+		bus := buses[i]
+		for (t+bus.TimeOffset)%bus.Id != 0 {
+			t += step
+		}
+
+		step *= bus.Id
+		i++
+	}
+
+	return t
 }
 
 func ParseInput(r io.Reader) World {
