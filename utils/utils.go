@@ -226,6 +226,14 @@ func ArgMax[T Number](values ...T) (int, T) {
 	return index, max
 }
 
+func Sum[T AnyNumber](numbers []T) T {
+	sum := T(0)
+	for _, number := range numbers {
+		sum += number
+	}
+	return sum
+}
+
 // SumNtoM sums integers from N to M inclusive
 func SumNtoM(n, m int) int {
 	return (n + m) * (1 + m - n) / 2

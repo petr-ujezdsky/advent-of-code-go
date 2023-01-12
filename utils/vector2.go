@@ -10,6 +10,10 @@ type Number interface {
 	int | float64
 }
 
+type AnyNumber interface {
+	int | uint | uint64 | float64
+}
+
 type vector2n[T Number] vector2[T]
 
 type Vector2i = vector2n[int]
