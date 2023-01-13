@@ -98,18 +98,6 @@ func (a Address) Combinations() int {
 	return combinations
 }
 
-//func (a Address) CombinationsWith(a2 Address) int {
-//	combinations := 1
-//	for i, trit := range a {
-//		otherTrit := a2[i]
-//		combinations *= trit.CombinationsWith(otherTrit)
-//		if combinations == 0 {
-//			return 0
-//		}
-//	}
-//	return combinations
-//}
-
 func (a Address) And(a2 Address) Address {
 	result := []rune(a)
 
@@ -164,22 +152,6 @@ func (a Address) Matches(a2 Address) bool {
 
 	return true
 }
-
-//func TritAnd(t Trit, t2 Trit) (Trit, bool) {
-//	if t == t2 {
-//		return t, true
-//	}
-//
-//	if t == 'X' {
-//		return t2, true
-//	}
-//
-//	if t2 == 'X' {
-//		return t, true
-//	}
-//
-//	return 0, false
-//}
 
 type Record struct {
 	Address    Address
@@ -257,50 +229,6 @@ func toRecords(items []MaskOrMem) []Record {
 	return records
 }
 
-func filterMatching(a Address, records []Record) []Record {
-	var filtered []Record
-
-	for _, record := range records {
-		if a.Matches(record.Address) {
-			filtered = append(filtered, record)
-		}
-	}
-
-	return filtered
-}
-
-//func merge(addresses []Address) Address {
-//	merged := slices.Clone(addresses[0])
-//
-//	for i, trit := range merged {
-//		mergedTrit := trit
-//
-//		for _, record := range addresses[1:] {
-//			otherTrit := record[i]
-//			if otherTrit != mergedTrit {
-//				mergedTrit = 'X'
-//				break
-//			}
-//		}
-//		merged[i] = mergedTrit
-//	}
-//
-//	return merged
-//}
-
-//func andAddresses(address Address, other []Address) []Address {
-//	var anded []Address
-//
-//	for _, address2 := range other {
-//		and := address.And(address2)
-//		if and != nil {
-//			anded = append(anded, and)
-//		}
-//	}
-//
-//	return anded
-//}
-
 func computeIntersections(addresses AddressesMap) AddressesMap {
 	addressesSlice := maps.Keys(addresses)
 	intersections := make(AddressesMap)
@@ -346,45 +274,11 @@ func DoWithInputPart02(items []MaskOrMem) int {
 		fmt.Printf("Record #%3d, %v, %v ... ", i, record.AddressStr, record.Value)
 		address := record.Address
 		totalCount := address.Combinations()
-		//dividedTotalCount := totalCount
-
-		//matching := filterMatching(address, records[i+1:])
-		//adresses := slices.Map(matching, func(r Record) Address { return r.Address })
-		//commonCount := 0
 
 		intersects := address.Intersect(allAddresses[i+1:])
 		intersectsCount := countUnique(intersects)
-		//
-		//if len(matching) > 0 {
-		//	commonCount = 1
-		//	mergedAddress := merge(slices.Map(matching, func(r Record) Address { return r.Address }))
-		//
-		//	//fmt.Printf("Mask:           %v\n", mask.Trinary)
-		//	//fmt.Printf("Address before: %v (%v)\n", trinaryStr, address)
-		//
-		//	for j, trit := range address {
-		//		if trit != 'X' {
-		//			continue
-		//		}
-		//		// now trit = X
-		//
-		//		mergedTrit := mergedAddress[j]
-		//		if trit == mergedTrit {
-		//			// X vs X
-		//			commonCount *= 2
-		//			dividedTotalCount /= 2
-		//			continue
-		//		}
-		//
-		//		// X vs 0 or X vs 1
-		//	}
-		//}
-		//
+
 		effectiveCount := totalCount - intersectsCount
-		//effectiveCount = dividedTotalCount
-		//if effectiveCount < 0 {
-		//	panic("Whoa")
-		//}
 
 		fmt.Printf("count: %v\n", effectiveCount)
 
@@ -436,28 +330,3 @@ func ParseInput(r io.Reader) []MaskOrMem {
 
 	return parsers.ParseToObjects(r, parseItem)
 }
-
-//func ParseInput(r io.Reader) []MaskOrMem {
-//	scanner := bufio.NewScanner(r)
-//	scanner.Split(bufio.ScanLines)
-//
-//	var items []MaskOrMem
-//	for scanner.Scan() {
-//		//parts := strings.Split(scanner.Text(), ",")
-//		//ints := utils.ExtractInts(scanner.Text(), false)
-//
-//		item := MaskOrMem{}
-//
-//		items = append(items, item)
-//	}
-//
-//	return items
-//}
-
-//func ParseInput(r io.Reader) utils.Matrix[MaskOrMem] {
-//	parseItem := func(char rune) MaskOrMem {
-//		return MaskOrMem{}
-//	}
-//
-//	return parsers.ParseToMatrix(r, parseItem)
-//}

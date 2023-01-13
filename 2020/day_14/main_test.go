@@ -6,17 +6,6 @@ import (
 	"testing"
 )
 
-//func Test_merge(t *testing.T) {
-//	addresses := []Address{
-//		Address("1001"),
-//		Address("1001"),
-//		Address("0100"),
-//	}
-//
-//	result := merge(addresses)
-//	assert.Equal(t, Address("XX0X"), result)
-//}
-
 func TestAddress_And(t *testing.T) {
 	type args struct {
 		a2 Address
@@ -87,9 +76,3 @@ func Test_02(t *testing.T) {
 	result := DoWithInputPart02(items)
 	assert.Equal(t, 3435342392262, result)
 }
-
-// 3432511849446
-// 3396163389894
-// 2693975408037
-// 8372322902
-// 3435342392262
