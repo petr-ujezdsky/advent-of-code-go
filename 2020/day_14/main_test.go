@@ -36,13 +36,13 @@ func Test_01(t *testing.T) {
 }
 
 func Test_02_example(t *testing.T) {
-	reader, err := os.Open("data-00-example.txt")
+	reader, err := os.Open("data-00-example-2.txt")
 	assert.Nil(t, err)
 
 	items := ParseInput(reader)
 
 	result := DoWithInputPart02(items)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 208, result)
 }
 
 func Test_02(t *testing.T) {
