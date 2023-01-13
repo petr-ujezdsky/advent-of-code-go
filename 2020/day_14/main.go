@@ -31,6 +31,8 @@ type MaskOrMem struct {
 	Mem    Mem
 }
 
+type AddressesMap = map[Address]struct{}
+
 type Trit rune
 
 func (t Trit) CombinationsWith(t2 Trit) int {
@@ -138,13 +140,13 @@ func (a Address) And(a2 Address) Address {
 	return Address(result)
 }
 
-func (a Address) Intersect(addresses []Address) []Address {
-	var intersections []Address
+func (a Address) Intersect(addresses []Address) AddressesMap {
+	intersections := make(AddressesMap)
 
 	for _, a2 := range addresses {
 		and := a.And(a2)
 		if and != "" {
-			intersections = append(intersections, and)
+			intersections[and] = struct{}{}
 		}
 	}
 
@@ -299,26 +301,30 @@ func filterMatching(a Address, records []Record) []Record {
 //	return anded
 //}
 
-func computeIntersections(addresses []Address) []Address {
-	var intersections []Address
+func computeIntersections(addresses AddressesMap) AddressesMap {
+	addressesSlice := maps.Keys(addresses)
+	intersections := make(AddressesMap)
 
-	for i, a1 := range addresses {
-		intersections = append(intersections, a1.Intersect(addresses[i+1:])...)
+	for i, a1 := range addressesSlice {
+		intersection := a1.Intersect(addressesSlice[i+1:])
+		for address := range intersection {
+			intersections[address] = struct{}{}
+		}
 	}
 
 	return intersections
 }
 
-func countAll(addresses []Address) int {
+func countAll(addresses AddressesMap) int {
 	count := 0
-	for _, address := range addresses {
+	for address := range addresses {
 		count += address.Combinations()
 	}
 
 	return count
 }
 
-func countUnique(addresses []Address) int {
+func countUnique(addresses AddressesMap) int {
 	if len(addresses) == 0 {
 		return 0
 	}
@@ -337,7 +343,7 @@ func DoWithInputPart02(items []MaskOrMem) int {
 	allAddresses := slices.Map(records, func(r Record) Address { return r.Address })
 	sum := 0
 	for i, record := range records {
-		fmt.Printf("Record #%3d, %v, %v\n", i, record.AddressStr, record.Value)
+		fmt.Printf("Record #%3d, %v, %v ... ", i, record.AddressStr, record.Value)
 		address := record.Address
 		totalCount := address.Combinations()
 		//dividedTotalCount := totalCount
@@ -379,6 +385,8 @@ func DoWithInputPart02(items []MaskOrMem) int {
 		//if effectiveCount < 0 {
 		//	panic("Whoa")
 		//}
+
+		fmt.Printf("count: %v\n", effectiveCount)
 
 		sum += effectiveCount * int(record.Value)
 	}

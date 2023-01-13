@@ -29,6 +29,19 @@ func Values[K comparable, V any](m map[K]V) []V {
 	return values
 }
 
+// Keys returns slice of map keys
+func Keys[K comparable, V any](m map[K]V) []K {
+	keys := make([]K, len(m))
+	i := 0
+
+	for key := range m {
+		keys[i] = key
+		i++
+	}
+
+	return keys
+}
+
 // Copy returns shallow copy of the map
 func Copy[K comparable, V any](source map[K]V) map[K]V {
 	dest := make(map[K]V, len(source))

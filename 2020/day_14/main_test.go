@@ -85,10 +85,11 @@ func Test_02(t *testing.T) {
 	items := ParseInput(reader)
 
 	result := DoWithInputPart02(items)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 3435342392262, result)
 }
 
 // 3432511849446
 // 3396163389894
 // 2693975408037
 // 8372322902
+// 3435342392262
