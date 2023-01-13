@@ -84,17 +84,7 @@ func (t Trit) And(t2 Trit) (Trit, bool) {
 	return 0, false
 }
 
-type Address []Trit
-
-func NewAddress(trinary string) Address {
-	address := make(Address, len(trinary))
-
-	for i, char := range trinary {
-		address[i] = Trit(char)
-	}
-
-	return address
-}
+type Address string
 
 func (a Address) Combinations() int {
 	combinations := 1
@@ -106,20 +96,20 @@ func (a Address) Combinations() int {
 	return combinations
 }
 
-func (a Address) CombinationsWith(a2 Address) int {
-	combinations := 1
-	for i, trit := range a {
-		otherTrit := a2[i]
-		combinations *= trit.CombinationsWith(otherTrit)
-		if combinations == 0 {
-			return 0
-		}
-	}
-	return combinations
-}
+//func (a Address) CombinationsWith(a2 Address) int {
+//	combinations := 1
+//	for i, trit := range a {
+//		otherTrit := a2[i]
+//		combinations *= trit.CombinationsWith(otherTrit)
+//		if combinations == 0 {
+//			return 0
+//		}
+//	}
+//	return combinations
+//}
 
 func (a Address) And(a2 Address) Address {
-	result := slices.Clone(a)
+	result := []rune(a)
 
 	for i, trit := range a {
 		trit2 := a2[i]
@@ -138,14 +128,14 @@ func (a Address) And(a2 Address) Address {
 		//	continue
 		//}
 
-		and, ok := trit.And(trit2)
+		and, ok := Trit(trit).And(Trit(trit2))
 		if !ok {
-			return nil
+			return ""
 		}
-		result[i] = and
+		result[i] = rune(and)
 	}
 
-	return result
+	return Address(result)
 }
 
 func (a Address) Intersect(addresses []Address) []Address {
@@ -153,7 +143,7 @@ func (a Address) Intersect(addresses []Address) []Address {
 
 	for _, a2 := range addresses {
 		and := a.And(a2)
-		if and != nil {
+		if and != "" {
 			intersections = append(intersections, and)
 		}
 	}
@@ -165,13 +155,29 @@ func (a Address) Matches(a2 Address) bool {
 	for i, trit := range a {
 		otherTrit := a2[i]
 
-		if !trit.Matches(otherTrit) {
+		if !Trit(trit).Matches(Trit(otherTrit)) {
 			return false
 		}
 	}
 
 	return true
 }
+
+//func TritAnd(t Trit, t2 Trit) (Trit, bool) {
+//	if t == t2 {
+//		return t, true
+//	}
+//
+//	if t == 'X' {
+//		return t2, true
+//	}
+//
+//	if t2 == 'X' {
+//		return t, true
+//	}
+//
+//	return 0, false
+//}
 
 type Record struct {
 	Address    Address
@@ -223,7 +229,7 @@ func maskAddress(address uint64, mask Mask) Address {
 	}
 	//fmt.Printf("Address after:  %v\n", string(trinary))
 
-	return NewAddress(string(trinary))
+	return Address(trinary)
 }
 
 func toRecords(items []MaskOrMem) []Record {
@@ -261,24 +267,24 @@ func filterMatching(a Address, records []Record) []Record {
 	return filtered
 }
 
-func merge(addresses []Address) Address {
-	merged := slices.Clone(addresses[0])
-
-	for i, trit := range merged {
-		mergedTrit := trit
-
-		for _, record := range addresses[1:] {
-			otherTrit := record[i]
-			if otherTrit != mergedTrit {
-				mergedTrit = 'X'
-				break
-			}
-		}
-		merged[i] = mergedTrit
-	}
-
-	return merged
-}
+//func merge(addresses []Address) Address {
+//	merged := slices.Clone(addresses[0])
+//
+//	for i, trit := range merged {
+//		mergedTrit := trit
+//
+//		for _, record := range addresses[1:] {
+//			otherTrit := record[i]
+//			if otherTrit != mergedTrit {
+//				mergedTrit = 'X'
+//				break
+//			}
+//		}
+//		merged[i] = mergedTrit
+//	}
+//
+//	return merged
+//}
 
 //func andAddresses(address Address, other []Address) []Address {
 //	var anded []Address
