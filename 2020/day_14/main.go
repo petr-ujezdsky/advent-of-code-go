@@ -56,6 +56,7 @@ func (t Trit) CombinationsWith(t2 Trit) int {
 
 	panic("Wrong runes")
 }
+
 func (t Trit) Matches(t2 Trit) bool {
 	if t == t2 {
 		return true
@@ -65,6 +66,22 @@ func (t Trit) Matches(t2 Trit) bool {
 		return true
 	}
 	return false
+}
+
+func (t Trit) And(t2 Trit) (Trit, bool) {
+	if t == t2 {
+		return t, true
+	}
+
+	if t == 'X' {
+		return t2, true
+	}
+
+	if t2 == 'X' {
+		return t, true
+	}
+
+	return 0, false
 }
 
 type Address []Trit
@@ -101,6 +118,49 @@ func (a Address) CombinationsWith(a2 Address) int {
 	return combinations
 }
 
+func (a Address) And(a2 Address) Address {
+	result := slices.Clone(a)
+
+	for i, trit := range a {
+		trit2 := a2[i]
+		//if trit == trit2 {
+		//	result[i] = trit
+		//	continue
+		//}
+		//
+		//if trit == 'X' {
+		//	result[i] = trit2
+		//	continue
+		//}
+		//
+		//if trit2 == 'X' {
+		//	result[i] = trit
+		//	continue
+		//}
+
+		and, ok := trit.And(trit2)
+		if !ok {
+			return nil
+		}
+		result[i] = and
+	}
+
+	return result
+}
+
+func (a Address) Intersect(addresses []Address) []Address {
+	var intersections []Address
+
+	for _, a2 := range addresses {
+		and := a.And(a2)
+		if and != nil {
+			intersections = append(intersections, and)
+		}
+	}
+
+	return intersections
+}
+
 func (a Address) Matches(a2 Address) bool {
 	for i, trit := range a {
 		otherTrit := a2[i]
@@ -114,8 +174,9 @@ func (a Address) Matches(a2 Address) bool {
 }
 
 type Record struct {
-	Address Address
-	Value   uint64
+	Address    Address
+	AddressStr string
+	Value      uint64
 }
 
 func applyMask(value uint64, mask Mask) uint64 {
@@ -150,8 +211,8 @@ func DoWithInputPart01(items []MaskOrMem) int {
 
 func maskAddress(address uint64, mask Mask) Address {
 	trinaryStr := strs.Substring(strs.ToBinary(address), 64-36, 64)
-	fmt.Printf("Mask:           %v\n", mask.Trinary)
-	fmt.Printf("Address before: %v (%v)\n", trinaryStr, address)
+	//fmt.Printf("Mask:           %v\n", mask.Trinary)
+	//fmt.Printf("Address before: %v (%v)\n", trinaryStr, address)
 
 	trinary := []rune(trinaryStr)
 	for i, maskChar := range mask.Trinary {
@@ -160,7 +221,7 @@ func maskAddress(address uint64, mask Mask) Address {
 			trinary[i] = maskChar
 		}
 	}
-	fmt.Printf("Address after:  %v\n", string(trinary))
+	//fmt.Printf("Address after:  %v\n", string(trinary))
 
 	return NewAddress(string(trinary))
 }
@@ -177,9 +238,11 @@ func toRecords(items []MaskOrMem) []Record {
 			continue
 		}
 
+		address := maskAddress(maskOrMem.Mem.Location, mask)
 		records = append(records, Record{
-			Address: maskAddress(maskOrMem.Mem.Location, mask),
-			Value:   maskOrMem.Mem.Value,
+			Address:    address,
+			AddressStr: string(address),
+			Value:      maskOrMem.Mem.Value,
 		})
 	}
 
@@ -198,14 +261,14 @@ func filterMatching(a Address, records []Record) []Record {
 	return filtered
 }
 
-func merge(records []Record) Address {
-	merged := slices.Clone(records[0].Address)
+func merge(addresses []Address) Address {
+	merged := slices.Clone(addresses[0])
 
 	for i, trit := range merged {
 		mergedTrit := trit
 
-		for _, record := range records[1:] {
-			otherTrit := record.Address[i]
+		for _, record := range addresses[1:] {
+			otherTrit := record[i]
 			if otherTrit != mergedTrit {
 				mergedTrit = 'X'
 				break
@@ -217,42 +280,99 @@ func merge(records []Record) Address {
 	return merged
 }
 
+//func andAddresses(address Address, other []Address) []Address {
+//	var anded []Address
+//
+//	for _, address2 := range other {
+//		and := address.And(address2)
+//		if and != nil {
+//			anded = append(anded, and)
+//		}
+//	}
+//
+//	return anded
+//}
+
+func computeIntersections(addresses []Address) []Address {
+	var intersections []Address
+
+	for i, a1 := range addresses {
+		intersections = append(intersections, a1.Intersect(addresses[i+1:])...)
+	}
+
+	return intersections
+}
+
+func countAll(addresses []Address) int {
+	count := 0
+	for _, address := range addresses {
+		count += address.Combinations()
+	}
+
+	return count
+}
+
+func countUnique(addresses []Address) int {
+	if len(addresses) == 0 {
+		return 0
+	}
+
+	countAll := countAll(addresses)
+
+	intersections := computeIntersections(addresses)
+	countIntersecting := countUnique(intersections)
+
+	return countAll - countIntersecting
+}
+
 func DoWithInputPart02(items []MaskOrMem) int {
 	records := toRecords(items)
 
+	allAddresses := slices.Map(records, func(r Record) Address { return r.Address })
 	sum := 0
 	for i, record := range records {
+		fmt.Printf("Record #%3d, %v, %v\n", i, record.AddressStr, record.Value)
 		address := record.Address
 		totalCount := address.Combinations()
+		//dividedTotalCount := totalCount
 
-		matching := filterMatching(address, records[i+1:])
-		commonCount := 0
+		//matching := filterMatching(address, records[i+1:])
+		//adresses := slices.Map(matching, func(r Record) Address { return r.Address })
+		//commonCount := 0
 
-		if len(matching) > 0 {
-			commonCount = 1
-			mergedAddress := merge(matching)
-
-			for j, trit := range address {
-				if trit != 'X' {
-					continue
-				}
-				// now trit = X
-
-				mergedTrit := mergedAddress[j]
-				if trit == mergedTrit {
-					// X vs X
-					commonCount *= 2
-					continue
-				}
-
-				// X vs 0 or X vs 1
-			}
-		}
-
-		effectiveCount := totalCount - commonCount
-		if effectiveCount < 0 {
-			panic("Whoa")
-		}
+		intersects := address.Intersect(allAddresses[i+1:])
+		intersectsCount := countUnique(intersects)
+		//
+		//if len(matching) > 0 {
+		//	commonCount = 1
+		//	mergedAddress := merge(slices.Map(matching, func(r Record) Address { return r.Address }))
+		//
+		//	//fmt.Printf("Mask:           %v\n", mask.Trinary)
+		//	//fmt.Printf("Address before: %v (%v)\n", trinaryStr, address)
+		//
+		//	for j, trit := range address {
+		//		if trit != 'X' {
+		//			continue
+		//		}
+		//		// now trit = X
+		//
+		//		mergedTrit := mergedAddress[j]
+		//		if trit == mergedTrit {
+		//			// X vs X
+		//			commonCount *= 2
+		//			dividedTotalCount /= 2
+		//			continue
+		//		}
+		//
+		//		// X vs 0 or X vs 1
+		//	}
+		//}
+		//
+		effectiveCount := totalCount - intersectsCount
+		//effectiveCount = dividedTotalCount
+		//if effectiveCount < 0 {
+		//	panic("Whoa")
+		//}
 
 		sum += effectiveCount * int(record.Value)
 	}

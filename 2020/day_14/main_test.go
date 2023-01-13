@@ -6,6 +6,39 @@ import (
 	"testing"
 )
 
+func Test_merge(t *testing.T) {
+	addresses := []Address{
+		Address("1001"),
+		Address("1001"),
+		Address("0100"),
+	}
+
+	result := merge(addresses)
+	assert.Equal(t, Address("XX0X"), result)
+}
+
+func TestAddress_And(t *testing.T) {
+	type args struct {
+		a2 Address
+	}
+	tests := []struct {
+		name string
+		a    Address
+		args args
+		want Address
+	}{
+		{"", Address("XX0X"), args{Address("1011")}, nil},
+		{"", Address("XX0X"), args{Address("1001")}, Address("1001")},
+		{"", Address("XX0X"), args{Address("10X1")}, Address("1001")},
+		{"", Address("XX0X"), args{Address("1XX1")}, Address("1X01")},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, tt.a.And(tt.args.a2), "And(%v)", tt.args.a2)
+		})
+	}
+}
+
 func Test_01_parse(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
@@ -57,3 +90,5 @@ func Test_02(t *testing.T) {
 
 // 3432511849446
 // 3396163389894
+// 2693975408037
+// 8372322902
