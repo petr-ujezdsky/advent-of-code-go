@@ -7,6 +7,7 @@ import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/collections"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/maps"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/strs"
 	"io"
 	"math"
@@ -38,7 +39,7 @@ func (t Trit) CombinationsWith(t2 Trit) int {
 		case '1', '0':
 			return 1
 		case 'X':
-			return 4
+			return 2
 		}
 		panic("Wrong runes")
 	}
@@ -47,11 +48,23 @@ func (t Trit) CombinationsWith(t2 Trit) int {
 	switch str {
 	case "10", "01":
 		return 0
-	case "1X", "X1", "0X", "X0":
-		return 2
+	case "1X", "0X":
+		return 1
+	case "X1", "X0":
+		return 1
 	}
 
 	panic("Wrong runes")
+}
+func (t Trit) Matches(t2 Trit) bool {
+	if t == t2 {
+		return true
+	}
+
+	if t == 'X' || t2 == 'X' {
+		return true
+	}
+	return false
 }
 
 type Address []Trit
@@ -86,6 +99,18 @@ func (a Address) CombinationsWith(a2 Address) int {
 		}
 	}
 	return combinations
+}
+
+func (a Address) Matches(a2 Address) bool {
+	for i, trit := range a {
+		otherTrit := a2[i]
+
+		if !trit.Matches(otherTrit) {
+			return false
+		}
+	}
+
+	return true
 }
 
 type Record struct {
@@ -161,21 +186,75 @@ func toRecords(items []MaskOrMem) []Record {
 	return records
 }
 
+func filterMatching(a Address, records []Record) []Record {
+	var filtered []Record
+
+	for _, record := range records {
+		if a.Matches(record.Address) {
+			filtered = append(filtered, record)
+		}
+	}
+
+	return filtered
+}
+
+func merge(records []Record) Address {
+	merged := slices.Clone(records[0].Address)
+
+	for i, trit := range merged {
+		mergedTrit := trit
+
+		for _, record := range records[1:] {
+			otherTrit := record.Address[i]
+			if otherTrit != mergedTrit {
+				mergedTrit = 'X'
+				break
+			}
+		}
+		merged[i] = mergedTrit
+	}
+
+	return merged
+}
+
 func DoWithInputPart02(items []MaskOrMem) int {
 	records := toRecords(items)
 
 	sum := 0
 	for i, record := range records {
-		count := record.Address.Combinations()
-		for _, otherRecord := range records[i+1:] {
-			count -= record.Address.CombinationsWith(otherRecord.Address)
-			if count <= 0 {
-				count = 0
-				break
+		address := record.Address
+		totalCount := address.Combinations()
+
+		matching := filterMatching(address, records[i+1:])
+		commonCount := 0
+
+		if len(matching) > 0 {
+			commonCount = 1
+			mergedAddress := merge(matching)
+
+			for j, trit := range address {
+				if trit != 'X' {
+					continue
+				}
+				// now trit = X
+
+				mergedTrit := mergedAddress[j]
+				if trit == mergedTrit {
+					// X vs X
+					commonCount *= 2
+					continue
+				}
+
+				// X vs 0 or X vs 1
 			}
 		}
 
-		sum += count * int(record.Value)
+		effectiveCount := totalCount - commonCount
+		if effectiveCount < 0 {
+			panic("Whoa")
+		}
+
+		sum += effectiveCount * int(record.Value)
 	}
 
 	return sum

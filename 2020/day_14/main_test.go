@@ -54,3 +54,6 @@ func Test_02(t *testing.T) {
 	result := DoWithInputPart02(items)
 	assert.Equal(t, 0, result)
 }
+
+// 3432511849446
+// 3396163389894
