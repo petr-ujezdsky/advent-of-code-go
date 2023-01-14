@@ -19,6 +19,23 @@ func (r Rule) IsValid(v int) bool {
 
 type Ticket []int
 
+func (t Ticket) IsValid(rules []Rule) (bool, int) {
+	for _, value := range t {
+		invalidCount := 0
+		for _, rule := range rules {
+			if !rule.IsValid(value) {
+				invalidCount++
+			}
+		}
+
+		if invalidCount == len(rules) {
+			return false, value
+		}
+	}
+
+	return true, 0
+}
+
 type World struct {
 	Rules        []Rule
 	MyTicket     Ticket
@@ -29,17 +46,8 @@ func DoWithInputPart01(world World) int {
 	invalidValuesSum := 0
 
 	for _, ticket := range world.OtherTickets {
-		for _, value := range ticket {
-			invalidCount := 0
-			for _, rule := range world.Rules {
-				if !rule.IsValid(value) {
-					invalidCount++
-				}
-			}
-
-			if invalidCount == len(world.Rules) {
-				invalidValuesSum += value
-			}
+		if ok, value := ticket.IsValid(world.Rules); !ok {
+			invalidValuesSum += value
 		}
 	}
 
