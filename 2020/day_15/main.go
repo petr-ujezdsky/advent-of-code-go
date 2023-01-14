@@ -9,7 +9,7 @@ import (
 
 type History = map[int]int
 
-func DoWithInputPart01(numbers []int) int {
+func NthSpokenNumber(numbers []int, n int) int {
 	history := make(History)
 
 	for i, number := range numbers[0 : len(numbers)-1] {
@@ -18,7 +18,7 @@ func DoWithInputPart01(numbers []int) int {
 
 	currentNumber := numbers[len(numbers)-1]
 
-	for i := len(numbers); i < 2020; i++ {
+	for i := len(numbers); i < n; i++ {
 		var nextNumber int
 		// lookup in history
 		if previousPos, ok := history[currentNumber]; ok {
@@ -36,8 +36,12 @@ func DoWithInputPart01(numbers []int) int {
 	return currentNumber
 }
 
+func DoWithInputPart01(numbers []int) int {
+	return NthSpokenNumber(numbers, 2020)
+}
+
 func DoWithInputPart02(numbers []int) int {
-	return len(numbers)
+	return NthSpokenNumber(numbers, 30000000)
 }
 
 func ParseInput(r io.Reader) []int {
