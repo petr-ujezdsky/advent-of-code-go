@@ -3,7 +3,10 @@ package main
 import (
 	"bufio"
 	_ "embed"
+	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/maps"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
 	"strings"
 )
@@ -54,8 +57,101 @@ func DoWithInputPart01(world World) int {
 	return invalidValuesSum
 }
 
+func isValidForPosition(rule Rule, position int, tickets []Ticket) bool {
+	for _, ticket := range tickets {
+		if !rule.IsValid(ticket[position]) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func findExactPosition(rulesPositions map[string]map[int]struct{}) (string, int) {
+	exactName := ""
+	exactPosition := -1
+
+	for name, positions := range rulesPositions {
+		if len(positions) > 1 {
+			continue
+		}
+
+		if exactName != "" {
+			panic("Found more possible solutions")
+		}
+
+		exactName = name
+		exactPosition = maps.FirstKey(positions)
+	}
+
+	if exactName == "" {
+		panic("Found no solution")
+	}
+
+	return exactName, exactPosition
+}
+
+func findAllPositions(rulesPositions map[string]map[int]struct{}) map[string]int {
+	exactPositions := make(map[string]int)
+
+	for len(rulesPositions) > 0 {
+		name, position := findExactPosition(rulesPositions)
+		exactPositions[name] = position
+
+		delete(rulesPositions, name)
+		for _, positions := range rulesPositions {
+			delete(positions, position)
+		}
+	}
+
+	return exactPositions
+}
+
 func DoWithInputPart02(world World) int {
-	return 0
+	// extract only valid tickets
+	tickets := slices.Filter(world.OtherTickets, func(s Ticket) bool {
+		valid, _ := s.IsValid(world.Rules)
+		return valid
+	})
+
+	// add mine
+	tickets = append(tickets, world.MyTicket)
+
+	fieldsCount := len(world.MyTicket)
+
+	// extract only relevant rules
+	mainRules := slices.Filter(world.Rules, func(rule Rule) bool {
+		return strings.Contains(rule.Name, "departure")
+	})
+
+	// find all possible positions
+	rulesPossiblePositions := make(map[string]map[int]struct{})
+	for _, rule := range world.Rules {
+		possiblePositions := make(map[int]struct{})
+
+		for position := 0; position < fieldsCount; position++ {
+			if isValidForPosition(rule, position, tickets) {
+				possiblePositions[position] = struct{}{}
+			}
+		}
+
+		rulesPossiblePositions[rule.Name] = possiblePositions
+	}
+
+	for name, positions := range rulesPossiblePositions {
+		fmt.Printf("%-19v: %v\n", name, maps.Keys(positions))
+	}
+
+	// determine positions
+	positions := findAllPositions(rulesPossiblePositions)
+
+	product := 1
+	for _, rule := range mainRules {
+		position := positions[rule.Name]
+		product *= world.MyTicket[position]
+	}
+
+	return product
 }
 
 func parseInterval(str string) utils.IntervalI {

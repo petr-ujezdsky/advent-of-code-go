@@ -96,6 +96,18 @@ func Map[S, T any](slice []S, mapper func(s S) T) []T {
 	return mapped
 }
 
+func Filter[T any](slice []T, take func(s T) bool) []T {
+	var filtered []T
+
+	for _, s := range slice {
+		if take(s) {
+			filtered = append(filtered, s)
+		}
+	}
+
+	return filtered
+}
+
 func ToMap[T any, K comparable](slice []T, keyMapper func(v T) K) map[K]T {
 	m := make(map[K]T, len(slice))
 
