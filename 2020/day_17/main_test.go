@@ -22,7 +22,7 @@ func Test_01_example(t *testing.T) {
 	world := ParseInput(reader)
 
 	result := DoWithInputPart01(world)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 112, result)
 }
 
 func Test_01(t *testing.T) {
@@ -32,7 +32,7 @@ func Test_01(t *testing.T) {
 	world := ParseInput(reader)
 
 	result := DoWithInputPart01(world)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 426, result)
 }
 
 func Test_02_example(t *testing.T) {
