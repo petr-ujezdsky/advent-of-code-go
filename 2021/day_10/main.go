@@ -158,6 +158,6 @@ func IncompleteScore(rows InputRows) int {
 	return totalScores[len(totalScores)/2]
 }
 
-func ParseInput(r io.Reader) (InputRows, error) {
+func ParseInput(r io.Reader) InputRows {
 	return parsers.ParseToStrings(r)
 }

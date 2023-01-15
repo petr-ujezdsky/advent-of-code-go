@@ -13,8 +13,7 @@ func Test_01_example(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
 
-	rows, err := parsers.ParseToStrings(reader)
-	assert.Nil(t, err)
+	rows := parsers.ParseToStrings(reader)
 
 	bits := mostCommonBits(rows, "1")
 	assert.Equal(t, "10110", bits)
@@ -31,8 +30,7 @@ func Test_01(t *testing.T) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(t, err)
 
-	rows, err := parsers.ParseToStrings(reader)
-	assert.Nil(t, err)
+	rows := parsers.ParseToStrings(reader)
 
 	bits := mostCommonBits(rows, "1")
 	assert.Equal(t, "001100100101", bits)
@@ -49,8 +47,7 @@ func Test_02_example(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
 
-	rows, err := parsers.ParseToStrings(reader)
-	assert.Nil(t, err)
+	rows := parsers.ParseToStrings(reader)
 
 	oxygen, co2, lifeSupport := decodeOxygenCo2(rows)
 
@@ -63,8 +60,7 @@ func Test_02(t *testing.T) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(t, err)
 
-	rows, err := parsers.ParseToStrings(reader)
-	assert.Nil(t, err)
+	rows := parsers.ParseToStrings(reader)
 
 	oxygen, co2, lifeSupport := decodeOxygenCo2(rows)
 

@@ -41,8 +41,7 @@ func Test_02_example(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
 
-	nodeStrings, err := parsers.ParseToStrings(reader)
-	assert.Nil(t, err)
+	nodeStrings := parsers.ParseToStrings(reader)
 
 	max, err := MaxSumMagnitude(nodeStrings)
 	assert.Nil(t, err)
@@ -54,8 +53,7 @@ func Test_02(t *testing.T) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(t, err)
 
-	nodeStrings, err := parsers.ParseToStrings(reader)
-	assert.Nil(t, err)
+	nodeStrings := parsers.ParseToStrings(reader)
 
 	max, err := MaxSumMagnitude(nodeStrings)
 	assert.Nil(t, err)

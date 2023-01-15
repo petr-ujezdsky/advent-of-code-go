@@ -96,5 +96,5 @@ func SumSnafuNumbers(snafuNumbers []string) string {
 }
 
 func ParseInput(r io.Reader) []string {
-	return parsers.ParseToStringsP(r)
+	return parsers.ParseToStrings(r)
 }
