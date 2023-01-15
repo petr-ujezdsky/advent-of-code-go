@@ -54,17 +54,3 @@ var Direction3D26Arr = [26]Vector3i{
 	{X: -1, Y: -1, Z: 1},
 	{X: -1, Y: -1, Z: -1},
 }
-
-//func Generate() {
-//	steps := []int{0, 1, -1}
-//	for _, x := range steps {
-//		for _, y := range steps {
-//			for _, z := range steps {
-//				if x == 0 && y == 0 && z == 0 {
-//					continue
-//				}
-//				fmt.Printf("{X: %v, Y: %v, Z: %v},\n", x, y, z)
-//			}
-//		}
-//	}
-//}
