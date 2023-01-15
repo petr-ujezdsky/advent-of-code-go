@@ -11,13 +11,18 @@ func TestParseExpression(t *testing.T) {
 	expression, pos := ParseExpression(0, "1 + 2")
 	fmt.Println(expression)
 	fmt.Println(pos)
-}
+	assert.Equal(t, 1, expression.Evaluate())
 
-//func TestParseOperation(t *testing.T) {
-//	operation, _ := ParseOperation(0, "2 + 3 * 5")
-//	fmt.Println(operation)
-//	fmt.Println(operation.Evaluate())
-//}
+	expression, pos = ParseExpression(4, "1 + 2")
+	fmt.Println(expression)
+	fmt.Println(pos)
+	assert.Equal(t, 2, expression.Evaluate())
+
+	expression, pos = ParseExpression(0, "(1 + 2)")
+	fmt.Println(expression)
+	fmt.Println(pos)
+	assert.Equal(t, 3, expression.Evaluate())
+}
 
 func TestParseExpressions(t *testing.T) {
 	expression, pos := ParseExpressions(0, "2 + 3 * 5")
@@ -28,33 +33,39 @@ func TestParseExpressions(t *testing.T) {
 	assert.Equal(t, 9, pos)
 }
 
-//func TestParseOperationEvaluate(t *testing.T) {
-//	operation, pos := ParseOperation(0, "2 + 3")
-//	assert.Equal(t, 5, operation.Evaluate())
-//	assert.Equal(t, 5, pos)
-//
-//	operation, pos = ParseOperation(0, "2 * 3")
-//	assert.Equal(t, 6, operation.Evaluate())
-//	assert.Equal(t, 5, pos)
-//}
-
-func Test_01_parse(t *testing.T) {
-	reader, err := os.Open("data-00-example.txt")
-	assert.Nil(t, err)
-
-	expressions := ParseInput(reader)
-
-	assert.Equal(t, 0, len(expressions))
+func TestEvaluateExpression(t *testing.T) {
+	type args struct {
+		str string
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{"", args{"2"}, 2},
+		{"", args{"2 + 3"}, 5},
+		{"", args{"2 + 3 * 5"}, 25},
+		{"", args{"2 + (3 * 5)"}, 17},
+		{"", args{"1 + 2 * 3 + 4 * 5 + 6"}, 71},
+		{"", args{"2 * 3 + (4 * 5)"}, 26},
+		{"", args{"5 + (8 * 3 + 9 + 3 * 4 * 3)"}, 437},
+		{"", args{"5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))"}, 12240},
+		{"", args{"((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2"}, 13632},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, EvaluateExpression(tt.args.str), "EvaluateExpression(%v)", tt.args.str)
+		})
+	}
 }
 
-func Test_01_example(t *testing.T) {
-	reader, err := os.Open("data-00-example.txt")
+func Test_01_parse(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
 	assert.Nil(t, err)
 
 	expressions := ParseInput(reader)
 
-	result := DoWithInputPart01(expressions)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 377, len(expressions))
 }
 
 func Test_01(t *testing.T) {
@@ -64,7 +75,7 @@ func Test_01(t *testing.T) {
 	expressions := ParseInput(reader)
 
 	result := DoWithInputPart01(expressions)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 5019432542701, result)
 }
 
 func Test_02_example(t *testing.T) {
