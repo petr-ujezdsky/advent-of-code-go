@@ -1,8 +1,8 @@
 package day_10
 
 import (
-	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/collections"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"io"
 	"sort"
 )
@@ -159,5 +159,5 @@ func IncompleteScore(rows InputRows) int {
 }
 
 func ParseInput(r io.Reader) (InputRows, error) {
-	return utils.ParseToStrings(r)
+	return parsers.ParseToStrings(r)
 }

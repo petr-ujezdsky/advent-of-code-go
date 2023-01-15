@@ -2,7 +2,7 @@ package main
 
 import (
 	_ "embed"
-	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/strs"
 	"io"
@@ -96,5 +96,5 @@ func SumSnafuNumbers(snafuNumbers []string) string {
 }
 
 func ParseInput(r io.Reader) []string {
-	return utils.ParseToStringsP(r)
+	return parsers.ParseToStringsP(r)
 }

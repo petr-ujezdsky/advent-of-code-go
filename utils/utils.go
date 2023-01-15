@@ -35,30 +35,6 @@ func ParseToIntsP(r io.Reader) []int {
 	return ints
 }
 
-// ParseToStrings returns the list of lines
-func ParseToStrings(r io.Reader) ([]string, error) {
-	scanner := bufio.NewScanner(r)
-	scanner.Split(bufio.ScanLines)
-
-	var result []string
-
-	for scanner.Scan() {
-		result = append(result, scanner.Text())
-	}
-
-	return result, scanner.Err()
-}
-
-// ParseToStringsP returns the list of lines, panics in case of an error
-func ParseToStringsP(r io.Reader) []string {
-	strings, err := ParseToStrings(r)
-	if err != nil {
-		panic(err)
-	}
-
-	return strings
-}
-
 // ParseToMatrix returns the matrix of integers
 func ParseToMatrix(r io.Reader) (MatrixInt, error) {
 	scanner := bufio.NewScanner(r)

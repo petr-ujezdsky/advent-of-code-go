@@ -1,11 +1,11 @@
 package day_03
 
 import (
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"os"
 	"strconv"
 	"testing"
 
-	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,7 +13,7 @@ func Test_01_example(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
 
-	rows, err := utils.ParseToStrings(reader)
+	rows, err := parsers.ParseToStrings(reader)
 	assert.Nil(t, err)
 
 	bits := mostCommonBits(rows, "1")
@@ -31,7 +31,7 @@ func Test_01(t *testing.T) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(t, err)
 
-	rows, err := utils.ParseToStrings(reader)
+	rows, err := parsers.ParseToStrings(reader)
 	assert.Nil(t, err)
 
 	bits := mostCommonBits(rows, "1")
@@ -49,7 +49,7 @@ func Test_02_example(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
 
-	rows, err := utils.ParseToStrings(reader)
+	rows, err := parsers.ParseToStrings(reader)
 	assert.Nil(t, err)
 
 	oxygen, co2, lifeSupport := decodeOxygenCo2(rows)
@@ -63,7 +63,7 @@ func Test_02(t *testing.T) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(t, err)
 
-	rows, err := utils.ParseToStrings(reader)
+	rows, err := parsers.ParseToStrings(reader)
 	assert.Nil(t, err)
 
 	oxygen, co2, lifeSupport := decodeOxygenCo2(rows)

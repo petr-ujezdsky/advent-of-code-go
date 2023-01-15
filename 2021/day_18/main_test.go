@@ -2,12 +2,12 @@ package day_18
 
 import (
 	"bufio"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"io"
 	"os"
 	"strings"
 	"testing"
 
-	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -41,7 +41,7 @@ func Test_02_example(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
 
-	nodeStrings, err := utils.ParseToStrings(reader)
+	nodeStrings, err := parsers.ParseToStrings(reader)
 	assert.Nil(t, err)
 
 	max, err := MaxSumMagnitude(nodeStrings)
@@ -54,7 +54,7 @@ func Test_02(t *testing.T) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(t, err)
 
-	nodeStrings, err := utils.ParseToStrings(reader)
+	nodeStrings, err := parsers.ParseToStrings(reader)
 	assert.Nil(t, err)
 
 	max, err := MaxSumMagnitude(nodeStrings)

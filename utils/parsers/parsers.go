@@ -104,3 +104,45 @@ func ParseToGroups[T any](r io.Reader, mapper func(lines []string, i int) T) []T
 
 	return groups
 }
+
+//// ParseToStrings returns the list of lines
+//func ParseToStrings(r io.Reader) []string {
+//	scanner := bufio.NewScanner(r)
+//	scanner.Split(bufio.ScanLines)
+//
+//	var result []string
+//
+//	for scanner.Scan() {
+//		result = append(result, scanner.Text())
+//	}
+//
+//	if scanner.Err() != nil {
+//		panic("Error parsing input")
+//	}
+//
+//	return result
+//}
+
+// ParseToStrings returns the list of lines
+func ParseToStrings(r io.Reader) ([]string, error) {
+	scanner := bufio.NewScanner(r)
+	scanner.Split(bufio.ScanLines)
+
+	var result []string
+
+	for scanner.Scan() {
+		result = append(result, scanner.Text())
+	}
+
+	return result, scanner.Err()
+}
+
+// ParseToStringsP returns the list of lines, panics in case of an error
+func ParseToStringsP(r io.Reader) []string {
+	strings, err := ParseToStrings(r)
+	if err != nil {
+		panic(err)
+	}
+
+	return strings
+}
