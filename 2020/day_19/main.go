@@ -57,6 +57,7 @@ func (r ValueRule) Valid(pos int, message string) (bool, int) {
 }
 
 type MessageValidatorHolder struct {
+	Id        int
 	Validator MessageValidator
 }
 
@@ -101,7 +102,10 @@ func getOrCreateValidator(id int, validators Validators) *MessageValidatorHolder
 		return validator
 	}
 
-	validator := &MessageValidatorHolder{}
+	validator := &MessageValidatorHolder{
+		Id: id,
+	}
+
 	validators[id] = validator
 	return validator
 }
