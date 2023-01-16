@@ -9,23 +9,29 @@ import (
 type Item struct {
 }
 
-func DoWithInputPart01(items []Item) int {
-	return len(items)
+type World struct {
+	Items []Item
+	//Matrix utils.Matrix[Item]
 }
 
-func DoWithInputPart02(items []Item) int {
-	return len(items)
+func DoWithInputPart01(world World) int {
+	return 0
 }
 
-func ParseInput(r io.Reader) []Item {
+func DoWithInputPart02(world World) int {
+	return 0
+}
+
+func ParseInput(r io.Reader) World {
 	parseItem := func(str string) Item {
 		return Item{}
 	}
 
-	return parsers.ParseToObjects(r, parseItem)
+	items := parsers.ParseToObjects(r, parseItem)
+	return World{Items: items}
 }
 
-//func ParseInput(r io.Reader) []Item {
+//func ParseInput(r io.Reader) World {
 //	scanner := bufio.NewScanner(r)
 //	scanner.Split(bufio.ScanLines)
 //
@@ -39,13 +45,13 @@ func ParseInput(r io.Reader) []Item {
 //		items = append(items, item)
 //	}
 //
-//	return items
+//	return World{Items: items}
 //}
-
-//func ParseInput(r io.Reader) utils.Matrix[Item] {
+//
+//func ParseInput(r io.Reader) World {
 //	parseItem := func(char rune) Item {
 //		return Item{}
 //	}
 //
-//	return parsers.ParseToMatrix(r, parseItem)
+//	return World{Matrix: parsers.ParseToMatrix(r, parseItem)}
 //}
