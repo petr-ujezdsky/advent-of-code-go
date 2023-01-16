@@ -13,17 +13,20 @@ type MessageValidator interface {
 }
 
 type AndRule struct {
-	Left, Right *MessageValidatorHolder
+	Rules []*MessageValidatorHolder
 }
 
 func (r AndRule) Valid(pos int, message string) (bool, int) {
-	ok, nextPos := r.Left.Validator.Valid(pos, message)
-	if !ok {
-		return false, nextPos
+	currentPos := pos
+	for _, rule := range r.Rules {
+		ok, nextPos := rule.Validator.Valid(currentPos, message)
+		if !ok {
+			return false, nextPos
+		}
+		currentPos = nextPos
 	}
 
-	ok, nextPos = r.Right.Validator.Valid(nextPos, message)
-	return ok, nextPos
+	return true, currentPos
 }
 
 type OrRule struct {
@@ -106,12 +109,14 @@ func parseValidatorPart(str string, validators Validators) MessageValidator {
 
 	// AND rule
 	ids := utils.ExtractInts(str, false)
-	left := getOrCreateValidator(ids[0], validators)
-	right := getOrCreateValidator(ids[1], validators)
+	rules := make([]*MessageValidatorHolder, len(ids))
+
+	for i, id := range ids {
+		rules[i] = getOrCreateValidator(id, validators)
+	}
 
 	return &AndRule{
-		Left:  left,
-		Right: right,
+		Rules: rules,
 	}
 }
 
