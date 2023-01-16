@@ -81,7 +81,7 @@ func IsValid(message string, validator MessageValidator) bool {
 	return false
 }
 
-func DoWithInputPart01(world World) int {
+func DoWithInput(world World) int {
 	count := 0
 
 	for _, message := range world.Messages {
@@ -91,10 +91,6 @@ func DoWithInputPart01(world World) int {
 	}
 
 	return count
-}
-
-func DoWithInputPart02(world World) int {
-	return 0
 }
 
 func getOrCreateValidator(id int, validators Validators) *MessageValidatorHolder {
