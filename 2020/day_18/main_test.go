@@ -66,6 +66,12 @@ func TestEvaluateExpression(t *testing.T) {
 		{"", args{"5 + (8 * 3 + 9 + 3 * 4 * 3)", DifferentPriorityMerger}, 1445},
 		{"", args{"5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))", DifferentPriorityMerger}, 669060},
 		{"", args{"((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2", DifferentPriorityMerger}, 23340},
+
+		// problematic
+		{"", args{"(2 * 1 + 2) + 3", DifferentPriorityMerger}, 9},
+		{"", args{"(2 + 4 * 9)", DifferentPriorityMerger}, 54},
+		{"", args{"(6 + 9 * 8 + 6)", DifferentPriorityMerger}, 210},
+		{"", args{"(6 + 9 * 8 + 6) + 6", DifferentPriorityMerger}, 216},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -100,5 +106,5 @@ func Test_02(t *testing.T) {
 	expressions := ParseInput(reader)
 
 	result := DoWithInputPart02(expressions)
-	assert.Equal(t, 91259870367894, result)
+	assert.Equal(t, 70518821989947, result)
 }

@@ -15,7 +15,7 @@ var evaluators = map[rune]Evaluator{
 	'*': func(a, b int) int { return a * b },
 }
 
-type PriorityMerger = func(operand rune, last, current *Expression) *Expression
+type PriorityMerger = func(firstOperation bool, operand rune, last, current *Expression) *Expression
 
 type Operation struct {
 	Operand     rune
@@ -66,7 +66,7 @@ func ParseExpression(pos int, str string, merger PriorityMerger) (*Expression, i
 	return expression, pos
 }
 
-func SamePriorityMerger(operand rune, last, current *Expression) *Expression {
+func SamePriorityMerger(_ bool, operand rune, last, current *Expression) *Expression {
 	expression := &Expression{
 		Value: 0,
 		Operation: &Operation{
@@ -80,13 +80,13 @@ func SamePriorityMerger(operand rune, last, current *Expression) *Expression {
 	return expression
 }
 
-func DifferentPriorityMerger(operand rune, last, current *Expression) *Expression {
+func DifferentPriorityMerger(firstOperation bool, operand rune, last, current *Expression) *Expression {
 	if operand == '*' {
-		return SamePriorityMerger(operand, last, current)
+		return SamePriorityMerger(firstOperation, operand, last, current)
 	}
 
-	if last.Operation == nil {
-		return SamePriorityMerger(operand, last, current)
+	if firstOperation {
+		return SamePriorityMerger(firstOperation, operand, last, current)
 	}
 
 	expression := &Expression{
@@ -108,12 +108,15 @@ func ParseExpressions(pos int, str string, merger PriorityMerger) (*Expression, 
 	var operand rune
 
 	var last *Expression
+	firstOperation := true
+
 	for pos < len(str) {
 		var current *Expression
 		current, pos = ParseExpression(pos, str, merger)
 
 		if last != nil {
-			last = merger(operand, last, current)
+			last = merger(firstOperation, operand, last, current)
+			firstOperation = false
 		} else {
 			last = current
 		}
