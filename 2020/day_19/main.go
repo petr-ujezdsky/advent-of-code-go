@@ -10,17 +10,18 @@ import (
 )
 
 type MessageValidator interface {
-	Valid(pos int, message string) (bool, int)
+	Valid(pos int, last bool, message string) (bool, int)
 }
 
 type AndRule struct {
 	Rules []*MessageValidatorHolder
 }
 
-func (r AndRule) Valid(pos int, message string) (bool, int) {
+func (r AndRule) Valid(pos int, last bool, message string) (bool, int) {
 	currentPos := pos
-	for _, rule := range r.Rules {
-		ok, nextPos := rule.Validator.Valid(currentPos, message)
+	for i, rule := range r.Rules {
+		end := i == len(r.Rules)-1
+		ok, nextPos := rule.Validator.Valid(currentPos, last && end, message)
 		if !ok {
 			return false, nextPos
 		}
@@ -34,13 +35,13 @@ type OrRule struct {
 	Left, Right MessageValidator
 }
 
-func (r OrRule) Valid(pos int, message string) (bool, int) {
-	ok, nextPos := r.Left.Valid(pos, message)
+func (r OrRule) Valid(pos int, last bool, message string) (bool, int) {
+	ok, nextPos := r.Left.Valid(pos, last, message)
 	if ok {
 		return ok, nextPos
 	}
 
-	ok, nextPos = r.Right.Valid(pos, message)
+	ok, nextPos = r.Right.Valid(pos, last, message)
 	return ok, nextPos
 }
 
@@ -48,8 +49,13 @@ type ValueRule struct {
 	Value uint8
 }
 
-func (r ValueRule) Valid(pos int, message string) (bool, int) {
+func (r ValueRule) Valid(pos int, last bool, message string) (bool, int) {
 	if pos >= len(message) {
+		return false, pos + 1
+	}
+
+	if last && pos != len(message)-1 {
+		fmt.Println("Last but actually not")
 		return false, pos + 1
 	}
 
@@ -70,7 +76,7 @@ type World struct {
 }
 
 func IsValid(message string, validator MessageValidator) bool {
-	if ok, pos := validator.Valid(0, message); ok {
+	if ok, pos := validator.Valid(0, true, message); ok {
 		if pos != len(message) {
 			fmt.Printf("Matched but not whole: %v @ %v/%v\n", message, pos, len(message))
 			return false
