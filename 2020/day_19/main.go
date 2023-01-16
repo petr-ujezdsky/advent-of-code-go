@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	_ "embed"
+	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"io"
 	"strings"
@@ -63,11 +64,16 @@ type Validators = map[int]*MessageValidatorHolder
 
 type World struct {
 	Validators Validators
+	Validator  MessageValidator
 	Messages   []string
 }
 
 func IsValid(message string, validator MessageValidator) bool {
-	if ok, pos := validator.Valid(0, message); ok && pos == len(message) {
+	if ok, pos := validator.Valid(0, message); ok {
+		if pos != len(message) {
+			fmt.Printf("Matched but not whole: %v @ %v/%v\n", message, pos, len(message))
+			return false
+		}
 		return true
 	}
 
@@ -77,9 +83,8 @@ func IsValid(message string, validator MessageValidator) bool {
 func DoWithInputPart01(world World) int {
 	count := 0
 
-	validator := world.Validators[0].Validator
 	for _, message := range world.Messages {
-		if IsValid(message, validator) {
+		if IsValid(message, world.Validator) {
 			count++
 		}
 	}
@@ -161,6 +166,7 @@ func ParseInput(r io.Reader) World {
 
 	return World{
 		Validators: validators,
+		Validator:  validators[0].Validator,
 		Messages:   messages,
 	}
 }
