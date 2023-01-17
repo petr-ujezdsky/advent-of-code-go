@@ -3,8 +3,8 @@ package main
 import (
 	"bufio"
 	_ "embed"
-	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/strs"
 	"io"
 	"strings"
 )
@@ -88,7 +88,7 @@ func (r ValueRule) Valid(pos int, last bool, message string) (bool, int) {
 	}
 
 	if last && pos != len(message)-1 {
-		fmt.Println("Last but actually not")
+		//fmt.Println("Last but actually not")
 		return false, pos + 1
 	}
 
@@ -121,7 +121,7 @@ type World struct {
 func IsValid(message string, validator MessageValidator) bool {
 	if ok, pos := validator.Valid(0, true, message); ok {
 		if pos != len(message) {
-			fmt.Printf("Matched but not whole: %v @ %v/%v\n", message, pos, len(message))
+			//fmt.Printf("Matched but not whole: %v @ %v/%v\n", message, pos, len(message))
 			return false
 		}
 		return true
@@ -130,11 +130,45 @@ func IsValid(message string, validator MessageValidator) bool {
 	return false
 }
 
-func DoWithInput(world World) int {
+func IsValidWithCycles(message string, validator MessageValidator, validator8 MessageValidator) bool {
+	for i := range message {
+		if i == 0 {
+			continue
+		}
+
+		if ok, _ := validator.Valid(i, true, message); ok {
+			//fmt.Printf("Matched right part from index %v/%v\n", i, len(message))
+
+			if ok, _ := validator8.Valid(0, true, strs.Substring(message, 0, i)); ok {
+				//fmt.Println("Also matched left part!")
+				return true
+			}
+
+			//fmt.Println("Did not match left part")
+		}
+	}
+
+	return false
+}
+
+func DoWithInputPart01(world World) int {
 	count := 0
 
 	for _, message := range world.Messages {
 		if IsValid(message, world.Validator) {
+			count++
+		}
+	}
+
+	return count
+}
+
+func DoWithInputPart02(world World) int {
+	count := 0
+	validator8 := world.Validators[8].Validator
+
+	for _, message := range world.Messages {
+		if IsValidWithCycles(message, world.Validator, validator8) {
 			count++
 		}
 	}
