@@ -92,6 +92,7 @@ func ParseInt(str string) int {
 }
 
 // ParseBinary8 parses string with zeros and ones to 8-bit number
+// Most significant bit is on the left side of the string
 func ParseBinary8(onesAndZeros string) uint8 {
 	v, err := strconv.ParseUint(onesAndZeros, 2, 8)
 	if err != nil {
@@ -101,12 +102,30 @@ func ParseBinary8(onesAndZeros string) uint8 {
 }
 
 // ParseBinary16 parses string with zeros and ones to 16-bit number
+// Most significant bit is on the left side of the string
 func ParseBinary16(onesAndZeros string) uint16 {
 	v, err := strconv.ParseUint(onesAndZeros, 2, 16)
 	if err != nil {
 		panic("Can not convert binary string " + onesAndZeros + " to number")
 	}
 	return uint16(v)
+}
+
+// ParseBinaryBool16 parses boolean slice to 16-bit number
+// Most significant bit is on the left side of the slice
+func ParseBinaryBool16(bits []bool) uint16 {
+	if len(bits) > 16 {
+		panic("Too many bits " + strconv.Itoa(len(bits)))
+	}
+
+	sum := uint16(0)
+	for i, bit := range bits {
+		if bit {
+			sum += 1 << (len(bits) - 1 - i)
+		}
+	}
+
+	return sum
 }
 
 var regexIntNegative = regexp.MustCompile(`-?\d+`)

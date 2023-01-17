@@ -170,6 +170,38 @@ func TestParseBinary8(t *testing.T) {
 	}
 }
 
+func TestParseBinaryBool16(t *testing.T) {
+	type args struct {
+		bits []bool
+	}
+	tests := []struct {
+		name string
+		args args
+		want uint16
+	}{
+		{"", args{[]bool{}}, 0},
+		{"", args{[]bool{false}}, 0},
+		{"", args{[]bool{true}}, 1},
+		{"", args{[]bool{true, true, false}}, 6},
+
+		{"", args{[]bool{false, false, false, false, false, false, false, false}}, 0},
+		{"", args{[]bool{false, false, false, false, false, false, false, true}}, 1},
+		{"", args{[]bool{false, false, false, false, false, false, true, false}}, 2},
+		{"", args{[]bool{false, false, false, false, false, true, false, false}}, 4},
+		{"", args{[]bool{false, false, false, false, true, false, false, false}}, 8},
+		{"", args{[]bool{false, false, false, true, false, false, false, false}}, 16},
+		{"", args{[]bool{false, false, true, false, false, false, false, false}}, 32},
+		{"", args{[]bool{false, true, false, false, false, false, false, false}}, 64},
+		{"", args{[]bool{true, false, false, false, false, false, false, false}}, 128},
+		{"", args{[]bool{true, true, true, true, true, true, true, true}}, 255},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, utils.ParseBinaryBool16(tt.args.bits), "ParseBinaryBool16(%v)", tt.args.bits)
+		})
+	}
+}
+
 func TestModFloor(t *testing.T) {
 	type args struct {
 		value int

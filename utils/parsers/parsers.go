@@ -6,8 +6,15 @@ import (
 	"io"
 )
 
-func MapperBoolean(trueChar, falseChar rune) func(ch rune, x, y int) bool {
+func MapperBooleanIndexed(trueChar, falseChar rune) func(ch rune, x, y int) bool {
+	mapper := MapperBoolean(trueChar, falseChar)
 	return func(ch rune, x, y int) bool {
+		return mapper(ch)
+	}
+}
+
+func MapperBoolean(trueChar, falseChar rune) func(ch rune) bool {
+	return func(ch rune) bool {
 		if ch == trueChar {
 			return true
 		}
