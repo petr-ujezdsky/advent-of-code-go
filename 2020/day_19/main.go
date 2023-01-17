@@ -119,11 +119,7 @@ type World struct {
 }
 
 func IsValid(message string, validator MessageValidator) bool {
-	if ok, pos := validator.Valid(0, true, message); ok {
-		if pos != len(message) {
-			//fmt.Printf("Matched but not whole: %v @ %v/%v\n", message, pos, len(message))
-			return false
-		}
+	if ok, _ := validator.Valid(0, true, message); ok {
 		return true
 	}
 
