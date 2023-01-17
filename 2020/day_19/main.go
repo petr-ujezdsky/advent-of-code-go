@@ -9,8 +9,11 @@ import (
 	"strings"
 )
 
+type VariantVisitor = func(variant string)
+
 type MessageValidator interface {
 	Valid(pos int, last bool, message string) (bool, int)
+	Print(prefix string, last bool, visitor VariantVisitor) []string
 }
 
 type AndRule struct {
@@ -31,6 +34,23 @@ func (r AndRule) Valid(pos int, last bool, message string) (bool, int) {
 	return true, currentPos
 }
 
+func (r AndRule) Print(prefix string, last bool, visitor VariantVisitor) []string {
+	variants := []string{prefix}
+	var nextVariants []string
+
+	for i, rule := range r.Rules {
+		end := i == len(r.Rules)-1
+		for _, variant := range variants {
+			for _, nextVariant := range rule.Validator.Print(variant, last && end, visitor) {
+				nextVariants = append(nextVariants, nextVariant)
+			}
+		}
+		variants = nextVariants
+	}
+
+	return variants
+}
+
 type OrRule struct {
 	Left, Right MessageValidator
 }
@@ -43,6 +63,19 @@ func (r OrRule) Valid(pos int, last bool, message string) (bool, int) {
 
 	ok, nextPos = r.Right.Valid(pos, last, message)
 	return ok, nextPos
+}
+
+func (r OrRule) Print(prefix string, last bool, visitor VariantVisitor) []string {
+	var variants []string
+	for _, variant := range r.Left.Print(prefix, last, visitor) {
+		variants = append(variants, variant)
+	}
+
+	for _, variant := range r.Right.Print(prefix, last, visitor) {
+		variants = append(variants, variant)
+	}
+
+	return variants
 }
 
 type ValueRule struct {
@@ -60,6 +93,16 @@ func (r ValueRule) Valid(pos int, last bool, message string) (bool, int) {
 	}
 
 	return message[pos] == r.Value, pos + 1
+}
+
+func (r ValueRule) Print(prefix string, last bool, visitor VariantVisitor) []string {
+	variant := prefix + string(r.Value)
+
+	if last {
+		visitor(variant)
+	}
+
+	return []string{variant}
 }
 
 type MessageValidatorHolder struct {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
@@ -139,6 +140,20 @@ func TestIsValid3(t *testing.T) {
 			assert.Equalf(t, tt.want, IsValid(tt.args.message, tt.args.validator), "IsValid(%v, %v)", tt.args.message, tt.args.validator)
 		})
 	}
+}
+
+func TestPrint(t *testing.T) {
+	reader, err := os.Open("data-00-example-3.txt")
+	assert.Nil(t, err)
+
+	world := ParseInput(reader)
+	visitor := func(variant string) { fmt.Println(variant) }
+
+	world.Validators[4].Validator.Print("", true, visitor)
+	fmt.Println("---")
+	world.Validators[15].Validator.Print("", true, visitor)
+	fmt.Println("---")
+	world.Validators[8].Validator.Print("", true, visitor)
 }
 
 func Test_02(t *testing.T) {
