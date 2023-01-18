@@ -8,6 +8,7 @@ import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
+	"math"
 	"strings"
 )
 
@@ -151,10 +152,12 @@ func DoWithInputPart01(world World) int {
 	//	}
 	//}
 
+	expectedSize := int(math.Sqrt(float64(len(world.Tiles))))
+
 	for _, tile := range tiles {
 		orientedTile := &tile.OrientedTiles[0]
 		fmt.Printf("#%v\n", tile.Id)
-		searchRight(orientedTile, collections.Stack[*OrientedTile]{}, 1, 3, orientedTile, tiles)
+		searchRight(orientedTile, collections.Stack[*OrientedTile]{}, 1, expectedSize, orientedTile, tiles)
 	}
 
 	//tile := tiles[2311]
