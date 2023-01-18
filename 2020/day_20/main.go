@@ -68,45 +68,45 @@ func findCandidates(id int, tiles Tiles) []Connection {
 	return connections
 }
 
-func searchRight(tile *Tile, rightTiles collections.Stack[*Tile], width, expectedSize int, mainTile *Tile, tiles Tiles) {
-	delete(tiles, tile.Id)
+func searchRight(tile *Tile, rightTiles collections.Stack[*Tile], width, expectedSize int, mainTile *Tile, availableTiles Tiles) {
+	delete(availableTiles, tile.Id)
 	rightTiles.Push(tile)
 
 	rightEdge := tile.EdgesVariants[0][utils.Right]
 
 	// find neighbours on right side
-	for _, candidate := range tiles {
+	for _, candidate := range availableTiles {
 		for _, edges := range candidate.EdgesVariants {
 			if rightEdge == edges[utils.Left] {
 				// try recursive
-				searchRight(candidate, rightTiles, width+1, expectedSize, mainTile, tiles)
+				searchRight(candidate, rightTiles, width+1, expectedSize, mainTile, availableTiles)
 			}
 		}
 	}
 
 	fmt.Printf("  Searching left @ %v (%v)\n", width, tile.Id)
-	searchLeft(mainTile, collections.Stack[*Tile]{}, rightTiles, width, expectedSize, tiles)
+	searchLeft(mainTile, collections.Stack[*Tile]{}, rightTiles, width, expectedSize, availableTiles)
 
 	// remove main again
-	delete(tiles, mainTile.Id)
+	delete(availableTiles, mainTile.Id)
 
 	// return the tile back to searchable tiles
-	tiles[tile.Id] = tile
+	availableTiles[tile.Id] = tile
 	rightTiles.Pop()
 }
 
-func searchLeft(tile *Tile, leftTiles, rightTiles collections.Stack[*Tile], width, expectedSize int, tiles Tiles) {
-	delete(tiles, tile.Id)
+func searchLeft(tile *Tile, leftTiles, rightTiles collections.Stack[*Tile], width, expectedSize int, availableTiles Tiles) {
+	delete(availableTiles, tile.Id)
 	leftTiles.Push(tile)
 
 	leftEdge := tile.EdgesVariants[0][utils.Left]
 
 	// find neighbours on right side
-	for _, candidate := range tiles {
+	for _, candidate := range availableTiles {
 		for _, edges := range candidate.EdgesVariants {
 			if leftEdge == edges[utils.Right] {
 				// try recursive
-				searchLeft(candidate, leftTiles, rightTiles, width+1, expectedSize, tiles)
+				searchLeft(candidate, leftTiles, rightTiles, width+1, expectedSize, availableTiles)
 			}
 		}
 	}
@@ -117,17 +117,17 @@ func searchLeft(tile *Tile, leftTiles, rightTiles collections.Stack[*Tile], widt
 		// remove main tile
 		row = row[:len(row)-1]
 		// add right side
-		row = append(row, &Tile{Id: 0})
 		row = append(row, rightTiles.PeekAll()...)
 
 		ids := slices.Map(row, func(t *Tile) int { return t.Id })
-
 		fmt.Printf("  * found row of %v tiles - %v\n", width, ids)
+
+		//searchRowAbove(collections.Stack[*Tile]{}, 0, row, availableTiles)
 	}
 	//fmt.Printf("Not found\n")
 
 	// return the tile back to searchable tiles
-	tiles[tile.Id] = tile
+	availableTiles[tile.Id] = tile
 	leftTiles.Pop()
 }
 
