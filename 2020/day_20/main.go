@@ -24,6 +24,7 @@ type Tiles = map[int]*Tile
 type OrientedTile struct {
 	Id    int
 	Edges Edges
+	Tile  *Tile
 }
 
 type Tile struct {
@@ -73,45 +74,45 @@ type World struct {
 //	return connections
 //}
 
-func searchRight(tile *Tile, rightTiles collections.Stack[*Tile], width, expectedSize int, mainTile *Tile, availableTiles Tiles) {
+func searchRight(tile *OrientedTile, rightTiles collections.Stack[*OrientedTile], width, expectedSize int, mainTile *OrientedTile, availableTiles Tiles) {
 	delete(availableTiles, tile.Id)
 	rightTiles.Push(tile)
 
-	rightEdge := tile.OrientedTiles[0].Edges[utils.Right]
+	rightEdge := tile.Edges[utils.Right]
 
 	// find neighbours on right side
 	for _, candidate := range availableTiles {
 		for _, orientedTile := range candidate.OrientedTiles {
 			if rightEdge == orientedTile.Edges[utils.Left] {
 				// try recursive
-				searchRight(candidate, rightTiles, width+1, expectedSize, mainTile, availableTiles)
+				searchRight(&orientedTile, rightTiles, width+1, expectedSize, mainTile, availableTiles)
 			}
 		}
 	}
 
 	fmt.Printf("  Searching left @ %v (%v)\n", width, tile.Id)
-	searchLeft(mainTile, collections.Stack[*Tile]{}, rightTiles, width, expectedSize, availableTiles)
+	searchLeft(mainTile, collections.Stack[*OrientedTile]{}, rightTiles, width, expectedSize, availableTiles)
 
 	// remove main again
 	delete(availableTiles, mainTile.Id)
 
 	// return the tile back to searchable tiles
-	availableTiles[tile.Id] = tile
+	availableTiles[tile.Id] = tile.Tile
 	rightTiles.Pop()
 }
 
-func searchLeft(tile *Tile, leftTiles, rightTiles collections.Stack[*Tile], width, expectedSize int, availableTiles Tiles) {
+func searchLeft(tile *OrientedTile, leftTiles, rightTiles collections.Stack[*OrientedTile], width, expectedSize int, availableTiles Tiles) {
 	delete(availableTiles, tile.Id)
 	leftTiles.Push(tile)
 
-	leftEdge := tile.OrientedTiles[0].Edges[utils.Left]
+	leftEdge := tile.Edges[utils.Left]
 
 	// find neighbours on right side
 	for _, candidate := range availableTiles {
 		for _, orientedTile := range candidate.OrientedTiles {
 			if leftEdge == orientedTile.Edges[utils.Right] {
 				// try recursive
-				searchLeft(candidate, leftTiles, rightTiles, width+1, expectedSize, availableTiles)
+				searchLeft(&orientedTile, leftTiles, rightTiles, width+1, expectedSize, availableTiles)
 			}
 		}
 	}
@@ -124,15 +125,15 @@ func searchLeft(tile *Tile, leftTiles, rightTiles collections.Stack[*Tile], widt
 		// add right side
 		row = append(row, rightTiles.PeekAll()...)
 
-		ids := slices.Map(row, func(t *Tile) int { return t.Id })
+		ids := slices.Map(row, func(t *OrientedTile) int { return t.Id })
 		fmt.Printf("  * found row of %v tiles - %v\n", width, ids)
 
 		//searchRowAbove(collections.Stack[*Tile]{}, 0, row, availableTiles)
 	}
 	//fmt.Printf("Not found\n")
 
-	// return the tile back to searchable tiles
-	availableTiles[tile.Id] = tile
+	// return the tile back to available tiles
+	availableTiles[tile.Id] = tile.Tile
 	leftTiles.Pop()
 }
 
@@ -151,8 +152,9 @@ func DoWithInputPart01(world World) int {
 	//}
 
 	for _, tile := range tiles {
+		orientedTile := &tile.OrientedTiles[0]
 		fmt.Printf("#%v\n", tile.Id)
-		searchRight(tile, collections.Stack[*Tile]{}, 1, 3, tile, tiles)
+		searchRight(orientedTile, collections.Stack[*OrientedTile]{}, 1, 3, orientedTile, tiles)
 	}
 
 	//tile := tiles[2311]
@@ -223,7 +225,7 @@ func rotateAndFlipEdges(edges, flippedEdges Edges) [8]Edges {
 func ParseInput(r io.Reader) World {
 	tiles := make(Tiles)
 
-	parseTile := func(lines []string, i int) Tile {
+	parseTile := func(lines []string, i int) *Tile {
 		id := utils.ExtractInts(lines[0], false)[0]
 
 		dataString := strings.Join(lines[1:], "\n")
@@ -232,21 +234,21 @@ func ParseInput(r io.Reader) World {
 		data := parsers.ParseToMatrix(reader, parsers.MapperBoolean('#', '.'))
 		edges := rotateAndFlipEdges(extractEdges(data))
 
-		orientedTiles := [8]OrientedTile{}
+		tile := &Tile{
+			Id:            id,
+			Data:          data,
+			OrientedTiles: [8]OrientedTile{},
+		}
+
 		for j, edge := range edges {
-			orientedTiles[j] = OrientedTile{
+			tile.OrientedTiles[j] = OrientedTile{
 				Id:    id,
 				Edges: edge,
+				Tile:  tile,
 			}
 		}
 
-		tile := Tile{
-			Id:            id,
-			Data:          data,
-			OrientedTiles: orientedTiles,
-		}
-
-		tiles[id] = &tile
+		tiles[id] = tile
 
 		return tile
 	}
