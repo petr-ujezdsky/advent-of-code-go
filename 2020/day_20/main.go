@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/collections"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
@@ -16,19 +17,19 @@ type Connection struct {
 	Flipper      int
 }
 
-type Edges = [2][4]uint16
+type Edges = [4]uint16
 
 type Tiles = map[int]*Tile
 
 type Tile struct {
-	Id    int
-	Data  utils.Matrix[bool]
-	Edges Edges
+	Id            int
+	Data          utils.Matrix[bool]
+	EdgesVariants [8]Edges
 }
 
-func (t Tile) GetEdges(rotation int) [4]uint16 {
-	return t.Edges[rotation%2]
-}
+//func (t Tile) GetEdges(rotation int) [4]uint16 {
+//	return t.EdgesVariants[rotation%2]
+//}
 
 type World struct {
 	Tiles Tiles
@@ -47,9 +48,9 @@ func findCandidates(id int, tiles Tiles) []Connection {
 			continue
 		}
 
-		for orientation, edgesC := range candidate.Edges {
+		for orientation, edgesC := range candidate.EdgesVariants {
 			for edgeIndexC, edgeC := range edgesC {
-				for edgeIndex, edge := range tile.Edges[0] {
+				for edgeIndex, edge := range tile.EdgesVariants[0] {
 					if edgeC == edge {
 						connections = append(connections, Connection{
 							TileA:   tile,
@@ -67,19 +68,91 @@ func findCandidates(id int, tiles Tiles) []Connection {
 	return connections
 }
 
+func searchRight(tile *Tile, rightTiles collections.Stack[*Tile], width, expectedSize int, mainTile *Tile, tiles Tiles) {
+	delete(tiles, tile.Id)
+	rightTiles.Push(tile)
+
+	rightEdge := tile.EdgesVariants[0][utils.Right]
+
+	// find neighbours on right side
+	for _, candidate := range tiles {
+		for _, edges := range candidate.EdgesVariants {
+			if rightEdge == edges[utils.Left] {
+				// try recursive
+				searchRight(candidate, rightTiles, width+1, expectedSize, mainTile, tiles)
+			}
+		}
+	}
+
+	fmt.Printf("  Searching left @ %v (%v)\n", width, tile.Id)
+	searchLeft(mainTile, collections.Stack[*Tile]{}, rightTiles, width, expectedSize, tiles)
+
+	// remove main again
+	delete(tiles, mainTile.Id)
+
+	// return the tile back to searchable tiles
+	tiles[tile.Id] = tile
+	rightTiles.Pop()
+}
+
+func searchLeft(tile *Tile, leftTiles, rightTiles collections.Stack[*Tile], width, expectedSize int, tiles Tiles) {
+	delete(tiles, tile.Id)
+	leftTiles.Push(tile)
+
+	leftEdge := tile.EdgesVariants[0][utils.Left]
+
+	// find neighbours on right side
+	for _, candidate := range tiles {
+		for _, edges := range candidate.EdgesVariants {
+			if leftEdge == edges[utils.Right] {
+				// try recursive
+				searchLeft(candidate, leftTiles, rightTiles, width+1, expectedSize, tiles)
+			}
+		}
+	}
+
+	if width >= expectedSize {
+		// reverse left side
+		row := slices.Reverse(leftTiles.PeekAll())
+		// remove main tile
+		row = row[:len(row)-1]
+		// add right side
+		row = append(row, &Tile{Id: 0})
+		row = append(row, rightTiles.PeekAll()...)
+
+		ids := slices.Map(row, func(t *Tile) int { return t.Id })
+
+		fmt.Printf("  * found row of %v tiles - %v\n", width, ids)
+	}
+	//fmt.Printf("Not found\n")
+
+	// return the tile back to searchable tiles
+	tiles[tile.Id] = tile
+	leftTiles.Pop()
+}
+
 func DoWithInputPart01(world World) int {
 	tiles := world.Tiles
 
 	//id, tile := maps.FirstEntry(tiles)
 	//delete(tiles, id)
 
-	for id := range tiles {
-		connections := findCandidates(id, tiles)
-		fmt.Printf("%4v: %3v candidates\n", id, len(connections))
-		for _, connection := range connections {
-			fmt.Printf("  * %4v @ %v @ %v -> %4v @ %v @ %v\n", connection.TileA.Id, connection.EdgeA, 0, connection.TileB.Id, connection.EdgeB, connection.Flipper)
-		}
+	//for id := range tiles {
+	//	connections := findCandidates(id, tiles)
+	//	fmt.Printf("%4v: %3v candidates\n", id, len(connections))
+	//	for _, connection := range connections {
+	//		fmt.Printf("  * %4v @ %v @ %v -> %4v @ %v @ %v\n", connection.TileA.Id, connection.EdgeA, 0, connection.TileB.Id, connection.EdgeB, connection.Flipper)
+	//	}
+	//}
+
+	for _, tile := range tiles {
+		fmt.Printf("#%v\n", tile.Id)
+		searchRight(tile, collections.Stack[*Tile]{}, 1, 3, tile, tiles)
 	}
+
+	//tile := tiles[2311]
+	//fmt.Printf("#%v\n", tile.Id)
+	//searchRight(tile, collections.Stack[*Tile]{}, 1, 3, tile, tiles)
 
 	return 0
 }
@@ -88,8 +161,8 @@ func DoWithInputPart02(world World) int {
 	return 0
 }
 
-func extractEdges(data utils.Matrix[bool]) Edges {
-	var edges Edges
+func extractEdges(data utils.Matrix[bool]) (Edges, Edges) {
+	var edges, flippedEdges Edges
 
 	top := make([]bool, data.Width)
 	bottom := make([]bool, data.Width)
@@ -105,17 +178,41 @@ func extractEdges(data utils.Matrix[bool]) Edges {
 		left[data.Height-y-1] = data.Columns[0][y]
 	}
 
-	edges[0][0] = utils.ParseBinaryBool16(top)
-	edges[0][1] = utils.ParseBinaryBool16(right)
-	edges[0][2] = utils.ParseBinaryBool16(bottom)
-	edges[0][3] = utils.ParseBinaryBool16(left)
+	edges[0] = utils.ParseBinaryBool16(top)
+	edges[1] = utils.ParseBinaryBool16(right)
+	edges[2] = utils.ParseBinaryBool16(bottom)
+	edges[3] = utils.ParseBinaryBool16(left)
 
-	edges[1][0] = utils.ParseBinaryBool16(slices.Reverse(top))
-	edges[1][1] = utils.ParseBinaryBool16(slices.Reverse(left))
-	edges[1][2] = utils.ParseBinaryBool16(slices.Reverse(bottom))
-	edges[1][3] = utils.ParseBinaryBool16(slices.Reverse(right))
+	flippedEdges[0] = utils.ParseBinaryBool16(slices.Reverse(top))
+	flippedEdges[1] = utils.ParseBinaryBool16(slices.Reverse(left))
+	flippedEdges[2] = utils.ParseBinaryBool16(slices.Reverse(bottom))
+	flippedEdges[3] = utils.ParseBinaryBool16(slices.Reverse(right))
 
-	return edges
+	return edges, flippedEdges
+}
+
+// rotate rotates tile edges counter-clockwise by simply shifting the indexes
+func rotate(edges Edges, amount int) Edges {
+	rotated := edges
+
+	for i, edge := range edges {
+		rotated[(i+amount)%4] = edge
+	}
+
+	return rotated
+}
+
+func rotateAndFlipEdges(edges, flippedEdges Edges) [8]Edges {
+	variants := [8]Edges{}
+	for i := 0; i < 4; i++ {
+		variants[i] = rotate(edges, i)
+	}
+
+	for i := 0; i < 4; i++ {
+		variants[i+4] = rotate(flippedEdges, i)
+	}
+
+	return variants
 }
 
 func ParseInput(r io.Reader) World {
@@ -128,12 +225,12 @@ func ParseInput(r io.Reader) World {
 		reader := strings.NewReader(dataString)
 
 		data := parsers.ParseToMatrix(reader, parsers.MapperBoolean('#', '.'))
-		edges := extractEdges(data)
+		edges := rotateAndFlipEdges(extractEdges(data))
 
 		tile := Tile{
-			Id:    id,
-			Data:  data,
-			Edges: edges,
+			Id:            id,
+			Data:          data,
+			EdgesVariants: edges,
 		}
 
 		tiles[id] = &tile

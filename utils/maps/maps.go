@@ -16,6 +16,14 @@ func FirstKey[K comparable, V any](m map[K]V) K {
 	panic("Empty set")
 }
 
+// FirstValue returns first value as given by `range`
+func FirstValue[K comparable, V any](m map[K]V) V {
+	for _, value := range m {
+		return value
+	}
+	panic("Empty set")
+}
+
 // Values returns slice of map values
 func Values[K comparable, V any](m map[K]V) []V {
 	values := make([]V, len(m))
