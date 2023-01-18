@@ -21,10 +21,15 @@ type Edges = [4]uint16
 
 type Tiles = map[int]*Tile
 
+type OrientedTile struct {
+	Id    int
+	Edges Edges
+}
+
 type Tile struct {
 	Id            int
 	Data          utils.Matrix[bool]
-	EdgesVariants [8]Edges
+	OrientedTiles [8]OrientedTile
 }
 
 //func (t Tile) GetEdges(rotation int) [4]uint16 {
@@ -35,49 +40,49 @@ type World struct {
 	Tiles Tiles
 }
 
-func findCandidates(id int, tiles Tiles) []Connection {
-	tile, ok := tiles[id]
-	if !ok {
-		panic("Not found")
-	}
-
-	var connections []Connection
-	for _, candidate := range tiles {
-		// skip same tile
-		if candidate.Id == id {
-			continue
-		}
-
-		for orientation, edgesC := range candidate.EdgesVariants {
-			for edgeIndexC, edgeC := range edgesC {
-				for edgeIndex, edge := range tile.EdgesVariants[0] {
-					if edgeC == edge {
-						connections = append(connections, Connection{
-							TileA:   tile,
-							TileB:   candidate,
-							EdgeA:   edgeIndex,
-							EdgeB:   edgeIndexC,
-							Flipper: orientation,
-						})
-					}
-				}
-			}
-		}
-	}
-
-	return connections
-}
+//func findCandidates(id int, tiles Tiles) []Connection {
+//	tile, ok := tiles[id]
+//	if !ok {
+//		panic("Not found")
+//	}
+//
+//	var connections []Connection
+//	for _, candidate := range tiles {
+//		// skip same tile
+//		if candidate.Id == id {
+//			continue
+//		}
+//
+//		for orientation, edgesC := range candidate.OrientedTiles {
+//			for edgeIndexC, edgeC := range edgesC {
+//				for edgeIndex, edge := range tile.EdgesVariants[0] {
+//					if edgeC == edge {
+//						connections = append(connections, Connection{
+//							TileA:   tile,
+//							TileB:   candidate,
+//							EdgeA:   edgeIndex,
+//							EdgeB:   edgeIndexC,
+//							Flipper: orientation,
+//						})
+//					}
+//				}
+//			}
+//		}
+//	}
+//
+//	return connections
+//}
 
 func searchRight(tile *Tile, rightTiles collections.Stack[*Tile], width, expectedSize int, mainTile *Tile, availableTiles Tiles) {
 	delete(availableTiles, tile.Id)
 	rightTiles.Push(tile)
 
-	rightEdge := tile.EdgesVariants[0][utils.Right]
+	rightEdge := tile.OrientedTiles[0].Edges[utils.Right]
 
 	// find neighbours on right side
 	for _, candidate := range availableTiles {
-		for _, edges := range candidate.EdgesVariants {
-			if rightEdge == edges[utils.Left] {
+		for _, orientedTile := range candidate.OrientedTiles {
+			if rightEdge == orientedTile.Edges[utils.Left] {
 				// try recursive
 				searchRight(candidate, rightTiles, width+1, expectedSize, mainTile, availableTiles)
 			}
@@ -99,12 +104,12 @@ func searchLeft(tile *Tile, leftTiles, rightTiles collections.Stack[*Tile], widt
 	delete(availableTiles, tile.Id)
 	leftTiles.Push(tile)
 
-	leftEdge := tile.EdgesVariants[0][utils.Left]
+	leftEdge := tile.OrientedTiles[0].Edges[utils.Left]
 
 	// find neighbours on right side
 	for _, candidate := range availableTiles {
-		for _, edges := range candidate.EdgesVariants {
-			if leftEdge == edges[utils.Right] {
+		for _, orientedTile := range candidate.OrientedTiles {
+			if leftEdge == orientedTile.Edges[utils.Right] {
 				// try recursive
 				searchLeft(candidate, leftTiles, rightTiles, width+1, expectedSize, availableTiles)
 			}
@@ -227,10 +232,18 @@ func ParseInput(r io.Reader) World {
 		data := parsers.ParseToMatrix(reader, parsers.MapperBoolean('#', '.'))
 		edges := rotateAndFlipEdges(extractEdges(data))
 
+		orientedTiles := [8]OrientedTile{}
+		for j, edge := range edges {
+			orientedTiles[j] = OrientedTile{
+				Id:    id,
+				Edges: edge,
+			}
+		}
+
 		tile := Tile{
 			Id:            id,
 			Data:          data,
-			EdgesVariants: edges,
+			OrientedTiles: orientedTiles,
 		}
 
 		tiles[id] = &tile
