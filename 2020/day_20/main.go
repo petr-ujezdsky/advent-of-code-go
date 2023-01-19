@@ -80,11 +80,6 @@ func searchRight(tile *OrientedTile, rightTiles collections.Stack[*OrientedTile]
 		return result, true
 	}
 
-	// remove main again
-	delete(availableTiles, mainTile.Id)
-
-	// return the tile back to searchable tiles
-	availableTiles[tile.Id] = tile.Tile
 	rightTiles.Pop()
 
 	return nil, false
@@ -129,8 +124,6 @@ func searchLeft(tile *OrientedTile, leftTiles, rightTiles collections.Stack[*Ori
 		}
 	}
 
-	// return the tile back to available tiles
-	availableTiles[tile.Id] = tile.Tile
 	leftTiles.Pop()
 
 	return nil, false
@@ -196,7 +189,6 @@ func searchRowAboveRight(tile *OrientedTile, rightTiles collections.Stack[*Orien
 
 	// return the tile back to searchable tiles
 	if tile != nil {
-		availableTiles[tile.Id] = tile.Tile
 		rightTiles.Pop()
 	}
 
@@ -273,7 +265,6 @@ func searchRowBelowRight(tile *OrientedTile, rightTiles collections.Stack[*Orien
 
 	// return the tile back to searchable tiles
 	if tile != nil {
-		availableTiles[tile.Id] = tile.Tile
 		rightTiles.Pop()
 	}
 
