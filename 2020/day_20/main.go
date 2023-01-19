@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/collections"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/maps"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
@@ -95,6 +96,8 @@ type World struct {
 //}
 
 func searchRight(tile *OrientedTile, rightTiles collections.Stack[*OrientedTile], width, expectedSize int, mainTile *OrientedTile, availableTiles Tiles) {
+	availableTiles = maps.Copy(availableTiles)
+
 	delete(availableTiles, tile.Id)
 	rightTiles.Push(tile)
 
@@ -122,6 +125,8 @@ func searchRight(tile *OrientedTile, rightTiles collections.Stack[*OrientedTile]
 }
 
 func searchLeft(tile *OrientedTile, leftTiles, rightTiles collections.Stack[*OrientedTile], width, expectedSize int, availableTiles Tiles) {
+	availableTiles = maps.Copy(availableTiles)
+
 	delete(availableTiles, tile.Id)
 	leftTiles.Push(tile)
 
@@ -161,6 +166,7 @@ func searchLeft(tile *OrientedTile, leftTiles, rightTiles collections.Stack[*Ori
 }
 
 func searchRowAbove(tile *OrientedTile, rightTiles collections.Stack[*OrientedTile], aboveRows collections.Stack[[]*OrientedTile], i int, rowBelow, mainRow []*OrientedTile, availableTiles Tiles) {
+	availableTiles = maps.Copy(availableTiles)
 	if tile != nil {
 		delete(availableTiles, tile.Id)
 		rightTiles.Push(tile)
@@ -198,6 +204,8 @@ func searchRowAbove(tile *OrientedTile, rightTiles collections.Stack[*OrientedTi
 }
 
 func searchRowBelow(tile *OrientedTile, rightTiles collections.Stack[*OrientedTile], belowRows, aboveRows collections.Stack[[]*OrientedTile], i int, rowAbove []*OrientedTile, availableTiles Tiles) {
+	availableTiles = maps.Copy(availableTiles)
+
 	if tile != nil {
 		delete(availableTiles, tile.Id)
 		rightTiles.Push(tile)
