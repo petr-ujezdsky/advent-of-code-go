@@ -21,6 +21,18 @@ func Test_01_parse(t *testing.T) {
 	assert.Equal(t, 10, world.Tiles[8].Data.Height)
 }
 
+func Test_01_example_all(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	world := ParseInput(reader)
+
+	for _, tile := range world.Tiles {
+		result := SolutionForTile(tile, world.Tiles)
+		assert.Equal(t, 20899048083289, result)
+	}
+}
+
 func Test_01_example(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
@@ -28,7 +40,7 @@ func Test_01_example(t *testing.T) {
 	world := ParseInput(reader)
 
 	result := DoWithInputPart01(world)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 20899048083289, result)
 }
 
 func Test_01(t *testing.T) {
