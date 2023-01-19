@@ -28,8 +28,9 @@ func Test_01_example_all(t *testing.T) {
 	world := ParseInput(reader)
 
 	for _, tile := range world.Tiles {
-		result := SolutionForTile(tile, world.Tiles)
-		assert.Equal(t, 20899048083289, result)
+		picture := ConnectTilesUsing(tile, world.Tiles)
+		cornersProduct := multiplyCorners(picture)
+		assert.Equal(t, 20899048083289, cornersProduct)
 	}
 }
 
@@ -50,7 +51,7 @@ func Test_01(t *testing.T) {
 	world := ParseInput(reader)
 
 	result := DoWithInputPart01(world)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 11788777383197, result)
 }
 
 func Test_02_example(t *testing.T) {

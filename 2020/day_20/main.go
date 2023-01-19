@@ -361,7 +361,7 @@ func multiplyCorners(picture *utils.Matrix[*OrientedTile]) int {
 		picture.Columns[0][picture.Height-1].Id
 }
 
-func SolutionForTile(tile *Tile, availableTiles Tiles) int {
+func ConnectTilesUsing(tile *Tile, availableTiles Tiles) *utils.Matrix[*OrientedTile] {
 	expectedSize := int(math.Sqrt(float64(len(availableTiles))))
 
 	orientedTile := &tile.OrientedTiles[0]
@@ -370,13 +370,17 @@ func SolutionForTile(tile *Tile, availableTiles Tiles) int {
 		panic("No solution")
 	}
 
-	return multiplyCorners(picture)
+	return picture
+}
+
+func ConnectTiles(availableTiles Tiles) *utils.Matrix[*OrientedTile] {
+	tile := maps.FirstValue(availableTiles)
+	return ConnectTilesUsing(tile, availableTiles)
 }
 
 func DoWithInputPart01(world World) int {
-	tile := maps.FirstValue(world.Tiles)
-
-	return SolutionForTile(tile, world.Tiles)
+	picture := ConnectTiles(world.Tiles)
+	return multiplyCorners(picture)
 }
 
 func DoWithInputPart02(world World) int {
