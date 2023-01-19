@@ -53,17 +53,17 @@ type World struct {
 	Tiles Tiles
 }
 
-func searchRight(tile *OrientedTile, rightTiles collections.Stack[*OrientedTile], expectedSize int, availableTiles Tiles) (*utils.Matrix[*OrientedTile], bool) {
+func searchRight(left *OrientedTile, rightTiles collections.Stack[*OrientedTile], expectedSize int, availableTiles Tiles) (*utils.Matrix[*OrientedTile], bool) {
 	availableTiles = maps.Copy(availableTiles)
 
-	delete(availableTiles, tile.Id)
-	rightTiles.Push(tile)
+	delete(availableTiles, left.Id)
+	rightTiles.Push(left)
 
 	// find neighbours on right side
 	for _, candidate := range availableTiles {
 		for _, orientedTile := range candidate.OrientedTiles {
 			neighbours := Neighbours{
-				Left: tile,
+				Left: left,
 			}
 
 			if matches(orientedTile, neighbours) {
@@ -85,17 +85,17 @@ func searchRight(tile *OrientedTile, rightTiles collections.Stack[*OrientedTile]
 	return nil, false
 }
 
-func searchLeft(tile *OrientedTile, leftTiles, rightTiles collections.Stack[*OrientedTile], expectedSize int, availableTiles Tiles) (*utils.Matrix[*OrientedTile], bool) {
+func searchLeft(right *OrientedTile, leftTiles, rightTiles collections.Stack[*OrientedTile], expectedSize int, availableTiles Tiles) (*utils.Matrix[*OrientedTile], bool) {
 	availableTiles = maps.Copy(availableTiles)
 
-	delete(availableTiles, tile.Id)
-	leftTiles.Push(tile)
+	delete(availableTiles, right.Id)
+	leftTiles.Push(right)
 
 	// find neighbours on right side
 	for _, candidate := range availableTiles {
 		for _, orientedTile := range candidate.OrientedTiles {
 			neighbours := Neighbours{
-				Right: tile,
+				Right: right,
 			}
 
 			if matches(orientedTile, neighbours) {
@@ -147,11 +147,11 @@ func searchRowAbove(row []*OrientedTile, aboveRows collections.Stack[[]*Oriented
 	return nil, false
 }
 
-func searchRowAboveRight(tile *OrientedTile, rightTiles collections.Stack[*OrientedTile], aboveRows collections.Stack[[]*OrientedTile], i int, mainRow []*OrientedTile, availableTiles Tiles) (*utils.Matrix[*OrientedTile], bool) {
+func searchRowAboveRight(left *OrientedTile, rightTiles collections.Stack[*OrientedTile], aboveRows collections.Stack[[]*OrientedTile], i int, mainRow []*OrientedTile, availableTiles Tiles) (*utils.Matrix[*OrientedTile], bool) {
 	availableTiles = maps.Copy(availableTiles)
-	if tile != nil {
-		delete(availableTiles, tile.Id)
-		rightTiles.Push(tile)
+	if left != nil {
+		delete(availableTiles, left.Id)
+		rightTiles.Push(left)
 	}
 
 	rowBelow := aboveRows.Peek()
@@ -163,7 +163,7 @@ func searchRowAboveRight(tile *OrientedTile, rightTiles collections.Stack[*Orien
 			for _, orientedTile := range candidate.OrientedTiles {
 				neighbours := Neighbours{
 					Below: below,
-					Left:  tile,
+					Left:  left,
 				}
 
 				if matches(orientedTile, neighbours) {
@@ -187,8 +187,7 @@ func searchRowAboveRight(tile *OrientedTile, rightTiles collections.Stack[*Orien
 		}
 	}
 
-	// return the tile back to searchable tiles
-	if tile != nil {
+	if left != nil {
 		rightTiles.Pop()
 	}
 
@@ -222,12 +221,12 @@ func searchRowBelow(row []*OrientedTile, belowRows, aboveRows collections.Stack[
 	return nil, false
 }
 
-func searchRowBelowRight(tile *OrientedTile, rightTiles collections.Stack[*OrientedTile], belowRows, aboveRows collections.Stack[[]*OrientedTile], i int, availableTiles Tiles) (*utils.Matrix[*OrientedTile], bool) {
+func searchRowBelowRight(left *OrientedTile, rightTiles collections.Stack[*OrientedTile], belowRows, aboveRows collections.Stack[[]*OrientedTile], i int, availableTiles Tiles) (*utils.Matrix[*OrientedTile], bool) {
 	availableTiles = maps.Copy(availableTiles)
 
-	if tile != nil {
-		delete(availableTiles, tile.Id)
-		rightTiles.Push(tile)
+	if left != nil {
+		delete(availableTiles, left.Id)
+		rightTiles.Push(left)
 	}
 
 	rowAbove := belowRows.Peek()
@@ -239,7 +238,7 @@ func searchRowBelowRight(tile *OrientedTile, rightTiles collections.Stack[*Orien
 			for _, orientedTile := range candidate.OrientedTiles {
 				neighbours := Neighbours{
 					Above: above,
-					Left:  tile,
+					Left:  left,
 				}
 
 				if matches(orientedTile, neighbours) {
@@ -263,8 +262,7 @@ func searchRowBelowRight(tile *OrientedTile, rightTiles collections.Stack[*Orien
 		}
 	}
 
-	// return the tile back to searchable tiles
-	if tile != nil {
+	if left != nil {
 		rightTiles.Pop()
 	}
 
