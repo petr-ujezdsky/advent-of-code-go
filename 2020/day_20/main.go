@@ -182,17 +182,22 @@ func searchRowAbove(tile *OrientedTile, rightTiles collections.Stack[*OrientedTi
 				}
 			}
 		}
-	} else {
+	}
+
+	if i == 0 {
+		// find rows below main row
+		searchRowBelow(nil, collections.Stack[*OrientedTile]{}, collections.Stack[[]*OrientedTile]{}, aboveRows, 0, mainRow, availableTiles)
+	}
+
+	if i == len(rowBelow) {
 		row := rightTiles.PeekAll()
 		aboveRows.Push(row)
 
 		ids := slices.Map(row, func(t *OrientedTile) int { return t.Id })
 		fmt.Printf("    * found row above %v\n", ids)
+
 		// find another row above
 		searchRowAbove(nil, collections.Stack[*OrientedTile]{}, aboveRows, 0, row, mainRow, availableTiles)
-
-		// find rows below main row
-		searchRowBelow(nil, collections.Stack[*OrientedTile]{}, collections.Stack[[]*OrientedTile]{}, aboveRows, 0, mainRow, availableTiles)
 		aboveRows.Pop()
 	}
 
@@ -316,8 +321,11 @@ func DoWithInputPart01(world World) int {
 	//tile := tiles[3079] // top right
 	//orientedTile := &tile.OrientedTiles[0]
 
-	tile := tiles[1427] // middle middle
+	tile := tiles[1951] // middle middle
 	orientedTile := &tile.OrientedTiles[6]
+
+	//tile := maps.FirstValue(tiles)
+	//orientedTile := &tile.OrientedTiles[0]
 	fmt.Printf("#%v\n", tile.Id)
 	searchRight(orientedTile, collections.Stack[*OrientedTile]{}, 1, expectedSize, orientedTile, tiles)
 
