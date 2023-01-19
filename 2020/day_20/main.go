@@ -95,7 +95,7 @@ type World struct {
 //	return connections
 //}
 
-func searchRight(tile *OrientedTile, rightTiles collections.Stack[*OrientedTile], expectedSize int, mainTile *OrientedTile, availableTiles Tiles) {
+func searchRight(tile *OrientedTile, rightTiles collections.Stack[*OrientedTile], expectedSize int, availableTiles Tiles) {
 	availableTiles = maps.Copy(availableTiles)
 
 	delete(availableTiles, tile.Id)
@@ -108,11 +108,12 @@ func searchRight(tile *OrientedTile, rightTiles collections.Stack[*OrientedTile]
 		for _, orientedTile := range candidate.OrientedTiles {
 			if rightEdge.Hash == orientedTile.Edges[utils.Left].Reversed.Hash {
 				// try recursive
-				searchRight(&orientedTile, rightTiles, expectedSize, mainTile, availableTiles)
+				searchRight(&orientedTile, rightTiles, expectedSize, availableTiles)
 			}
 		}
 	}
 
+	mainTile := rightTiles.PeekAll()[0]
 	searchLeft(mainTile, collections.Stack[*OrientedTile]{}, rightTiles, expectedSize, availableTiles)
 
 	// remove main again
@@ -308,7 +309,7 @@ func DoWithInputPart01(world World) int {
 	for _, tile := range tiles {
 		orientedTile := &tile.OrientedTiles[0]
 		fmt.Printf("#%v\n", tile.Id)
-		searchRight(orientedTile, collections.Stack[*OrientedTile]{}, expectedSize, orientedTile, tiles)
+		searchRight(orientedTile, collections.Stack[*OrientedTile]{}, expectedSize, tiles)
 	}
 
 	//tile := tiles[2311]
