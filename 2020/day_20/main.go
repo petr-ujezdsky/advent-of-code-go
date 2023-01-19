@@ -95,7 +95,7 @@ type World struct {
 //	return connections
 //}
 
-func searchRight(tile *OrientedTile, rightTiles collections.Stack[*OrientedTile], width, expectedSize int, mainTile *OrientedTile, availableTiles Tiles) {
+func searchRight(tile *OrientedTile, rightTiles collections.Stack[*OrientedTile], expectedSize int, mainTile *OrientedTile, availableTiles Tiles) {
 	availableTiles = maps.Copy(availableTiles)
 
 	delete(availableTiles, tile.Id)
@@ -108,13 +108,12 @@ func searchRight(tile *OrientedTile, rightTiles collections.Stack[*OrientedTile]
 		for _, orientedTile := range candidate.OrientedTiles {
 			if rightEdge.Hash == orientedTile.Edges[utils.Left].Reversed.Hash {
 				// try recursive
-				searchRight(&orientedTile, rightTiles, width+1, expectedSize, mainTile, availableTiles)
+				searchRight(&orientedTile, rightTiles, expectedSize, mainTile, availableTiles)
 			}
 		}
 	}
 
-	fmt.Printf("  Searching left @ %v (%v)\n", width, tile.Id)
-	searchLeft(mainTile, collections.Stack[*OrientedTile]{}, rightTiles, width, expectedSize, availableTiles)
+	searchLeft(mainTile, collections.Stack[*OrientedTile]{}, rightTiles, expectedSize, availableTiles)
 
 	// remove main again
 	delete(availableTiles, mainTile.Id)
@@ -124,7 +123,7 @@ func searchRight(tile *OrientedTile, rightTiles collections.Stack[*OrientedTile]
 	rightTiles.Pop()
 }
 
-func searchLeft(tile *OrientedTile, leftTiles, rightTiles collections.Stack[*OrientedTile], width, expectedSize int, availableTiles Tiles) {
+func searchLeft(tile *OrientedTile, leftTiles, rightTiles collections.Stack[*OrientedTile], expectedSize int, availableTiles Tiles) {
 	availableTiles = maps.Copy(availableTiles)
 
 	delete(availableTiles, tile.Id)
@@ -137,11 +136,12 @@ func searchLeft(tile *OrientedTile, leftTiles, rightTiles collections.Stack[*Ori
 		for _, orientedTile := range candidate.OrientedTiles {
 			if leftEdge.Hash == orientedTile.Edges[utils.Right].Reversed.Hash {
 				// try recursive
-				searchLeft(&orientedTile, leftTiles, rightTiles, width+1, expectedSize, availableTiles)
+				searchLeft(&orientedTile, leftTiles, rightTiles, expectedSize, availableTiles)
 			}
 		}
 	}
 
+	width := leftTiles.Len() + rightTiles.Len() - 1
 	if width >= expectedSize {
 		// reverse left side
 		row := slices.Reverse(leftTiles.PeekAll())
@@ -246,14 +246,6 @@ func searchRowBelow(tile *OrientedTile, rightTiles collections.Stack[*OrientedTi
 		for _, ids := range idRows {
 			fmt.Printf("    *           %v\n", ids)
 		}
-
-		//idRows :=
-		//idRows := make([][]int, len(rows))
-		//for j, row := range rows {
-		//	ids := slices.Map(row, func(t *OrientedTile) int { return t.Id })
-		//	idRows[j] = ids
-		//	fmt.Printf("    * found row below %v\n", ids)
-		//}
 	}
 
 	if i == len(rowAbove) {
@@ -314,7 +306,7 @@ func DoWithInputPart01(world World) int {
 	for _, tile := range tiles {
 		orientedTile := &tile.OrientedTiles[0]
 		fmt.Printf("#%v\n", tile.Id)
-		searchRight(orientedTile, collections.Stack[*OrientedTile]{}, 1, expectedSize, orientedTile, tiles)
+		searchRight(orientedTile, collections.Stack[*OrientedTile]{}, expectedSize, orientedTile, tiles)
 	}
 
 	//tile := tiles[2311]
