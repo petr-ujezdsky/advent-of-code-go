@@ -156,7 +156,7 @@ func searchLeft(tile *OrientedTile, leftTiles, rightTiles collections.Stack[*Ori
 		row = append(row, rightTiles.PeekAll()...)
 
 		ids := slices.Map(row, func(t *OrientedTile) int { return t.Id })
-		fmt.Printf("  * found row of %v tiles - %v\n", width, ids)
+		fmt.Printf("  * found row of %2v tiles - %v\n", width, ids)
 
 		searchRowAbove(row, collections.Stack[[]*OrientedTile]{}, availableTiles)
 	}
@@ -209,7 +209,7 @@ func searchRowAboveRight(tile *OrientedTile, rightTiles collections.Stack[*Orien
 		row := rightTiles.PeekAll()
 
 		ids := slices.Map(row, func(t *OrientedTile) int { return t.Id })
-		fmt.Printf("    * found row above %v\n", ids)
+		fmt.Printf("    * found row above       %v\n", ids)
 
 		// find another row above
 		searchRowAbove(row, aboveRows, availableTiles)
@@ -240,7 +240,7 @@ func searchRowBelow(row []*OrientedTile, belowRows, aboveRows collections.Stack[
 				return t.Id
 			})
 		})
-		fmt.Printf("    * found it:\n")
+		fmt.Printf("    * found solution:\n")
 		for _, ids := range idRows {
 			fmt.Printf("    *           %v\n", ids)
 		}
@@ -280,7 +280,7 @@ func searchRowBelowRight(tile *OrientedTile, rightTiles collections.Stack[*Orien
 		row := rightTiles.PeekAll()
 
 		ids := slices.Map(row, func(t *OrientedTile) int { return t.Id })
-		fmt.Printf("    * found row below %v\n", ids)
+		fmt.Printf("    * found row below       %v\n", ids)
 
 		// find another row below
 		searchRowBelow(row, belowRows, aboveRows, availableTiles)
