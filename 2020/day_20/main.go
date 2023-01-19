@@ -155,7 +155,7 @@ func searchLeft(tile *OrientedTile, leftTiles, rightTiles collections.Stack[*Ori
 
 		aboveRows := collections.Stack[[]*OrientedTile]{}
 		aboveRows.Push(row)
-		searchRowAbove(nil, collections.Stack[*OrientedTile]{}, aboveRows, 0, row, row, availableTiles)
+		searchRowAbove(nil, collections.Stack[*OrientedTile]{}, aboveRows, 0, row, availableTiles)
 		aboveRows.Pop()
 	}
 	//fmt.Printf("Not found\n")
@@ -165,12 +165,14 @@ func searchLeft(tile *OrientedTile, leftTiles, rightTiles collections.Stack[*Ori
 	leftTiles.Pop()
 }
 
-func searchRowAbove(tile *OrientedTile, rightTiles collections.Stack[*OrientedTile], aboveRows collections.Stack[[]*OrientedTile], i int, rowBelow, mainRow []*OrientedTile, availableTiles Tiles) {
+func searchRowAbove(tile *OrientedTile, rightTiles collections.Stack[*OrientedTile], aboveRows collections.Stack[[]*OrientedTile], i int, mainRow []*OrientedTile, availableTiles Tiles) {
 	availableTiles = maps.Copy(availableTiles)
 	if tile != nil {
 		delete(availableTiles, tile.Id)
 		rightTiles.Push(tile)
 	}
+
+	rowBelow := aboveRows.Peek()
 
 	if i < len(rowBelow) {
 		below := rowBelow[i]
@@ -178,7 +180,7 @@ func searchRowAbove(tile *OrientedTile, rightTiles collections.Stack[*OrientedTi
 		for _, candidate := range availableTiles {
 			for _, orientedTile := range candidate.OrientedTiles {
 				if matches(orientedTile, nil, nil, below, tile) {
-					searchRowAbove(&orientedTile, rightTiles, aboveRows, i+1, rowBelow, mainRow, availableTiles)
+					searchRowAbove(&orientedTile, rightTiles, aboveRows, i+1, mainRow, availableTiles)
 				}
 			}
 		}
@@ -197,7 +199,7 @@ func searchRowAbove(tile *OrientedTile, rightTiles collections.Stack[*OrientedTi
 		fmt.Printf("    * found row above %v\n", ids)
 
 		// find another row above
-		searchRowAbove(nil, collections.Stack[*OrientedTile]{}, aboveRows, 0, row, mainRow, availableTiles)
+		searchRowAbove(nil, collections.Stack[*OrientedTile]{}, aboveRows, 0, mainRow, availableTiles)
 		aboveRows.Pop()
 	}
 
