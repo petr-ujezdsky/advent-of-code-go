@@ -18,7 +18,19 @@ type Connection struct {
 	Flipper      int
 }
 
-type Edges = [4]uint16
+type Edge struct {
+	Hash     uint16
+	Booleans []bool
+}
+
+func NewEdge(booleans []bool) Edge {
+	return Edge{
+		Hash:     utils.ParseBinaryBool16(booleans),
+		Booleans: booleans,
+	}
+}
+
+type Edges = [4]Edge
 
 type Tiles = map[int]*Tile
 
@@ -84,7 +96,7 @@ func searchRight(tile *OrientedTile, rightTiles collections.Stack[*OrientedTile]
 	// find neighbours on right side
 	for _, candidate := range availableTiles {
 		for _, orientedTile := range candidate.OrientedTiles {
-			if rightEdge == orientedTile.Edges[utils.Left] {
+			if rightEdge.Hash == orientedTile.Edges[utils.Left].Hash {
 				// try recursive
 				searchRight(&orientedTile, rightTiles, width+1, expectedSize, mainTile, availableTiles)
 			}
@@ -111,7 +123,7 @@ func searchLeft(tile *OrientedTile, leftTiles, rightTiles collections.Stack[*Ori
 	// find neighbours on right side
 	for _, candidate := range availableTiles {
 		for _, orientedTile := range candidate.OrientedTiles {
-			if leftEdge == orientedTile.Edges[utils.Right] {
+			if leftEdge.Hash == orientedTile.Edges[utils.Right].Hash {
 				// try recursive
 				searchLeft(&orientedTile, leftTiles, rightTiles, width+1, expectedSize, availableTiles)
 			}
@@ -239,19 +251,19 @@ func searchRowBelow(tile *OrientedTile, rightTiles collections.Stack[*OrientedTi
 }
 
 func matches(tile OrientedTile, above, right, below, left *OrientedTile) bool {
-	if above != nil && above.Edges[utils.Down] != tile.Edges[utils.Up] {
+	if above != nil && above.Edges[utils.Down].Hash != tile.Edges[utils.Up].Hash {
 		return false
 	}
 
-	if right != nil && right.Edges[utils.Left] != tile.Edges[utils.Right] {
+	if right != nil && right.Edges[utils.Left].Hash != tile.Edges[utils.Right].Hash {
 		return false
 	}
 
-	if below != nil && below.Edges[utils.Up] != tile.Edges[utils.Down] {
+	if below != nil && below.Edges[utils.Up].Hash != tile.Edges[utils.Down].Hash {
 		return false
 	}
 
-	if left != nil && left.Edges[utils.Right] != tile.Edges[utils.Left] {
+	if left != nil && left.Edges[utils.Right].Hash != tile.Edges[utils.Left].Hash {
 		return false
 	}
 
@@ -311,15 +323,15 @@ func extractEdges(data utils.Matrix[bool]) (Edges, Edges) {
 		left[data.Height-y-1] = data.Columns[0][y]
 	}
 
-	edges[0] = utils.ParseBinaryBool16(top)
-	edges[1] = utils.ParseBinaryBool16(right)
-	edges[2] = utils.ParseBinaryBool16(bottom)
-	edges[3] = utils.ParseBinaryBool16(left)
+	edges[0] = NewEdge(top)
+	edges[1] = NewEdge(right)
+	edges[2] = NewEdge(bottom)
+	edges[3] = NewEdge(left)
 
-	flippedEdges[0] = utils.ParseBinaryBool16(slices.Reverse(top))
-	flippedEdges[1] = utils.ParseBinaryBool16(slices.Reverse(left))
-	flippedEdges[2] = utils.ParseBinaryBool16(slices.Reverse(bottom))
-	flippedEdges[3] = utils.ParseBinaryBool16(slices.Reverse(right))
+	flippedEdges[0] = NewEdge(slices.Reverse(top))
+	flippedEdges[1] = NewEdge(slices.Reverse(left))
+	flippedEdges[2] = NewEdge(slices.Reverse(bottom))
+	flippedEdges[3] = NewEdge(slices.Reverse(right))
 
 	return edges, flippedEdges
 }
