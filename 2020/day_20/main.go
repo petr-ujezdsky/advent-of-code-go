@@ -13,12 +13,6 @@ import (
 	"strings"
 )
 
-type Connection struct {
-	TileA, TileB *Tile
-	EdgeA, EdgeB int
-	Flipper      int
-}
-
 type Edge struct {
 	Hash     uint16
 	Booleans []bool
@@ -54,46 +48,9 @@ type Tile struct {
 	OrientedTiles [8]OrientedTile
 }
 
-//func (t Tile) GetEdges(rotation int) [4]uint16 {
-//	return t.EdgesVariants[rotation%2]
-//}
-
 type World struct {
 	Tiles Tiles
 }
-
-//func findCandidates(id int, tiles Tiles) []Connection {
-//	tile, ok := tiles[id]
-//	if !ok {
-//		panic("Not found")
-//	}
-//
-//	var connections []Connection
-//	for _, candidate := range tiles {
-//		// skip same tile
-//		if candidate.Id == id {
-//			continue
-//		}
-//
-//		for orientation, edgesC := range candidate.OrientedTiles {
-//			for edgeIndexC, edgeC := range edgesC {
-//				for edgeIndex, edge := range tile.EdgesVariants[0] {
-//					if edgeC == edge {
-//						connections = append(connections, Connection{
-//							TileA:   tile,
-//							TileB:   candidate,
-//							EdgeA:   edgeIndex,
-//							EdgeB:   edgeIndexC,
-//							Flipper: orientation,
-//						})
-//					}
-//				}
-//			}
-//		}
-//	}
-//
-//	return connections
-//}
 
 func searchRight(tile *OrientedTile, rightTiles collections.Stack[*OrientedTile], expectedSize int, availableTiles Tiles) (*utils.Matrix[*OrientedTile], bool) {
 	availableTiles = maps.Copy(availableTiles)
@@ -170,7 +127,6 @@ func searchLeft(tile *OrientedTile, leftTiles, rightTiles collections.Stack[*Ori
 			return result, true
 		}
 	}
-	//fmt.Printf("Not found\n")
 
 	// return the tile back to available tiles
 	availableTiles[tile.Id] = tile.Tile
