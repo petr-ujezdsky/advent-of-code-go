@@ -189,7 +189,12 @@ func searchRowAboveRight(tile *OrientedTile, rightTiles collections.Stack[*Orien
 		// find neighbours on right side matching neighbours below
 		for _, candidate := range availableTiles {
 			for _, orientedTile := range candidate.OrientedTiles {
-				if matches(orientedTile, nil, nil, below, tile) {
+				neighbours := Neighbours{
+					Below: below,
+					Left:  tile,
+				}
+
+				if matches(orientedTile, neighbours) {
 					searchRowAboveRight(&orientedTile, rightTiles, aboveRows, i+1, mainRow, availableTiles)
 				}
 			}
@@ -255,7 +260,12 @@ func searchRowBelowRight(tile *OrientedTile, rightTiles collections.Stack[*Orien
 		// find neighbours on right side matching neighbours above
 		for _, candidate := range availableTiles {
 			for _, orientedTile := range candidate.OrientedTiles {
-				if matches(orientedTile, above, nil, nil, tile) {
+				neighbours := Neighbours{
+					Above: above,
+					Left:  tile,
+				}
+
+				if matches(orientedTile, neighbours) {
 					searchRowBelowRight(&orientedTile, rightTiles, belowRows, aboveRows, i+1, availableTiles)
 				}
 			}
@@ -279,20 +289,24 @@ func searchRowBelowRight(tile *OrientedTile, rightTiles collections.Stack[*Orien
 	}
 }
 
-func matches(tile OrientedTile, above, right, below, left *OrientedTile) bool {
-	if above != nil && above.Edges[utils.Down].Reversed.Hash != tile.Edges[utils.Up].Hash {
+type Neighbours struct {
+	Above, Right, Below, Left *OrientedTile
+}
+
+func matches(tile OrientedTile, neighbours Neighbours) bool {
+	if above := neighbours.Above; above != nil && above.Edges[utils.Down].Reversed.Hash != tile.Edges[utils.Up].Hash {
 		return false
 	}
 
-	if right != nil && right.Edges[utils.Left].Reversed.Hash != tile.Edges[utils.Right].Hash {
+	if right := neighbours.Right; right != nil && right.Edges[utils.Left].Reversed.Hash != tile.Edges[utils.Right].Hash {
 		return false
 	}
 
-	if below != nil && below.Edges[utils.Up].Reversed.Hash != tile.Edges[utils.Down].Hash {
+	if below := neighbours.Below; below != nil && below.Edges[utils.Up].Reversed.Hash != tile.Edges[utils.Down].Hash {
 		return false
 	}
 
-	if left != nil && left.Edges[utils.Right].Reversed.Hash != tile.Edges[utils.Left].Hash {
+	if left := neighbours.Left; left != nil && left.Edges[utils.Right].Reversed.Hash != tile.Edges[utils.Left].Hash {
 		return false
 	}
 
