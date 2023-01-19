@@ -148,7 +148,10 @@ func searchLeft(tile *OrientedTile, leftTiles, rightTiles collections.Stack[*Ori
 		ids := slices.Map(row, func(t *OrientedTile) int { return t.Id })
 		fmt.Printf("  * found row of %v tiles - %v\n", width, ids)
 
-		searchRowAbove(nil, collections.Stack[*OrientedTile]{}, collections.Stack[[]*OrientedTile]{}, 0, row, row, availableTiles)
+		aboveRows := collections.Stack[[]*OrientedTile]{}
+		aboveRows.Push(row)
+		searchRowAbove(nil, collections.Stack[*OrientedTile]{}, aboveRows, 0, row, row, availableTiles)
+		aboveRows.Pop()
 	}
 	//fmt.Printf("Not found\n")
 
@@ -200,34 +203,6 @@ func searchRowBelow(tile *OrientedTile, rightTiles collections.Stack[*OrientedTi
 		rightTiles.Push(tile)
 	}
 
-	if len(availableTiles) == 0 {
-		// found it!
-		// reverse above rows
-		rows := slices.Reverse(aboveRows.PeekAll())
-		// remove main row
-		rows = rows[:len(rows)-1]
-		// add below rows
-		rows = append(rows, belowRows.PeekAll()...)
-
-		idRows := slices.Map(rows, func(r []*OrientedTile) []int {
-			return slices.Map(r, func(t *OrientedTile) int {
-				return t.Id
-			})
-		})
-		fmt.Printf("    * found it:\n")
-		for _, ids := range idRows {
-			fmt.Printf("    *           %v\n", ids)
-		}
-
-		//idRows :=
-		//idRows := make([][]int, len(rows))
-		//for j, row := range rows {
-		//	ids := slices.Map(row, func(t *OrientedTile) int { return t.Id })
-		//	idRows[j] = ids
-		//	fmt.Printf("    * found row below %v\n", ids)
-		//}
-	}
-
 	if i < len(rowAbove) {
 		above := rowAbove[i]
 		// find neighbours on right side matching neighbours above
@@ -245,8 +220,36 @@ func searchRowBelow(tile *OrientedTile, rightTiles collections.Stack[*OrientedTi
 		ids := slices.Map(row, func(t *OrientedTile) int { return t.Id })
 		fmt.Printf("    * found row below %v\n", ids)
 
-		// find another row below
-		searchRowBelow(nil, collections.Stack[*OrientedTile]{}, belowRows, aboveRows, 0, row, availableTiles)
+		if len(availableTiles) > 0 {
+			// find another row below
+			searchRowBelow(nil, collections.Stack[*OrientedTile]{}, belowRows, aboveRows, 0, row, availableTiles)
+		} else {
+			// found it!
+			// reverse above rows
+			rows := slices.Reverse(aboveRows.PeekAll())
+			// remove main row
+			//rows = rows[:len(rows)-1]
+			// add below rows
+			rows = append(rows, belowRows.PeekAll()...)
+
+			idRows := slices.Map(rows, func(r []*OrientedTile) []int {
+				return slices.Map(r, func(t *OrientedTile) int {
+					return t.Id
+				})
+			})
+			fmt.Printf("    * found it:\n")
+			for _, ids := range idRows {
+				fmt.Printf("    *           %v\n", ids)
+			}
+
+			//idRows :=
+			//idRows := make([][]int, len(rows))
+			//for j, row := range rows {
+			//	ids := slices.Map(row, func(t *OrientedTile) int { return t.Id })
+			//	idRows[j] = ids
+			//	fmt.Printf("    * found row below %v\n", ids)
+			//}
+		}
 		belowRows.Pop()
 	}
 
