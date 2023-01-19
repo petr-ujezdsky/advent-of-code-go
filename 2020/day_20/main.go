@@ -21,12 +21,19 @@ type Connection struct {
 type Edge struct {
 	Hash     uint16
 	Booleans []bool
+	Reversed *Edge
 }
 
 func NewEdge(booleans []bool) Edge {
+	reversed := slices.Reverse(booleans)
 	return Edge{
 		Hash:     utils.ParseBinaryBool16(booleans),
 		Booleans: booleans,
+		Reversed: &Edge{
+			Hash:     utils.ParseBinaryBool16(reversed),
+			Booleans: reversed,
+			Reversed: nil,
+		},
 	}
 }
 
@@ -96,7 +103,7 @@ func searchRight(tile *OrientedTile, rightTiles collections.Stack[*OrientedTile]
 	// find neighbours on right side
 	for _, candidate := range availableTiles {
 		for _, orientedTile := range candidate.OrientedTiles {
-			if rightEdge.Hash == orientedTile.Edges[utils.Left].Hash {
+			if rightEdge.Hash == orientedTile.Edges[utils.Left].Reversed.Hash {
 				// try recursive
 				searchRight(&orientedTile, rightTiles, width+1, expectedSize, mainTile, availableTiles)
 			}
@@ -123,7 +130,7 @@ func searchLeft(tile *OrientedTile, leftTiles, rightTiles collections.Stack[*Ori
 	// find neighbours on right side
 	for _, candidate := range availableTiles {
 		for _, orientedTile := range candidate.OrientedTiles {
-			if leftEdge.Hash == orientedTile.Edges[utils.Right].Hash {
+			if leftEdge.Hash == orientedTile.Edges[utils.Right].Reversed.Hash {
 				// try recursive
 				searchLeft(&orientedTile, leftTiles, rightTiles, width+1, expectedSize, availableTiles)
 			}
@@ -251,19 +258,19 @@ func searchRowBelow(tile *OrientedTile, rightTiles collections.Stack[*OrientedTi
 }
 
 func matches(tile OrientedTile, above, right, below, left *OrientedTile) bool {
-	if above != nil && above.Edges[utils.Down].Hash != tile.Edges[utils.Up].Hash {
+	if above != nil && above.Edges[utils.Down].Reversed.Hash != tile.Edges[utils.Up].Hash {
 		return false
 	}
 
-	if right != nil && right.Edges[utils.Left].Hash != tile.Edges[utils.Right].Hash {
+	if right != nil && right.Edges[utils.Left].Reversed.Hash != tile.Edges[utils.Right].Hash {
 		return false
 	}
 
-	if below != nil && below.Edges[utils.Up].Hash != tile.Edges[utils.Down].Hash {
+	if below != nil && below.Edges[utils.Up].Reversed.Hash != tile.Edges[utils.Down].Hash {
 		return false
 	}
 
-	if left != nil && left.Edges[utils.Right].Hash != tile.Edges[utils.Left].Hash {
+	if left != nil && left.Edges[utils.Right].Reversed.Hash != tile.Edges[utils.Left].Hash {
 		return false
 	}
 
@@ -294,8 +301,12 @@ func DoWithInputPart01(world World) int {
 
 	//tile := tiles[2311]
 	//tile := tiles[1427]
-	tile := tiles[3079]
-	orientedTile := &tile.OrientedTiles[0]
+
+	//tile := tiles[3079] // top right
+	//orientedTile := &tile.OrientedTiles[0]
+
+	tile := tiles[1427] // middle middle
+	orientedTile := &tile.OrientedTiles[6]
 	fmt.Printf("#%v\n", tile.Id)
 	searchRight(orientedTile, collections.Stack[*OrientedTile]{}, 1, expectedSize, orientedTile, tiles)
 
