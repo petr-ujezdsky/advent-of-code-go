@@ -10,6 +10,7 @@ import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
 	"math"
+	"strconv"
 	"strings"
 )
 
@@ -120,8 +121,8 @@ func searchLeft(tile *OrientedTile, leftTiles, rightTiles collections.Stack[*Ori
 		// add right side
 		row = append(row, rightTiles.PeekAll()...)
 
-		ids := slices.Map(row, func(t *OrientedTile) int { return t.Id })
-		fmt.Printf("  * found row of %2v tiles - %v\n", width, ids)
+		//ids := slices.Map(row, func(t *OrientedTile) int { return t.Id })
+		//fmt.Printf("  * found row of %2v tiles - %v\n", width, ids)
 
 		if result, ok := searchRowAbove(row, collections.Stack[[]*OrientedTile]{}, availableTiles); ok {
 			return result, true
@@ -184,8 +185,8 @@ func searchRowAboveRight(tile *OrientedTile, rightTiles collections.Stack[*Orien
 	if i == len(rowBelow) {
 		row := rightTiles.PeekAll()
 
-		ids := slices.Map(row, func(t *OrientedTile) int { return t.Id })
-		fmt.Printf("    * found row above       %v\n", ids)
+		//ids := slices.Map(row, func(t *OrientedTile) int { return t.Id })
+		//fmt.Printf("    * found row above       %v\n", ids)
 
 		// find another row above
 		if result, ok := searchRowAbove(row, aboveRows, availableTiles); ok {
@@ -217,17 +218,10 @@ func searchRowBelow(row []*OrientedTile, belowRows, aboveRows collections.Stack[
 		// add below rows
 		rows = append(rows, belowRows.PeekAll()...)
 
-		idRows := slices.Map(rows, func(r []*OrientedTile) []int {
-			return slices.Map(r, func(t *OrientedTile) int {
-				return t.Id
-			})
-		})
-		fmt.Printf("    * found solution:\n")
-		for _, ids := range idRows {
-			fmt.Printf("    *           %v\n", ids)
-		}
-
 		m := utils.NewMatrixRowNotation(rows)
+
+		//fmt.Printf("    * found solution:\n")
+		//fmt.Println(m.StringFmt(func(tile *OrientedTile) string { return strconv.Itoa(tile.Id) }))
 
 		return &m, true
 	}
@@ -268,8 +262,8 @@ func searchRowBelowRight(tile *OrientedTile, rightTiles collections.Stack[*Orien
 	if i == len(rowAbove) {
 		row := rightTiles.PeekAll()
 
-		ids := slices.Map(row, func(t *OrientedTile) int { return t.Id })
-		fmt.Printf("    * found row below       %v\n", ids)
+		//ids := slices.Map(row, func(t *OrientedTile) int { return t.Id })
+		//fmt.Printf("    * found row below       %v\n", ids)
 
 		// find another row below
 		if result, ok := searchRowBelow(row, belowRows, aboveRows, availableTiles); ok {
@@ -336,6 +330,7 @@ func ConnectTiles(availableTiles Tiles) *utils.Matrix[*OrientedTile] {
 
 func DoWithInputPart01(world World) int {
 	picture := ConnectTiles(world.Tiles)
+	fmt.Println(picture.StringFmt(func(tile *OrientedTile) string { return strconv.Itoa(tile.Id) }))
 	return multiplyCorners(picture)
 }
 
