@@ -170,7 +170,9 @@ func searchRowAbove(row []*OrientedTile, aboveRows collections.Stack[[]*Oriented
 	searchRowAboveRight(nil, collections.Stack[*OrientedTile]{}, aboveRows, 0, mainRow, availableTiles)
 
 	// search below
-	searchRowBelow(nil, collections.Stack[*OrientedTile]{}, collections.Stack[[]*OrientedTile]{}, aboveRows, 0, mainRow, availableTiles)
+	searchRowBelow(mainRow, collections.Stack[[]*OrientedTile]{}, aboveRows, availableTiles)
+
+	aboveRows.Pop()
 }
 
 func searchRowAboveRight(tile *OrientedTile, rightTiles collections.Stack[*OrientedTile], aboveRows collections.Stack[[]*OrientedTile], i int, mainRow []*OrientedTile, availableTiles Tiles) {
@@ -211,32 +213,16 @@ func searchRowAboveRight(tile *OrientedTile, rightTiles collections.Stack[*Orien
 	}
 }
 
-func searchRowBelow(tile *OrientedTile, rightTiles collections.Stack[*OrientedTile], belowRows, aboveRows collections.Stack[[]*OrientedTile], i int, rowAbove []*OrientedTile, availableTiles Tiles) {
-	availableTiles = maps.Copy(availableTiles)
+func searchRowBelow(row []*OrientedTile, belowRows, aboveRows collections.Stack[[]*OrientedTile], availableTiles Tiles) {
+	belowRows.Push(row)
+	searchRowBelowRight(nil, collections.Stack[*OrientedTile]{}, belowRows, aboveRows, 0, availableTiles)
 
-	if tile != nil {
-		delete(availableTiles, tile.Id)
-		rightTiles.Push(tile)
-	}
-
-	if i < len(rowAbove) {
-		above := rowAbove[i]
-		// find neighbours on right side matching neighbours above
-		for _, candidate := range availableTiles {
-			for _, orientedTile := range candidate.OrientedTiles {
-				if matches(orientedTile, above, nil, nil, tile) {
-					searchRowBelow(&orientedTile, rightTiles, belowRows, aboveRows, i+1, rowAbove, availableTiles)
-				}
-			}
-		}
-	}
-
-	if i == 0 && len(availableTiles) == 0 {
+	if len(availableTiles) == 0 {
 		// found it!
 		// reverse above rows
 		rows := slices.Reverse(aboveRows.PeekAll())
 		// remove main row
-		//rows = rows[:len(rows)-1]
+		rows = rows[:len(rows)-1]
 		// add below rows
 		rows = append(rows, belowRows.PeekAll()...)
 
@@ -251,16 +237,39 @@ func searchRowBelow(tile *OrientedTile, rightTiles collections.Stack[*OrientedTi
 		}
 	}
 
+	belowRows.Pop()
+}
+
+func searchRowBelowRight(tile *OrientedTile, rightTiles collections.Stack[*OrientedTile], belowRows, aboveRows collections.Stack[[]*OrientedTile], i int, availableTiles Tiles) {
+	availableTiles = maps.Copy(availableTiles)
+
+	if tile != nil {
+		delete(availableTiles, tile.Id)
+		rightTiles.Push(tile)
+	}
+
+	rowAbove := belowRows.Peek()
+
+	if i < len(rowAbove) {
+		above := rowAbove[i]
+		// find neighbours on right side matching neighbours above
+		for _, candidate := range availableTiles {
+			for _, orientedTile := range candidate.OrientedTiles {
+				if matches(orientedTile, above, nil, nil, tile) {
+					searchRowBelowRight(&orientedTile, rightTiles, belowRows, aboveRows, i+1, availableTiles)
+				}
+			}
+		}
+	}
+
 	if i == len(rowAbove) {
 		row := rightTiles.PeekAll()
-		belowRows.Push(row)
-		// find another row above
+
 		ids := slices.Map(row, func(t *OrientedTile) int { return t.Id })
 		fmt.Printf("    * found row below %v\n", ids)
 
 		// find another row below
-		searchRowBelow(nil, collections.Stack[*OrientedTile]{}, belowRows, aboveRows, 0, row, availableTiles)
-		belowRows.Pop()
+		searchRowBelow(row, belowRows, aboveRows, availableTiles)
 	}
 
 	// return the tile back to searchable tiles
