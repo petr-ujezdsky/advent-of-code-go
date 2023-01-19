@@ -101,12 +101,14 @@ func searchRight(tile *OrientedTile, rightTiles collections.Stack[*OrientedTile]
 	delete(availableTiles, tile.Id)
 	rightTiles.Push(tile)
 
-	rightEdge := tile.Edges[utils.Right]
-
 	// find neighbours on right side
 	for _, candidate := range availableTiles {
 		for _, orientedTile := range candidate.OrientedTiles {
-			if rightEdge.Hash == orientedTile.Edges[utils.Left].Reversed.Hash {
+			neighbours := Neighbours{
+				Left: tile,
+			}
+
+			if matches(orientedTile, neighbours) {
 				// try recursive
 				searchRight(&orientedTile, rightTiles, expectedSize, availableTiles)
 			}
@@ -130,12 +132,14 @@ func searchLeft(tile *OrientedTile, leftTiles, rightTiles collections.Stack[*Ori
 	delete(availableTiles, tile.Id)
 	leftTiles.Push(tile)
 
-	leftEdge := tile.Edges[utils.Left]
-
 	// find neighbours on right side
 	for _, candidate := range availableTiles {
 		for _, orientedTile := range candidate.OrientedTiles {
-			if leftEdge.Hash == orientedTile.Edges[utils.Right].Reversed.Hash {
+			neighbours := Neighbours{
+				Right: tile,
+			}
+
+			if matches(orientedTile, neighbours) {
 				// try recursive
 				searchLeft(&orientedTile, leftTiles, rightTiles, expectedSize, availableTiles)
 			}
