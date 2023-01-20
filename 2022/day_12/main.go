@@ -5,12 +5,13 @@ import (
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/alg"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"io"
 	"math"
 )
 
 type Vector2i = utils.Vector2i
-type MatrixInt = utils.MatrixInt
+type MatrixInt = matrix.MatrixInt
 
 var dirs = []Vector2i{
 	// left
@@ -133,7 +134,7 @@ func ParseInput(r io.Reader) World {
 		y++
 	}
 
-	heights := utils.NewMatrixNumberRowNotation(rows)
+	heights := matrix.NewMatrixNumberRowNotation(rows)
 
 	return World{
 		Heights: heights,

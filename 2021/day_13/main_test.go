@@ -3,6 +3,7 @@ package day_13
 import (
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"math"
 	"os"
 	"testing"
@@ -36,7 +37,7 @@ func Test_01_example_one_fold(t *testing.T) {
 	dotsCount := FoldPaper(world, 1)
 	assert.Equal(t, 17, dotsCount)
 
-	fmt.Println(PointsToMatrix(world.points).StringFmt(utils.FmtBoolean[int]))
+	fmt.Println(PointsToMatrix(world.points).StringFmt(matrix.FmtBoolean[int]))
 
 }
 
@@ -50,7 +51,7 @@ func Test_01_example(t *testing.T) {
 	dotsCount := FoldPaper(world, math.MaxInt)
 	assert.Equal(t, 16, dotsCount)
 
-	fmt.Println(PointsToMatrix(world.points).StringFmt(utils.FmtBoolean[int]))
+	fmt.Println(PointsToMatrix(world.points).StringFmt(matrix.FmtBoolean[int]))
 }
 
 func Test_01(t *testing.T) {
@@ -74,7 +75,7 @@ func Test_02(t *testing.T) {
 	dotsCount := FoldPaper(world, math.MaxInt)
 	assert.Equal(t, 95, dotsCount)
 
-	paper := PointsToMatrix(world.points).Transpose().StringFmt(utils.FmtBooleanConst[int](" ", "#"))
+	paper := PointsToMatrix(world.points).Transpose().StringFmt(matrix.FmtBooleanConst[int](" ", "#"))
 	expected := `
      # #   # # #     # # # #     # #     #     #     # #     #     #   # # #  
        #   #     #         #   #     #   #     #   #     #   #     #   #     #

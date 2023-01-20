@@ -2,6 +2,7 @@ package day_09
 
 import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"io"
 	"sort"
 )
@@ -17,7 +18,7 @@ var STEPS = []utils.Vector2i{
 	{0, 1},
 }
 
-func inspectNeighbours(heightMap utils.MatrixInt, x, y int) (int, bool) {
+func inspectNeighbours(heightMap matrix.MatrixInt, x, y int) (int, bool) {
 	value := heightMap.Columns[x][y]
 
 	for _, step := range STEPS {
@@ -32,7 +33,7 @@ func inspectNeighbours(heightMap utils.MatrixInt, x, y int) (int, bool) {
 	return riskLevel, true
 }
 
-func FindLowPointsAndSum(heightMap utils.MatrixInt) (int, []utils.Vector2i) {
+func FindLowPointsAndSum(heightMap matrix.MatrixInt) (int, []utils.Vector2i) {
 	lowPointsRiskLevelsSum := 0
 	var lowPoints []utils.Vector2i
 
@@ -51,7 +52,7 @@ func FindLowPointsAndSum(heightMap utils.MatrixInt) (int, []utils.Vector2i) {
 	return lowPointsRiskLevelsSum, lowPoints
 }
 
-func findBasinSizeRecursive(heightMap, basin utils.MatrixInt, position utils.Vector2i) int {
+func findBasinSizeRecursive(heightMap, basin matrix.MatrixInt, position utils.Vector2i) int {
 	if basin.Columns[position.X][position.Y] != 0 {
 		// already inspected -> end
 		return 0
@@ -84,15 +85,15 @@ func findBasinSizeRecursive(heightMap, basin utils.MatrixInt, position utils.Vec
 	return size
 }
 
-func findBasinSize(heightMap utils.MatrixInt, position utils.Vector2i) int {
+func findBasinSize(heightMap matrix.MatrixInt, position utils.Vector2i) int {
 	// create empty matrix to write found basin points
-	basin := utils.NewMatrixNumber[int](heightMap.Width, heightMap.Height)
+	basin := matrix.NewMatrixNumber[int](heightMap.Width, heightMap.Height)
 
 	// find basin size
 	return findBasinSizeRecursive(heightMap, basin, position)
 }
 
-func Basins(heightMap utils.MatrixInt) int {
+func Basins(heightMap matrix.MatrixInt) int {
 	_, lowPoints := FindLowPointsAndSum(heightMap)
 
 	var basinSizes []int
@@ -109,6 +110,6 @@ func Basins(heightMap utils.MatrixInt) int {
 	return basinSizes[0] * basinSizes[1] * basinSizes[2]
 }
 
-func ParseInput(r io.Reader) (utils.MatrixInt, error) {
+func ParseInput(r io.Reader) (matrix.MatrixInt, error) {
 	return utils.ParseToMatrix(r)
 }

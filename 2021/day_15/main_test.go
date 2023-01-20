@@ -1,7 +1,7 @@
 package day_15
 
 import (
-	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"os"
 	"testing"
 
@@ -61,7 +61,7 @@ func Test_01_example_back_propagation(t *testing.T) {
 28 27 25 20 16 14 13  7  4  2
 30 28 23 20 19 16  9  4  2  1
 28 25 24 23 20 18 14  9  1  0`
-	assert.Equal(t, expected, "\n"+bestScores.StringFmt(utils.FmtFmt[int]("%2d")))
+	assert.Equal(t, expected, "\n"+bestScores.StringFmt(matrix.FmtFmt[int]("%2d")))
 	//fmt.Println(bestScores.StringFmt(utils.FmtFmt[int]("%2d")))
 	assert.Equal(t, 40, bestScore)
 }

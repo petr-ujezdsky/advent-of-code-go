@@ -4,11 +4,12 @@ import (
 	"bufio"
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"io"
 	"strings"
 )
 
-type MatrixB = utils.Matrix[bool]
+type MatrixB = matrix.Matrix[bool]
 
 type Instruction struct {
 	Name   string
@@ -36,7 +37,7 @@ func drawPixel(cycle, x int, pixels MatrixB) {
 }
 
 func DoWithInput(instructions []Instruction) (int, MatrixB) {
-	pixels := utils.NewMatrix[bool](40, 6)
+	pixels := matrix.NewMatrix[bool](40, 6)
 	strengthSum := 0
 	cycle := 0
 	x := 1

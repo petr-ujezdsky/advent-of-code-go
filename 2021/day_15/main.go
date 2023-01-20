@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/alg"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"io"
 	"math"
 )
 
-type Matrix2i = utils.MatrixInt
+type Matrix2i = matrix.MatrixInt
 type Vector2i = utils.Vector2i
 
 var iterNr = 0
@@ -93,7 +94,7 @@ func calcBestScores(scoreTillEnd int, pos Vector2i, m, scores Matrix2i) {
 }
 
 func CalcBestScore(m Matrix2i) (int, Matrix2i) {
-	bestScores := utils.NewMatrixNumber[int](m.Width, m.Height)
+	bestScores := matrix.NewMatrixNumber[int](m.Width, m.Height)
 	bestScores.SetAll(math.MaxInt)
 
 	endPos := Vector2i{m.Width - 1, m.Height - 1}
@@ -142,7 +143,7 @@ func CalcBestScoreAStar(m Matrix2i) ([]Vector2i, map[Vector2i]int, int, bool) {
 
 func EnlargeWorld(m Matrix2i) Matrix2i {
 	factor := 5
-	enlarged := utils.NewMatrixInt(m.Width*factor, m.Height*factor)
+	enlarged := matrix.NewMatrixInt(m.Width*factor, m.Height*factor)
 
 	for x, col := range enlarged.Columns {
 		for y := range col {

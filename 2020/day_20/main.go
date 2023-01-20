@@ -6,6 +6,7 @@ import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/collections"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/maps"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
@@ -46,7 +47,7 @@ type OrientedTile struct {
 
 type Tile struct {
 	Id            int
-	Data          utils.Matrix[bool]
+	Data          matrix.Matrix[bool]
 	OrientedTiles [8]OrientedTile
 }
 
@@ -54,7 +55,7 @@ type World struct {
 	Tiles Tiles
 }
 
-func searchRight(left *OrientedTile, rightTiles collections.Stack[*OrientedTile], expectedSize int, availableTiles Tiles) (*utils.Matrix[*OrientedTile], bool) {
+func searchRight(left *OrientedTile, rightTiles collections.Stack[*OrientedTile], expectedSize int, availableTiles Tiles) (*matrix.Matrix[*OrientedTile], bool) {
 	availableTiles = maps.Copy(availableTiles)
 
 	delete(availableTiles, left.Id)
@@ -86,7 +87,7 @@ func searchRight(left *OrientedTile, rightTiles collections.Stack[*OrientedTile]
 	return nil, false
 }
 
-func searchLeft(right *OrientedTile, leftTiles, rightTiles collections.Stack[*OrientedTile], expectedSize int, availableTiles Tiles) (*utils.Matrix[*OrientedTile], bool) {
+func searchLeft(right *OrientedTile, leftTiles, rightTiles collections.Stack[*OrientedTile], expectedSize int, availableTiles Tiles) (*matrix.Matrix[*OrientedTile], bool) {
 	availableTiles = maps.Copy(availableTiles)
 
 	delete(availableTiles, right.Id)
@@ -130,7 +131,7 @@ func searchLeft(right *OrientedTile, leftTiles, rightTiles collections.Stack[*Or
 	return nil, false
 }
 
-func searchRowAbove(row []*OrientedTile, aboveRows collections.Stack[[]*OrientedTile], availableTiles Tiles) (*utils.Matrix[*OrientedTile], bool) {
+func searchRowAbove(row []*OrientedTile, aboveRows collections.Stack[[]*OrientedTile], availableTiles Tiles) (*matrix.Matrix[*OrientedTile], bool) {
 	aboveRows.Push(row)
 	mainRow := aboveRows.PeekAll()[0]
 	// search above
@@ -148,7 +149,7 @@ func searchRowAbove(row []*OrientedTile, aboveRows collections.Stack[[]*Oriented
 	return nil, false
 }
 
-func searchRowAboveRight(left *OrientedTile, rightTiles collections.Stack[*OrientedTile], aboveRows collections.Stack[[]*OrientedTile], i int, mainRow []*OrientedTile, availableTiles Tiles) (*utils.Matrix[*OrientedTile], bool) {
+func searchRowAboveRight(left *OrientedTile, rightTiles collections.Stack[*OrientedTile], aboveRows collections.Stack[[]*OrientedTile], i int, mainRow []*OrientedTile, availableTiles Tiles) (*matrix.Matrix[*OrientedTile], bool) {
 	availableTiles = maps.Copy(availableTiles)
 	if left != nil {
 		delete(availableTiles, left.Id)
@@ -195,7 +196,7 @@ func searchRowAboveRight(left *OrientedTile, rightTiles collections.Stack[*Orien
 	return nil, false
 }
 
-func searchRowBelow(row []*OrientedTile, belowRows, aboveRows collections.Stack[[]*OrientedTile], availableTiles Tiles) (*utils.Matrix[*OrientedTile], bool) {
+func searchRowBelow(row []*OrientedTile, belowRows, aboveRows collections.Stack[[]*OrientedTile], availableTiles Tiles) (*matrix.Matrix[*OrientedTile], bool) {
 	belowRows.Push(row)
 	if result, ok := searchRowBelowRight(nil, collections.Stack[*OrientedTile]{}, belowRows, aboveRows, 0, availableTiles); ok {
 		return result, ok
@@ -210,7 +211,7 @@ func searchRowBelow(row []*OrientedTile, belowRows, aboveRows collections.Stack[
 		// add below rows
 		rows = append(rows, belowRows.PeekAll()...)
 
-		m := utils.NewMatrixRowNotation(rows)
+		m := matrix.NewMatrixRowNotation(rows)
 
 		//fmt.Printf("    * found solution:\n")
 		//fmt.Println(m.StringFmt(func(tile *OrientedTile) string { return strconv.Itoa(tile.Id) }))
@@ -222,7 +223,7 @@ func searchRowBelow(row []*OrientedTile, belowRows, aboveRows collections.Stack[
 	return nil, false
 }
 
-func searchRowBelowRight(left *OrientedTile, rightTiles collections.Stack[*OrientedTile], belowRows, aboveRows collections.Stack[[]*OrientedTile], i int, availableTiles Tiles) (*utils.Matrix[*OrientedTile], bool) {
+func searchRowBelowRight(left *OrientedTile, rightTiles collections.Stack[*OrientedTile], belowRows, aboveRows collections.Stack[[]*OrientedTile], i int, availableTiles Tiles) (*matrix.Matrix[*OrientedTile], bool) {
 	availableTiles = maps.Copy(availableTiles)
 
 	if left != nil {
@@ -294,14 +295,14 @@ func matches(tile OrientedTile, neighbours Neighbours) bool {
 	return true
 }
 
-func multiplyCorners(picture *utils.Matrix[*OrientedTile]) int {
+func multiplyCorners(picture *matrix.Matrix[*OrientedTile]) int {
 	return picture.Columns[0][0].Id *
 		picture.Columns[picture.Width-1][0].Id *
 		picture.Columns[picture.Width-1][picture.Height-1].Id *
 		picture.Columns[0][picture.Height-1].Id
 }
 
-func ConnectTilesUsing(tile *Tile, availableTiles Tiles) *utils.Matrix[*OrientedTile] {
+func ConnectTilesUsing(tile *Tile, availableTiles Tiles) *matrix.Matrix[*OrientedTile] {
 	expectedSize := int(math.Sqrt(float64(len(availableTiles))))
 
 	orientedTile := &tile.OrientedTiles[0]
@@ -313,7 +314,7 @@ func ConnectTilesUsing(tile *Tile, availableTiles Tiles) *utils.Matrix[*Oriented
 	return picture
 }
 
-func ConnectTiles(availableTiles Tiles) *utils.Matrix[*OrientedTile] {
+func ConnectTiles(availableTiles Tiles) *matrix.Matrix[*OrientedTile] {
 	tile := maps.FirstValue(availableTiles)
 	return ConnectTilesUsing(tile, availableTiles)
 }
@@ -324,12 +325,12 @@ func DoWithInputPart01(world World) int {
 	return multiplyCorners(picture)
 }
 
-func rotateTile(tile *OrientedTile) utils.Matrix[bool] {
+func rotateTile(tile *OrientedTile) matrix.Matrix[bool] {
 
 }
 
-func rotateEachTile(connectedTiles *utils.Matrix[*OrientedTile]) utils.Matrix[utils.Matrix[bool]] {
-	rotatedPicture := utils.NewMatrix[utils.Matrix[bool]](connectedTiles.Width, connectedTiles.Height)
+func rotateEachTile(connectedTiles *matrix.Matrix[*OrientedTile]) matrix.Matrix[matrix.Matrix[bool]] {
+	rotatedPicture := matrix.NewMatrix[matrix.Matrix[bool]](connectedTiles.Width, connectedTiles.Height)
 
 	for x, col := range connectedTiles.Columns {
 		for y, tile := range col {
@@ -340,14 +341,14 @@ func rotateEachTile(connectedTiles *utils.Matrix[*OrientedTile]) utils.Matrix[ut
 	return rotatedPicture
 }
 
-func removeBorders(rotatedTiles utils.Matrix[utils.Matrix[bool]]) utils.Matrix[bool] {
+func removeBorders(rotatedTiles matrix.Matrix[matrix.Matrix[bool]]) matrix.Matrix[bool] {
 	tileWidth := rotatedTiles.Columns[0][0].Width
 	tileHeight := rotatedTiles.Columns[0][0].Height
 
 	pictureWidth := (tileWidth - 2) * rotatedTiles.Width
 	pictureHeight := (tileHeight - 2) * rotatedTiles.Height
 
-	picture := utils.NewMatrix[bool](pictureWidth, pictureHeight)
+	picture := matrix.NewMatrix[bool](pictureWidth, pictureHeight)
 
 	for x, tilesCol := range rotatedTiles.Columns {
 		for y, tile := range tilesCol {
@@ -380,7 +381,7 @@ func DoWithInputPart02(world World) int {
 
 }
 
-func extractEdges(data utils.Matrix[bool]) (Edges, Edges) {
+func extractEdges(data matrix.Matrix[bool]) (Edges, Edges) {
 	var edges, flippedEdges Edges
 
 	top := make([]bool, data.Width)

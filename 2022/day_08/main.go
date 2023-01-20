@@ -3,11 +3,12 @@ package main
 import (
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"io"
 	"math"
 )
 
-type Matrix2i = utils.MatrixInt
+type Matrix2i = matrix.MatrixInt
 type Vector2i = utils.Vector2i
 
 func processColumn(col []int, x int, points map[Vector2i]struct{}, transposed bool, from, to int) {
@@ -111,7 +112,7 @@ func processTreeHouseVertically(heights Matrix2i, scores *Matrix2i) {
 
 func FindBestTreeHouseLocationScore(heights Matrix2i) int {
 	// default value is 1 because the score is multiplied
-	scores := utils.NewMatrixInt(heights.Width, heights.Height).SetAll(1)
+	scores := matrix.NewMatrixInt(heights.Width, heights.Height).SetAll(1)
 
 	// process vertically
 	processTreeHouseVertically(heights, &scores)
@@ -126,6 +127,6 @@ func FindBestTreeHouseLocationScore(heights Matrix2i) int {
 	return max
 }
 
-func ParseInput(r io.Reader) utils.MatrixInt {
+func ParseInput(r io.Reader) matrix.MatrixInt {
 	return utils.ParseToMatrixP(r)
 }

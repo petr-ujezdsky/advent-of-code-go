@@ -7,6 +7,7 @@ import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/alg"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/collections"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/maps"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
 	"math"
@@ -137,7 +138,7 @@ func maxPossibleReleasedPressure3(state *WorldState3, allNodesSorted []*ValveNod
 	return maxReleasedPressure
 }
 
-func findMaxPressureReleaseStateMinMax(state WorldState, distances utils.MatrixInt, best *int) int {
+func findMaxPressureReleaseStateMinMax(state WorldState, distances matrix.MatrixInt, best *int) int {
 	max := state.PressureReleased
 
 	for _, closedValve := range state.AllNodes {
@@ -259,7 +260,7 @@ func FindMaxPressureReleaseStateMinMaxGeneralized(world World) int {
 	return -maxPressureReleased
 }
 
-func nextPlayerState(player PlayerState, valveOpenDuration []int, allNodes []*ValveNode, distances utils.MatrixInt) ([]PlayerState, [][]int) {
+func nextPlayerState(player PlayerState, valveOpenDuration []int, allNodes []*ValveNode, distances matrix.MatrixInt) ([]PlayerState, [][]int) {
 	var nextStates []PlayerState
 	var nextValveOpenDurations [][]int
 	for _, closedValve := range allNodes {
@@ -359,8 +360,8 @@ func FindMaxPressureReleasedWithElephant(world World) int {
 	return -maxPressureReleased
 }
 
-func computeDistances(world World) utils.MatrixInt {
-	distances := utils.NewMatrixInt(len(world.AllNodes), len(world.AllNodes))
+func computeDistances(world World) matrix.MatrixInt {
+	distances := matrix.NewMatrixInt(len(world.AllNodes), len(world.AllNodes))
 
 	h := func(_ *ValveNode) int { return 0 }
 	d := func(_, _ *ValveNode) int { return 1 }

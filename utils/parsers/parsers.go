@@ -3,6 +3,7 @@ package parsers
 import (
 	"bufio"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"io"
 )
 
@@ -32,14 +33,14 @@ func MapperIntegers(line string) int {
 }
 
 // ParseToMatrix returns the matrix of objects
-func ParseToMatrix[T any](r io.Reader, mapper func(ch rune) T) utils.Matrix[T] {
+func ParseToMatrix[T any](r io.Reader, mapper func(ch rune) T) matrix.Matrix[T] {
 	indexedMapper := func(line rune, x, y int) T { return mapper(line) }
 	return ParseToMatrixIndexed(r, indexedMapper)
 
 }
 
 // ParseToMatrixIndexed returns the matrix of objects, uses row and column index
-func ParseToMatrixIndexed[T any](r io.Reader, mapper func(ch rune, x, y int) T) utils.Matrix[T] {
+func ParseToMatrixIndexed[T any](r io.Reader, mapper func(ch rune, x, y int) T) matrix.Matrix[T] {
 	lineMapper := func(line string, y int) []T {
 		var row []T
 		x := 0
@@ -54,7 +55,7 @@ func ParseToMatrixIndexed[T any](r io.Reader, mapper func(ch rune, x, y int) T) 
 
 	rows := ParseToObjectsIndexed(r, lineMapper)
 
-	return utils.NewMatrixRowNotation[T](rows)
+	return matrix.NewMatrixRowNotation[T](rows)
 }
 
 // ParseToObjects returns slice of objects mapped from rows

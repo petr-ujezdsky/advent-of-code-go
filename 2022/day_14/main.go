@@ -4,6 +4,7 @@ import (
 	"bufio"
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"io"
 )
 
@@ -28,7 +29,7 @@ var sourcePos = Vector2i{500, 0}
 type Vector2i = utils.Vector2i
 
 type World struct {
-	Cave   utils.Matrix[rune]
+	Cave   matrix.Matrix[rune]
 	Offset Vector2i
 }
 
@@ -112,7 +113,7 @@ func ParseInput(r io.Reader, withFloor bool) World {
 		rocks = append(rocks, floorRock)
 	}
 
-	cave := utils.NewMatrix[rune](rangeX.Size(), rangeY.Size()).SetAll(Air)
+	cave := matrix.NewMatrix[rune](rangeX.Size(), rangeY.Size()).SetAll(Air)
 	offset := Vector2i{rangeX.Low, rangeY.Low}
 
 	// fill rocks

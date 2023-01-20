@@ -2,6 +2,7 @@ package day_11
 
 import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"io"
 )
 
@@ -22,7 +23,7 @@ var neighbourDirs = []utils.Vector2i{
 	{-1, 1},
 }
 
-func raiseNeighboursLevels(energyLevels utils.MatrixInt, pos utils.Vector2i) int {
+func raiseNeighboursLevels(energyLevels matrix.MatrixInt, pos utils.Vector2i) int {
 	flashesCount := 0
 
 	for _, neighbourDir := range neighbourDirs {
@@ -42,7 +43,7 @@ func raiseNeighboursLevels(energyLevels utils.MatrixInt, pos utils.Vector2i) int
 	return flashesCount
 }
 
-func inspectFlash(energyLevels utils.MatrixInt, pos utils.Vector2i) int {
+func inspectFlash(energyLevels matrix.MatrixInt, pos utils.Vector2i) int {
 	energyLevel := energyLevels.Columns[pos.X][pos.Y]
 
 	// flashing
@@ -57,7 +58,7 @@ func inspectFlash(energyLevels utils.MatrixInt, pos utils.Vector2i) int {
 	return 0
 }
 
-func step(energyLevels utils.MatrixInt) int {
+func step(energyLevels matrix.MatrixInt) int {
 	// increment levels by 1
 	for x := 0; x < energyLevels.Width; x++ {
 		for y := 0; y < energyLevels.Height; y++ {
@@ -76,7 +77,7 @@ func step(energyLevels utils.MatrixInt) int {
 	return flashesCount
 }
 
-func CountFlashes(energyLevels utils.MatrixInt, stepsCount int) (int, int) {
+func CountFlashes(energyLevels matrix.MatrixInt, stepsCount int) (int, int) {
 	flashesCount := 0
 	allFlashedStepNumber := -1
 
@@ -103,6 +104,6 @@ func CountFlashes(energyLevels utils.MatrixInt, stepsCount int) (int, int) {
 	return flashesCount, allFlashedStepNumber
 }
 
-func ParseInput(r io.Reader) (utils.MatrixInt, error) {
+func ParseInput(r io.Reader) (matrix.MatrixInt, error) {
 	return utils.ParseToMatrix(r)
 }

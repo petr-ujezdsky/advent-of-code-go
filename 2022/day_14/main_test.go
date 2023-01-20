@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
@@ -26,11 +27,11 @@ func Test_01_parse(t *testing.T) {
 ........#.
 #########.`)
 
-	assert.Equal(t, expected, world.Cave.StringFmtSeparator("", utils.FmtFmt[rune]("%c")))
+	assert.Equal(t, expected, world.Cave.StringFmtSeparator("", matrix.FmtFmt[rune]("%c")))
 
 	fmt.Println(expected)
 	fmt.Println()
-	fmt.Println(world.Cave.StringFmtSeparator("", utils.FmtFmt[rune]("%c")))
+	fmt.Println(world.Cave.StringFmtSeparator("", matrix.FmtFmt[rune]("%c")))
 }
 
 func Test_01_example(t *testing.T) {
@@ -41,7 +42,7 @@ func Test_01_example(t *testing.T) {
 
 	result := PourSand(world, false)
 	assert.Equal(t, 24, result)
-	fmt.Println(world.Cave.StringFmtSeparator("", utils.FmtFmt[rune]("%c")))
+	fmt.Println(world.Cave.StringFmtSeparator("", matrix.FmtFmt[rune]("%c")))
 }
 
 func Test_01(t *testing.T) {
@@ -50,13 +51,13 @@ func Test_01(t *testing.T) {
 
 	world := ParseInput(reader, false)
 
-	fmt.Println(world.Cave.StringFmtSeparator("", utils.FmtFmt[rune]("%c")))
+	fmt.Println(world.Cave.StringFmtSeparator("", matrix.FmtFmt[rune]("%c")))
 
 	result := PourSand(world, false)
 	assert.Equal(t, 888, result)
 
 	fmt.Println()
-	fmt.Println(world.Cave.StringFmtSeparator("", utils.FmtFmt[rune]("%c")))
+	fmt.Println(world.Cave.StringFmtSeparator("", matrix.FmtFmt[rune]("%c")))
 }
 
 func Test_02_example(t *testing.T) {

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
@@ -45,7 +45,7 @@ func Test_02_example(t *testing.T) {
 
 	_, pixels := DoWithInput(instructions)
 
-	fmt.Printf("%v\n", pixels.StringFmt(utils.FmtBoolean[bool]))
+	fmt.Printf("%v\n", pixels.StringFmt(matrix.FmtBoolean[bool]))
 }
 
 func Test_02(t *testing.T) {
@@ -56,5 +56,5 @@ func Test_02(t *testing.T) {
 
 	_, pixels := DoWithInput(instructions)
 
-	fmt.Printf("%v\n", pixels.StringFmt(utils.FmtBoolean[bool]))
+	fmt.Printf("%v\n", pixels.StringFmt(matrix.FmtBoolean[bool]))
 }

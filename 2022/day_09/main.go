@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
 	"strings"
@@ -52,7 +53,7 @@ func moveTails(rope []Vector2i, iHead int, visited map[Vector2i]struct{}) {
 
 func printState(head Vector2i, tails []Vector2i) {
 	size := 35
-	m := utils.NewMatrixInt(size, size)
+	m := matrix.NewMatrixInt(size, size)
 	offset := Vector2i{size / 2, size / 2}
 
 	// origin
@@ -66,7 +67,7 @@ func printState(head Vector2i, tails []Vector2i) {
 	// head
 	m.SetV(head.InvY().Add(offset), 99)
 
-	fmt.Println(m.StringFmt(utils.FmtBooleanCustom(utils.FmtConstant[int](" ."), utils.FmtFmt[int]("%2d"))))
+	fmt.Println(m.StringFmt(matrix.FmtBooleanCustom(matrix.FmtConstant[int](" ."), matrix.FmtFmt[int]("%2d"))))
 	fmt.Println()
 	fmt.Println()
 	fmt.Println()
@@ -74,7 +75,7 @@ func printState(head Vector2i, tails []Vector2i) {
 
 func printTrail(visited map[Vector2i]struct{}) {
 	size := 35
-	m := utils.NewMatrixInt(size, size)
+	m := matrix.NewMatrixInt(size, size)
 	offset := Vector2i{size / 2, size / 2}
 
 	// origin
@@ -85,7 +86,7 @@ func printTrail(visited map[Vector2i]struct{}) {
 		m.SetV(pos, 1)
 	}
 
-	fmt.Println(m.StringFmt(utils.FmtBoolean[int]))
+	fmt.Println(m.StringFmt(matrix.FmtBoolean[int]))
 	fmt.Println()
 	fmt.Println()
 	fmt.Println()

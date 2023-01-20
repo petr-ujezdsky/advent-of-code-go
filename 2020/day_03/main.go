@@ -3,11 +3,12 @@ package main
 import (
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"io"
 )
 
-type World = utils.Matrix[bool]
+type World = matrix.Matrix[bool]
 
 func treesCountForStep(world World, step utils.Vector2i) int {
 	pos := utils.Vector2i{}

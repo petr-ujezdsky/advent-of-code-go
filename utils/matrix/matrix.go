@@ -1,7 +1,8 @@
-package utils
+package matrix
 
 import (
 	"fmt"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"strings"
 )
@@ -19,20 +20,16 @@ type Matrix[T any] struct {
 	Width, Height int
 }
 
-type MatrixNumber[T Number] struct {
+type MatrixNumber[T utils.Number] struct {
 	Matrix[T]
 }
-
-// number aliases
 
 type MatrixInt = MatrixNumber[int]
 type MatrixFloat = MatrixNumber[float64]
 
-// constructor aliases
-
 var NewMatrixInt = NewMatrixNumber[int]
 
-func NewMatrixNumber[T Number](width, height int) MatrixNumber[T] {
+func NewMatrixNumber[T utils.Number](width, height int) MatrixNumber[T] {
 	return MatrixNumber[T]{NewMatrix[T](width, height)}
 }
 
@@ -63,7 +60,7 @@ func NewMatrixColumnNotation[T any](columns [][]T) Matrix[T] {
 }
 
 // NewMatrixNumberRowNotation converts matrix from row-first notation to column-first notation
-func NewMatrixNumberRowNotation[T Number](rows [][]T) MatrixNumber[T] {
+func NewMatrixNumberRowNotation[T utils.Number](rows [][]T) MatrixNumber[T] {
 	return MatrixNumber[T]{NewMatrixRowNotation(rows)}
 }
 
@@ -106,11 +103,11 @@ func (m Matrix[T]) SetSafe(x, y int, value T) bool {
 	return true
 }
 
-func (m Matrix[T]) SetV(pos Vector2i, value T) {
+func (m Matrix[T]) SetV(pos utils.Vector2i, value T) {
 	m.Columns[pos.X][pos.Y] = value
 }
 
-func (m Matrix[T]) SetVSafe(pos Vector2i, value T) bool {
+func (m Matrix[T]) SetVSafe(pos utils.Vector2i, value T) bool {
 	return m.SetSafe(pos.X, pos.Y, value)
 }
 
@@ -123,11 +120,11 @@ func (m Matrix[T]) GetSafe(x, y int) (T, bool) {
 	return m.Columns[x][y], true
 }
 
-func (m Matrix[T]) GetV(pos Vector2i) T {
+func (m Matrix[T]) GetV(pos utils.Vector2i) T {
 	return m.Columns[pos.X][pos.Y]
 }
 
-func (m Matrix[T]) GetVSafe(pos Vector2i) (T, bool) {
+func (m Matrix[T]) GetVSafe(pos utils.Vector2i) (T, bool) {
 	return m.GetSafe(pos.X, pos.Y)
 }
 
@@ -147,7 +144,7 @@ func (m MatrixNumber[T]) Transpose() MatrixNumber[T] {
 	return MatrixNumber[T]{m.Matrix.Transpose()}
 }
 func (m Matrix[T]) Rotate90CounterClockwise(steps int) Matrix[T] {
-	steps = ModFloor(steps, 4)
+	steps = utils.ModFloor(steps, 4)
 
 	switch steps {
 	case 0:
@@ -170,7 +167,7 @@ func (m Matrix[T]) Rotate90CounterClockwise(steps int) Matrix[T] {
 
 	panic("Can not happen")
 }
-func (m MatrixNumber[T]) ArgMax() (Vector2i, T) {
+func (m MatrixNumber[T]) ArgMax() (utils.Vector2i, T) {
 	max, xmax, ymax := m.Columns[0][0], 0, 0
 
 	for x, col := range m.Columns {
@@ -181,16 +178,16 @@ func (m MatrixNumber[T]) ArgMax() (Vector2i, T) {
 		}
 	}
 
-	return Vector2i{xmax, ymax}, max
+	return utils.Vector2i{xmax, ymax}, max
 }
 
-func (m Matrix[T]) Bounds() BoundingRectangle {
-	return BoundingRectangle{
-		Horizontal: IntervalI{
+func (m Matrix[T]) Bounds() utils.BoundingRectangle {
+	return utils.BoundingRectangle{
+		Horizontal: utils.IntervalI{
 			Low:  0,
 			High: m.Width,
 		},
-		Vertical: IntervalI{
+		Vertical: utils.IntervalI{
 			Low:  0,
 			High: m.Height,
 		},

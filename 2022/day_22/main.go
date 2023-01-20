@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"io"
 	"regexp"
 	"strings"
@@ -105,7 +106,7 @@ func (n *Node) StringDirections() string {
 	return fmt.Sprintf(" %x ", n.FaceId)
 }
 
-type Matrix = utils.Matrix[*Node]
+type Matrix = matrix.Matrix[*Node]
 
 type World struct {
 	FirstNode *Node
@@ -464,7 +465,7 @@ func ParseInput(r io.Reader, edgeLength int) World {
 	lastVerticalNodes := make([]*Node, 4*edgeLength)
 	var firstNode *Node
 	y := 0
-	m := utils.NewMatrix[*Node](4*edgeLength, 4*edgeLength)
+	m := matrix.NewMatrix[*Node](4*edgeLength, 4*edgeLength)
 
 	for scanner.Scan() && scanner.Text() != "" {
 		var firstHorizontalNode *Node
