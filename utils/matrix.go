@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"strings"
 )
 
@@ -45,6 +46,20 @@ func NewMatrix[T any](width, height int) Matrix[T] {
 	}
 
 	return Matrix[T]{matrixCols, width, height}
+}
+func NewMatrixColumnNotation[T any](columns [][]T) Matrix[T] {
+	width := len(columns)
+	height := len(columns[0])
+
+	matrix := NewMatrix[T](width, height)
+
+	for x, col := range columns {
+		for y, value := range col {
+			matrix.Columns[x][y] = value
+		}
+	}
+
+	return matrix
 }
 
 // NewMatrixNumberRowNotation converts matrix from row-first notation to column-first notation
@@ -131,7 +146,30 @@ func (m Matrix[T]) Transpose() Matrix[T] {
 func (m MatrixNumber[T]) Transpose() MatrixNumber[T] {
 	return MatrixNumber[T]{m.Matrix.Transpose()}
 }
+func (m Matrix[T]) Rotate90CounterClockwise(steps int) Matrix[T] {
+	steps = ModFloor(steps, 4)
 
+	switch steps {
+	case 0:
+		return m
+	case 1:
+		return NewMatrixRowNotation(slices.Reverse(m.Columns))
+	case 2:
+		cols := slices.Reverse(m.Columns)
+		for i, col := range cols {
+			cols[i] = slices.Reverse(col)
+		}
+		return NewMatrixColumnNotation(cols)
+	case 3:
+		rows := slices.Clone(m.Columns)
+		for i, row := range rows {
+			rows[i] = slices.Reverse(row)
+		}
+		return NewMatrixRowNotation(rows)
+	}
+
+	panic("Can not happen")
+}
 func (m MatrixNumber[T]) ArgMax() (Vector2i, T) {
 	max, xmax, ymax := m.Columns[0][0], 0, 0
 
