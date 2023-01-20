@@ -38,9 +38,10 @@ type Edges = [4]Edge
 type Tiles = map[int]*Tile
 
 type OrientedTile struct {
-	Id    int
-	Edges Edges
-	Tile  *Tile
+	Id               int
+	OrientationIndex int
+	Edges            Edges
+	Tile             *Tile
 }
 
 type Tile struct {
@@ -323,8 +324,60 @@ func DoWithInputPart01(world World) int {
 	return multiplyCorners(picture)
 }
 
+func rotateTile(tile *OrientedTile) utils.Matrix[bool] {
+
+}
+
+func rotateEachTile(connectedTiles *utils.Matrix[*OrientedTile]) utils.Matrix[utils.Matrix[bool]] {
+	rotatedPicture := utils.NewMatrix[utils.Matrix[bool]](connectedTiles.Width, connectedTiles.Height)
+
+	for x, col := range connectedTiles.Columns {
+		for y, tile := range col {
+			rotatedPicture.Columns[x][y] = rotateTile(tile)
+		}
+	}
+
+	return rotatedPicture
+}
+
+func removeBorders(rotatedTiles utils.Matrix[utils.Matrix[bool]]) utils.Matrix[bool] {
+	tileWidth := rotatedTiles.Columns[0][0].Width
+	tileHeight := rotatedTiles.Columns[0][0].Height
+
+	pictureWidth := (tileWidth - 2) * rotatedTiles.Width
+	pictureHeight := (tileHeight - 2) * rotatedTiles.Height
+
+	picture := utils.NewMatrix[bool](pictureWidth, pictureHeight)
+
+	for x, tilesCol := range rotatedTiles.Columns {
+		for y, tile := range tilesCol {
+			for u, col := range tile.Columns {
+				if u == 0 || u == len(tile.Columns)-1 {
+					continue
+				}
+
+				for v, pixel := range col {
+					if v == 0 || v == len(col)-1 {
+						continue
+					}
+
+					px := x*(tileWidth-2) + u - 1
+					py := y*(tileHeight-2) + v - 1
+
+					picture.Columns[px][py] = pixel
+				}
+			}
+		}
+	}
+
+	return picture
+}
+
 func DoWithInputPart02(world World) int {
-	return 0
+	connectedTiles := ConnectTiles(world.Tiles)
+	rotatedTiles := rotateEachTile(connectedTiles)
+	picture := removeBorders(rotatedTiles)
+
 }
 
 func extractEdges(data utils.Matrix[bool]) (Edges, Edges) {
@@ -401,9 +454,10 @@ func ParseInput(r io.Reader) World {
 
 		for j, edge := range edges {
 			tile.OrientedTiles[j] = OrientedTile{
-				Id:    id,
-				Edges: edge,
-				Tile:  tile,
+				Id:               id,
+				OrientationIndex: j,
+				Edges:            edge,
+				Tile:             tile,
 			}
 		}
 
