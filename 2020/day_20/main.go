@@ -326,7 +326,17 @@ func DoWithInputPart01(world World) int {
 }
 
 func rotateTile(tile *OrientedTile) matrix.Matrix[bool] {
+	rotated := tile.Tile.Data
 
+	flipped := tile.OrientationIndex/4 == 1
+	if flipped {
+		rotated = rotated.FlipHorizontal()
+	}
+
+	clockwiseAmount := tile.OrientationIndex % 4
+	rotated = rotated.Rotate90CounterClockwise(-clockwiseAmount)
+
+	return rotated
 }
 
 func rotateEachTile(connectedTiles *matrix.Matrix[*OrientedTile]) matrix.Matrix[matrix.Matrix[bool]] {
@@ -379,6 +389,9 @@ func DoWithInputPart02(world World) int {
 	rotatedTiles := rotateEachTile(connectedTiles)
 	picture := removeBorders(rotatedTiles)
 
+	fmt.Println(picture.StringFmt(matrix.FmtBoolean[bool]))
+
+	return 0
 }
 
 func extractEdges(data matrix.Matrix[bool]) (Edges, Edges) {
@@ -411,7 +424,7 @@ func extractEdges(data matrix.Matrix[bool]) (Edges, Edges) {
 	return edges, flippedEdges
 }
 
-// rotate rotates tile edges counter-clockwise by simply shifting the indexes
+// rotate rotates tile edges clockwise by simply shifting the indexes
 func rotate(edges Edges, amount int) Edges {
 	rotated := edges
 
