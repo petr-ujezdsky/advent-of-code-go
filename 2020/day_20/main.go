@@ -384,10 +384,14 @@ func removeBorders(rotatedTiles matrix.Matrix[matrix.Matrix[bool]]) matrix.Matri
 	return picture
 }
 
+func TilesToPicture(connectedTiles *matrix.Matrix[*OrientedTile]) matrix.Matrix[bool] {
+	return removeBorders(rotateEachTile(connectedTiles))
+}
+
 func DoWithInputPart02(world World) int {
-	connectedTiles := ConnectTiles(world.Tiles)
-	rotatedTiles := rotateEachTile(connectedTiles)
-	picture := removeBorders(rotatedTiles)
+	tile := world.Tiles[3079]
+	connectedTiles := ConnectTilesUsing(tile, world.Tiles)
+	picture := TilesToPicture(connectedTiles)
 
 	fmt.Println(picture.StringFmt(matrix.FmtBoolean[bool]))
 

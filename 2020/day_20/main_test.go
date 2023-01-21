@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
@@ -52,6 +54,45 @@ func Test_01(t *testing.T) {
 
 	result := DoWithInputPart01(world)
 	assert.Equal(t, 11788777383197, result)
+}
+
+func Test_02_example_picture(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	world := ParseInput(reader)
+
+	tile := world.Tiles[3079]
+	connectedTiles := ConnectTilesUsing(tile, world.Tiles)
+	picture := TilesToPicture(connectedTiles)
+
+	expected := utils.Msg(`
+.#.#..#.##...#.##..#####
+###....#.#....#..#......
+##.##.###.#.#..######...
+###.#####...#.#####.#..#
+##.#....#.##.####...#.##
+...########.#....#####.#
+....#..#...##..#.#.###..
+.####...#..#.....#......
+#..#.##..#..###.#.##....
+#.####..#.####.#.#.###..
+###.#.#...#.######.#..##
+#.####....##..########.#
+##..##.#...#...#.#.#.#..
+...#..#..#.#.##..###.###
+.#.#....#.##.#...###.##.
+###.#...#..#.##.######..
+.#.#.###.##.##.#..#.##..
+.####.###.#...###.#..#.#
+..#.#..#..#.#.#.####.###
+#..####...#.#.#.###.###.
+#####..#####...###....##
+#.##..#..#...#..####...#
+.#.###..##..##..####.##.
+...###...##...#...#..###`)
+
+	assert.Equal(t, expected, picture.StringFmtSeparator("", matrix.FmtBoolean[bool]))
 }
 
 func Test_02_example(t *testing.T) {
