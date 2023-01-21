@@ -3,6 +3,7 @@ package day_09
 import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"io"
 	"sort"
 )
@@ -110,6 +111,6 @@ func Basins(heightMap matrix.MatrixInt) int {
 	return basinSizes[0] * basinSizes[1] * basinSizes[2]
 }
 
-func ParseInput(r io.Reader) (matrix.MatrixInt, error) {
-	return utils.ParseToMatrix(r)
+func ParseInput(r io.Reader) matrix.MatrixInt {
+	return parsers.ParseToMatrixInt(r)
 }

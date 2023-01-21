@@ -12,8 +12,7 @@ func Test_01_example_parse(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
 
-	levels, err := ParseInput(reader)
-	assert.Nil(t, err)
+	levels := ParseInput(reader)
 
 	expected := `
 1 1 6 3 7 5 1 7 4 2
@@ -34,8 +33,7 @@ func Test_01_example(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
 
-	levels, err := ParseInput(reader)
-	assert.Nil(t, err)
+	levels := ParseInput(reader)
 
 	score := FindPathScore(levels)
 	assert.Equal(t, 40, score)
@@ -45,8 +43,7 @@ func Test_01_example_back_propagation(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
 
-	levels, err := ParseInput(reader)
-	assert.Nil(t, err)
+	levels := ParseInput(reader)
 
 	bestScore, bestScores := CalcBestScore(levels)
 
@@ -70,8 +67,7 @@ func Test_01_example_a_star(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
 
-	levels, err := ParseInput(reader)
-	assert.Nil(t, err)
+	levels := ParseInput(reader)
 
 	path, _, score, ok := CalcBestScoreAStar(levels)
 	assert.True(t, ok)
@@ -83,8 +79,7 @@ func Test_01(t *testing.T) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(t, err)
 
-	levels, err := ParseInput(reader)
-	assert.Nil(t, err)
+	levels := ParseInput(reader)
 
 	score, bestScores := CalcBestScore(levels)
 	assert.Equal(t, 462, score)
@@ -97,8 +92,7 @@ func Test_01_a_star(t *testing.T) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(t, err)
 
-	levels, err := ParseInput(reader)
-	assert.Nil(t, err)
+	levels := ParseInput(reader)
 
 	_, _, score, ok := CalcBestScoreAStar(levels)
 	assert.True(t, ok)
@@ -109,8 +103,7 @@ func Test_02_example(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
 
-	levels, err := ParseInput(reader)
-	assert.Nil(t, err)
+	levels := ParseInput(reader)
 
 	enlargedLevels := EnlargeWorld(levels)
 	//fmt.Println(enlargedLevels.StringFmt(utils.FmtFmt[int]("%2d")))
@@ -124,8 +117,7 @@ func Test_02(t *testing.T) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(t, err)
 
-	levels, err := ParseInput(reader)
-	assert.Nil(t, err)
+	levels := ParseInput(reader)
 
 	enlargedLevels := EnlargeWorld(levels)
 
@@ -139,8 +131,7 @@ func Benchmark_back_propagation(b *testing.B) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(b, err)
 
-	levels, err := ParseInput(reader)
-	assert.Nil(b, err)
+	levels := ParseInput(reader)
 
 	b.ResetTimer()
 
@@ -155,8 +146,7 @@ func Benchmark_a_star(b *testing.B) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(b, err)
 
-	levels, err := ParseInput(reader)
-	assert.Nil(b, err)
+	levels := ParseInput(reader)
 
 	b.ResetTimer()
 
@@ -173,8 +163,7 @@ func Benchmark_back_propagation_big(b *testing.B) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(b, err)
 
-	levels, err := ParseInput(reader)
-	assert.Nil(b, err)
+	levels := ParseInput(reader)
 
 	b.ResetTimer()
 
@@ -189,8 +178,7 @@ func Benchmark_a_star_big(b *testing.B) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(b, err)
 
-	levels, err := ParseInput(reader)
-	assert.Nil(b, err)
+	levels := ParseInput(reader)
 
 	b.ResetTimer()
 

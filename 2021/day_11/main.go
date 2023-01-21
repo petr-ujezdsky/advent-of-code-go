@@ -3,6 +3,7 @@ package day_11
 import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"io"
 )
 
@@ -104,6 +105,6 @@ func CountFlashes(energyLevels matrix.MatrixInt, stepsCount int) (int, int) {
 	return flashesCount, allFlashedStepNumber
 }
 
-func ParseInput(r io.Reader) (matrix.MatrixInt, error) {
-	return utils.ParseToMatrix(r)
+func ParseInput(r io.Reader) matrix.MatrixInt {
+	return parsers.ParseToMatrixInt(r)
 }

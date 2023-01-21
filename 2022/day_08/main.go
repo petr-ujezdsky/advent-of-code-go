@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"io"
 	"math"
 )
@@ -128,5 +129,5 @@ func FindBestTreeHouseLocationScore(heights Matrix2i) int {
 }
 
 func ParseInput(r io.Reader) matrix.MatrixInt {
-	return utils.ParseToMatrixP(r)
+	return parsers.ParseToMatrixInt(r)
 }

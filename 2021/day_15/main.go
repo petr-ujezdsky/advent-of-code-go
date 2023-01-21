@@ -5,6 +5,7 @@ import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/alg"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"io"
 	"math"
 )
@@ -162,6 +163,6 @@ func EnlargeWorld(m Matrix2i) Matrix2i {
 	return enlarged
 }
 
-func ParseInput(r io.Reader) (Matrix2i, error) {
-	return utils.ParseToMatrix(r)
+func ParseInput(r io.Reader) Matrix2i {
+	return parsers.ParseToMatrixInt(r)
 }

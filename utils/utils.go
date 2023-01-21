@@ -2,7 +2,6 @@ package utils
 
 import (
 	"bufio"
-	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"io"
 	"regexp"
 	"strconv"
@@ -34,37 +33,6 @@ func ParseToIntsP(r io.Reader) []int {
 	}
 
 	return ints
-}
-
-// ParseToMatrix returns the matrix of integers
-func ParseToMatrix(r io.Reader) (matrix.MatrixInt, error) {
-	scanner := bufio.NewScanner(r)
-	scanner.Split(bufio.ScanLines)
-
-	var rows [][]int
-
-	for scanner.Scan() {
-		line := scanner.Text()
-		var row []int
-
-		for _, digitAscii := range []rune(line) {
-			digit := int(digitAscii) - int('0')
-			row = append(row, digit)
-		}
-
-		rows = append(rows, row)
-	}
-
-	return matrix.NewMatrixNumberRowNotation(rows), scanner.Err()
-}
-
-// ParseToMatrixP returns the matrix of integers (panics in case of an error)
-func ParseToMatrixP(r io.Reader) matrix.MatrixInt {
-	m, err := ParseToMatrix(r)
-	if err != nil {
-		panic("Problem parsing integer matrix")
-	}
-	return m
 }
 
 // ToInts parses each line into integer and returns the list

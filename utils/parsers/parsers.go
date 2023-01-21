@@ -2,9 +2,11 @@ package parsers
 
 import (
 	"bufio"
+	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"io"
+	"strconv"
 )
 
 func MapperBooleanIndexed(trueChar, falseChar rune) func(ch rune, x, y int) bool {
@@ -28,15 +30,22 @@ func MapperBoolean(trueChar, falseChar rune) func(ch rune) bool {
 	}
 }
 
+func MapperInteger(char rune) int {
+	i, err := strconv.Atoi(string(char))
+	if err != nil {
+		panic(fmt.Sprintf("Can not convert '%v' to integer", char))
+	}
+	return i
+}
+
 func MapperIntegers(line string) int {
 	return utils.ParseInt(line)
 }
 
 // ParseToMatrix returns the matrix of objects
 func ParseToMatrix[T any](r io.Reader, mapper func(ch rune) T) matrix.Matrix[T] {
-	indexedMapper := func(line rune, x, y int) T { return mapper(line) }
+	indexedMapper := func(char rune, x, y int) T { return mapper(char) }
 	return ParseToMatrixIndexed(r, indexedMapper)
-
 }
 
 // ParseToMatrixIndexed returns the matrix of objects, uses row and column index
@@ -56,6 +65,11 @@ func ParseToMatrixIndexed[T any](r io.Reader, mapper func(ch rune, x, y int) T) 
 	rows := ParseToObjectsIndexed(r, lineMapper)
 
 	return matrix.NewMatrixRowNotation[T](rows)
+}
+
+// ParseToMatrixInt returns the matrix of single digit integers
+func ParseToMatrixInt(r io.Reader) matrix.MatrixInt {
+	return matrix.MatrixInt{Matrix: ParseToMatrix(r, MapperInteger)}
 }
 
 // ParseToObjects returns slice of objects mapped from rows
