@@ -22,9 +22,24 @@ func TestNewMatrix2_data_locality(t *testing.T) {
 }
 
 func TestMatrix_Rotate90CounterClockwise(t *testing.T) {
-	m := NewMatrixRowNotation[int]([][]int{
+	m0 := NewMatrixRowNotation[int]([][]int{
 		{0, 2},
 		{1, 3},
+	})
+
+	m1 := NewMatrixRowNotation[int]([][]int{
+		{2, 3},
+		{0, 1},
+	})
+
+	m2 := NewMatrixRowNotation[int]([][]int{
+		{3, 1},
+		{2, 0},
+	})
+
+	m3 := NewMatrixRowNotation[int]([][]int{
+		{1, 0},
+		{3, 2},
 	})
 
 	type args struct {
@@ -37,7 +52,17 @@ func TestMatrix_Rotate90CounterClockwise(t *testing.T) {
 		wantM Matrix[T]
 	}
 	tests := []testCase[int]{
-		{"", m, args{0}, m},
+		{"", m0, args{0}, m0},
+		{"", m0, args{1}, m1},
+		{"", m0, args{2}, m2},
+		{"", m0, args{3}, m3},
+
+		{"", m0, args{4}, m0},
+
+		{"", m0, args{-1}, m3},
+		{"", m0, args{-2}, m2},
+		{"", m0, args{-3}, m1},
+		{"", m0, args{-4}, m0},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
