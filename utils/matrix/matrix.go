@@ -143,6 +143,7 @@ func (m Matrix[T]) Transpose() Matrix[T] {
 func (m MatrixNumber[T]) Transpose() MatrixNumber[T] {
 	return MatrixNumber[T]{m.Matrix.Transpose()}
 }
+
 func (m Matrix[T]) Rotate90CounterClockwise(steps int) Matrix[T] {
 	steps = utils.ModFloor(steps, 4)
 
@@ -167,6 +168,19 @@ func (m Matrix[T]) Rotate90CounterClockwise(steps int) Matrix[T] {
 
 	panic("Can not happen")
 }
+
+func (m Matrix[T]) FlipHorizontal() Matrix[T] {
+	return NewMatrixColumnNotation(slices.Reverse(m.Columns))
+}
+
+func (m Matrix[T]) FlipVertical() Matrix[T] {
+	cols := slices.Clone(m.Columns)
+	for i, col := range cols {
+		cols[i] = slices.Reverse(col)
+	}
+	return NewMatrixColumnNotation(cols)
+}
+
 func (m MatrixNumber[T]) ArgMax() (utils.Vector2i, T) {
 	max, xmax, ymax := m.Columns[0][0], 0, 0
 

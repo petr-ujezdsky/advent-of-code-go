@@ -70,3 +70,31 @@ func TestMatrix_Rotate90CounterClockwise(t *testing.T) {
 		})
 	}
 }
+
+func TestMatrix_FlipHorizontal(t *testing.T) {
+	m := NewMatrixRowNotation[int]([][]int{
+		{0, 2},
+		{1, 3},
+	})
+
+	expected := NewMatrixRowNotation[int]([][]int{
+		{2, 0},
+		{3, 1},
+	})
+
+	assert.Equal(t, expected, m.FlipHorizontal())
+}
+
+func TestMatrix_FlipVertical(t *testing.T) {
+	m := NewMatrixRowNotation[int]([][]int{
+		{0, 2},
+		{1, 3},
+	})
+
+	expected := NewMatrixRowNotation[int]([][]int{
+		{1, 3},
+		{0, 2},
+	})
+
+	assert.Equal(t, expected, m.FlipVertical())
+}
