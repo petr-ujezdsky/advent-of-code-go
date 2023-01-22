@@ -13,6 +13,8 @@ func Test_01_parse(t *testing.T) {
 	world := ParseInput(reader)
 
 	assert.Equal(t, 4, len(world.Foods))
+	assert.Equal(t, 7, len(world.AllIngredients))
+	assert.Equal(t, 3, len(world.AllAllergens))
 
 	food := world.Foods[0]
 	assert.Equal(t, 4, len(food.Ingredients))

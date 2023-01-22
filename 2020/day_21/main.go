@@ -17,7 +17,8 @@ type Food struct {
 }
 
 type World struct {
-	Foods []Food
+	Foods                        []Food
+	AllIngredients, AllAllergens StringSet
 }
 
 func findIntersection(s1, s2 StringSet) StringSet {
@@ -95,11 +96,22 @@ func DoWithInputPart02(world World) int {
 }
 
 func ParseInput(r io.Reader) World {
+	allIngredients := make(StringSet)
+	allAllergens := make(StringSet)
+
 	parseItem := func(str string) Food {
 		parts := strings.Split(str, " (contains ")
 
 		ingredients := strings.Split(parts[0], " ")
 		allergens := strings.Split(strs.Substring(parts[1], 0, len(parts[1])-1), ", ")
+
+		for _, ingredient := range ingredients {
+			allIngredients[ingredient] = struct{}{}
+		}
+
+		for _, allergen := range allergens {
+			allAllergens[allergen] = struct{}{}
+		}
 
 		return Food{
 			Ingredients: slices.ToSet(ingredients),
@@ -108,5 +120,9 @@ func ParseInput(r io.Reader) World {
 	}
 
 	items := parsers.ParseToObjects(r, parseItem)
-	return World{Foods: items}
+	return World{
+		Foods:          items,
+		AllIngredients: allIngredients,
+		AllAllergens:   allAllergens,
+	}
 }
