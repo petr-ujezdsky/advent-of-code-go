@@ -208,6 +208,14 @@ func (m Matrix[T]) Bounds() utils.BoundingRectangle {
 	}
 }
 
+func (m Matrix[T]) Clone() Matrix[T] {
+	cols := slices.Clone(m.Columns)
+	for i, col := range cols {
+		cols[i] = slices.Clone(col)
+	}
+	return NewMatrixColumnNotation(cols)
+}
+
 func (m Matrix[T]) String() string {
 	return m.StringFmt(FmtNative[T])
 }

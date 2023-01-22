@@ -388,14 +388,97 @@ func TilesToPicture(connectedTiles *matrix.Matrix[*OrientedTile]) matrix.Matrix[
 	return removeBorders(rotateEachTile(connectedTiles))
 }
 
+var monster = parsers.ParseToMatrix(strings.NewReader(utils.Msg(`
+                  # 
+#    ##    ##    ###
+ #  #  #  #  #  #   `)), parsers.MapperBoolean('#', ' '))
+
+func patternMatches(x, y int, pattern, orig matrix.Matrix[bool]) bool {
+	for xx := 0; xx < pattern.Width; xx++ {
+		for yy := 0; yy < pattern.Height; yy++ {
+			patternPixel := pattern.Columns[xx][yy]
+			picturePixel := orig.Columns[x+xx][y+yy]
+
+			if patternPixel && !picturePixel {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+func removePattern(x, y int, pattern, removed matrix.Matrix[bool]) {
+	for xx := 0; xx < pattern.Width; xx++ {
+		for yy := 0; yy < pattern.Height; yy++ {
+			patternPixel := pattern.Columns[xx][yy]
+
+			if patternPixel {
+				removed.Columns[x+xx][y+yy] = false
+			}
+		}
+	}
+}
+
+func findAndRemoveMonster(pattern, orig, removed matrix.Matrix[bool]) {
+	for x, col := range orig.Columns {
+		if x > orig.Width-pattern.Width {
+			break
+		}
+		for y := range col {
+			if y > orig.Height-pattern.Height {
+				break
+			}
+
+			// match pattern
+			if patternMatches(x, y, pattern, orig) {
+				removePattern(x, y, pattern, removed)
+			}
+		}
+	}
+}
+
+func rotateAndFlipPattern(pattern matrix.Matrix[bool]) []matrix.Matrix[bool] {
+	variations := make([]matrix.Matrix[bool], 8)
+
+	for i := range variations {
+		p := pattern
+
+		flipped := i/4 == 1
+		if flipped {
+			p = p.FlipHorizontal()
+		}
+
+		clockwiseAmount := i % 4
+		p = p.Rotate90CounterClockwise(clockwiseAmount)
+
+		variations[i] = p
+	}
+
+	return variations
+}
+
 func DoWithInputPart02(world World) int {
 	tile := world.Tiles[3079]
 	connectedTiles := ConnectTilesUsing(tile, world.Tiles)
 	picture := TilesToPicture(connectedTiles)
 
-	fmt.Println(picture.StringFmt(matrix.FmtBoolean[bool]))
+	// najit prisery, nerotovat obrazek, ale ty prisery
+	removed := picture.Clone()
+	for _, m := range rotateAndFlipPattern(monster) {
+		findAndRemoveMonster(m, picture, removed)
+	}
 
-	return 0
+	count := 0
+	for _, col := range removed.Columns {
+		for _, pixel := range col {
+			if pixel {
+				count++
+			}
+		}
+	}
+
+	return count
 }
 
 func extractEdges(data matrix.Matrix[bool]) (Edges, Edges) {
