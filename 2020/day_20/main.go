@@ -325,18 +325,22 @@ func DoWithInputPart01(world World) int {
 	return multiplyCorners(picture)
 }
 
-func rotateTile(tile *OrientedTile) matrix.Matrix[bool] {
-	rotated := tile.Tile.Data
+func rotateMatrix(orientationIndex int, m matrix.Matrix[bool]) matrix.Matrix[bool] {
+	rotated := m
 
-	flipped := tile.OrientationIndex/4 == 1
+	flipped := orientationIndex/4 == 1
 	if flipped {
 		rotated = rotated.FlipHorizontal()
 	}
 
-	clockwiseAmount := tile.OrientationIndex % 4
+	clockwiseAmount := orientationIndex % 4
 	rotated = rotated.Rotate90CounterClockwise(-clockwiseAmount)
 
 	return rotated
+}
+
+func rotateTile(tile *OrientedTile) matrix.Matrix[bool] {
+	return rotateMatrix(tile.OrientationIndex, tile.Tile.Data)
 }
 
 func rotateEachTile(connectedTiles *matrix.Matrix[*OrientedTile]) matrix.Matrix[matrix.Matrix[bool]] {
@@ -442,17 +446,7 @@ func rotateAndFlipPattern(pattern matrix.Matrix[bool]) []matrix.Matrix[bool] {
 	variations := make([]matrix.Matrix[bool], 8)
 
 	for i := range variations {
-		p := pattern
-
-		flipped := i/4 == 1
-		if flipped {
-			p = p.FlipHorizontal()
-		}
-
-		clockwiseAmount := i % 4
-		p = p.Rotate90CounterClockwise(clockwiseAmount)
-
-		variations[i] = p
+		variations[i] = rotateMatrix(i, pattern)
 	}
 
 	return variations
