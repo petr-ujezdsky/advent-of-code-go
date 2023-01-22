@@ -15,12 +15,12 @@ func Test_01_parse(t *testing.T) {
 	world := ParseInput(reader)
 
 	assert.Equal(t, 9, len(world.Tiles))
-	assert.Equal(t, 3079, world.Tiles[8].Id)
-	assert.Equal(t, false, world.Tiles[8].Data.Columns[1][0])
-	assert.Equal(t, true, world.Tiles[8].Data.Columns[1][1])
-	assert.Equal(t, false, world.Tiles[8].Data.Columns[1][2])
-	assert.Equal(t, 10, world.Tiles[8].Data.Width)
-	assert.Equal(t, 10, world.Tiles[8].Data.Height)
+	assert.Equal(t, 3079, world.Tiles[3079].Id)
+	assert.Equal(t, false, world.Tiles[3079].Data.Columns[1][0])
+	assert.Equal(t, true, world.Tiles[3079].Data.Columns[1][1])
+	assert.Equal(t, false, world.Tiles[3079].Data.Columns[1][2])
+	assert.Equal(t, 10, world.Tiles[3079].Data.Width)
+	assert.Equal(t, 10, world.Tiles[3079].Data.Height)
 }
 
 func Test_01_example_all(t *testing.T) {
