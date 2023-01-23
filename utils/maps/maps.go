@@ -60,3 +60,22 @@ func Copy[K comparable, V any](source map[K]V) map[K]V {
 
 	return dest
 }
+
+// Intersection finds intersection of keys
+func Intersection[K comparable, V any](maps []map[K]V) map[K]V {
+	intersection := Copy(maps[0])
+
+	for _, m := range maps[1:] {
+		for key := range m {
+			if _, ok := intersection[key]; !ok {
+				delete(intersection, key)
+			}
+
+			if len(intersection) == 0 {
+				return intersection
+			}
+		}
+	}
+
+	return intersection
+}
