@@ -132,10 +132,15 @@ func findByIngredient(ingredient string, foods []Food) []Food {
 	return containing
 }
 
-func findHavingOnePossibility(ingredients Ingredients) (*Ingredient, string) {
+func findHavingOnePossibility(ingredients Ingredients, resolvedAllergens map[string]string) (*Ingredient, string) {
 	for _, ingredient := range ingredients {
 		if len(ingredient.PossibleAllergens) == 1 {
 			allergen := maps.FirstKey(ingredient.PossibleAllergens)
+
+			if _, ok := resolvedAllergens[allergen]; ok {
+				continue
+			}
+
 			return ingredient, allergen
 		}
 	}
@@ -185,7 +190,7 @@ func DoWithInputPart01(world World) int {
 	resolvedAllergens := make(map[string]string)
 
 	for {
-		ingredient, allergenName := findHavingOnePossibility(world.AllIngredients)
+		ingredient, allergenName := findHavingOnePossibility(world.AllIngredients, resolvedAllergens)
 		if ingredient == nil {
 			break
 		}
@@ -195,6 +200,9 @@ func DoWithInputPart01(world World) int {
 		resolvedAllergens[allergenName] = ingredient.Name
 
 		for _, otherIngredient := range world.AllIngredients {
+			if otherIngredient == ingredient {
+				continue
+			}
 			delete(otherIngredient.PossibleAllergens, allergenName)
 		}
 
@@ -203,14 +211,18 @@ func DoWithInputPart01(world World) int {
 		}
 		allergen := world.AllAllergens[allergenName]
 		allergen.PossibleIngredients = make(StringSet)
+		allergen.PossibleIngredients[ingredient.Name] = struct{}{}
 	}
 
 	fmt.Println()
 	fmt.Println("Ingredients without allergens:")
 
+	count := 0
 	for _, ingredient := range world.AllIngredients {
 		if len(ingredient.PossibleAllergens) == 0 {
 			fmt.Printf("  * %v\n", ingredient.Name)
+
+			count += len(findByIngredient(ingredient.Name, foods))
 		}
 	}
 
@@ -228,7 +240,7 @@ func DoWithInputPart01(world World) int {
 		fmt.Printf("%10v: (%v) %v\n\n", allergen.Name, len(allergen.PossibleIngredients), maps.Keys(allergen.PossibleIngredients))
 	}
 
-	return 0
+	return count
 }
 
 func DoWithInputPart02(world World) int {
