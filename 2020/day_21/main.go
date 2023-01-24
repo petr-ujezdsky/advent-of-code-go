@@ -17,12 +17,14 @@ type Ingredients = map[string]*Ingredient
 type Ingredient struct {
 	Name              string
 	PossibleAllergens StringSet
+	Foods             []*Food
 }
 
 type Allergens = map[string]*Allergen
 type Allergen struct {
 	Name                string
 	PossibleIngredients StringSet
+	Foods               []*Food
 }
 
 type Food struct {
@@ -31,7 +33,7 @@ type Food struct {
 }
 
 type World struct {
-	Foods          []Food
+	Foods          []*Food
 	AllIngredients Ingredients
 	AllAllergens   Allergens
 }
@@ -108,29 +110,29 @@ type World struct {
 //	return count
 //}
 
-func findByAllergen(allergen string, foods []Food) []Food {
-	var containing []Food
+//func findByAllergen(allergen string, foods []*Food) []*Food {
+//	var containing []*Food
+//
+//	for _, food := range foods {
+//		if _, ok := food.Allergens[allergen]; ok {
+//			containing = append(containing, food)
+//		}
+//	}
+//
+//	return containing
+//}
 
-	for _, food := range foods {
-		if _, ok := food.Allergens[allergen]; ok {
-			containing = append(containing, food)
-		}
-	}
-
-	return containing
-}
-
-func findByIngredient(ingredient string, foods []Food) []Food {
-	var containing []Food
-
-	for _, food := range foods {
-		if _, ok := food.Ingredients[ingredient]; ok {
-			containing = append(containing, food)
-		}
-	}
-
-	return containing
-}
+//func findByIngredient(ingredient string, foods []*Food) []*Food {
+//	var containing []*Food
+//
+//	for _, food := range foods {
+//		if _, ok := food.Ingredients[ingredient]; ok {
+//			containing = append(containing, food)
+//		}
+//	}
+//
+//	return containing
+//}
 
 func findHavingOnePossibility(ingredients Ingredients, resolvedAllergens map[string]string) (*Ingredient, string) {
 	for _, ingredient := range ingredients {
@@ -164,10 +166,10 @@ func DoWithInputPart01(world World) int {
 		fmt.Printf("%v:\n", allergen.Name)
 
 		//allergen := maps.FirstKey(world.AllAllergens)
-		foodsWithAllergen := findByAllergen(allergen.Name, foods)
+		foodsWithAllergen := allergen.Foods
 		fmt.Printf("  * in %v foods\n", len(foodsWithAllergen))
 
-		ingredients := slices.Map(foodsWithAllergen, func(f Food) Ingredients { return f.Ingredients })
+		ingredients := slices.Map(foodsWithAllergen, func(f *Food) Ingredients { return f.Ingredients })
 
 		intersectingIngredients := maps.Intersection(ingredients)
 
@@ -222,7 +224,7 @@ func DoWithInputPart01(world World) int {
 		if len(ingredient.PossibleAllergens) == 0 {
 			fmt.Printf("  * %v\n", ingredient.Name)
 
-			count += len(findByIngredient(ingredient.Name, foods))
+			count += len(ingredient.Foods)
 		}
 	}
 
@@ -281,28 +283,31 @@ func ParseInput(r io.Reader) World {
 	allIngredients := make(Ingredients)
 	allAllergens := make(Allergens)
 
-	parseItem := func(str string) Food {
+	parseItem := func(str string) *Food {
 		parts := strings.Split(str, " (contains ")
 
 		ingredientNames := strings.Split(parts[0], " ")
 		allergenNames := strings.Split(strs.Substring(parts[1], 0, len(parts[1])-1), ", ")
 
+		food := &Food{}
+
 		ingredients := make(Ingredients)
+		food.Ingredients = ingredients
 		for _, ingredientName := range ingredientNames {
 			ingredient := getOrCreateIngredient(ingredientName, allIngredients)
+			ingredient.Foods = append(ingredient.Foods, food)
 			ingredients[ingredientName] = ingredient
 		}
 
 		allergens := make(Allergens)
+		food.Allergens = allergens
 		for _, allergenName := range allergenNames {
 			allergen := getOrCreateAllergen(allergenName, allAllergens)
+			allergen.Foods = append(allergen.Foods, food)
 			allergens[allergenName] = allergen
 		}
 
-		return Food{
-			Ingredients: ingredients,
-			Allergens:   allergens,
-		}
+		return food
 	}
 
 	items := parsers.ParseToObjects(r, parseItem)
