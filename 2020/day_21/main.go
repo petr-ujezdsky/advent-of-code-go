@@ -134,21 +134,52 @@ type World struct {
 //	return containing
 //}
 
-func findHavingOnePossibility(ingredients Ingredients, resolvedAllergens map[string]string) (*Ingredient, string) {
-	for _, ingredient := range ingredients {
-		if len(ingredient.PossibleAllergens) == 1 {
-			allergen := maps.FirstKey(ingredient.PossibleAllergens)
+//func findHavingOnePossibility(ingredients Ingredients, resolvedAllergens map[string]string) (*Ingredient, string) {
+//	for _, ingredient := range ingredients {
+//		if len(ingredient.PossibleAllergens) == 1 {
+//			allergen := maps.FirstKey(ingredient.PossibleAllergens)
+//
+//			if _, ok := resolvedAllergens[allergen]; ok {
+//				continue
+//			}
+//
+//			return ingredient, allergen
+//		}
+//	}
+//
+//	return nil, ""
+//}
 
-			if _, ok := resolvedAllergens[allergen]; ok {
+func findHavingOnePossibilityWithinFood(foods []*Food, resolvedAllergens map[string]string) (*Ingredient, *Allergen, int) {
+	for i, food := range foods {
+		for _, allergen := range food.Allergens {
+			if _, ok := resolvedAllergens[allergen.Name]; ok {
 				continue
 			}
 
-			return ingredient, allergen
+			var foundIngredient *Ingredient
+			for _, ingredient := range food.Ingredients {
+				if _, ok := ingredient.PossibleAllergens[allergen.Name]; !ok {
+					continue
+				}
+
+				if foundIngredient != nil {
+					foundIngredient = nil
+					break
+				}
+
+				foundIngredient = ingredient
+			}
+
+			if foundIngredient != nil {
+				return foundIngredient, allergen, i
+			}
 		}
 	}
 
-	return nil, ""
+	return nil, nil, 0
 }
+
 func DoWithInputPart01(world World) int {
 	foods := world.Foods
 
@@ -192,26 +223,24 @@ func DoWithInputPart01(world World) int {
 	resolvedAllergens := make(map[string]string)
 
 	for {
-		ingredient, allergenName := findHavingOnePossibility(world.AllIngredients, resolvedAllergens)
+		ingredient, allergen, foodIndex := findHavingOnePossibilityWithinFood(world.Foods, resolvedAllergens)
 		if ingredient == nil {
 			break
 		}
 
-		fmt.Printf("  * %10v -> %v\n", allergenName, ingredient.Name)
+		fmt.Printf("  * %10v -> %v by food #%v\n", allergen.Name, ingredient.Name, foodIndex+1)
 
-		resolvedAllergens[allergenName] = ingredient.Name
+		resolvedAllergens[allergen.Name] = ingredient.Name
 
 		for _, otherIngredient := range world.AllIngredients {
-			if otherIngredient == ingredient {
-				continue
-			}
-			delete(otherIngredient.PossibleAllergens, allergenName)
+			delete(otherIngredient.PossibleAllergens, allergen.Name)
 		}
+		ingredient.PossibleAllergens = make(StringSet)
+		ingredient.PossibleAllergens[allergen.Name] = struct{}{}
 
 		for _, otherAllergen := range world.AllAllergens {
 			delete(otherAllergen.PossibleIngredients, ingredient.Name)
 		}
-		allergen := world.AllAllergens[allergenName]
 		allergen.PossibleIngredients = make(StringSet)
 		allergen.PossibleIngredients[ingredient.Name] = struct{}{}
 	}
