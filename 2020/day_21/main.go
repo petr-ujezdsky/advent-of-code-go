@@ -186,13 +186,11 @@ func findHavingOnePossibilityWithinFood(foods []*Food, resolvedAllergens map[str
 func DoWithInputPart01(world World) int {
 	foods := world.Foods
 
-	// fill all possibilities
-	for _, food := range foods {
-		for _, allergen := range food.Allergens {
-			for _, ingredient := range food.Ingredients {
-				ingredient.PossibleAllergens[allergen.Name] = struct{}{}
-				allergen.PossibleIngredients[ingredient.Name] = struct{}{}
-			}
+	// fill all possibilities (Allergens aren't always marked so everything is possible)
+	for _, allergen := range world.AllAllergens {
+		for _, ingredient := range world.AllIngredients {
+			ingredient.PossibleAllergens[allergen.Name] = struct{}{}
+			allergen.PossibleIngredients[ingredient.Name] = struct{}{}
 		}
 	}
 
