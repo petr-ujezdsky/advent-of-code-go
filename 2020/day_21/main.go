@@ -153,17 +153,20 @@ type World struct {
 func findHavingOnePossibilityWithinFood(foods []*Food, resolvedAllergens map[string]string) (*Ingredient, *Allergen, int) {
 	for i, food := range foods {
 		for _, allergen := range food.Allergens {
+			// skip already resolved allergens
 			if _, ok := resolvedAllergens[allergen.Name]; ok {
 				continue
 			}
 
 			var foundIngredient *Ingredient
 			for _, ingredient := range food.Ingredients {
+				// the allergen is not within possible allergens of the ingredient
 				if _, ok := ingredient.PossibleAllergens[allergen.Name]; !ok {
 					continue
 				}
 
 				if foundIngredient != nil {
+					// found another ingredient with the same allergen -> skip and continue to next allergen
 					foundIngredient = nil
 					break
 				}
@@ -193,6 +196,12 @@ func DoWithInputPart01(world World) int {
 		}
 	}
 
+	fmt.Printf("Stats:\n")
+	fmt.Printf("  * %v foods\n", len(foods))
+	fmt.Printf("  * %v ingredients\n", len(world.AllIngredients))
+	fmt.Printf("  * %v allergens\n", len(world.AllAllergens))
+	fmt.Println()
+
 	for _, allergen := range world.AllAllergens {
 		fmt.Printf("%v:\n", allergen.Name)
 
@@ -204,17 +213,17 @@ func DoWithInputPart01(world World) int {
 
 		intersectingIngredients := maps.Intersection(ingredients)
 
+		possibleIngredientsCountBefore := len(allergen.PossibleIngredients)
+
 		// remove allergen from ingredients that are not in intersection
-		count := 0
 		for _, ingredient := range world.AllIngredients {
 			if _, ok := intersectingIngredients[ingredient.Name]; !ok {
 				delete(ingredient.PossibleAllergens, allergen.Name)
 				delete(allergen.PossibleIngredients, ingredient.Name)
-				count++
 				//fmt.Printf("  * removed from ingredient %v\n", name)
 			}
 		}
-		fmt.Printf("  * removed from %v ingredients\n", count)
+		fmt.Printf("  * ingredients reduced %v -> %v\n", possibleIngredientsCountBefore, len(allergen.PossibleIngredients))
 	}
 
 	fmt.Println()
