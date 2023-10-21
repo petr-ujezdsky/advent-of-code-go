@@ -8,6 +8,7 @@ import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/strs"
 	"io"
+	"sort"
 	"strings"
 )
 
@@ -183,7 +184,7 @@ func findHavingOnePossibilityWithinFood(foods []*Food, resolvedAllergens map[str
 	return nil, nil, 0
 }
 
-func DoWithInputPart01(world World) int {
+func DoWithInput(world World) (int, string) {
 	foods := world.Foods
 
 	// fill all possibilities (Allergens aren't always marked so everything is possible)
@@ -278,11 +279,24 @@ func DoWithInputPart01(world World) int {
 		fmt.Printf("%10v: (%v) %v\n\n", allergen.Name, len(allergen.PossibleIngredients), maps.Keys(allergen.PossibleIngredients))
 	}
 
-	return count
-}
+	// part 2
+	sortedAllergenNames := maps.Keys(world.AllAllergens)
+	sort.Strings(sortedAllergenNames)
 
-func DoWithInputPart02(world World) int {
-	return 0
+	var ingredientNames []string
+	for _, allergenName := range sortedAllergenNames {
+		allergen := world.AllAllergens[allergenName]
+
+		if len(allergen.PossibleIngredients) > 1 {
+			panic("Allergen has more than one possible ingredient")
+		}
+
+		ingredientNames = append(ingredientNames, maps.FirstKey(allergen.PossibleIngredients))
+	}
+
+	joined := strings.Join(ingredientNames, ",")
+
+	return count, joined
 }
 
 func getOrCreateIngredient(name string, ingredients Ingredients) *Ingredient {
