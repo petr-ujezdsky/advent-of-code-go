@@ -38,7 +38,7 @@ func Test_01(t *testing.T) {
 	world := ParseInput(reader)
 
 	result := DoWithInputPart01(world)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 2374, result)
 }
 
 func Test_02_example(t *testing.T) {
