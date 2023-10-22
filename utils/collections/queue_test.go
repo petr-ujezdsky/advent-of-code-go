@@ -21,4 +21,5 @@ func TestQueue_All(t *testing.T) {
 	assert.Equal(t, 2, queue.Len())
 	assert.Equal(t, 2, queue.Peek())
 	assert.Equal(t, "[front <- 2 <- 3 <- rear]", queue.String())
+	assert.Equal(t, []int{2, 3}, queue.PeekAll())
 }

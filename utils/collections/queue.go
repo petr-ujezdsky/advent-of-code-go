@@ -18,6 +18,15 @@ func NewQueue[T any]() Queue[T] {
 	return Queue[T]{}
 }
 
+func NewQueueFilled[T any](list []T) Queue[T] {
+	return Queue[T]{
+		list:   list,
+		front:  0,
+		rear:   0,
+		length: len(list),
+	}
+}
+
 func (q *Queue[T]) Peek() T {
 	if q.Empty() {
 		panic("Queue is empty")
