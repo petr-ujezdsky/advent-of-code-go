@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "embed"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -12,10 +13,22 @@ type Cup struct {
 }
 
 func (c *Cup) String() string {
+	return c.StringHighlighted(-1)
+}
+
+func (c *Cup) StringHighlighted(highlightedLabel int) string {
 	result := &strings.Builder{}
 	cup := c
 	for {
-		result.WriteString(strconv.Itoa(cup.Label))
+		if cup != c {
+			result.WriteString(" ")
+		}
+
+		if cup.Label == highlightedLabel {
+			result.WriteString(fmt.Sprintf("(%d)", cup.Label))
+		} else {
+			result.WriteString(fmt.Sprintf("%d", cup.Label))
+		}
 		cup = cup.Next
 		if cup == c {
 			break
@@ -25,12 +38,74 @@ func (c *Cup) String() string {
 	return result.String()
 }
 
+func (c *Cup) CoupleAsNext(next *Cup) {
+	c.Next = next
+	next.Previous = c
+}
+
 type World struct {
+	FirstCup    *Cup
 	CupsByLabel map[int]*Cup
 }
 
-func DoWithInputPart01(world World) int {
-	return 0
+func DoWithInputPart01(world World, movesCount int) string {
+	currentCup := world.FirstCup
+
+	for i := 0; i < movesCount; i++ {
+		threeCups := [3]*Cup{currentCup.Next, currentCup.Next.Next, currentCup.Next.Next.Next}
+		destinationLabel := findDestinationLabel(currentCup.Label, threeCups[0].Label, threeCups[1].Label, threeCups[2].Label)
+		destinationCup := world.CupsByLabel[destinationLabel]
+
+		// remove three cups
+		threeCups[0].Previous.CoupleAsNext(threeCups[2].Next)
+
+		// insert three cups
+		threeCups[2].CoupleAsNext(destinationCup.Next)
+		destinationCup.CoupleAsNext(threeCups[0])
+
+		cupForLog := currentCup
+		for j := 0; j < i; j++ {
+			cupForLog = cupForLog.Previous
+		}
+		fmt.Printf("-- move %d --\n", i+1)
+		fmt.Printf("-- cups %s\n", cupForLog.StringHighlighted(currentCup.Label))
+
+		// select new current cup
+		currentCup = currentCup.Next
+	}
+
+	return describeCups(world.CupsByLabel)
+}
+
+func findDestinationLabel(currentCupLabel, next1, next2, next3 int) int {
+	label := currentCupLabel
+
+	for {
+		label--
+		if label == 0 {
+			label = 9
+		}
+		if label != currentCupLabel && label != next1 && label != next2 && label != next3 {
+			return label
+		}
+	}
+}
+
+func describeCups(cups map[int]*Cup) string {
+	result := &strings.Builder{}
+
+	cup1 := cups[1]
+	cup := cup1.Next
+
+	for {
+		result.WriteString(strconv.Itoa(cup.Label))
+		cup = cup.Next
+		if cup == cup1 {
+			break
+		}
+	}
+
+	return result.String()
 }
 
 func DoWithInputPart02(world World) int {
@@ -47,8 +122,7 @@ func ParseInput(labels string) World {
 
 		// connect current and previous
 		if previousCup != nil {
-			previousCup.Next = cup
-			cup.Previous = previousCup
+			previousCup.CoupleAsNext(cup)
 		}
 
 		// store first cup
@@ -63,8 +137,10 @@ func ParseInput(labels string) World {
 	}
 
 	// connect first and last cup
-	firstCup.Previous = previousCup
-	previousCup.Next = firstCup
+	previousCup.CoupleAsNext(firstCup)
 
-	return World{CupsByLabel: cupsByLabel}
+	return World{
+		FirstCup:    firstCup,
+		CupsByLabel: cupsByLabel,
+	}
 }

@@ -11,20 +11,28 @@ func Test_01_parse(t *testing.T) {
 	assert.Equal(t, 9, len(world.CupsByLabel))
 	cup := world.CupsByLabel[1]
 	assert.Equal(t, 1, cup.Label)
-	assert.Equal(t, "125467389", cup.String())
+	assert.Equal(t, "1 2 5 4 6 7 3 8 9", cup.String())
+	assert.Equal(t, "(1) 2 5 4 6 7 3 8 9", cup.StringHighlighted(1))
 }
 
-func Test_01_example(t *testing.T) {
+func Test_01_example_small(t *testing.T) {
 	world := ParseInput("389125467")
 
-	result := DoWithInputPart01(world)
-	assert.Equal(t, 0, result)
+	result := DoWithInputPart01(world, 10)
+	assert.Equal(t, "92658374", result)
+}
+
+func Test_01_example_big(t *testing.T) {
+	world := ParseInput("389125467")
+
+	result := DoWithInputPart01(world, 100)
+	assert.Equal(t, "67384529", result)
 }
 
 func Test_01(t *testing.T) {
 	world := ParseInput("643719258")
 
-	result := DoWithInputPart01(world)
+	result := DoWithInputPart01(world, 100)
 	assert.Equal(t, 0, result)
 }
 
