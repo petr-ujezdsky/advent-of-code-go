@@ -13,7 +13,7 @@ import (
 type Player struct {
 	Name   string
 	Number int
-	Deck   collections.Queue[int]
+	Deck   collections.Queue[byte]
 }
 
 func (p *Player) CopyAndTrunc(cardsCount int) *Player {
@@ -52,14 +52,14 @@ func (w World) Clone() World {
 }
 
 type HistoryEntry struct {
-	Deck1, Deck2 []int
+	Deck1, Deck2 []byte
 }
 
 type History struct {
 	Entries []HistoryEntry
 }
 
-func (h *History) Contains(deck1, deck2 []int) bool {
+func (h *History) Contains(deck1, deck2 []byte) bool {
 	for _, e := range h.Entries {
 		if slices.Equal(e.Deck1, deck1) && slices.Equal(e.Deck2, deck2) {
 			return true
@@ -69,7 +69,7 @@ func (h *History) Contains(deck1, deck2 []int) bool {
 	return false
 }
 
-func (h *History) Add(deck1, deck2 []int) {
+func (h *History) Add(deck1, deck2 []byte) {
 	h.Entries = append(h.Entries, HistoryEntry{
 		Deck1: deck1,
 		Deck2: deck2,
@@ -160,11 +160,11 @@ func playRoundRecursive(world World, history *History, roundNumber, gameNumber i
 
 	var winner *Player
 
-	if card1 <= player1.Deck.Len() && card2 <= player2.Deck.Len() {
+	if int(card1) <= player1.Deck.Len() && int(card2) <= player2.Deck.Len() {
 		// recursive game
 		world := World{
-			Player1: player1.CopyAndTrunc(card1),
-			Player2: player2.CopyAndTrunc(card2),
+			Player1: player1.CopyAndTrunc(int(card1)),
+			Player2: player2.CopyAndTrunc(int(card2)),
 		}
 
 		subGameWinner := playGame(world, gamesCounter)
@@ -209,7 +209,7 @@ func countScore(player *Player) int {
 	score := 0
 
 	for i, val := range player.Deck.PeekAll() {
-		score += val * (player.Deck.Len() - i)
+		score += int(val) * (player.Deck.Len() - i)
 	}
 
 	return score
@@ -219,11 +219,11 @@ func parseGroup(lines []string, i int) Player {
 	player := Player{
 		Name:   fmt.Sprintf("Player %v", i+1),
 		Number: i + 1,
-		Deck:   collections.Queue[int]{},
+		Deck:   collections.Queue[byte]{},
 	}
 
 	for _, line := range lines[1:] {
-		player.Deck.Push(utils.ParseInt(line))
+		player.Deck.Push(byte(utils.ParseInt(line)))
 	}
 
 	return player
