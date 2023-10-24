@@ -113,17 +113,17 @@ func DoWithInputPart02(world World) int {
 func playGame(world World, gamesCounter *int) *Player {
 	gameNumber := *gamesCounter
 	*gamesCounter++
-	fmt.Printf("=== Game %v ===\n\n", gameNumber)
+	//fmt.Printf("=== Game %v ===\n\n", gameNumber)
 
 	roundsCounter := 1
 	history := &History{}
 
 	for {
-		fmt.Printf("-- Round %v (Game %v) --\n", roundsCounter, gameNumber)
+		//fmt.Printf("-- Round %v (Game %v) --\n", roundsCounter, gameNumber)
 		winner, finished := playRoundRecursive(world, history, roundsCounter, gameNumber, gamesCounter)
 
 		if finished {
-			fmt.Printf("The winner of game %v is player %v!\n", gameNumber, winner.Name)
+			//fmt.Printf("The winner of game %v is player %v!\n", gameNumber, winner.Name)
 			return winner
 		}
 
@@ -171,7 +171,7 @@ func playRoundRecursive(world World, history *History, roundNumber, gameNumber i
 		}
 	}
 
-	fmt.Printf("Player %v wins round %v of game %v!\n\n", winner.Number, roundNumber, gameNumber)
+	//fmt.Printf("Player %v wins round %v of game %v!\n\n", winner.Number, roundNumber, gameNumber)
 
 	// move cards to the winner's deck
 	if winner == player1 {
