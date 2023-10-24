@@ -25,6 +25,10 @@ func (p *Player) CopyAndTrunc(cardsCount int) *Player {
 }
 
 func (p *Player) Equal(player *Player) bool {
+	if p.Deck.Len() != player.Deck.Len() {
+		return false
+	}
+
 	return slices.Equal(p.Deck.PeekAll(), player.Deck.PeekAll())
 }
 
