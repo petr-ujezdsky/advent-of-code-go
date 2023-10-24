@@ -51,13 +51,17 @@ func (w World) Clone() World {
 	}
 }
 
-type History struct {
-	Worlds []World
+type HistoryEntry struct {
+	Deck1, Deck2 []int
 }
 
-func (h *History) Contains(world World) bool {
-	for _, w := range h.Worlds {
-		if w.Player1.Equal(world.Player1) && w.Player2.Equal(world.Player2) {
+type History struct {
+	Entries []HistoryEntry
+}
+
+func (h *History) Contains(deck1, deck2 []int) bool {
+	for _, e := range h.Entries {
+		if slices.Equal(e.Deck1, deck1) && slices.Equal(e.Deck2, deck2) {
 			return true
 		}
 	}
@@ -65,8 +69,11 @@ func (h *History) Contains(world World) bool {
 	return false
 }
 
-func (h *History) Add(world World) {
-	h.Worlds = append(h.Worlds, world)
+func (h *History) Add(deck1, deck2 []int) {
+	h.Entries = append(h.Entries, HistoryEntry{
+		Deck1: deck1,
+		Deck2: deck2,
+	})
 }
 
 func DoWithInputPart01(world World) int {
@@ -136,16 +143,17 @@ func playGame(world World, gamesCounter *int) *Player {
 }
 
 func playRoundRecursive(world World, history *History, roundNumber, gameNumber int, gamesCounter *int) (*Player, bool) {
+	player1, player2 := world.Player1, world.Player2
+	deck1, deck2 := player1.Deck.PeekAll(), player2.Deck.PeekAll()
+
 	// check history first
-	if history.Contains(world) {
+	if history.Contains(deck1, deck2) {
 		// there was a game with the same configuration -> player 1 wins
 		return world.Player1, true
 	}
 
 	// it is new game -> add to history
-	history.Add(world.Clone())
-
-	player1, player2 := world.Player1, world.Player2
+	history.Add(deck1, deck2)
 
 	// draw cards
 	card1, card2 := player1.Deck.Pop(), player2.Deck.Pop()
