@@ -33,7 +33,7 @@ func Test_01(t *testing.T) {
 	world := ParseInput("643719258")
 
 	result := DoWithInputPart01(world, 100)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, "54896723", result)
 }
 
 func Test_02_example(t *testing.T) {
