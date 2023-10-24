@@ -6,23 +6,63 @@ import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/collections"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
 )
 
 type Player struct {
-	Name string
-	Deck collections.Queue[int]
+	Name   string
+	Number int
+	Deck   collections.Queue[int]
 }
 
 func (p *Player) CopyAndTrunc(cardsCount int) *Player {
 	return &Player{
-		Name: p.Name,
-		Deck: collections.NewQueueFilled(p.Deck.PeekAll()[0:cardsCount]),
+		Name:   p.Name,
+		Number: p.Number,
+		Deck:   collections.NewQueueFilled(p.Deck.PeekAll()[0:cardsCount]),
+	}
+}
+
+func (p *Player) Equal(player *Player) bool {
+	return slices.Equal(p.Deck.PeekAll(), player.Deck.PeekAll())
+}
+
+func (p *Player) Clone() *Player {
+	return &Player{
+		Name:   p.Name,
+		Number: p.Number,
+		Deck:   p.Deck.Clone(),
 	}
 }
 
 type World struct {
 	Player1, Player2 *Player
+}
+
+func (w World) Clone() World {
+	return World{
+		Player1: w.Player1.Clone(),
+		Player2: w.Player2.Clone(),
+	}
+}
+
+type History struct {
+	Worlds []World
+}
+
+func (h *History) Contains(world World) bool {
+	for _, w := range h.Worlds {
+		if w.Player1.Equal(world.Player1) && w.Player2.Equal(world.Player2) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (h *History) Add(world World) {
+	h.Worlds = append(h.Worlds, world)
 }
 
 func DoWithInputPart01(world World) int {
@@ -63,28 +103,47 @@ func playRound(player1, player2 *Player) (*Player, bool) {
 }
 
 func DoWithInputPart02(world World) int {
-	winner := playGame(world)
+	gamesCounter := 1
+	winner := playGame(world, &gamesCounter)
 	fmt.Printf("Total winner is %v, Deck: %v\n", winner.Name, winner.Deck.PeekAll())
 
 	return countScore(winner)
 }
 
-func playGame(world World) *Player {
-	player1, player2 := world.Player1, world.Player2
-	roundsCount := 0
+func playGame(world World, gamesCounter *int) *Player {
+	gameNumber := *gamesCounter
+	*gamesCounter++
+	fmt.Printf("=== Game %v ===\n\n", gameNumber)
+
+	roundsCounter := 1
+	history := &History{}
 
 	for {
-		winner, finished := playRoundRecursive(player1, player2)
-		roundsCount++
+		fmt.Printf("-- Round %v (Game %v) --\n", roundsCounter, gameNumber)
+		winner, finished := playRoundRecursive(world, history, roundsCounter, gameNumber, gamesCounter)
 
 		if finished {
-			fmt.Printf("Winner in %v rounds: %v, Deck: %v\n", roundsCount, winner.Name, winner.Deck.PeekAll())
+			fmt.Printf("The winner of game %v is player %v!\n", gameNumber, winner.Name)
 			return winner
 		}
+
+		roundsCounter++
 	}
 }
 
-func playRoundRecursive(player1, player2 *Player) (*Player, bool) {
+func playRoundRecursive(world World, history *History, roundNumber, gameNumber int, gamesCounter *int) (*Player, bool) {
+	// check history first
+	if history.Contains(world) {
+		// there was a game with the same configuration -> player 1 wins
+		return world.Player1, true
+	}
+
+	// it is new game -> add to history
+	history.Add(world.Clone())
+
+	player1, player2 := world.Player1, world.Player2
+
+	// draw cards
 	card1, card2 := player1.Deck.Pop(), player2.Deck.Pop()
 
 	var winner *Player
@@ -96,7 +155,7 @@ func playRoundRecursive(player1, player2 *Player) (*Player, bool) {
 			Player2: player2.CopyAndTrunc(card2),
 		}
 
-		subGameWinner := playGame(world)
+		subGameWinner := playGame(world, gamesCounter)
 
 		if subGameWinner == world.Player1 {
 			winner = player1
@@ -111,6 +170,8 @@ func playRoundRecursive(player1, player2 *Player) (*Player, bool) {
 			winner = player2
 		}
 	}
+
+	fmt.Printf("Player %v wins round %v of game %v!\n\n", winner.Number, roundNumber, gameNumber)
 
 	// move cards to the winner's deck
 	if winner == player1 {
@@ -144,8 +205,9 @@ func countScore(player *Player) int {
 
 func parseGroup(lines []string, i int) Player {
 	player := Player{
-		Name: fmt.Sprintf("Player %v", i+1),
-		Deck: collections.Queue[int]{},
+		Name:   fmt.Sprintf("Player %v", i+1),
+		Number: i + 1,
+		Deck:   collections.Queue[int]{},
 	}
 
 	for _, line := range lines[1:] {
