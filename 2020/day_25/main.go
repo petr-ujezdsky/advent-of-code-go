@@ -35,7 +35,3 @@ func transform(subjectNumber, loopSize int) int {
 
 	return v
 }
-
-func DoWithInputPart02() int {
-	return 0
-}
