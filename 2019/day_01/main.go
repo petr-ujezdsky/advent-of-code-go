@@ -21,7 +21,23 @@ func DoWithInputPart01(world World) int {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	sum := 0
+
+	for _, weight := range world.Weights {
+		sum += calculateFuel(weight)
+	}
+
+	return sum
+}
+
+func calculateFuel(weight int) int {
+	fuel := weight/3 - 2
+
+	if fuel <= 0 {
+		return 0
+	}
+
+	return fuel + calculateFuel(fuel)
 }
 
 func ParseInput(r io.Reader) World {
