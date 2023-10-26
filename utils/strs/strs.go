@@ -13,7 +13,7 @@ func ReverseString(str string) string {
 }
 
 func Substring(str string, from, to int) string {
-	return string(([]rune(str))[from:to])
+	return str[from:to]
 }
 
 func ToBinary[T utils.AnyNumber](value T) string {

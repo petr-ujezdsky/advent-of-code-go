@@ -123,6 +123,7 @@ func TestSubstring(t *testing.T) {
 		{"", args{"text", 1, 3}, "ex"},
 		{"", args{"text", 1, 2}, "e"},
 		{"", args{"text", 1, 1}, ""},
+		{"", args{"👍👎👌", 1, 3}, "👎👌"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
