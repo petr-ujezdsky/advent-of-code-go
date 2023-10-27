@@ -4,6 +4,13 @@ type BoundingRectangle struct {
 	Horizontal, Vertical IntervalI
 }
 
+func NewBoundingRectangleFromPoints(point1, point2 Vector2i) BoundingRectangle {
+	return BoundingRectangle{
+		Horizontal: NewInterval(Min(point1.X, point2.X), Max(point1.X, point2.X)),
+		Vertical:   NewInterval(Min(point1.Y, point2.Y), Max(point1.Y, point2.Y)),
+	}
+}
+
 func (b1 BoundingRectangle) Contains(pos Vector2i) bool {
 	return b1.Horizontal.Contains(pos.X) && b1.Vertical.Contains(pos.Y)
 }
