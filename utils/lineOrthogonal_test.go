@@ -68,3 +68,25 @@ func TestLineOrthogonal2i_Intersection(t *testing.T) {
 		})
 	}
 }
+
+func TestLineOrthogonal2i_Length(t *testing.T) {
+	type fields struct {
+		A Vector2i
+		B Vector2i
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   int
+	}{
+		{"Horizontal right", fields{A: Vector2i{0, 3}, B: Vector2i{5, 3}}, 6},
+		{"Horizontal left", fields{A: Vector2i{5, 3}, B: Vector2i{0, 3}}, 6},
+		{"Vertical up", fields{A: Vector2i{-2, -1}, B: Vector2i{-2, 1}}, 3},
+		{"Vertical down", fields{A: Vector2i{-2, 1}, B: Vector2i{-2, -1}}, 3}}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			line := NewLineOrthogonal2i(tt.fields.A, tt.fields.B)
+			assert.Equalf(t, tt.want, line.Length(), "Length()")
+		})
+	}
+}

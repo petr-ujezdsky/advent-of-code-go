@@ -27,3 +27,7 @@ func (line LineOrthogonal2i) Intersection(line2 LineOrthogonal2i) (LineOrthogona
 
 	return intersectingLine, true
 }
+
+func (line LineOrthogonal2i) Length() int {
+	return line.B.Subtract(line.A).LengthManhattan() + 1
+}

@@ -20,14 +20,10 @@ type World struct {
 }
 
 func DoWithInputPart01(world World) int {
-	return findNearestIntersection(world.Wire1.Lines, world.Wire2.Lines)
-}
-
-func findNearestIntersection(lines1, lines2 []utils.LineOrthogonal2i) int {
 	minDistance := math.MaxInt
 
-	for i, line1 := range lines1 {
-		for j, line2 := range lines2 {
+	for _, line1 := range world.Wire1.Lines {
+		for _, line2 := range world.Wire2.Lines {
 			// check intersection
 			if intersection, ok := line1.Intersection(line2); ok {
 				// intersection is point
@@ -39,8 +35,7 @@ func findNearestIntersection(lines1, lines2 []utils.LineOrthogonal2i) int {
 
 					minDistance = utils.Min(minDistance, intersection.A.LengthManhattan())
 				} else {
-					minDistance = i + j
-					panic("Intersection is not point - not implemented")
+					panic("Intersection is line - not implemented")
 				}
 			}
 		}
@@ -50,7 +45,47 @@ func findNearestIntersection(lines1, lines2 []utils.LineOrthogonal2i) int {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	minDistance := math.MaxInt
+
+	processedIntersections := make(map[utils.Vector2i]struct{})
+
+	length1 := 0
+	for _, line1 := range world.Wire1.Lines {
+		length2 := 0
+		for _, line2 := range world.Wire2.Lines {
+			// check intersection
+			if intersection, ok := line1.Intersection(line2); ok {
+				// intersection is point
+				if intersection.A == intersection.B {
+					// skip origin
+					if intersection.A == (utils.Vector2i{X: 0, Y: 0}) {
+						continue
+					}
+
+					// skip already processed intersections
+					if _, ok := processedIntersections[intersection.A]; ok {
+						continue
+					}
+
+					//toIntersectionLength1 := line1.A.Subtract(intersection.A).LengthManhattan() + length1
+					//toIntersectionLength2 := line2.A.Subtract(intersection.A).LengthManhattan() + length2
+
+					toIntersectionLength1 := utils.NewLineOrthogonal2i(line1.A, intersection.A).Length() + length1 - 1
+					toIntersectionLength2 := utils.NewLineOrthogonal2i(line2.A, intersection.A).Length() + length2 - 1
+
+					minDistance = utils.Min(minDistance, toIntersectionLength1+toIntersectionLength2)
+
+					processedIntersections[intersection.A] = struct{}{}
+				} else {
+					panic("Intersection is line - not implemented")
+				}
+			}
+			length2 += line2.Length() - 1
+		}
+		length1 += line1.Length() - 1
+	}
+
+	return minDistance
 }
 
 func parseStep(step string) utils.Vector2i {
