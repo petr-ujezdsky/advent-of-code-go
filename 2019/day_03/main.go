@@ -55,29 +55,26 @@ func DoWithInputPart02(world World) int {
 		for _, line2 := range world.Wire2.Lines {
 			// check intersection
 			if intersection, ok := line1.Intersection(line2); ok {
-				// intersection is point
-				if intersection.A == intersection.B {
-					// skip origin
-					if intersection.A == (utils.Vector2i{X: 0, Y: 0}) {
-						continue
-					}
-
-					// skip already processed intersections
-					if _, ok := processedIntersections[intersection.A]; ok {
-						continue
-					}
-
-					//toIntersectionLength1 := line1.A.Subtract(intersection.A).LengthManhattan() + length1
-					//toIntersectionLength2 := line2.A.Subtract(intersection.A).LengthManhattan() + length2
-
-					toIntersectionLength1 := utils.NewLineOrthogonal2i(line1.A, intersection.A).Length() + length1 - 1
-					toIntersectionLength2 := utils.NewLineOrthogonal2i(line2.A, intersection.A).Length() + length2 - 1
-
-					minDistance = utils.Min(minDistance, toIntersectionLength1+toIntersectionLength2)
-
-					processedIntersections[intersection.A] = struct{}{}
-				} else {
+				// intersection is line -> fail
+				if intersection.A != intersection.B {
 					panic("Intersection is line - not implemented")
+				}
+
+				// skip origin
+				if intersection.A != (utils.Vector2i{X: 0, Y: 0}) {
+					// skip already processed intersections
+					if _, ok := processedIntersections[intersection.A]; !ok {
+
+						//toIntersectionLength1 := line1.A.Subtract(intersection.A).LengthManhattan() + length1
+						//toIntersectionLength2 := line2.A.Subtract(intersection.A).LengthManhattan() + length2
+
+						toIntersectionLength1 := utils.NewLineOrthogonal2i(line1.A, intersection.A).Length() + length1 - 1
+						toIntersectionLength2 := utils.NewLineOrthogonal2i(line2.A, intersection.A).Length() + length2 - 1
+
+						minDistance = utils.Min(minDistance, toIntersectionLength1+toIntersectionLength2)
+
+						processedIntersections[intersection.A] = struct{}{}
+					}
 				}
 			}
 			length2 += line2.Length() - 1
