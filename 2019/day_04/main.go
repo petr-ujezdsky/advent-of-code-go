@@ -88,5 +88,49 @@ func validate(password []byte) bool {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	password := toBytes(world.From)
+
+	count := 0
+	for {
+		if toNumber(password) > world.To {
+			break
+		}
+
+		if validate2(password) {
+			count++
+		}
+
+		if !increment(password) {
+			break
+		}
+	}
+
+	return count
+}
+
+func validate2(password []byte) bool {
+	lastDigit := password[0]
+	sameDigits := map[byte]byte{}
+
+	for i, digit := range password {
+		// never decrease rule
+		if digit < lastDigit {
+			return false
+		}
+
+		// two adjacent digits are the same rule
+		if i > 0 && digit == lastDigit {
+			sameDigits[digit]++
+		}
+
+		lastDigit = digit
+	}
+
+	for _, count := range sameDigits {
+		if count == 1 {
+			return true
+		}
+	}
+
+	return false
 }
