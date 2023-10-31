@@ -20,7 +20,7 @@ func NewPlanet(name string) *Planet {
 
 type World struct {
 	Root    *Planet
-	Planets []*Planet
+	Planets map[string]*Planet
 }
 
 func DoWithInputPart01(world World) int {
@@ -60,20 +60,20 @@ func ParseInput(r io.Reader) World {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
 
-	planetsCache := map[string]*Planet{}
+	planets := map[string]*Planet{}
 
 	for scanner.Scan() {
 		parts := strings.Split(scanner.Text(), ")")
 
-		parent := maps.GetOrCompute(planetsCache, parts[0], NewPlanet)
-		child := maps.GetOrCompute(planetsCache, parts[1], NewPlanet)
+		parent := maps.GetOrCompute(planets, parts[0], NewPlanet)
+		child := maps.GetOrCompute(planets, parts[1], NewPlanet)
 
 		child.Parent = parent
 		parent.Children = append(parent.Children, child)
 	}
 
 	return World{
-		Root:    planetsCache["COM"],
-		Planets: maps.Values(planetsCache),
+		Root:    planets["COM"],
+		Planets: planets,
 	}
 }
