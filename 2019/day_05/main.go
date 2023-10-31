@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
 )
 
@@ -13,7 +14,11 @@ type World struct {
 }
 
 func DoWithInputPart01(input int, world World) int {
-	program := world.Program
+	return RunProgram(input, world)
+}
+
+func RunProgram(input int, world World) int {
+	program := slices.Clone(world.Program)
 	output := 0
 	index := 0
 
@@ -30,30 +35,78 @@ func DoWithInputPart01(input int, world World) int {
 		case 1:
 			args := parseArguments(program[index:index+4], program, 2)
 
-			dest := &program[args[2]]
-			*dest = args[0] + args[1]
+			destI := args[2]
+			program[destI] = args[0] + args[1]
 
-			index += 4
+			if index != destI {
+				index += 4
+			}
 		case 2:
 			args := parseArguments(program[index:index+4], program, 2)
 
-			dest := &program[args[2]]
-			*dest = args[0] * args[1]
+			destI := args[2]
+			program[destI] = args[0] * args[1]
 
-			index += 4
+			if index != destI {
+				index += 4
+			}
 		case 3:
 			args := parseArguments(program[index:index+2], program, 0)
 
-			dest := &program[args[0]]
-			*dest = input
+			destI := args[0]
+			program[destI] = input
 
-			index += 2
+			if index != destI {
+				index += 2
+			}
 		case 4:
 			args := parseArguments(program[index:index+2], program, -1)
 
 			output = args[0]
 
 			index += 2
+		case 5:
+			args := parseArguments(program[index:index+3], program, -1)
+
+			if args[0] != 0 {
+				index = args[1]
+			} else {
+				index += 3
+			}
+		case 6:
+			args := parseArguments(program[index:index+3], program, -1)
+
+			if args[0] == 0 {
+				index = args[1]
+			} else {
+				index += 3
+			}
+		case 7:
+			args := parseArguments(program[index:index+4], program, 2)
+			destI := args[2]
+
+			if args[0] < args[1] {
+				program[destI] = 1
+			} else {
+				program[destI] = 0
+			}
+
+			if index != destI {
+				index += 4
+			}
+		case 8:
+			args := parseArguments(program[index:index+4], program, 2)
+			destI := args[2]
+
+			if args[0] == args[1] {
+				program[destI] = 1
+			} else {
+				program[destI] = 0
+			}
+
+			if index != destI {
+				index += 4
+			}
 		default:
 			panic(fmt.Sprintf("Unknown op %v at index %v", opRaw, index))
 		}
@@ -99,8 +152,8 @@ func parseArgument(mode, value int, program []int) int {
 
 	panic(fmt.Sprintf("Unknown mode %v", mode))
 }
-func DoWithInputPart02(world World) int {
-	return 0
+func DoWithInputPart02(input int, world World) int {
+	return RunProgram(input, world)
 }
 
 func ParseInput(r io.Reader) World {
