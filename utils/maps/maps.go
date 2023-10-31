@@ -79,3 +79,16 @@ func Intersection[K comparable, V any](maps []map[K]V) map[K]V {
 
 	return intersection
 }
+
+func GetOrCompute[K comparable, V any](m map[K]V, key K, computer func(k K) V) V {
+	// key exists
+	if v, ok := m[key]; ok {
+		return v
+	}
+
+	// key does not exist - create new entry
+	v := computer(key)
+	m[key] = v
+
+	return v
+}
