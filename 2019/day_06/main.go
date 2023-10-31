@@ -3,7 +3,9 @@ package main
 import (
 	"bufio"
 	_ "embed"
+	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/maps"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
 	"strings"
 )
@@ -53,7 +55,37 @@ func countDirectIndirectOrbits(planet *Planet) (int, int) {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	youPlanet := world.Planets["YOU"]
+	santaPlanet := world.Planets["SAN"]
+
+	youPath := slices.Reverse(pathToRoot(youPlanet))
+	fmt.Printf("YOU path %v\n", slices.Map(youPath, func(planet *Planet) string { return planet.Name }))
+
+	santaPath := slices.Reverse(pathToRoot(santaPlanet))
+	fmt.Printf("SAN path %v\n", slices.Map(santaPath, func(planet *Planet) string { return planet.Name }))
+
+	for i, youPlanet := range youPath {
+		santaPlanet := santaPath[i]
+
+		if youPlanet.Name != santaPlanet.Name {
+			return len(youPath) + len(santaPath) - 2*i
+		}
+	}
+
+	return len(youPath)
+}
+
+func pathToRoot(planet *Planet) []*Planet {
+	var path []*Planet
+
+	parent := planet.Parent
+
+	for parent != nil {
+		path = append(path, parent)
+		parent = parent.Parent
+	}
+
+	return path
 }
 
 func ParseInput(r io.Reader) World {
