@@ -18,6 +18,14 @@ type CubeSet struct {
 	Red, Green, Blue int
 }
 
+func (cs CubeSet) Max(other CubeSet) CubeSet {
+	return CubeSet{
+		Red:   utils.Max(cs.Red, other.Red),
+		Green: utils.Max(cs.Green, other.Green),
+		Blue:  utils.Max(cs.Blue, other.Blue),
+	}
+}
+
 func (cs CubeSet) IsLowerThan(other CubeSet) bool {
 	return cs.Red <= other.Red && cs.Green <= other.Green && cs.Blue <= other.Blue
 }
@@ -59,7 +67,16 @@ func DoWithInputPart01(world World) int {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	sum := 0
+	for _, game := range world.Games {
+		max := CubeSet{}
+		for _, example := range game.Examples {
+			max = max.Max(example)
+		}
+		sum += max.Red * max.Green * max.Blue
+	}
+
+	return sum
 }
 
 func toNumber(matches []string) int {
