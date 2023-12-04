@@ -4,6 +4,7 @@ import (
 	"bufio"
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/maps"
 	"io"
 	"regexp"
 	"strconv"
@@ -47,7 +48,7 @@ func findNeighbourPositions(pos utils.Vector2i, item Item) []utils.Vector2i {
 	// .xxxxx.
 	// .12345.
 	// .xxxxx.
-	for i, _ := range item.Value {
+	for i := range item.Value {
 		neighbours = append(neighbours, utils.Vector2i{X: pos.X + i, Y: pos.Y - 1})
 		neighbours = append(neighbours, utils.Vector2i{X: pos.X + i, Y: pos.Y + 1})
 	}
@@ -64,7 +65,49 @@ func findNeighbourPositions(pos utils.Vector2i, item Item) []utils.Vector2i {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	sum := 0
+
+	items := addPositionsPerDigit(world.Items)
+
+	for pos, item := range items {
+		if item.Value[0] != '*' {
+			continue
+		}
+
+		uniqueNumbers := make(map[Item]struct{})
+		for _, neighbourPosition := range findNeighbourPositions(pos, item) {
+			if neighbour, ok := items[neighbourPosition]; ok && neighbour.Number != -1 {
+				uniqueNumbers[neighbour] = struct{}{}
+			}
+
+			if len(uniqueNumbers) > 2 {
+				break
+			}
+		}
+
+		if len(uniqueNumbers) == 2 {
+			product := 1
+
+			for numberItem := range uniqueNumbers {
+				product *= numberItem.Number
+			}
+
+			sum += product
+		}
+	}
+
+	return sum
+}
+
+func addPositionsPerDigit(items map[utils.Vector2i]Item) map[utils.Vector2i]Item {
+	enhanced := maps.Copy(items)
+	for pos, item := range items {
+		for i := 1; i < len(item.Value); i++ {
+			enhanced[utils.Vector2i{X: pos.X + i, Y: pos.Y}] = item
+		}
+	}
+
+	return enhanced
 }
 
 func ParseInput(r io.Reader) World {
