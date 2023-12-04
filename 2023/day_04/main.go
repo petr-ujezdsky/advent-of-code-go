@@ -14,6 +14,10 @@ type Card struct {
 	Winning, Drawn map[int]struct{}
 }
 
+func (card Card) CommonNumbersCount() int {
+	return len(maps.Intersection([]map[int]struct{}{card.Winning, card.Drawn}))
+}
+
 type World struct {
 	Cards []Card
 }
@@ -29,8 +33,7 @@ func DoWithInputPart01(world World) int {
 }
 
 func scoreCard(card Card) int {
-	common := maps.Intersection([]map[int]struct{}{card.Winning, card.Drawn})
-	if matchedCount := len(common); matchedCount > 0 {
+	if matchedCount := card.CommonNumbersCount(); matchedCount > 0 {
 		// 2^matchedCount
 		return 1 << (matchedCount - 1)
 	}
@@ -39,7 +42,28 @@ func scoreCard(card Card) int {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	cardCounts := make([]int, len(world.Cards))
+
+	// initialize counts by 1
+	for i := range world.Cards {
+		cardCounts[i] = 1
+	}
+
+	for i, card := range world.Cards {
+		if matchedCount := card.CommonNumbersCount(); matchedCount > 0 {
+			cardInstancesCount := cardCounts[i]
+
+			for j := 0; j < matchedCount; j++ {
+				cardCounts[i+j+1] += cardInstancesCount
+			}
+		}
+	}
+
+	sum := 0
+	for _, instancesCount := range cardCounts {
+		sum += instancesCount
+	}
+	return sum
 }
 
 func ParseInput(r io.Reader) World {
