@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "embed"
+	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"io"
@@ -53,8 +54,35 @@ func findLocationForSeed(seed int, mappings []Mapping) int {
 	return sourceDestination
 }
 
+var metric = utils.NewMetric("Brute force")
+
 func DoWithInputPart02(world World) int {
-	return 0
+	totalCount := 0
+	for i := 0; i < len(world.Seeds); i += 2 {
+		totalCount += world.Seeds[i+1]
+	}
+
+	fmt.Printf("Total iterations to go through: %v\n", totalCount)
+	metric.Enable()
+
+	lowest := math.MaxInt
+	currentIteration := 0
+
+	for i := 0; i < len(world.Seeds); i += 2 {
+		initialSeed := world.Seeds[i]
+		length := world.Seeds[i+1]
+
+		for seed := initialSeed; seed < initialSeed+length; seed++ {
+			location := findLocationForSeed(seed, world.Mappings)
+
+			lowest = utils.Min(lowest, location)
+			currentIteration++
+
+			metric.TickTotal(500_000, totalCount)
+		}
+	}
+
+	return lowest
 }
 
 func parseMapper(str string) Mapper {

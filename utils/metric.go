@@ -35,6 +35,15 @@ func (m *Metric) TickCurrent(period, v int) {
 	}
 }
 
+func (m *Metric) TickTotal(period, total int) {
+	m.Ticks++
+
+	if m.Enabled && m.Ticks%period == 0 {
+		percent := float64(100*m.Ticks) / float64(total)
+		fmt.Printf("%v - tick #%d, %d / %d (%.4f)\n", m.Name, m.Ticks, m.Ticks, total, percent)
+	}
+}
+
 func (m *Metric) TickMax(period, v int) {
 	m.Ticks++
 	m.Max = Max(m.Max, v)
