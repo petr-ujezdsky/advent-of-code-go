@@ -67,3 +67,13 @@ func Test_02(t *testing.T) {
 	result := DoWithInputPart02(world)
 	assert.Equal(t, 34039469, result)
 }
+
+func Test_02_parallel(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	world := ParseInput(reader)
+
+	result := DoWithInputPart02Parallel(world)
+	assert.Equal(t, 34039469, result)
+}

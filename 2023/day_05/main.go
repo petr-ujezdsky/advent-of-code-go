@@ -8,6 +8,7 @@ import (
 	"io"
 	"math"
 	"strings"
+	"sync"
 )
 
 type Mapper = func(source int) (int, bool)
@@ -66,7 +67,6 @@ func DoWithInputPart02(world World) int {
 	metric.Enable()
 
 	lowest := math.MaxInt
-	currentIteration := 0
 
 	for i := 0; i < len(world.Seeds); i += 2 {
 		initialSeed := world.Seeds[i]
@@ -76,13 +76,57 @@ func DoWithInputPart02(world World) int {
 			location := findLocationForSeed(seed, world.Mappings)
 
 			lowest = utils.Min(lowest, location)
-			currentIteration++
 
 			metric.TickTotal(500_000, totalCount)
 		}
 	}
 
 	return lowest
+}
+
+func DoWithInputPart02Parallel(world World) int {
+	totalCount := 0
+	for i := 0; i < len(world.Seeds); i += 2 {
+		totalCount += world.Seeds[i+1]
+	}
+
+	fmt.Printf("Total iterations to go through: %v\n", totalCount)
+	metric.Enable()
+
+	var wg sync.WaitGroup
+
+	locationChan := make(chan int)
+
+	for i := 0; i < len(world.Seeds); i += 2 {
+		initialSeed := world.Seeds[i]
+		length := world.Seeds[i+1]
+
+		wg.Add(1)
+		go findLocationForSeedRange(initialSeed, length, world.Mappings, locationChan, wg)
+	}
+
+	go func() {
+		wg.Wait()
+		close(locationChan)
+	}()
+
+	lowest := math.MaxInt
+
+	for location := range locationChan {
+		lowest = utils.Min(lowest, location)
+
+		metric.TickTotal(500_000, totalCount)
+	}
+
+	return lowest
+}
+
+func findLocationForSeedRange(initialSeed, length int, mappings []Mapping, location chan int, wg sync.WaitGroup) {
+	for seed := initialSeed; seed < initialSeed+length; seed++ {
+		location <- findLocationForSeed(seed, mappings)
+	}
+
+	wg.Done()
 }
 
 func parseMapper(str string) Mapper {
