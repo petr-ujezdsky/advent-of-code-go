@@ -102,7 +102,7 @@ func DoWithInputPart02Parallel(world World) int {
 		length := world.Seeds[i+1]
 
 		wg.Add(1)
-		go findLocationForSeedRange(initialSeed, length, world.Mappings, locationChan, wg)
+		go findLocationForSeedRange(initialSeed, length, world.Mappings, locationChan, &wg)
 	}
 
 	go func() {
@@ -114,18 +114,24 @@ func DoWithInputPart02Parallel(world World) int {
 
 	for location := range locationChan {
 		lowest = utils.Min(lowest, location)
-
-		metric.TickTotal(500_000, totalCount)
 	}
 
 	return lowest
 }
 
-func findLocationForSeedRange(initialSeed, length int, mappings []Mapping, location chan int, wg sync.WaitGroup) {
+func findLocationForSeedRange(initialSeed, length int, mappings []Mapping, locationChan chan int, wg *sync.WaitGroup) {
+	lowest := math.MaxInt
+	metric := utils.NewMetric(fmt.Sprintf("Brute force for seed %d", initialSeed))
+	metric.Enable()
+
 	for seed := initialSeed; seed < initialSeed+length; seed++ {
-		location <- findLocationForSeed(seed, mappings)
+		location := findLocationForSeed(seed, mappings)
+		lowest = utils.Min(lowest, location)
+
+		metric.TickTotal(5_000_000, length)
 	}
 
+	locationChan <- lowest
 	wg.Done()
 }
 
