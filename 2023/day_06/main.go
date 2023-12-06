@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"io"
+	"strings"
 )
 
 type Round struct {
@@ -13,7 +14,8 @@ type Round struct {
 }
 
 type World struct {
-	Rounds []Round
+	Rounds    []Round
+	LongRound Round
 }
 
 func DoWithInputPart01(world World) int {
@@ -46,9 +48,11 @@ func ParseInput(r io.Reader) World {
 
 	scanner.Scan()
 	times := utils.ExtractInts(scanner.Text(), false)
+	longTime := utils.ExtractInts(strings.Replace(scanner.Text(), " ", "", -1), false)[0]
 
 	scanner.Scan()
 	distances := utils.ExtractInts(scanner.Text(), false)
+	longDistance := utils.ExtractInts(strings.Replace(scanner.Text(), " ", "", -1), false)[0]
 
 	rounds := make([]Round, len(times))
 	for i, time := range times {
@@ -60,5 +64,13 @@ func ParseInput(r io.Reader) World {
 		}
 	}
 
-	return World{Rounds: rounds}
+	longRound := Round{
+		Time:     longTime,
+		Distance: longDistance,
+	}
+
+	return World{
+		Rounds:    rounds,
+		LongRound: longRound,
+	}
 }
