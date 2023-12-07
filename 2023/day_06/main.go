@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"io"
+	"math"
 	"strings"
 )
 
@@ -39,7 +40,24 @@ func DoWithInputPart01(world World) int {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	round := world.LongRound
+
+	// solve quadratic equation
+	// -T_t*T_t + T*T_t > D_r
+	// where
+	// T	total race time
+	// T_t  duration for which the button is pushed
+	// D_r  record distance
+	timePushedLowF := (float64(-round.Time) + math.Sqrt(float64(round.Time*round.Time-4*round.Distance))) / (-2)
+	timePushedHighF := (float64(-round.Time) - math.Sqrt(float64(round.Time*round.Time-4*round.Distance))) / (-2)
+
+	// round up
+	timePushedLowI := int(math.Round(timePushedLowF + 0.5))
+
+	// round down
+	timePushedHighI := int(math.Round(timePushedHighF - 0.5))
+
+	return timePushedHighI - timePushedLowI + 1
 }
 
 func ParseInput(r io.Reader) World {
