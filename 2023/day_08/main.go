@@ -4,6 +4,7 @@ import (
 	"bufio"
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
 	"regexp"
 )
@@ -44,7 +45,32 @@ func DoWithInputPart01(world World) int {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	i := 0
+
+	currents := slices.Clone(world.StartingMaps)
+
+	for !isEnd(currents) {
+		dir := world.Directions[utils.ModFloor(i, len(world.Directions))]
+
+		for j := 0; j < len(currents); j++ {
+			next := currents[j].Next[dir]
+			currents[j] = next
+		}
+
+		i++
+	}
+
+	return i
+}
+
+func isEnd(maps []*MapDef) bool {
+	for _, mapDef := range maps {
+		if !mapDef.End {
+			return false
+		}
+	}
+
+	return true
 }
 
 func getOrCreateMapDef(name string, maps map[string]*MapDef) *MapDef {
@@ -105,7 +131,8 @@ func ParseInput(r io.Reader) World {
 	}
 
 	return World{
-		Directions: directions,
-		Maps:       maps,
+		Directions:   directions,
+		Maps:         maps,
+		StartingMaps: startingMaps,
 	}
 }

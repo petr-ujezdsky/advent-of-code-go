@@ -61,7 +61,7 @@ func Test_01(t *testing.T) {
 }
 
 func Test_02_example(t *testing.T) {
-	reader, err := os.Open("data-00-example.txt")
+	reader, err := os.Open("data-01-example.txt")
 	assert.Nil(t, err)
 
 	world := ParseInput(reader)
