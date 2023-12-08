@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-var cardStrength = map[rune]int{
+var cardStrengthPart1 = map[rune]int{
 	'A': 12,
 	'K': 11,
 	'Q': 10,
@@ -24,6 +24,22 @@ var cardStrength = map[rune]int{
 	'4': 2,
 	'3': 1,
 	'2': 0,
+}
+
+var cardStrengthPart2 = map[rune]int{
+	'A': 12,
+	'K': 11,
+	'Q': 10,
+	'T': 9,
+	'9': 8,
+	'8': 7,
+	'7': 6,
+	'6': 5,
+	'5': 4,
+	'4': 3,
+	'3': 2,
+	'2': 1,
+	'J': 0,
 }
 
 type HandType int
@@ -42,9 +58,10 @@ type Hand struct {
 	Cards string
 	Bid   int
 
-	CompareString string
-	CardCounts    map[rune]int
-	HandType      HandType
+	CompareStringPart1 string
+	CompareStringPart2 string
+	CardCounts         map[rune]int
+	HandType           HandType
 }
 
 type World struct {
@@ -59,8 +76,8 @@ type World struct {
 //	for i, leftCard := range left.Cards {
 //		rightCard := rune(right.Cards[i])
 //
-//		leftStrength := cardStrength[leftCard]
-//		rightStrength := cardStrength[rightCard]
+//		leftStrength := cardStrengthPart1[leftCard]
+//		rightStrength := cardStrengthPart1[rightCard]
 //
 //		if leftStrength != rightStrength {
 //			return leftStrength < rightStrength
@@ -74,7 +91,7 @@ func DoWithInputPart01(world World) int {
 	// sort hands
 	sort.Slice(world.Hands, func(i, j int) bool {
 		//return byHandTypeThenByCardsStrength(world.Hands[i], world.Hands[j])
-		return world.Hands[i].CompareString < world.Hands[j].CompareString
+		return world.Hands[i].CompareStringPart1 < world.Hands[j].CompareStringPart1
 	})
 
 	sum := 0
@@ -90,7 +107,22 @@ func DoWithInputPart01(world World) int {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	// sort hands
+	sort.Slice(world.Hands, func(i, j int) bool {
+		//return byHandTypeThenByCardsStrength(world.Hands[i], world.Hands[j])
+		return world.Hands[i].CompareStringPart2 < world.Hands[j].CompareStringPart2
+	})
+
+	sum := 0
+	for i, hand := range world.Hands {
+		// calculate rank
+		rank := i + 1
+
+		// aggregate total winning
+		sum += rank * hand.Bid
+	}
+
+	return sum
 }
 
 func getHandType(cardCounts map[rune]int) HandType {
@@ -120,7 +152,40 @@ func getHandType(cardCounts map[rune]int) HandType {
 	panic("Could not determine hand type")
 }
 
-func createCompareString(cards string, handType HandType) string {
+func calculateHandType(cards string) HandType {
+	cardCounts := make(map[rune]int)
+
+	for _, card := range cards {
+		cardCounts[card]++
+	}
+
+	return getHandType(cardCounts)
+}
+
+func findHandTypeJoker(cards string) HandType {
+	if !strings.ContainsRune(cards, 'J') {
+		return calculateHandType(cards)
+	}
+
+	best := HighCard
+
+	for card := range cardStrengthPart2 {
+		if card == 'J' {
+			continue
+		}
+
+		replaced := strings.Replace(cards, "J", string(card), 1)
+		handType := findHandTypeJoker(replaced)
+
+		if handType > best {
+			best = handType
+		}
+	}
+
+	return best
+}
+
+func createCompareString(cards string, handType HandType, cardStrength map[rune]int) string {
 	var sb strings.Builder
 
 	sb.WriteString(strconv.Itoa(int(handType)))
@@ -148,14 +213,18 @@ func ParseInput(r io.Reader) World {
 		}
 
 		handType := getHandType(cardCounts)
-		compareString := createCompareString(cards, handType)
+		compareStringPart1 := createCompareString(cards, handType, cardStrengthPart1)
+
+		handTypeJoker := findHandTypeJoker(cards)
+		compareStringPart2 := createCompareString(cards, handTypeJoker, cardStrengthPart2)
 
 		return &Hand{
-			Cards:         cards,
-			Bid:           bid,
-			CardCounts:    cardCounts,
-			HandType:      handType,
-			CompareString: compareString,
+			Cards:              cards,
+			Bid:                bid,
+			CardCounts:         cardCounts,
+			HandType:           handType,
+			CompareStringPart1: compareStringPart1,
+			CompareStringPart2: compareStringPart2,
 		}
 	}
 
