@@ -94,34 +94,27 @@ func DoWithInputPart02(world World) int {
 }
 
 func getHandType(cardCounts map[rune]int) HandType {
-	if len(cardCounts) == 5 {
-		return HighCard
-	}
-
-	if len(cardCounts) == 4 {
-		return OnePair
-	}
-
-	if len(cardCounts) == 3 {
-		for _, count := range cardCounts {
-			if count == 3 {
-				return ThreeOfAKind
-			}
-		}
-		return TwoPair
-	}
-
-	if len(cardCounts) == 2 {
+	switch len(cardCounts) {
+	case 1:
+		return FiveOfAKind
+	case 2:
 		for _, count := range cardCounts {
 			if count == 4 {
 				return FourOfAKind
 			}
 		}
 		return FullHouse
-	}
-
-	if len(cardCounts) == 1 {
-		return FiveOfAKind
+	case 3:
+		for _, count := range cardCounts {
+			if count == 3 {
+				return ThreeOfAKind
+			}
+		}
+		return TwoPair
+	case 4:
+		return OnePair
+	case 5:
+		return HighCard
 	}
 
 	panic("Could not determine hand type")
