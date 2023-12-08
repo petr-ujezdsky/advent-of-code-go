@@ -59,3 +59,26 @@ func CombinationsWithRepetition(n, k int) int {
 
 	return factorial[n+k-1] / factorial[k] / factorial[n-1]
 }
+
+// GCD greatest common divisor (GCD) via Euclidean algorithm
+// see https://siongui.github.io/2017/06/03/go-find-lcm-by-gcd/
+func GCD(a, b int) int {
+	for b != 0 {
+		t := b
+		b = a % b
+		a = t
+	}
+	return a
+}
+
+// LCM find Least Common Multiple (LCM) via GCD
+// see https://siongui.github.io/2017/06/03/go-find-lcm-by-gcd/
+func LCM(a, b int, integers ...int) int {
+	result := a * b / GCD(a, b)
+
+	for i := 0; i < len(integers); i++ {
+		result = LCM(result, integers[i])
+	}
+
+	return result
+}

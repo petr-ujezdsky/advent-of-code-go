@@ -5,9 +5,9 @@ import (
 	_ "embed"
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/combi"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
-	"math"
 	"regexp"
 )
 
@@ -47,47 +47,25 @@ func DoWithInputPart01(world World) int {
 }
 
 func DoWithInputPart02(world World) int {
-	minLength := math.MaxInt
-	minLengthFrom := -1
-
-	fromLengths := make([][2]int, len(world.StartingMaps))
-
-	// find smallest period
+	// find periods
+	periods := make([]int, len(world.StartingMaps))
 	for i, startingMap := range world.StartingMaps {
-		from, length := findLoop(startingMap, world.Directions)
-		fmt.Printf("%s: loop from %d, length %d\n", startingMap.Name, from, length)
+		from, period := findLoop(startingMap, world.Directions)
+		periods[i] = period
 
-		fromLengths[i] = [2]int{from, length}
-
-		if length < minLength {
-			minLength = length
-			minLengthFrom = from
-		}
+		fmt.Printf("%s: loop from %d, length %d\n", startingMap.Name, from, period)
 	}
 
 	// find common ends
-	position := minLengthFrom
-	for {
-		end := true
+	// periods are same as position of first end -> we can use LCM directly (no different starting distances)
+	// XCA: loop from 16579, length 16579
+	// GPA: loop from 18827, length 18827
+	// AAA: loop from 19951, length 19951
+	// LFA: loop from 12083, length 12083
+	// PQA: loop from 22199, length 22199
+	// HMA: loop from 17141, length 17141
 
-		for _, fromLength := range fromLengths {
-			from := fromLength[0]
-			length := fromLength[1]
-
-			if (position-from)%length != 0 {
-				end = false
-				break
-			}
-		}
-
-		if end {
-			break
-		}
-
-		position += minLength
-	}
-
-	return position
+	return combi.LCM(periods[0], periods[1], periods[2:]...)
 }
 
 func findLoop(mapDef *MapDef, directions []Direction2) (int, int) {
