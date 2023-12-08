@@ -38,10 +38,11 @@ type World struct {
 
 func DoWithInputPart01(world World) int {
 	stepper := &Stepper{
-		Directions: world.Directions,
-		Position:   0,
-		Current:    world.Maps["AAA"],
-		LastEnd:    nil,
+		Directions:      world.Directions,
+		Position:        0,
+		Current:         world.Maps["AAA"],
+		LastEndMap:      nil,
+		LastEndPosition: -1,
 	}
 
 	for stepper.Current.Name != "ZZZ" {
@@ -55,8 +56,9 @@ type Stepper struct {
 	Directions []Direction2
 	Position   int
 
-	Current *MapDef
-	LastEnd *MapDef
+	Current         *MapDef
+	LastEndMap      *MapDef
+	LastEndPosition int
 }
 
 func (s *Stepper) Move(steps int) {
@@ -67,6 +69,22 @@ func (s *Stepper) Move(steps int) {
 		next := s.Current.Next[dir]
 		s.Current = next
 		s.Position++
+
+		// fill shortcut
+		if next.End {
+			if s.LastEndMap != nil {
+				shortcut := Shortcut{
+					EndMap: next,
+					Steps:  s.Position - s.LastEndPosition,
+				}
+
+				lastEndIndex := utils.ModFloor(s.LastEndPosition, len(s.Directions))
+				s.LastEndMap.ShortcutToEnd[lastEndIndex] = shortcut
+			}
+
+			s.LastEndMap = next
+			s.LastEndPosition = s.Position
+		}
 	}
 }
 
