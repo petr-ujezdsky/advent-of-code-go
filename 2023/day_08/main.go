@@ -4,8 +4,8 @@ import (
 	"bufio"
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
-	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
+	"math"
 	"regexp"
 )
 
@@ -88,56 +88,52 @@ func (s *Stepper) Move(steps int) {
 	}
 }
 
-func DoWithInputPart02(world World) int {
-	i := 0
+func (s *Stepper) MaxStepSize() int {
+	dirIndex := utils.ModFloor(s.Position, len(s.Directions))
 
-	//histories := make([][]*MapDef, len(world.StartingMaps))
-	lastEnds := make([]*Shortcut, len(world.StartingMaps))
-	currents := slices.Clone(world.StartingMaps)
+	if shortcut, ok := s.Current.ShortcutToEnd[dirIndex]; ok {
+		return shortcut.Steps
+	}
+
+	return 1
+}
+
+func DoWithInputPart02(world World) int {
+	steppers := make([]*Stepper, len(world.StartingMaps))
+
+	for i, startingMap := range world.StartingMaps {
+		steppers[i] = &Stepper{
+			Directions:      world.Directions,
+			Position:        0,
+			Current:         startingMap,
+			LastEndMap:      nil,
+			LastEndPosition: -1,
+		}
+	}
+
 	end := false
 
 	for !end {
-		dirIndex := utils.ModFloor(i, len(world.Directions))
-		dir := world.Directions[dirIndex]
 		end = true
 
-		for j := 0; j < len(currents); j++ {
-			// store current into history
-			//histories[j] = append(histories[j], currents[j])
+		// determine max possible step
+		minSteps := math.MaxInt
+		for _, stepper := range steppers {
+			minSteps = utils.Min(minSteps, stepper.MaxStepSize())
+		}
 
-			next := currents[j].Next[dir]
-			currents[j] = next
+		// move by min steps
+		for _, stepper := range steppers {
+			stepper.Move(minSteps)
 
-			if next.End {
-				// fill shortcuts
-				//for ih, mapHistory := range histories[j] {
-				//	//steps := i + 1 - ih
-				//	steps := len(histories[j]) - ih
-				//	Shortcut{
-				//		EndMap: next,
-				//		Steps:  0,
-				//	}
-				//	mapHistory.ShortcutToEnd[]
-				//}
-
-				// fill shortcut
-				lastEnd := lastEnds[j]
-				if lastEnd == nil {
-					lastEnds[j] = &Shortcut{
-						EndMap: next,
-						Steps:  i + 1,
-					}
-				}
-			} else {
-				// not ending map -> must continue
+			// not ending map -> must continue
+			if !stepper.Current.End {
 				end = false
 			}
 		}
-
-		i++
 	}
 
-	return i
+	return steppers[0].Position
 }
 
 func countStepsToEnd(current *MapDef, directions []Direction2) int {
@@ -158,8 +154,9 @@ func getOrCreateMapDef(name string, maps map[string]*MapDef) *MapDef {
 
 	if !ok {
 		mapDef = &MapDef{
-			Name: name,
-			Next: [2]*MapDef{nil, nil},
+			Name:          name,
+			Next:          [2]*MapDef{nil, nil},
+			ShortcutToEnd: make(map[int]Shortcut),
 		}
 
 		maps[name] = mapDef
