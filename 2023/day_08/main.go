@@ -20,16 +20,10 @@ const (
 
 var regexMapDef = regexp.MustCompile(`(...) = \((...), (...)\)`)
 
-type Shortcut struct {
-	EndMap *MapDef
-	Steps  int
-}
-
 type MapDef struct {
-	Name          string
-	End           bool
-	Next          [2]*MapDef
-	ShortcutToEnd map[int]Shortcut
+	Name string
+	End  bool
+	Next [2]*MapDef
 }
 
 type World struct {
@@ -39,99 +33,17 @@ type World struct {
 }
 
 func DoWithInputPart01(world World) int {
-	stepper := &Stepper{
-		Directions:      world.Directions,
-		Position:        0,
-		Current:         world.Maps["AAA"],
-		LastEndMap:      nil,
-		LastEndPosition: -1,
-	}
+	i := 0
+	current := world.Maps["AAA"]
 
-	for stepper.Current.Name != "ZZZ" {
-		stepper.Move(1)
-	}
-
-	return stepper.Position
-}
-
-type Stepper struct {
-	Directions []Direction2
-	Position   int
-
-	Current         *MapDef
-	LastEndMap      *MapDef
-	LastEndPosition int
-}
-
-func (s *Stepper) Move(steps int) {
-	for i := 0; i < steps; i++ {
-		dirIndex := utils.ModFloor(s.Position, len(s.Directions))
-		dir := s.Directions[dirIndex]
-
-		next := s.Current.Next[dir]
-		s.Current = next
-		s.Position++
-
-		// fill shortcut
-		if next.End {
-			if s.LastEndMap != nil {
-				shortcut := Shortcut{
-					EndMap: next,
-					Steps:  s.Position - s.LastEndPosition,
-				}
-
-				lastEndIndex := utils.ModFloor(s.LastEndPosition, len(s.Directions))
-				s.LastEndMap.ShortcutToEnd[lastEndIndex] = shortcut
-			}
-
-			s.LastEndMap = next
-			s.LastEndPosition = s.Position
-		}
-	}
-}
-
-func FindLoop(mapDef *MapDef, directions []Direction2) (int, int) {
-	position := 0
-
-	visited := make(map[*MapDef][]int)
-
-	current := mapDef
-	lastEndPosition := -1
-	for {
-		if current.End {
-			lastEndPosition = position
-			//fmt.Printf("%s end @ %d\n", mapDef.Name, position)
-		}
-
-		dirIndex := utils.ModFloor(position, len(directions))
-		dir := directions[dirIndex]
-
-		visitedPositions, ok := visited[current]
-		if !ok {
-			visitedPositions = slices.Filled(-1, len(directions))
-			visited[current] = visitedPositions
-		}
-
-		if previousPosition := visitedPositions[dirIndex]; previousPosition != -1 {
-			return lastEndPosition, position - previousPosition
-		}
-
-		visitedPositions[dirIndex] = position
-
+	for current.Name != "ZZZ" {
+		dir := world.Directions[utils.ModFloor(i, len(world.Directions))]
 		next := current.Next[dir]
 		current = next
-		position++
-	}
-}
-
-func (s *Stepper) MaxStepSize() int {
-	dirIndex := utils.ModFloor(s.Position, len(s.Directions))
-
-	if shortcut, ok := s.Current.ShortcutToEnd[dirIndex]; ok {
-		return shortcut.Steps
+		i++
 	}
 
-	return 1
+	return i
 }
 
 func DoWithInputPart02(world World) int {
@@ -142,7 +54,7 @@ func DoWithInputPart02(world World) int {
 
 	// find smallest period
 	for i, startingMap := range world.StartingMaps {
-		from, length := FindLoop(startingMap, world.Directions)
+		from, length := findLoop(startingMap, world.Directions)
 		fmt.Printf("%s: loop from %d, length %d\n", startingMap.Name, from, length)
 
 		fromLengths[i] = [2]int{from, length}
@@ -178,17 +90,38 @@ func DoWithInputPart02(world World) int {
 	return position
 }
 
-func countStepsToEnd(current *MapDef, directions []Direction2) int {
-	i := 0
+func findLoop(mapDef *MapDef, directions []Direction2) (int, int) {
+	position := 0
 
-	for !current.End {
-		dir := directions[utils.ModFloor(i, len(directions))]
+	visited := make(map[*MapDef][]int)
+
+	current := mapDef
+	lastEndPosition := -1
+	for {
+		if current.End {
+			lastEndPosition = position
+			//fmt.Printf("%s end @ %d\n", mapDef.Name, position)
+		}
+
+		dirIndex := utils.ModFloor(position, len(directions))
+		dir := directions[dirIndex]
+
+		visitedPositions, ok := visited[current]
+		if !ok {
+			visitedPositions = slices.Filled(-1, len(directions))
+			visited[current] = visitedPositions
+		}
+
+		if previousPosition := visitedPositions[dirIndex]; previousPosition != -1 {
+			return lastEndPosition, position - previousPosition
+		}
+
+		visitedPositions[dirIndex] = position
+
 		next := current.Next[dir]
 		current = next
-		i++
+		position++
 	}
-
-	return i
 }
 
 func getOrCreateMapDef(name string, maps map[string]*MapDef) *MapDef {
@@ -196,9 +129,8 @@ func getOrCreateMapDef(name string, maps map[string]*MapDef) *MapDef {
 
 	if !ok {
 		mapDef = &MapDef{
-			Name:          name,
-			Next:          [2]*MapDef{nil, nil},
-			ShortcutToEnd: make(map[int]Shortcut),
+			Name: name,
+			Next: [2]*MapDef{nil, nil},
 		}
 
 		maps[name] = mapDef
