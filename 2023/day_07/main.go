@@ -68,29 +68,9 @@ type World struct {
 	Hands []*Hand
 }
 
-//func byHandTypeThenByCardsStrength(left, right *Hand) bool {
-//	if left.HandType != left.HandType {
-//		return left.HandType < left.HandType
-//	}
-//
-//	for i, leftCard := range left.Cards {
-//		rightCard := rune(right.Cards[i])
-//
-//		leftStrength := cardStrengthPart1[leftCard]
-//		rightStrength := cardStrengthPart1[rightCard]
-//
-//		if leftStrength != rightStrength {
-//			return leftStrength < rightStrength
-//		}
-//	}
-//
-//	panic("Hands are equal")
-//}
-
 func DoWithInputPart01(world World) int {
 	// sort hands
 	sort.Slice(world.Hands, func(i, j int) bool {
-		//return byHandTypeThenByCardsStrength(world.Hands[i], world.Hands[j])
 		return world.Hands[i].CompareStringPart1 < world.Hands[j].CompareStringPart1
 	})
 
@@ -109,7 +89,6 @@ func DoWithInputPart01(world World) int {
 func DoWithInputPart02(world World) int {
 	// sort hands
 	sort.Slice(world.Hands, func(i, j int) bool {
-		//return byHandTypeThenByCardsStrength(world.Hands[i], world.Hands[j])
 		return world.Hands[i].CompareStringPart2 < world.Hands[j].CompareStringPart2
 	})
 
