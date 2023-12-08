@@ -3,9 +3,10 @@ package main
 import (
 	"bufio"
 	_ "embed"
+	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
-	"math"
 	"regexp"
 )
 
@@ -88,6 +89,38 @@ func (s *Stepper) Move(steps int) {
 	}
 }
 
+func FindLoop(mapDef *MapDef, directions []Direction2) (int, int) {
+	position := 0
+
+	visited := make(map[*MapDef][]int)
+
+	current := mapDef
+	for {
+		if current.End {
+			fmt.Printf("%s end @ %d\n", mapDef.Name, position)
+		}
+
+		dirIndex := utils.ModFloor(position, len(directions))
+		dir := directions[dirIndex]
+
+		visitedPositions, ok := visited[current]
+		if !ok {
+			visitedPositions = slices.Filled(-1, len(directions))
+			visited[current] = visitedPositions
+		}
+
+		if previousPosition := visitedPositions[dirIndex]; previousPosition != -1 {
+			return previousPosition, position - previousPosition
+		}
+
+		visitedPositions[dirIndex] = position
+
+		next := current.Next[dir]
+		current = next
+		position++
+	}
+}
+
 func (s *Stepper) MaxStepSize() int {
 	dirIndex := utils.ModFloor(s.Position, len(s.Directions))
 
@@ -99,41 +132,15 @@ func (s *Stepper) MaxStepSize() int {
 }
 
 func DoWithInputPart02(world World) int {
-	steppers := make([]*Stepper, len(world.StartingMaps))
+	maxFrom := -1
+	for _, startingMap := range world.StartingMaps {
+		from, length := FindLoop(startingMap, world.Directions)
+		fmt.Printf("%s: loop from %d, length %d\n", startingMap.Name, from, length)
 
-	for i, startingMap := range world.StartingMaps {
-		steppers[i] = &Stepper{
-			Directions:      world.Directions,
-			Position:        0,
-			Current:         startingMap,
-			LastEndMap:      nil,
-			LastEndPosition: -1,
-		}
+		maxFrom = utils.Max(maxFrom, from)
 	}
 
-	end := false
-
-	for !end {
-		end = true
-
-		// determine max possible step
-		minSteps := math.MaxInt
-		for _, stepper := range steppers {
-			minSteps = utils.Min(minSteps, stepper.MaxStepSize())
-		}
-
-		// move by min steps
-		for _, stepper := range steppers {
-			stepper.Move(minSteps)
-
-			// not ending map -> must continue
-			if !stepper.Current.End {
-				end = false
-			}
-		}
-	}
-
-	return steppers[0].Position
+	return 0
 }
 
 func countStepsToEnd(current *MapDef, directions []Direction2) int {
