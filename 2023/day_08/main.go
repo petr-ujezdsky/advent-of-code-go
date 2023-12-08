@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	_ "embed"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"io"
 	"regexp"
 )
@@ -27,7 +28,17 @@ type World struct {
 }
 
 func DoWithInputPart01(world World) int {
-	return 0
+	i := 0
+	current := world.Maps["AAA"]
+
+	for current.Name != "ZZZ" {
+		dir := world.Directions[utils.ModFloor(i, len(world.Directions))]
+		next := current.Next[dir]
+		current = next
+		i++
+	}
+
+	return i
 }
 
 func DoWithInputPart02(world World) int {

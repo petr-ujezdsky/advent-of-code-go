@@ -37,6 +37,16 @@ func Test_01_example(t *testing.T) {
 	world := ParseInput(reader)
 
 	result := DoWithInputPart01(world)
+	assert.Equal(t, 2, result)
+}
+
+func Test_01_example_02(t *testing.T) {
+	reader, err := os.Open("data-00-example-02.txt")
+	assert.Nil(t, err)
+
+	world := ParseInput(reader)
+
+	result := DoWithInputPart01(world)
 	assert.Equal(t, 6, result)
 }
 
@@ -47,7 +57,7 @@ func Test_01(t *testing.T) {
 	world := ParseInput(reader)
 
 	result := DoWithInputPart01(world)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 19951, result)
 }
 
 func Test_02_example(t *testing.T) {
