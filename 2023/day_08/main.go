@@ -95,9 +95,11 @@ func FindLoop(mapDef *MapDef, directions []Direction2) (int, int) {
 	visited := make(map[*MapDef][]int)
 
 	current := mapDef
+	lastEndPosition := -1
 	for {
 		if current.End {
-			fmt.Printf("%s end @ %d\n", mapDef.Name, position)
+			lastEndPosition = position
+			//fmt.Printf("%s end @ %d\n", mapDef.Name, position)
 		}
 
 		dirIndex := utils.ModFloor(position, len(directions))
@@ -110,7 +112,7 @@ func FindLoop(mapDef *MapDef, directions []Direction2) (int, int) {
 		}
 
 		if previousPosition := visitedPositions[dirIndex]; previousPosition != -1 {
-			return previousPosition, position - previousPosition
+			return lastEndPosition, position - previousPosition
 		}
 
 		visitedPositions[dirIndex] = position
