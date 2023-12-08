@@ -66,8 +66,10 @@ func Test_02_example(t *testing.T) {
 
 	world := ParseInput(reader)
 
+	assert.Equal(t, 2, len(world.StartingMaps))
+
 	result := DoWithInputPart02(world)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 6, result)
 }
 
 func Test_02(t *testing.T) {

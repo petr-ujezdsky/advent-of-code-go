@@ -19,12 +19,14 @@ var regexMapDef = regexp.MustCompile(`(...) = \((...), (...)\)`)
 
 type MapDef struct {
 	Name string
+	End  bool
 	Next [2]*MapDef
 }
 
 type World struct {
-	Directions []Direction2
-	Maps       map[string]*MapDef
+	Directions   []Direction2
+	Maps         map[string]*MapDef
+	StartingMaps []*MapDef
 }
 
 func DoWithInputPart01(world World) int {
@@ -83,6 +85,7 @@ func ParseInput(r io.Reader) World {
 	scanner.Scan()
 
 	maps := make(map[string]*MapDef)
+	var startingMaps []*MapDef
 	for scanner.Scan() {
 		parts := regexMapDef.FindStringSubmatch(scanner.Text())
 
@@ -94,6 +97,11 @@ func ParseInput(r io.Reader) World {
 		this := getOrCreateMapDef(name, maps)
 		this.Next[Left] = left
 		this.Next[Right] = right
+		this.End = name[2] == 'Z'
+
+		if name[2] == 'A' {
+			startingMaps = append(startingMaps, this)
+		}
 	}
 
 	return World{
