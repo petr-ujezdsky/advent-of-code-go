@@ -7,6 +7,7 @@ import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
+	"math"
 	"regexp"
 )
 
@@ -134,15 +135,47 @@ func (s *Stepper) MaxStepSize() int {
 }
 
 func DoWithInputPart02(world World) int {
-	maxFrom := -1
-	for _, startingMap := range world.StartingMaps {
+	minLength := math.MaxInt
+	minLengthFrom := -1
+
+	fromLengths := make([][2]int, len(world.StartingMaps))
+
+	// find smallest period
+	for i, startingMap := range world.StartingMaps {
 		from, length := FindLoop(startingMap, world.Directions)
 		fmt.Printf("%s: loop from %d, length %d\n", startingMap.Name, from, length)
 
-		maxFrom = utils.Max(maxFrom, from)
+		fromLengths[i] = [2]int{from, length}
+
+		if length < minLength {
+			minLength = length
+			minLengthFrom = from
+		}
 	}
 
-	return 0
+	// find common ends
+	position := minLengthFrom
+	for {
+		end := true
+
+		for _, fromLength := range fromLengths {
+			from := fromLength[0]
+			length := fromLength[1]
+
+			if (position-from)%length != 0 {
+				end = false
+				break
+			}
+		}
+
+		if end {
+			break
+		}
+
+		position += minLength
+	}
+
+	return position
 }
 
 func countStepsToEnd(current *MapDef, directions []Direction2) int {
