@@ -25,16 +25,12 @@ func DoWithInputPart01(world World) int {
 }
 
 func ExtrapolateLeftRight(values []int) (int, int) {
-	return extrapolateInner(values, 0)
-}
-
-func extrapolateInner(values []int, depth int) (int, int) {
 	derivative, allZeros := derive(values)
 	if allZeros {
 		return values[0], values[len(values)-1]
 	}
 
-	left, right := extrapolateInner(derivative, depth+1)
+	left, right := ExtrapolateLeftRight(derivative)
 	return values[0] - left, values[len(values)-1] + right
 }
 
