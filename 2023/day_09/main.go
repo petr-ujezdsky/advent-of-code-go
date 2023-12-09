@@ -17,25 +17,25 @@ func DoWithInputPart01(world World) int {
 	sum := 0
 
 	for _, history := range world.Histories {
-		nextValue := Extrapolate(history)
-		sum += nextValue
+		_, right := ExtrapolateLeftRight(history)
+		sum += right
 	}
 
 	return sum
 }
 
-func Extrapolate(values []int) int {
+func ExtrapolateLeftRight(values []int) (int, int) {
 	return extrapolateInner(values, 0)
 }
 
-func extrapolateInner(values []int, depth int) int {
+func extrapolateInner(values []int, depth int) (int, int) {
 	derivative, allZeros := derive(values)
 	if allZeros {
-		return values[len(values)-1]
+		return values[0], values[len(values)-1]
 	}
 
-	added := extrapolateInner(derivative, depth+1)
-	return values[len(values)-1] + added
+	left, right := extrapolateInner(derivative, depth+1)
+	return values[0] - left, values[len(values)-1] + right
 }
 
 func derive(values []int) ([]int, bool) {
@@ -55,7 +55,14 @@ func derive(values []int) ([]int, bool) {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	sum := 0
+
+	for _, history := range world.Histories {
+		left, _ := ExtrapolateLeftRight(history)
+		sum += left
+	}
+
+	return sum
 }
 
 func ParseInput(r io.Reader) World {
