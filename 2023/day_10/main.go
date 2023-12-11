@@ -89,7 +89,7 @@ func DoWithInputPart02(world World) int {
 func areaString(pipes matrix.Matrix[*Pipe], area map[utils.Vector2i]struct{}) string {
 	mPrint := pipes.Clone()
 
-	for left, _ := range area {
+	for left := range area {
 		mPrint.SetVSafe(left, &Pipe{Char: 'x'})
 	}
 
@@ -135,7 +135,7 @@ func walkPath(world World, dir utils.Direction4) (int, map[utils.Vector2i]struct
 
 		if current == world.Start {
 			// remove path from lefts/rights
-			for pathPos, _ := range path {
+			for pathPos := range path {
 				delete(lefts, pathPos)
 				delete(rights, pathPos)
 			}
