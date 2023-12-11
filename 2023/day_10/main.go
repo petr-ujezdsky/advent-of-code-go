@@ -113,15 +113,11 @@ func walkPath(world World, dir utils.Direction4) (int, map[utils.Vector2i]struct
 		// check only straight lines - simplest
 		if current.Char == '|' || current.Char == '-' {
 			// on left
-			leftStep := dir.Rotate(-1).ToStep()
-			leftStep.Y *= -1
-			leftPos := pos.Add(leftStep)
+			leftPos := pos.Add(dir.Rotate(-1).ToStep().InvY())
 			lefts[leftPos] = struct{}{}
 
 			// on right
-			rightStep := dir.Rotate(1).ToStep()
-			rightStep.Y *= -1
-			rightPos := pos.Add(rightStep)
+			rightPos := pos.Add(dir.Rotate(1).ToStep().InvY())
 			rights[rightPos] = struct{}{}
 		}
 
