@@ -116,17 +116,13 @@ func walkPath(world World, dir utils.Direction4) (int, map[utils.Vector2i]struct
 			leftStep := dir.Rotate(-1).ToStep()
 			leftStep.Y *= -1
 			leftPos := pos.Add(leftStep)
-			if _, ok := world.Pipes.GetVSafe(leftPos); ok {
-				lefts[leftPos] = struct{}{}
-			}
+			lefts[leftPos] = struct{}{}
 
 			// on right
 			rightStep := dir.Rotate(1).ToStep()
 			rightStep.Y *= -1
 			rightPos := pos.Add(rightStep)
-			if _, ok := world.Pipes.GetVSafe(rightPos); ok {
-				rights[rightPos] = struct{}{}
-			}
+			rights[rightPos] = struct{}{}
 		}
 
 		step := dir.ToStep()
