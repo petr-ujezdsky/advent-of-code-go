@@ -67,7 +67,121 @@ func walk(world World, dir utils.Direction4) (int, bool) {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	for dir := 0; dir < 4; dir++ {
+		if _, path, lefts, rights, ok := walkPath(world, utils.Direction4(dir)); ok {
+			if area, ok := walkAreaTiles(path, lefts, world); ok {
+				return area
+			}
+
+			if area, ok := walkAreaTiles(path, rights, world); ok {
+				return area
+			}
+
+			panic("Found loop but no area")
+		}
+	}
+	panic("No area found")
+}
+
+func walkPath(world World, dir utils.Direction4) (int, map[utils.Vector2i]struct{}, map[utils.Vector2i]struct{}, map[utils.Vector2i]struct{}, bool) {
+	current, ok := world.Start, true
+	pos := world.StartPos
+	steps := 0
+	path := make(map[utils.Vector2i]struct{})
+	lefts := make(map[utils.Vector2i]struct{})
+	rights := make(map[utils.Vector2i]struct{})
+
+	for {
+		// on path
+		path[pos] = struct{}{}
+
+		// check only straight lines - simplest
+		if current.Char == '|' || current.Char == '-' {
+			// on left
+			leftPos := pos.Add(dir.Rotate(-1).ToStep())
+			if _, ok := world.Pipes.GetVSafe(leftPos); ok {
+				lefts[leftPos] = struct{}{}
+			}
+
+			// on right
+			rightPos := pos.Add(dir.Rotate(1).ToStep())
+			if _, ok := world.Pipes.GetVSafe(rightPos); ok {
+				rights[rightPos] = struct{}{}
+			}
+		}
+
+		step := dir.ToStep()
+		step.Y = -step.Y
+
+		pos = pos.Add(step)
+		steps++
+
+		current, ok = world.Pipes.GetVSafe(pos)
+		if !ok {
+			// out of bounds
+			return -1, nil, nil, nil, false
+		}
+
+		if current == world.Start {
+			// remove path from lefts/rights
+			for pathPos, _ := range path {
+				delete(lefts, pathPos)
+				delete(rights, pathPos)
+			}
+
+			return steps, path, lefts, rights, true
+		}
+
+		dir = current.Next2[dir.Rotate(2)]
+		if dir == -1 {
+			// pipe does not continue
+			return 0, nil, nil, nil, false
+		}
+
+	}
+}
+
+func walkAreaTiles(path, area map[utils.Vector2i]struct{}, world World) (int, bool) {
+	visited := make(map[utils.Vector2i]struct{})
+
+	for areaTile := range area {
+		if !walkAreaTile(areaTile, path, visited, world) {
+			return 0, false
+		}
+	}
+
+	return len(visited), true
+}
+
+func walkAreaTile(current utils.Vector2i, path, visited map[utils.Vector2i]struct{}, world World) bool {
+	// stepped outside of world -> end totally - we are outside the loop
+	if _, ok := world.Pipes.GetVSafe(current); !ok {
+		return false
+	}
+
+	// stepped on path -> end
+	if _, ok := path[current]; ok {
+		return true
+	}
+
+	// stepped on already visited -> end
+	if _, ok := visited[current]; ok {
+		return true
+	}
+
+	// looks OK, add to visited
+	visited[current] = struct{}{}
+
+	// step on all directions
+	for i := 0; i < 4; i++ {
+		next := current.Add(utils.Direction4(i).ToStep())
+		if !walkAreaTile(next, path, visited, world) {
+			return false
+		}
+	}
+
+	// all inspected, continue
+	return true
 }
 
 func ParseInput(r io.Reader) World {
