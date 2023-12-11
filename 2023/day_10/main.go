@@ -145,16 +145,6 @@ func walkPath(world World, dir utils.Direction4) (int, map[utils.Vector2i]struct
 			}
 		}
 
-		//if current.Char == '|' || current.Char == '-' {
-		//	// on left
-		//	leftPos := pos.Add(dir.Rotate(-1).ToStep().InvY())
-		//	lefts[leftPos] = struct{}{}
-		//
-		//	// on right
-		//	rightPos := pos.Add(dir.Rotate(1).ToStep().InvY())
-		//	rights[rightPos] = struct{}{}
-		//}
-
 		step := dir.ToStep()
 		step.Y = -step.Y
 
@@ -254,9 +244,6 @@ func ParseInput(r io.Reader) World {
 
 			switch pipe.Char {
 			case '|':
-				//pipe.Next[utils.Down] = pipes.Columns[x][y-1]
-				//pipe.Next[utils.Up] = pipes.Columns[x][y+1]
-
 				pipe.Next3[utils.Up] = &PipeOutput{
 					OutputDirection: utils.Up,
 					Left2:           []utils.Direction8{utils.West},
@@ -268,28 +255,7 @@ func ParseInput(r io.Reader) World {
 					Left2:           []utils.Direction8{utils.East},
 					Right2:          []utils.Direction8{utils.West},
 				}
-				//
-				//pipe.Lefts[utils.Up] = []utils.Vector2i{
-				//	pos.Add(utils.Left.ToStep()),
-				//}
-				//
-				//pipe.Lefts[utils.Down] = []utils.Vector2i{
-				//	pos.Add(utils.Right.ToStep()),
-				//}
-				//
-				//pipe.Rights[utils.Up] = []utils.Vector2i{
-				//	pos.Add(utils.Right.ToStep()),
-				//}
-				//
-				//pipe.Rights[utils.Down] = []utils.Vector2i{
-				//	pos.Add(utils.Left.ToStep()),
-				//}
-
-				//pipe.NextA = pipes.Columns[x][y-1]
-				//pipe.NextB = pipes.Columns[x][y+1]
 			case '-':
-				//pipe.Next[utils.Left] = pipes.Columns[x+1][y]
-				//pipe.Next[utils.Right] = pipes.Columns[x-1][y]
 				pipe.Next3[utils.Right] = &PipeOutput{
 					OutputDirection: utils.Right,
 					Left2:           []utils.Direction8{utils.North},
@@ -301,27 +267,7 @@ func ParseInput(r io.Reader) World {
 					Left2:           []utils.Direction8{utils.South},
 					Right2:          []utils.Direction8{utils.North},
 				}
-
-				//pipe.Lefts[utils.Right] = []utils.Vector2i{
-				//	pos.Add(utils.Left.ToStep()),
-				//}
-				//
-				//pipe.Lefts[utils.Left] = []utils.Vector2i{
-				//	pos.Add(utils.Right.ToStep()),
-				//}
-				//
-				//pipe.Rights[utils.Up] = []utils.Vector2i{
-				//	pos.Add(utils.Right.ToStep()),
-				//}
-				//
-				//pipe.Rights[utils.Down] = []utils.Vector2i{
-				//	pos.Add(utils.Left.ToStep()),
-				//}
-				//pipe.NextA = pipes.Columns[x+1][y]
-				//pipe.NextB = pipes.Columns[x-1][y]
 			case 'L':
-				//pipe.Next[utils.Up] = pipes.Columns[x+1][y]
-				//pipe.Next[utils.Right] = pipes.Columns[x][y-1]
 				pipe.Next3[utils.Down] = &PipeOutput{
 					OutputDirection: utils.Right,
 					Left2:           []utils.Direction8{},
@@ -333,13 +279,7 @@ func ParseInput(r io.Reader) World {
 					Left2:           []utils.Direction8{utils.West, utils.SouthWest, utils.South},
 					Right2:          []utils.Direction8{},
 				}
-
-				//pipe.NextA = pipes.Columns[x+1][y]
-				//pipe.NextB = pipes.Columns[x][y-1]
 			case 'J':
-				//pipe.Next[utils.Up] = pipes.Columns[x-1][y]
-				//pipe.Next[utils.Left] = pipes.Columns[x][y-1]
-
 				pipe.Next3[utils.Down] = &PipeOutput{
 					OutputDirection: utils.Left,
 					Left2:           []utils.Direction8{utils.East, utils.SouthEast, utils.South},
@@ -351,12 +291,7 @@ func ParseInput(r io.Reader) World {
 					Left2:           []utils.Direction8{},
 					Right2:          []utils.Direction8{utils.East, utils.SouthEast, utils.South},
 				}
-
-				//pipe.NextA = pipes.Columns[x-1][y]
-				//pipe.NextB = pipes.Columns[x][y-1]
 			case '7':
-				//pipe.Next[utils.Down] = pipes.Columns[x-1][y]
-				//pipe.Next[utils.Left] = pipes.Columns[x][y+1]
 				pipe.Next3[utils.Up] = &PipeOutput{
 					OutputDirection: utils.Left,
 					Left2:           []utils.Direction8{},
@@ -368,13 +303,7 @@ func ParseInput(r io.Reader) World {
 					Left2:           []utils.Direction8{utils.East, utils.NorthEast, utils.North},
 					Right2:          []utils.Direction8{},
 				}
-
-				//pipe.NextA = pipes.Columns[x-1][y]
-				//pipe.NextB = pipes.Columns[x][y+1]
 			case 'F':
-				//pipe.Next[utils.Down] = pipes.Columns[x+1][y]
-				//pipe.Next[utils.Right] = pipes.Columns[x][y+1]
-
 				pipe.Next3[utils.Up] = &PipeOutput{
 					OutputDirection: utils.Right,
 					Left2:           []utils.Direction8{utils.West, utils.NorthWest, utils.North},
@@ -386,8 +315,6 @@ func ParseInput(r io.Reader) World {
 					Left2:           []utils.Direction8{},
 					Right2:          []utils.Direction8{utils.West, utils.NorthWest, utils.North},
 				}
-				//pipe.NextA = pipes.Columns[x+1][y]
-				//pipe.NextB = pipes.Columns[x][y+1]
 			case '.':
 			case 'S':
 				start = pipe
