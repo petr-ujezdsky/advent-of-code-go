@@ -57,7 +57,7 @@ func walk(world World, dir utils.Direction4) (int, bool) {
 			return steps, true
 		}
 
-		dir = current.Next2[dir.Rotate(2)]
+		dir = current.Next2[dir]
 		if dir == -1 {
 			// pipe does not continue
 			return 0, false
@@ -69,6 +69,9 @@ func walk(world World, dir utils.Direction4) (int, bool) {
 func DoWithInputPart02(world World) int {
 	for dir := 0; dir < 4; dir++ {
 		if _, path, lefts, rights, ok := walkPath(world, utils.Direction4(dir)); ok {
+			fmt.Printf("Lefts:\n%s\n\n", areaString(world.Pipes, lefts))
+			fmt.Printf("Rights:\n%s\n", areaString(world.Pipes, rights))
+
 			if area, ok := walkAreaTiles(path, lefts, world); ok {
 				return area
 			}
@@ -81,6 +84,18 @@ func DoWithInputPart02(world World) int {
 		}
 	}
 	panic("No area found")
+}
+
+func areaString(pipes matrix.Matrix[*Pipe], area map[utils.Vector2i]struct{}) string {
+	mPrint := pipes.Clone()
+
+	for left, _ := range area {
+		mPrint.SetVSafe(left, &Pipe{Char: 'x'})
+	}
+
+	return mPrint.StringFmtSeparator("", func(pipe *Pipe) string {
+		return string(pipe.Char)
+	})
 }
 
 func walkPath(world World, dir utils.Direction4) (int, map[utils.Vector2i]struct{}, map[utils.Vector2i]struct{}, map[utils.Vector2i]struct{}, bool) {
@@ -98,13 +113,17 @@ func walkPath(world World, dir utils.Direction4) (int, map[utils.Vector2i]struct
 		// check only straight lines - simplest
 		if current.Char == '|' || current.Char == '-' {
 			// on left
-			leftPos := pos.Add(dir.Rotate(-1).ToStep())
+			leftStep := dir.Rotate(-1).ToStep()
+			leftStep.Y *= -1
+			leftPos := pos.Add(leftStep)
 			if _, ok := world.Pipes.GetVSafe(leftPos); ok {
 				lefts[leftPos] = struct{}{}
 			}
 
 			// on right
-			rightPos := pos.Add(dir.Rotate(1).ToStep())
+			rightStep := dir.Rotate(1).ToStep()
+			rightStep.Y *= -1
+			rightPos := pos.Add(rightStep)
 			if _, ok := world.Pipes.GetVSafe(rightPos); ok {
 				rights[rightPos] = struct{}{}
 			}
@@ -132,7 +151,7 @@ func walkPath(world World, dir utils.Direction4) (int, map[utils.Vector2i]struct
 			return steps, path, lefts, rights, true
 		}
 
-		dir = current.Next2[dir.Rotate(2)]
+		dir = current.Next2[dir]
 		if dir == -1 {
 			// pipe does not continue
 			return 0, nil, nil, nil, false
@@ -210,8 +229,8 @@ func ParseInput(r io.Reader) World {
 				//pipe.Next[utils.Down] = pipes.Columns[x][y-1]
 				//pipe.Next[utils.Up] = pipes.Columns[x][y+1]
 
-				pipe.Next2[utils.Down] = utils.Up
-				pipe.Next2[utils.Up] = utils.Down
+				pipe.Next2[utils.Up] = utils.Up
+				pipe.Next2[utils.Down] = utils.Down
 
 				//pipe.NextA = pipes.Columns[x][y-1]
 				//pipe.NextB = pipes.Columns[x][y+1]
@@ -219,8 +238,8 @@ func ParseInput(r io.Reader) World {
 				//pipe.Next[utils.Left] = pipes.Columns[x+1][y]
 				//pipe.Next[utils.Right] = pipes.Columns[x-1][y]
 
-				pipe.Next2[utils.Left] = utils.Right
-				pipe.Next2[utils.Right] = utils.Left
+				pipe.Next2[utils.Right] = utils.Right
+				pipe.Next2[utils.Left] = utils.Left
 
 				//pipe.NextA = pipes.Columns[x+1][y]
 				//pipe.NextB = pipes.Columns[x-1][y]
@@ -228,8 +247,8 @@ func ParseInput(r io.Reader) World {
 				//pipe.Next[utils.Up] = pipes.Columns[x+1][y]
 				//pipe.Next[utils.Right] = pipes.Columns[x][y-1]
 
-				pipe.Next2[utils.Up] = utils.Right
-				pipe.Next2[utils.Right] = utils.Up
+				pipe.Next2[utils.Down] = utils.Right
+				pipe.Next2[utils.Left] = utils.Up
 
 				//pipe.NextA = pipes.Columns[x+1][y]
 				//pipe.NextB = pipes.Columns[x][y-1]
@@ -237,8 +256,8 @@ func ParseInput(r io.Reader) World {
 				//pipe.Next[utils.Up] = pipes.Columns[x-1][y]
 				//pipe.Next[utils.Left] = pipes.Columns[x][y-1]
 
-				pipe.Next2[utils.Up] = utils.Left
-				pipe.Next2[utils.Left] = utils.Up
+				pipe.Next2[utils.Down] = utils.Left
+				pipe.Next2[utils.Right] = utils.Up
 
 				//pipe.NextA = pipes.Columns[x-1][y]
 				//pipe.NextB = pipes.Columns[x][y-1]
@@ -246,8 +265,8 @@ func ParseInput(r io.Reader) World {
 				//pipe.Next[utils.Down] = pipes.Columns[x-1][y]
 				//pipe.Next[utils.Left] = pipes.Columns[x][y+1]
 
-				pipe.Next2[utils.Down] = utils.Left
-				pipe.Next2[utils.Left] = utils.Down
+				pipe.Next2[utils.Up] = utils.Left
+				pipe.Next2[utils.Right] = utils.Down
 
 				//pipe.NextA = pipes.Columns[x-1][y]
 				//pipe.NextB = pipes.Columns[x][y+1]
@@ -255,8 +274,8 @@ func ParseInput(r io.Reader) World {
 				//pipe.Next[utils.Down] = pipes.Columns[x+1][y]
 				//pipe.Next[utils.Right] = pipes.Columns[x][y+1]
 
-				pipe.Next2[utils.Down] = utils.Right
-				pipe.Next2[utils.Right] = utils.Down
+				pipe.Next2[utils.Up] = utils.Right
+				pipe.Next2[utils.Left] = utils.Down
 
 				//pipe.NextA = pipes.Columns[x+1][y]
 				//pipe.NextB = pipes.Columns[x][y+1]
