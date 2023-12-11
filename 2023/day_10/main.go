@@ -10,9 +10,10 @@ import (
 )
 
 type Pipe struct {
-	Char  rune
-	Next  [4]*Pipe
-	Next2 [4]utils.Direction4
+	Char     rune
+	Position utils.Vector2i
+	Next     [4]*Pipe
+	Next2    [4]utils.Direction4
 
 	NextA, NextB *Pipe
 }
@@ -69,8 +70,8 @@ func walk(world World, dir utils.Direction4) (int, bool) {
 func DoWithInputPart02(world World) int {
 	for dir := 0; dir < 4; dir++ {
 		if _, path, lefts, rights, ok := walkPath(world, utils.Direction4(dir)); ok {
-			fmt.Printf("Lefts:\n%s\n\n", areaString(world.Pipes, lefts))
-			fmt.Printf("Rights:\n%s\n", areaString(world.Pipes, rights))
+			fmt.Printf("Lefts:\n%s\n\n", areaString(world.Pipes, lefts, path))
+			fmt.Printf("Rights:\n%s\n", areaString(world.Pipes, rights, path))
 
 			if area, ok := walkAreaTiles(path, lefts, world); ok {
 				return area
@@ -86,15 +87,17 @@ func DoWithInputPart02(world World) int {
 	panic("No area found")
 }
 
-func areaString(pipes matrix.Matrix[*Pipe], area map[utils.Vector2i]struct{}) string {
-	mPrint := pipes.Clone()
+func areaString(pipes matrix.Matrix[*Pipe], area, path map[utils.Vector2i]struct{}) string {
+	return pipes.StringFmtSeparator("", func(pipe *Pipe) string {
+		if _, ok := path[pipe.Position]; ok {
+			return string(pipe.Char)
+		}
 
-	for left := range area {
-		mPrint.SetVSafe(left, &Pipe{Char: 'x'})
-	}
+		if _, ok := area[pipe.Position]; ok {
+			return "x"
+		}
 
-	return mPrint.StringFmtSeparator("", func(pipe *Pipe) string {
-		return string(pipe.Char)
+		return "."
 	})
 }
 
@@ -197,15 +200,16 @@ func walkAreaTile(current utils.Vector2i, path, visited map[utils.Vector2i]struc
 
 func ParseInput(r io.Reader) World {
 	// parse to matrix
-	parseItem := func(char rune) *Pipe {
+	parseItem := func(char rune, x, y int) *Pipe {
 		return &Pipe{
-			Char:  char,
-			Next:  [4]*Pipe{},
-			Next2: [4]utils.Direction4{-1, -1, -1, -1},
+			Char:     char,
+			Position: utils.Vector2i{X: x, Y: y},
+			Next:     [4]*Pipe{},
+			Next2:    [4]utils.Direction4{-1, -1, -1, -1},
 		}
 	}
 
-	pipes := parsers.ParseToMatrix(r, parseItem)
+	pipes := parsers.ParseToMatrixIndexed(r, parseItem)
 
 	// join pipes
 	var start *Pipe
