@@ -90,7 +90,20 @@ func DoWithInputPart02(world World) int {
 func areaString(pipes matrix.Matrix[*Pipe], area, path map[utils.Vector2i]struct{}) string {
 	return pipes.StringFmtSeparator("", func(pipe *Pipe) string {
 		if _, ok := path[pipe.Position]; ok {
-			return string(pipe.Char)
+			switch pipe.Char {
+			case '|':
+				return "│"
+			case '-':
+				return "─"
+			case 'L':
+				return "└"
+			case 'J':
+				return "┘"
+			case '7':
+				return "┐"
+			case 'F':
+				return "┌"
+			}
 		}
 
 		if _, ok := area[pipe.Position]; ok {
