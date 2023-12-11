@@ -107,10 +107,10 @@ func areaString(pipes matrix.Matrix[*Pipe], area, path map[utils.Vector2i]struct
 		}
 
 		if _, ok := area[pipe.Position]; ok {
-			return "x"
+			return "."
 		}
 
-		return "."
+		return " "
 	})
 }
 
