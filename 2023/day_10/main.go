@@ -10,9 +10,9 @@ import (
 )
 
 type Pipe struct {
-	Char     rune
-	Position utils.Vector2i
-	Next3    [4]*PipeOutput
+	Char           rune
+	Position       utils.Vector2i
+	OutputForInput [4]*PipeOutput
 }
 
 type PipeOutput struct {
@@ -60,7 +60,7 @@ func walk(world World, dir utils.Direction4) (int, bool) {
 			return steps, true
 		}
 
-		outputInfo := current.Next3[dir]
+		outputInfo := current.OutputForInput[dir]
 		if outputInfo == nil {
 			// pipe does not continue
 			return 0, false
@@ -167,7 +167,7 @@ func walkPath(world World, dir utils.Direction4) (int, map[utils.Vector2i]struct
 			return steps, path, lefts, rights, true
 		}
 
-		outputInfo = current.Next3[dir]
+		outputInfo = current.OutputForInput[dir]
 		if outputInfo == nil {
 			// pipe does not continue
 			return 0, nil, nil, nil, false
@@ -225,9 +225,9 @@ func ParseInput(r io.Reader) World {
 	// parse to matrix
 	parseItem := func(char rune, x, y int) *Pipe {
 		return &Pipe{
-			Char:     char,
-			Position: utils.Vector2i{X: x, Y: y},
-			Next3:    [4]*PipeOutput{},
+			Char:           char,
+			Position:       utils.Vector2i{X: x, Y: y},
+			OutputForInput: [4]*PipeOutput{},
 		}
 	}
 
@@ -244,73 +244,73 @@ func ParseInput(r io.Reader) World {
 
 			switch pipe.Char {
 			case '|':
-				pipe.Next3[utils.Up] = &PipeOutput{
+				pipe.OutputForInput[utils.Up] = &PipeOutput{
 					OutputDirection: utils.Up,
 					Left2:           []utils.Direction8{utils.West},
 					Right2:          []utils.Direction8{utils.East},
 				}
 
-				pipe.Next3[utils.Down] = &PipeOutput{
+				pipe.OutputForInput[utils.Down] = &PipeOutput{
 					OutputDirection: utils.Down,
 					Left2:           []utils.Direction8{utils.East},
 					Right2:          []utils.Direction8{utils.West},
 				}
 			case '-':
-				pipe.Next3[utils.Right] = &PipeOutput{
+				pipe.OutputForInput[utils.Right] = &PipeOutput{
 					OutputDirection: utils.Right,
 					Left2:           []utils.Direction8{utils.North},
 					Right2:          []utils.Direction8{utils.South},
 				}
 
-				pipe.Next3[utils.Left] = &PipeOutput{
+				pipe.OutputForInput[utils.Left] = &PipeOutput{
 					OutputDirection: utils.Left,
 					Left2:           []utils.Direction8{utils.South},
 					Right2:          []utils.Direction8{utils.North},
 				}
 			case 'L':
-				pipe.Next3[utils.Down] = &PipeOutput{
+				pipe.OutputForInput[utils.Down] = &PipeOutput{
 					OutputDirection: utils.Right,
 					Left2:           []utils.Direction8{},
 					Right2:          []utils.Direction8{utils.West, utils.SouthWest, utils.South},
 				}
 
-				pipe.Next3[utils.Left] = &PipeOutput{
+				pipe.OutputForInput[utils.Left] = &PipeOutput{
 					OutputDirection: utils.Up,
 					Left2:           []utils.Direction8{utils.West, utils.SouthWest, utils.South},
 					Right2:          []utils.Direction8{},
 				}
 			case 'J':
-				pipe.Next3[utils.Down] = &PipeOutput{
+				pipe.OutputForInput[utils.Down] = &PipeOutput{
 					OutputDirection: utils.Left,
 					Left2:           []utils.Direction8{utils.East, utils.SouthEast, utils.South},
 					Right2:          []utils.Direction8{},
 				}
 
-				pipe.Next3[utils.Right] = &PipeOutput{
+				pipe.OutputForInput[utils.Right] = &PipeOutput{
 					OutputDirection: utils.Up,
 					Left2:           []utils.Direction8{},
 					Right2:          []utils.Direction8{utils.East, utils.SouthEast, utils.South},
 				}
 			case '7':
-				pipe.Next3[utils.Up] = &PipeOutput{
+				pipe.OutputForInput[utils.Up] = &PipeOutput{
 					OutputDirection: utils.Left,
 					Left2:           []utils.Direction8{},
 					Right2:          []utils.Direction8{utils.East, utils.NorthEast, utils.North},
 				}
 
-				pipe.Next3[utils.Right] = &PipeOutput{
+				pipe.OutputForInput[utils.Right] = &PipeOutput{
 					OutputDirection: utils.Down,
 					Left2:           []utils.Direction8{utils.East, utils.NorthEast, utils.North},
 					Right2:          []utils.Direction8{},
 				}
 			case 'F':
-				pipe.Next3[utils.Up] = &PipeOutput{
+				pipe.OutputForInput[utils.Up] = &PipeOutput{
 					OutputDirection: utils.Right,
 					Left2:           []utils.Direction8{utils.West, utils.NorthWest, utils.North},
 					Right2:          []utils.Direction8{},
 				}
 
-				pipe.Next3[utils.Left] = &PipeOutput{
+				pipe.OutputForInput[utils.Left] = &PipeOutput{
 					OutputDirection: utils.Down,
 					Left2:           []utils.Direction8{},
 					Right2:          []utils.Direction8{utils.West, utils.NorthWest, utils.North},
