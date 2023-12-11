@@ -177,6 +177,8 @@ func walkAreaTiles(path, area map[utils.Vector2i]struct{}, world World) (int, bo
 		}
 	}
 
+	fmt.Printf("Found area:\n%s\n\n", areaString(world.Pipes, visited, path))
+
 	return len(visited), true
 }
 
