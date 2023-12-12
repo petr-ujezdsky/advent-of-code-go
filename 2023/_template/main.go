@@ -11,7 +11,7 @@ type Item struct {
 
 type World struct {
 	Items []Item
-	//Matrix utils.Matrix[Item]
+	//Matrix matrix.Matrix[Item]
 }
 
 func DoWithInputPart01(world World) int {
