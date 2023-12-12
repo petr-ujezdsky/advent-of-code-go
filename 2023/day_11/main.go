@@ -24,7 +24,29 @@ type World struct {
 }
 
 func DoWithInputPart01(world World) int {
-	return 0
+	sum := 0
+
+	for i, starFrom := range world.Stars {
+		for _, starTo := range world.Stars[i+1:] {
+			distance := starTo.Position.Subtract(starFrom.Position).LengthManhattan()
+
+			for x := utils.Min(starFrom.Position.X, starTo.Position.X); x < utils.Max(starFrom.Position.X, starTo.Position.X); x++ {
+				if world.StarsInColumn[x] == 0 {
+					distance++
+				}
+			}
+
+			for y := utils.Min(starFrom.Position.Y, starTo.Position.Y); y < utils.Max(starFrom.Position.Y, starTo.Position.Y); y++ {
+				if world.StarsInRow[y] == 0 {
+					distance++
+				}
+			}
+
+			sum += distance
+		}
+	}
+
+	return sum
 }
 
 func DoWithInputPart02(world World) int {
