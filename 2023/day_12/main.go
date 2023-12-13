@@ -6,6 +6,7 @@ import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
+	"strconv"
 	"strings"
 )
 
@@ -122,14 +123,19 @@ func DoWithInputPart02(world World) int {
 }
 
 func Unfold(record Record) Record {
+	// multiply data 5x
 	conditionsRaw := record.ConditionsRaw + "?" + record.ConditionsRaw + "?" + record.ConditionsRaw + "?" + record.ConditionsRaw + "?" + record.ConditionsRaw
 	groupSizes := slices.Repeat(record.GroupSizes, 5)
 
-	return Record{
-		ConditionsRaw: conditionsRaw,
-		Conditions:    []rune(conditionsRaw),
-		GroupSizes:    groupSizes,
-	}
+	// convert groupSizes ints to string
+	groupSizesStr := slices.Map(groupSizes, strconv.Itoa)
+	groupSizesStrJoined := strings.Join(groupSizesStr, ",")
+
+	// join to raw record string
+	recordStr := conditionsRaw + " " + groupSizesStrJoined
+
+	// parse
+	return ParseRecord(recordStr)
 }
 
 func ParseRecord(str string) Record {
