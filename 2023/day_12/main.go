@@ -120,24 +120,28 @@ func DoWithInputPart02(world World) int {
 	sum := 0
 
 	for i, record := range world.Records {
-		count := 0
-		for _, condition := range record.Conditions {
-			if condition == '?' {
-				count++
-			}
-		}
-
-		fmt.Printf("#%d: ?'s count: %d\n", i, count)
-		singleCount := calculateArrangementsCount(record)
-
-		fmt.Printf("#%d: ?'s count: %d\n\n", i, 2*count+1)
-		pairCount := calculateArrangementsCount(Unfold2(record))
-
-		k := pairCount / singleCount
-		sum += pairCount * k * k * k
+		sum += calculateArrangementsCountUnfolded(i, record)
 	}
 
 	return sum
+}
+
+func calculateArrangementsCountUnfolded(i int, record Record) int {
+	count := 0
+	for _, condition := range record.Conditions {
+		if condition == '?' {
+			count++
+		}
+	}
+
+	fmt.Printf("#%d: ?'s count: %d\n", i, count)
+	singleCount := calculateArrangementsCount(record)
+
+	fmt.Printf("#%d: ?'s count: %d\n\n", i, 2*count+1)
+	pairCount := calculateArrangementsCount(Unfold2(record))
+
+	k := pairCount / singleCount
+	return pairCount * k * k * k
 }
 
 func Unfold(record Record) Record {
@@ -178,18 +182,10 @@ func ParseRecord(str string) Record {
 	conditionsRaw := parts[0]
 	groupSizes := utils.ExtractInts(parts[1], false)
 
-	conditionsOneDots := regexDots.ReplaceAllLiteralString(conditionsRaw, ".")
-	conditionsOneDots = strings.Trim(conditionsOneDots, ".")
-	groupsRaw := strings.Split(conditionsOneDots, ".")
-	groups := slices.Map(groupsRaw, func(s string) []rune {
-		return []rune(s)
-	})
-
 	return Record{
 		ConditionsRaw: conditionsRaw,
 		Conditions:    []rune(conditionsRaw),
 		GroupSizes:    groupSizes,
-		Groups:        groups,
 	}
 }
 

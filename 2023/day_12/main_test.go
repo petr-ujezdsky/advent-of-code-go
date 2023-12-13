@@ -145,3 +145,28 @@ func TestUnfold(t *testing.T) {
 		})
 	}
 }
+
+func Test_calculateArrangementsCountUnfolded(t *testing.T) {
+	type args struct {
+		i      int
+		record Record
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{name: "", args: args{i: 0, record: ParseRecord("???.### 1,1,3")}, want: 1},
+		{name: "", args: args{i: 0, record: ParseRecord(".??..??...?##. 1,1,3")}, want: 16384},
+		{name: "", args: args{i: 0, record: ParseRecord("?#?#?#?#?#?#?#? 1,3,1,6")}, want: 1},
+		{name: "", args: args{i: 0, record: ParseRecord("????.#...#... 4,1,1")}, want: 16},
+		{name: "", args: args{i: 0, record: ParseRecord("????.######..#####. 1,6,5")}, want: 2500},
+		{name: "", args: args{i: 0, record: ParseRecord("?###???????? 3,2,1")}, want: 506250},
+		//{name: "", args: args{i: 0, record: ParseRecord("?#???#???????#????? 5,2,1,5")}, want: 4},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, calculateArrangementsCountUnfolded(tt.args.i, tt.args.record), "calculateArrangementsCountUnfolded(%v, %v)", tt.args.i, tt.args.record)
+		})
+	}
+}
