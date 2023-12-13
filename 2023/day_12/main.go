@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
 	"strings"
 )
@@ -110,18 +111,36 @@ func isValid(conditions []rune, groupSizes []int) bool {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	sum := 0
+
+	for _, record := range world.Records {
+		unfolded := Unfold(record)
+		sum += calculateArrangementsCount(unfolded)
+	}
+
+	return sum
+}
+
+func Unfold(record Record) Record {
+	conditionsRaw := record.ConditionsRaw + "?" + record.ConditionsRaw + "?" + record.ConditionsRaw + "?" + record.ConditionsRaw + "?" + record.ConditionsRaw
+	groupSizes := slices.Repeat(record.GroupSizes, 5)
+
+	return Record{
+		ConditionsRaw: conditionsRaw,
+		Conditions:    []rune(conditionsRaw),
+		GroupSizes:    groupSizes,
+	}
 }
 
 func ParseRecord(str string) Record {
 	parts := strings.Split(str, " ")
 
-	conditions := parts[0]
+	conditionsRaw := parts[0]
 	groupSizes := utils.ExtractInts(parts[1], false)
 
 	return Record{
-		ConditionsRaw: conditions,
-		Conditions:    []rune(conditions),
+		ConditionsRaw: conditionsRaw,
+		Conditions:    []rune(conditionsRaw),
 		GroupSizes:    groupSizes,
 	}
 }

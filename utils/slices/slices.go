@@ -86,6 +86,19 @@ func Fill[T any](slice []T, value T) {
 	}
 }
 
+func Repeat[T any](slice []T, count int) []T {
+	if count == 1 {
+		return slice
+	}
+
+	target := make([]T, len(slice)*count)
+	for i := 0; i < count; i++ {
+		Copy(slice, target[i*len(slice):])
+	}
+
+	return target
+}
+
 func Map[S, T any](slice []S, mapper func(s S) T) []T {
 	mapped := make([]T, len(slice))
 
