@@ -31,7 +31,7 @@ func DoWithInputPart01(world World) int {
 	sum := 0
 
 	for i, record := range world.Records {
-		count := calculateArrangementsCount(record)
+		count := len(calculateArrangements(record))
 		fmt.Printf("#%d combinations: %d\n", i, count)
 		sum += count
 	}
@@ -39,12 +39,12 @@ func DoWithInputPart01(world World) int {
 	return sum
 }
 
-func calculateArrangementsCount(record Record) int {
+func calculateArrangements(record Record) [][]rune {
 	defer measure.Duration(measure.Track(fmt.Sprintf("Calculation for %d unknowns took", record.Unknowns)))
-	return calculateArrangementsCountMutable(0, record.Conditions, record.GroupSizes)
+	return calculateArrangementsMutable(0, record.Conditions, record.GroupSizes, nil)
 }
 
-func calculateArrangementsCountMutable(position int, conditions []rune, groupSizes []int) int {
+func calculateArrangementsMutable(position int, conditions []rune, groupSizes []int, validConditions [][]rune) [][]rune {
 	// find next '?'
 	found := false
 	for i := position; i < len(conditions); i++ {
@@ -56,29 +56,29 @@ func calculateArrangementsCountMutable(position int, conditions []rune, groupSiz
 	}
 
 	if found {
-		sum := 0
 		// try '.'
 		conditions[position] = '#'
-		sum += calculateArrangementsCountMutable(position+1, conditions, groupSizes)
+		validConditions = calculateArrangementsMutable(position+1, conditions, groupSizes, validConditions)
 
 		// try '#'
 		conditions[position] = '.'
-		sum += calculateArrangementsCountMutable(position+1, conditions, groupSizes)
+		validConditions = calculateArrangementsMutable(position+1, conditions, groupSizes, validConditions)
 
 		// revert
 		conditions[position] = '?'
 
-		return sum
+		return validConditions
 	}
 
 	// no '?' found -> check validity
 	if isValid(conditions, groupSizes) {
 		//fmt.Printf("%v\n", string(conditions))
-		return 1
+		validConditions = append(validConditions, slices.Clone(conditions))
+		return validConditions
 	}
 
 	// invalid
-	return 0
+	return validConditions
 }
 
 func isValid(conditions []rune, groupSizes []int) bool {
@@ -135,11 +135,11 @@ func DoWithInputPart02(world World) int {
 
 func calculateArrangementsCountUnfolded(record Record, i int) int {
 	fmt.Printf("#%d: ?'s count: %d\n", i, record.Unknowns)
-	singleCount := calculateArrangementsCount(record)
+	singleCount := len(calculateArrangements(record))
 
 	unfolded2 := Unfold2(record)
 	fmt.Printf("#%d: ?'s count: %d\n", i, unfolded2.Unknowns)
-	pairCount := calculateArrangementsCount(unfolded2)
+	pairCount := len(calculateArrangements(unfolded2))
 
 	fmt.Println()
 	k := pairCount / singleCount
