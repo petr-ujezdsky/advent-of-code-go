@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "embed"
+	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
@@ -118,9 +119,22 @@ func isValid(conditions []rune, groupSizes []int) bool {
 func DoWithInputPart02(world World) int {
 	sum := 0
 
-	for _, record := range world.Records {
-		unfolded := Unfold(record)
-		sum += calculateArrangementsCount(unfolded)
+	for i, record := range world.Records {
+		count := 0
+		for _, condition := range record.Conditions {
+			if condition == '?' {
+				count++
+			}
+		}
+
+		fmt.Printf("#%d: ?'s count: %d\n", i, count)
+		singleCount := calculateArrangementsCount(record)
+
+		fmt.Printf("#%d: ?'s count: %d\n\n", i, 2*count+1)
+		pairCount := calculateArrangementsCount(Unfold2(record))
+
+		k := pairCount / singleCount
+		sum += pairCount * k * k * k
 	}
 
 	return sum
@@ -130,6 +144,22 @@ func Unfold(record Record) Record {
 	// multiply data 5x
 	conditionsRaw := record.ConditionsRaw + "?" + record.ConditionsRaw + "?" + record.ConditionsRaw + "?" + record.ConditionsRaw + "?" + record.ConditionsRaw
 	groupSizes := slices.Repeat(record.GroupSizes, 5)
+
+	// convert groupSizes ints to string
+	groupSizesStr := slices.Map(groupSizes, strconv.Itoa)
+	groupSizesStrJoined := strings.Join(groupSizesStr, ",")
+
+	// join to raw record string
+	recordStr := conditionsRaw + " " + groupSizesStrJoined
+
+	// parse
+	return ParseRecord(recordStr)
+}
+
+func Unfold2(record Record) Record {
+	// multiply data 2x
+	conditionsRaw := record.ConditionsRaw + "?" + record.ConditionsRaw
+	groupSizes := slices.Repeat(record.GroupSizes, 2)
 
 	// convert groupSizes ints to string
 	groupSizesStr := slices.Map(groupSizes, strconv.Itoa)
