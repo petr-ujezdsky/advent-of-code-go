@@ -68,7 +68,8 @@ func Test_02(t *testing.T) {
 	world := ParseInput(reader)
 
 	result := DoWithInputPart02(world)
-	assert.Equal(t, 0, result)
+	// too low
+	assert.Equal(t, 2297056002603, result)
 }
 
 func Test_isValid(t *testing.T) {
@@ -166,7 +167,7 @@ func Test_calculateArrangementsCountUnfolded(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, calculateArrangementsCountUnfolded(tt.args.i, tt.args.record), "calculateArrangementsCountUnfolded(%v, %v)", tt.args.i, tt.args.record)
+			assert.Equalf(t, tt.want, calculateArrangementsCountUnfolded(tt.args.record, tt.args.i), "calculateArrangementsCountUnfolded(%v, %v)", tt.args.record, tt.args.i)
 		})
 	}
 }

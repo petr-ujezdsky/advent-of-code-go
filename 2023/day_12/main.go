@@ -38,7 +38,7 @@ func DoWithInputPart01(world World) int {
 }
 
 func calculateArrangementsCount(record Record) int {
-	defer measure.Duration(measure.Track("Calculation took"))
+	defer measure.Duration(measure.Track(fmt.Sprintf("Calculation for %d unknowns took", record.Unknowns)))
 	return calculateArrangementsCountMutable(0, record.Conditions, record.GroupSizes)
 }
 
@@ -122,21 +122,16 @@ func isValid(conditions []rune, groupSizes []int) bool {
 func DoWithInputPart02(world World) int {
 	sum := 0
 
-	for i, record := range world.Records {
-		sum += calculateArrangementsCountUnfolded(i, record)
+	results := utils.ProcessParallel(world.Records, calculateArrangementsCountUnfolded)
+
+	for result := range results {
+		sum += result.Value
 	}
 
 	return sum
 }
 
-func calculateArrangementsCountUnfolded(i int, record Record) int {
-	count := 0
-	for _, condition := range record.Conditions {
-		if condition == '?' {
-			count++
-		}
-	}
-
+func calculateArrangementsCountUnfolded(record Record, i int) int {
 	fmt.Printf("#%d: ?'s count: %d\n", i, record.Unknowns)
 	singleCount := calculateArrangementsCount(record)
 
