@@ -19,6 +19,7 @@ type Record struct {
 	Conditions    []rune
 	Groups        [][]rune
 	GroupSizes    []int
+	Unknowns      int
 }
 
 type World struct {
@@ -134,11 +135,12 @@ func calculateArrangementsCountUnfolded(i int, record Record) int {
 		}
 	}
 
-	fmt.Printf("#%d: ?'s count: %d\n", i, count)
+	fmt.Printf("#%d: ?'s count: %d\n", i, record.Unknowns)
 	singleCount := calculateArrangementsCount(record)
 
-	fmt.Printf("#%d: ?'s count: %d\n\n", i, 2*count+1)
-	pairCount := calculateArrangementsCount(Unfold2(record))
+	unfolded2 := Unfold2(record)
+	fmt.Printf("#%d: ?'s count: %d\n\n", i, unfolded2.Unknowns)
+	pairCount := calculateArrangementsCount(unfolded2)
 
 	k := pairCount / singleCount
 	return pairCount * k * k * k
@@ -182,10 +184,18 @@ func ParseRecord(str string) Record {
 	conditionsRaw := parts[0]
 	groupSizes := utils.ExtractInts(parts[1], false)
 
+	unknowns := 0
+	for _, condition := range conditionsRaw {
+		if condition == '?' {
+			unknowns++
+		}
+	}
+
 	return Record{
 		ConditionsRaw: conditionsRaw,
 		Conditions:    []rune(conditionsRaw),
 		GroupSizes:    groupSizes,
+		Unknowns:      unknowns,
 	}
 }
 
