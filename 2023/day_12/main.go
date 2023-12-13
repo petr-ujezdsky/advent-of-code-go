@@ -30,8 +30,10 @@ type World struct {
 func DoWithInputPart01(world World) int {
 	sum := 0
 
-	for _, record := range world.Records {
-		sum += calculateArrangementsCount(record)
+	for i, record := range world.Records {
+		count := calculateArrangementsCount(record)
+		fmt.Printf("#%d combinations: %d\n", i, count)
+		sum += count
 	}
 
 	return sum
