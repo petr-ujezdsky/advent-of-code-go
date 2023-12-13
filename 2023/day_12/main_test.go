@@ -13,8 +13,22 @@ func Test_01_parse(t *testing.T) {
 	world := ParseInput(reader)
 
 	assert.Equal(t, 6, len(world.Records))
-	assert.Equal(t, "???.###", world.Records[0].ConditionsRaw)
-	assert.Equal(t, []int{1, 1, 3}, world.Records[0].GroupSizes)
+
+	record := world.Records[0]
+	assert.Equal(t, "???.###", record.ConditionsRaw)
+	assert.Equal(t, []int{1, 1, 3}, record.GroupSizes)
+	assert.Equal(t, "???", string(record.Groups[0]))
+	assert.Equal(t, "###", string(record.Groups[1]))
+	assert.Equal(t, 2, len(record.Groups))
+
+	record = world.Records[1]
+	assert.Equal(t, ".??..??...?##.", record.ConditionsRaw)
+	assert.Equal(t, []int{1, 1, 3}, record.GroupSizes)
+	assert.Equal(t, "??", string(record.Groups[0]))
+	assert.Equal(t, "??", string(record.Groups[1]))
+	assert.Equal(t, "?##", string(record.Groups[2]))
+	assert.Equal(t, 3, len(record.Groups))
+
 }
 
 func Test_01_example(t *testing.T) {

@@ -6,13 +6,17 @@ import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
+	"regexp"
 	"strconv"
 	"strings"
 )
 
+var regexDots = regexp.MustCompile(`[.]+`)
+
 type Record struct {
 	ConditionsRaw string
 	Conditions    []rune
+	Groups        [][]rune
 	GroupSizes    []int
 }
 
@@ -144,10 +148,18 @@ func ParseRecord(str string) Record {
 	conditionsRaw := parts[0]
 	groupSizes := utils.ExtractInts(parts[1], false)
 
+	conditionsOneDots := regexDots.ReplaceAllLiteralString(conditionsRaw, ".")
+	conditionsOneDots = strings.Trim(conditionsOneDots, ".")
+	groupsRaw := strings.Split(conditionsOneDots, ".")
+	groups := slices.Map(groupsRaw, func(s string) []rune {
+		return []rune(s)
+	})
+
 	return Record{
 		ConditionsRaw: conditionsRaw,
 		Conditions:    []rune(conditionsRaw),
 		GroupSizes:    groupSizes,
+		Groups:        groups,
 	}
 }
 
