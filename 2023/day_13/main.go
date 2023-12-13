@@ -28,24 +28,29 @@ func DoWithInputPart01(world World) int {
 }
 
 func CountReading(reading Reading) int {
-	columnsBefore := FindMirror(reading.Columns)
-	rowsBefore := FindMirror(reading.Rows)
+	if columnsBefore, ok := FindMirror(reading.Columns); ok {
+		return columnsBefore + 1
+	}
 
-	return columnsBefore + 100*rowsBefore
-}
-
-func FindMirror(items []uint64) int {
-	for mirror := 0; mirror < len(items)-1; mirror++ {
-		if checkMirror(mirror, items) {
-			return mirror
-		}
+	if rowsBefore, ok := FindMirror(reading.Rows); ok {
+		return 100 * (rowsBefore + 1)
 	}
 
 	panic("No mirror found")
 }
 
+func FindMirror(items []uint64) (int, bool) {
+	for mirror := 0; mirror < len(items)-1; mirror++ {
+		if checkMirror(mirror, items) {
+			return mirror, true
+		}
+	}
+
+	return 0, false
+}
+
 func checkMirror(mirror int, items []uint64) bool {
-	maxStep := utils.Min(mirror, len(items)-mirror-1)
+	maxStep := utils.Min(mirror, len(items)-mirror-2)
 
 	for step := 0; step <= maxStep; step++ {
 		backward := items[mirror-step]
