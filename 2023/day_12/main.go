@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/measure"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
@@ -37,6 +38,7 @@ func DoWithInputPart01(world World) int {
 }
 
 func calculateArrangementsCount(record Record) int {
+	defer measure.Duration(measure.Track("Calculation took"))
 	return calculateArrangementsCountMutable(0, record.Conditions, record.GroupSizes)
 }
 
@@ -139,9 +141,10 @@ func calculateArrangementsCountUnfolded(i int, record Record) int {
 	singleCount := calculateArrangementsCount(record)
 
 	unfolded2 := Unfold2(record)
-	fmt.Printf("#%d: ?'s count: %d\n\n", i, unfolded2.Unknowns)
+	fmt.Printf("#%d: ?'s count: %d\n", i, unfolded2.Unknowns)
 	pairCount := calculateArrangementsCount(unfolded2)
 
+	fmt.Println()
 	k := pairCount / singleCount
 	return pairCount * k * k * k
 }
