@@ -80,6 +80,26 @@ func ParseBinary16(onesAndZeros string) uint16 {
 	return uint16(v)
 }
 
+// ParseBinary32 parses string with zeros and ones to 32-bit number
+// Most significant bit is on the left side of the string
+func ParseBinary32(onesAndZeros string) uint32 {
+	v, err := strconv.ParseUint(onesAndZeros, 2, 32)
+	if err != nil {
+		panic("Can not convert binary string " + onesAndZeros + " to number")
+	}
+	return uint32(v)
+}
+
+// ParseBinary64 parses string with zeros and ones to 64-bit number
+// Most significant bit is on the left side of the string
+func ParseBinary64(onesAndZeros string) uint64 {
+	v, err := strconv.ParseUint(onesAndZeros, 2, 64)
+	if err != nil {
+		panic("Can not convert binary string " + onesAndZeros + " to number")
+	}
+	return v
+}
+
 // ParseBinaryBool16 parses boolean slice to 16-bit number
 // Most significant bit is on the left side of the slice
 func ParseBinaryBool16(bits []bool) uint16 {
@@ -88,6 +108,23 @@ func ParseBinaryBool16(bits []bool) uint16 {
 	}
 
 	sum := uint16(0)
+	for i, bit := range bits {
+		if bit {
+			sum += 1 << (len(bits) - 1 - i)
+		}
+	}
+
+	return sum
+}
+
+// ParseBinaryBool64 parses boolean slice to 64-bit number
+// Most significant bit is on the left side of the slice
+func ParseBinaryBool64(bits []bool) uint64 {
+	if len(bits) > 64 {
+		panic("Too many bits " + strconv.Itoa(len(bits)))
+	}
+
+	sum := uint64(0)
 	for i, bit := range bits {
 		if bit {
 			sum += 1 << (len(bits) - 1 - i)
