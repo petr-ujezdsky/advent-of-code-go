@@ -16,11 +16,13 @@ import (
 var regexDots = regexp.MustCompile(`[.]+`)
 
 type Record struct {
-	ConditionsRaw string
-	Conditions    []rune
-	Groups        [][]rune
-	GroupSizes    []int
-	Unknowns      int
+	ConditionsRaw       string
+	Conditions          []rune
+	Groups              [][]rune
+	GroupSizes          []int
+	DamagedCountTotal   int
+	DamagedCountInitial int
+	Unknowns            int
 }
 
 type World struct {
@@ -32,7 +34,7 @@ func DoWithInputPart01(world World) int {
 
 	max := 0
 	for i, record := range world.Records {
-		count := len(calculateArrangements(record))
+		count := calculateArrangementsCount(record)
 		fmt.Printf("#%d combinations: %d\n", i, count)
 		max = utils.Max(max, count)
 		sum += count
@@ -43,12 +45,17 @@ func DoWithInputPart01(world World) int {
 	return sum
 }
 
-func calculateArrangements(record Record) [][]rune {
+func calculateArrangementsCount(record Record) int {
 	defer measure.Duration(measure.Track(fmt.Sprintf("Calculation for %d unknowns took", record.Unknowns)))
-	return calculateArrangementsMutable(0, record.Conditions, record.GroupSizes, nil)
+	return calculateArrangementsCountMutable(0, record.Conditions, record.GroupSizes, record.DamagedCountInitial, record.DamagedCountTotal)
 }
 
-func calculateArrangementsMutable(position int, conditions []rune, groupSizes []int, validConditions [][]rune) [][]rune {
+func calculateArrangementsCountMutable(position int, conditions []rune, groupSizes []int, damagedCountCurrent, damagedCountTarget int) int {
+	// too many damaged springs
+	if damagedCountCurrent > damagedCountTarget {
+		return 0
+	}
+
 	// find next '?'
 	found := false
 	for i := position; i < len(conditions); i++ {
@@ -60,29 +67,29 @@ func calculateArrangementsMutable(position int, conditions []rune, groupSizes []
 	}
 
 	if found {
-		// try '.'
-		conditions[position] = '#'
-		validConditions = calculateArrangementsMutable(position+1, conditions, groupSizes, validConditions)
-
+		sum := 0
 		// try '#'
+		conditions[position] = '#'
+		sum += calculateArrangementsCountMutable(position+1, conditions, groupSizes, damagedCountCurrent+1, damagedCountTarget)
+
+		// try '.'
 		conditions[position] = '.'
-		validConditions = calculateArrangementsMutable(position+1, conditions, groupSizes, validConditions)
+		sum += calculateArrangementsCountMutable(position+1, conditions, groupSizes, damagedCountCurrent, damagedCountTarget)
 
 		// revert
 		conditions[position] = '?'
 
-		return validConditions
+		return sum
 	}
 
 	// no '?' found -> check validity
 	if isValid(conditions, groupSizes) {
 		//fmt.Printf("%v\n", string(conditions))
-		validConditions = append(validConditions, slices.Clone(conditions))
-		return validConditions
+		return 1
 	}
 
 	// invalid
-	return validConditions
+	return 0
 }
 
 func isValid(conditions []rune, groupSizes []int) bool {
@@ -139,11 +146,11 @@ func DoWithInputPart02(world World) int {
 
 func calculateArrangementsCountUnfolded(record Record, i int) int {
 	fmt.Printf("#%d: ?'s count: %d\n", i, record.Unknowns)
-	singleCount := len(calculateArrangements(record))
+	singleCount := calculateArrangementsCount(record)
 
 	unfolded2 := Unfold2(record)
 	fmt.Printf("#%d: ?'s count: %d\n", i, unfolded2.Unknowns)
-	pairCount := len(calculateArrangements(unfolded2))
+	pairCount := calculateArrangementsCount(unfolded2)
 
 	fmt.Println()
 	k := pairCount / singleCount
@@ -188,6 +195,8 @@ func ParseRecord(str string) Record {
 	conditionsRaw := parts[0]
 	groupSizes := utils.ExtractInts(parts[1], false)
 
+	groupsSum := utils.Sum(groupSizes)
+
 	unknowns := 0
 	for _, condition := range conditionsRaw {
 		if condition == '?' {
@@ -195,11 +204,20 @@ func ParseRecord(str string) Record {
 		}
 	}
 
+	damaged := 0
+	for _, condition := range conditionsRaw {
+		if condition == '#' {
+			damaged++
+		}
+	}
+
 	return Record{
-		ConditionsRaw: conditionsRaw,
-		Conditions:    []rune(conditionsRaw),
-		GroupSizes:    groupSizes,
-		Unknowns:      unknowns,
+		ConditionsRaw:       conditionsRaw,
+		Conditions:          []rune(conditionsRaw),
+		GroupSizes:          groupSizes,
+		DamagedCountTotal:   groupsSum,
+		DamagedCountInitial: damaged,
+		Unknowns:            unknowns,
 	}
 }
 

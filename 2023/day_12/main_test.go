@@ -163,7 +163,7 @@ func Test_calculateArrangementsCountUnfolded(t *testing.T) {
 		{name: "", args: args{i: 0, record: ParseRecord("????.#...#... 4,1,1")}, want: 16},
 		{name: "", args: args{i: 0, record: ParseRecord("????.######..#####. 1,6,5")}, want: 2500},
 		{name: "", args: args{i: 0, record: ParseRecord("?###???????? 3,2,1")}, want: 506250},
-		//{name: "", args: args{i: 0, record: ParseRecord("?#???#???????#????? 5,2,1,5")}, want: 4},
+		{name: "", args: args{i: 0, record: ParseRecord("?#???#???????#????? 5,2,1,5")}, want: 4},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
