@@ -30,11 +30,15 @@ type World struct {
 func DoWithInputPart01(world World) int {
 	sum := 0
 
+	max := 0
 	for i, record := range world.Records {
 		count := len(calculateArrangements(record))
 		fmt.Printf("#%d combinations: %d\n", i, count)
+		max = utils.Max(max, count)
 		sum += count
 	}
+
+	fmt.Printf("\nMax combinations: %d\n", max)
 
 	return sum
 }
