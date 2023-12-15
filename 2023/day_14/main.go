@@ -10,17 +10,8 @@ import (
 	"math"
 )
 
-type TileType int
-
-const (
-	Empty TileType = iota
-	Movable
-	Solid
-)
-
 type Tile struct {
 	Char rune
-	Type TileType
 }
 
 func (t Tile) String() string {
@@ -136,19 +127,8 @@ func ComputeLoad(world World) int {
 
 func ParseInput(r io.Reader) World {
 	parseItem := func(char rune) Tile {
-		var tileType TileType
-		switch char {
-		case '.':
-			tileType = Empty
-		case 'O':
-			tileType = Movable
-		case '#':
-			tileType = Solid
-		}
-
 		return Tile{
 			Char: char,
-			Type: tileType,
 		}
 	}
 
