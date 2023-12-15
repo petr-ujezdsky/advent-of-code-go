@@ -2,10 +2,12 @@ package main
 
 import (
 	_ "embed"
+	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"io"
+	"math"
 )
 
 type TileType int
@@ -79,22 +81,57 @@ func MoveRocks(tiles matrix.Matrix[Tile], direction utils.Direction4) int {
 var metricGlobal = utils.NewMetric("Global")
 
 func DoWithInputPart02(world World) int {
-	lastTotalLoad := 0
 	metricGlobal.Enable()
+	totalCycles := 1_000_000_000
 
-	for i := 0; i < 1_000_000_000; i++ {
-		lastTotalLoad = SpinCycleRocks(world)
-		metricGlobal.TickTotal(100_000, 1_000_000_000)
+	loopStartTiles := world.Tiles
+	loopCheckAfter := 1000
+
+	for i := 0; i < totalCycles; i++ {
+		SpinCycleRocks(world)
+		metricGlobal.TickTotal(100_000, totalCycles)
+
+		fmt.Printf("#%d load: %d\n", i, ComputeLoad(world))
+
+		if i == loopCheckAfter {
+			loopStartTiles = world.Tiles.Clone()
+		}
+
+		if i > loopCheckAfter {
+			if matrix.EqualFunc(world.Tiles, loopStartTiles, func(a, b Tile) bool { return a.Char == b.Char }) {
+				loopLength := i - loopCheckAfter
+				remainingCycles := totalCycles - i - 1
+
+				i += (remainingCycles / loopLength) * loopLength
+				loopCheckAfter = math.MaxInt
+				fmt.Printf("Found loop of length %d, going to %d\n", loopLength, i)
+			}
+		}
 	}
 
-	return lastTotalLoad
+	return ComputeLoad(world)
 }
 
-func SpinCycleRocks(world World) int {
+func SpinCycleRocks(world World) {
 	MoveRocks(world.Tiles, utils.Up)
 	MoveRocks(world.Tiles, utils.Left)
 	MoveRocks(world.Tiles, utils.Down)
-	return MoveRocks(world.Tiles, utils.Right)
+	MoveRocks(world.Tiles, utils.Right)
+}
+
+func ComputeLoad(world World) int {
+	totalLoad := 0
+
+	for x := 0; x < world.Tiles.GetWidth(); x++ {
+		for y := 0; y < world.Tiles.GetHeight(); y++ {
+			tile := world.Tiles.Get(x, y)
+			if tile.Char == 'O' {
+				totalLoad += world.Tiles.GetHeight() - y
+			}
+		}
+	}
+
+	return totalLoad
 }
 
 func ParseInput(r io.Reader) World {

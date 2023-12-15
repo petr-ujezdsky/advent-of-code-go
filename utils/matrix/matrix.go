@@ -3,6 +3,7 @@ package matrix
 import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
+	slices2 "slices"
 )
 
 // Matrix is array of columns of values T
@@ -228,6 +229,12 @@ func (m Matrix[T]) Clone() Matrix[T] {
 		cols[i] = slices.Clone(col)
 	}
 	return NewMatrixColumnNotation(cols)
+}
+
+func EqualFunc[T any](m1, m2 Matrix[T], eq func(a, b T) bool) bool {
+	return slices2.EqualFunc(m1.Columns, m2.Columns, func(col1, col2 []T) bool {
+		return slices2.EqualFunc(col1, col2, eq)
+	})
 }
 
 func (m Matrix[T]) String() string {
