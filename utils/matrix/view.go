@@ -59,9 +59,9 @@ func (v transformingView[T]) SetV(pos utils.Vector2i, value T) {
 }
 
 func (v transformingView[T]) GetWidth() int {
-	return v.GetWidth()
+	return v.view.GetWidth()
 }
 
 func (v transformingView[T]) GetHeight() int {
-	return v.GetHeight()
+	return v.view.GetHeight()
 }
