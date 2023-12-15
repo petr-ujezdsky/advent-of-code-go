@@ -40,7 +40,7 @@ func (m *Metric) TickTotal(period, total int) {
 
 	if m.Enabled && m.Ticks%period == 0 {
 		percent := float64(100*m.Ticks) / float64(total)
-		fmt.Printf("%v - tick #%d, %d / %d (%.4f)\n", m.Name, m.Ticks, m.Ticks, total, percent)
+		fmt.Printf("%v - tick #%d, %d / %d (%.4f%%)\n", m.Name, m.Ticks, m.Ticks, total, percent)
 	}
 }
 

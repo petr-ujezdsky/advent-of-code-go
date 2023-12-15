@@ -76,11 +76,15 @@ func MoveRocks(tiles matrix.Matrix[Tile], direction utils.Direction4) int {
 	return totalLoad
 }
 
+var metricGlobal = utils.NewMetric("Global")
+
 func DoWithInputPart02(world World) int {
 	lastTotalLoad := 0
+	metricGlobal.Enable()
 
 	for i := 0; i < 1_000_000_000; i++ {
 		lastTotalLoad = SpinCycleRocks(world)
+		metricGlobal.TickTotal(100_000, 1_000_000_000)
 	}
 
 	return lastTotalLoad
