@@ -14,6 +14,7 @@ type View[T any] interface {
 }
 
 type transformingView[T any] struct {
+	width, height          int
 	view                   View[T]
 	coordinatesTransformer coordinatesTransformer
 }
@@ -24,6 +25,8 @@ func NewMatrixViewFlippedUpDown[T any](view View[T]) View[T] {
 	}
 
 	return transformingView[T]{
+		width:                  view.GetWidth(),
+		height:                 view.GetHeight(),
 		view:                   view,
 		coordinatesTransformer: transformer,
 	}
@@ -35,6 +38,8 @@ func NewMatrixViewFlippedLeftRight[T any](view View[T]) View[T] {
 	}
 
 	return transformingView[T]{
+		width:                  view.GetWidth(),
+		height:                 view.GetHeight(),
 		view:                   view,
 		coordinatesTransformer: transformer,
 	}
@@ -42,29 +47,46 @@ func NewMatrixViewFlippedLeftRight[T any](view View[T]) View[T] {
 
 func NewMatrixViewRotated90CounterClockwise[T any](view View[T], steps int) View[T] {
 	steps = utils.ModFloor(steps, 4)
-	var transformer coordinatesTransformer
 
 	switch steps {
 	case 0:
 		return view
 	case 1:
-		transformer = func(x, y int) (int, int) {
+		transformer := func(x, y int) (int, int) {
 			return view.GetWidth() - y - 1, x
 		}
+
+		return transformingView[T]{
+			width:                  view.GetHeight(),
+			height:                 view.GetWidth(),
+			view:                   view,
+			coordinatesTransformer: transformer,
+		}
 	case 2:
-		transformer = func(x, y int) (int, int) {
+		transformer := func(x, y int) (int, int) {
 			return view.GetWidth() - x - 1, view.GetHeight() - y - 1
 		}
+
+		return transformingView[T]{
+			width:                  view.GetWidth(),
+			height:                 view.GetHeight(),
+			view:                   view,
+			coordinatesTransformer: transformer,
+		}
 	case 3:
-		transformer = func(x, y int) (int, int) {
+		transformer := func(x, y int) (int, int) {
 			return y, view.GetHeight() - x - 1
+		}
+
+		return transformingView[T]{
+			width:                  view.GetHeight(),
+			height:                 view.GetWidth(),
+			view:                   view,
+			coordinatesTransformer: transformer,
 		}
 	}
 
-	return transformingView[T]{
-		view:                   view,
-		coordinatesTransformer: transformer,
-	}
+	panic("Should not happen")
 }
 
 func NewMatrixViewTransposed[T any](view View[T]) View[T] {
@@ -73,6 +95,8 @@ func NewMatrixViewTransposed[T any](view View[T]) View[T] {
 	}
 
 	return transformingView[T]{
+		width:                  view.GetHeight(),
+		height:                 view.GetWidth(),
 		view:                   view,
 		coordinatesTransformer: transformer,
 	}
@@ -97,9 +121,9 @@ func (v transformingView[T]) SetV(pos utils.Vector2i, value T) {
 }
 
 func (v transformingView[T]) GetWidth() int {
-	return v.view.GetWidth()
+	return v.width
 }
 
 func (v transformingView[T]) GetHeight() int {
-	return v.view.GetHeight()
+	return v.height
 }
