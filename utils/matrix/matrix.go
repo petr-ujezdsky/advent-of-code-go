@@ -1,10 +1,8 @@
 package matrix
 
 import (
-	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
-	"strings"
 )
 
 // Matrix is array of columns of values T
@@ -233,71 +231,13 @@ func (m Matrix[T]) Clone() Matrix[T] {
 }
 
 func (m Matrix[T]) String() string {
-	return m.StringFmt(FmtNative[T])
+	return StringFmt[T](m, FmtNative[T])
 }
-
-type ValueFormatter[T any] func(value T) string
 
 func (m Matrix[T]) StringFmt(formatter ValueFormatter[T]) string {
-	return m.StringFmtSeparator(" ", formatter)
+	return StringFmtSeparator[T](m, " ", formatter)
 }
+
 func (m Matrix[T]) StringFmtSeparator(separator string, formatter ValueFormatter[T]) string {
-	var sb strings.Builder
-
-	for y := 0; y < m.Height; y++ {
-		for x := 0; x < m.Width; x++ {
-			val := m.Columns[x][y]
-
-			if x > 0 {
-				sb.WriteString(separator)
-			}
-			sb.WriteString(formatter(val))
-		}
-		if y < m.Height-1 {
-			sb.WriteString("\n")
-		}
-	}
-
-	return sb.String()
-}
-
-func FmtNative[T any](value T) string {
-	return fmt.Sprint(value)
-}
-
-func FmtFmt[T any](format string) func(v T) string {
-	return func(val T) string {
-		return fmt.Sprintf(format, val)
-	}
-}
-
-func FmtConstant[T any](value string) func(v T) string {
-	return func(val T) string {
-		return value
-	}
-}
-
-func FmtMap[T comparable](mapper map[T]string) func(v T) string {
-	return func(val T) string {
-		return mapper[val]
-	}
-}
-
-func FmtBoolean[T comparable](val T) string {
-	return FmtBooleanConst[T](".", "#")(val)
-}
-
-func FmtBooleanConst[T comparable](falseVal, trueVal string) ValueFormatter[T] {
-	return FmtBooleanCustom[T](FmtConstant[T](falseVal), FmtConstant[T](trueVal))
-}
-
-func FmtBooleanCustom[T comparable](formatterFalse, formatterTrue ValueFormatter[T]) func(v T) string {
-	return func(val T) string {
-		var empty T
-		if val == empty {
-			return formatterFalse(empty)
-		} else {
-			return formatterTrue(val)
-		}
-	}
+	return StringFmtSeparator[T](m, separator, formatter)
 }
