@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "embed"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"io"
@@ -29,17 +30,21 @@ type World struct {
 }
 
 func DoWithInputPart01(world World) int {
-	totalLoad := MoveRocksUp(world.Tiles)
+	totalLoad := MoveRocks(world.Tiles, utils.Up)
 
 	return totalLoad
 }
 
-func MoveRocksUp(tiles matrix.Matrix[Tile]) int {
+func MoveRocks(tiles matrix.Matrix[Tile], direction utils.Direction4) int {
 	totalLoad := 0
 
-	for x, column := range tiles.Columns {
+	// direction number is equal to rotation steps count
+	view := matrix.NewMatrixViewRotated90CounterClockwise[Tile](tiles, int(direction))
+	for x := 0; x < view.GetWidth(); x++ {
 		emptyTileY := -1
-		for y, tile := range column {
+
+		for y := 0; y < view.GetHeight(); y++ {
+			tile := view.Get(x, y)
 			char := tile.Char
 
 			switch char {
@@ -52,15 +57,17 @@ func MoveRocksUp(tiles matrix.Matrix[Tile]) int {
 			case 'O':
 				if emptyTileY != -1 {
 					// switch empty tile with rock
-					tiles.Columns[x][y], tiles.Columns[x][emptyTileY] = tiles.Columns[x][emptyTileY], tiles.Columns[x][y]
+					empty := view.Get(x, emptyTileY)
+					view.Set(x, emptyTileY, tile)
+					view.Set(x, y, empty)
 
 					// update total load
-					totalLoad += len(column) - emptyTileY
+					totalLoad += view.GetHeight() - emptyTileY
 
 					// empty tile is right after the moved rock
 					emptyTileY++
 				} else {
-					totalLoad += len(column) - y
+					totalLoad += view.GetHeight() - y
 				}
 			}
 		}

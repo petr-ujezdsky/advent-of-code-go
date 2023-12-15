@@ -18,13 +18,13 @@ func Test_01_parse(t *testing.T) {
 	assert.Equal(t, 10, world.Tiles.Height)
 }
 
-func TestMoveRocksUp(t *testing.T) {
+func TestMoveRocks(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
 
 	world := ParseInput(reader)
 
-	MoveRocksUp(world.Tiles)
+	MoveRocks(world.Tiles, utils.Up)
 
 	str := world.Tiles.StringFmtSeparator("", func(tile Tile) string { return string(tile.Char) })
 	fmt.Println(str)
