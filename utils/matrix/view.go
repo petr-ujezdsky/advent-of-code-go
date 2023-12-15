@@ -40,6 +40,44 @@ func NewMatrixViewFlippedLeftRight[T any](view View[T]) View[T] {
 	}
 }
 
+func NewMatrixViewRotated90CounterClockwise[T any](view View[T], steps int) View[T] {
+	steps = utils.ModFloor(steps, 4)
+	var transformer coordinatesTransformer
+
+	switch steps {
+	case 0:
+		return view
+	case 1:
+		transformer = func(x, y int) (int, int) {
+			return view.GetWidth() - y - 1, x
+		}
+	case 2:
+		transformer = func(x, y int) (int, int) {
+			return view.GetWidth() - x - 1, view.GetHeight() - y - 1
+		}
+	case 3:
+		transformer = func(x, y int) (int, int) {
+			return y, view.GetHeight() - x - 1
+		}
+	}
+
+	return transformingView[T]{
+		view:                   view,
+		coordinatesTransformer: transformer,
+	}
+}
+
+func NewMatrixViewTransposed[T any](view View[T]) View[T] {
+	transformer := func(x, y int) (int, int) {
+		return y, x
+	}
+
+	return transformingView[T]{
+		view:                   view,
+		coordinatesTransformer: transformer,
+	}
+}
+
 func (v transformingView[T]) Get(x, y int) T {
 	x, y = v.coordinatesTransformer(x, y)
 	return v.view.Get(x, y)
