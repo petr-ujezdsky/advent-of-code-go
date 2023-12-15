@@ -11,9 +11,9 @@ func TestNewMatrixView(t *testing.T) {
 		{4, 5, 6},
 		{7, 8, 9},
 		{10, 11, 12},
-	})
+	}).Matrix
 
-	view := NewMatrixView(m.Matrix)
+	view := NewMatrixView[int](&m)
 
 	assert.Equal(t, 1, view.Get(0, 0))
 	assert.Equal(t, 4, view.Get(0, 1))
@@ -27,9 +27,9 @@ func TestNewMatrixViewFlippedUpDown(t *testing.T) {
 		{4, 5, 6},
 		{7, 8, 9},
 		{10, 11, 12},
-	})
+	}).Matrix
 
-	view := NewMatrixViewFlippedUpDown(m.Matrix)
+	view := NewMatrixViewFlippedUpDown[int](m)
 
 	assert.Equal(t, 10, view.Get(0, 0))
 	assert.Equal(t, 7, view.Get(0, 1))
@@ -45,7 +45,7 @@ func TestNewMatrixViewFlippedLeftRight(t *testing.T) {
 		{10, 11, 12},
 	})
 
-	view := NewMatrixViewFlippedLeftRight(m.Matrix)
+	view := NewMatrixViewFlippedLeftRight[int](m)
 
 	assert.Equal(t, 3, view.Get(0, 0))
 	assert.Equal(t, 6, view.Get(0, 1))

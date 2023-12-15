@@ -94,6 +94,10 @@ func (m MatrixNumber[T]) SetAll(value T) MatrixNumber[T] {
 	return MatrixNumber[T]{m.Matrix.SetAll(value)}
 }
 
+func (m Matrix[T]) Get(x, y int) T {
+	return m.Columns[x][y]
+}
+
 func (m Matrix[T]) SetSafe(x, y int, value T) bool {
 	if x < 0 || x >= m.Width || y < 0 || y >= m.Height {
 		return false
@@ -101,6 +105,10 @@ func (m Matrix[T]) SetSafe(x, y int, value T) bool {
 
 	m.Columns[x][y] = value
 	return true
+}
+
+func (m Matrix[T]) Set(x, y int, value T) {
+	m.Columns[x][y] = value
 }
 
 func (m Matrix[T]) SetV(pos utils.Vector2i, value T) {
@@ -126,6 +134,14 @@ func (m Matrix[T]) GetV(pos utils.Vector2i) T {
 
 func (m Matrix[T]) GetVSafe(pos utils.Vector2i) (T, bool) {
 	return m.GetSafe(pos.X, pos.Y)
+}
+
+func (m Matrix[T]) GetWidth() int {
+	return m.Width
+}
+
+func (m Matrix[T]) GetHeight() int {
+	return m.Height
 }
 
 func (m Matrix[T]) Transpose() Matrix[T] {

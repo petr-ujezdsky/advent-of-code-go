@@ -4,65 +4,75 @@ import "github.com/petr-ujezdsky/advent-of-code-go/utils"
 
 type coordinatesTransformer func(x, y int) (int, int)
 
-type View[T any] struct {
-	Width, Height          int
-	matrix                 Matrix[T]
+type View[T any] interface {
+	Get(x, y int) T
+	GetV(pos utils.Vector2i) T
+	Set(x, y int, value T)
+	SetV(pos utils.Vector2i, value T)
+	GetWidth() int
+	GetHeight() int
+}
+
+type transformingView[T any] struct {
+	view                   View[T]
 	coordinatesTransformer coordinatesTransformer
 }
 
-func NewMatrixView[T any](matrix Matrix[T]) View[T] {
+func NewMatrixView[T any](view View[T]) View[T] {
 	transformer := func(x, y int) (int, int) {
 		return x, y
 	}
 
-	return View[T]{
-		Width:                  matrix.Width,
-		Height:                 matrix.Height,
-		matrix:                 matrix,
+	return transformingView[T]{
+		view:                   view,
 		coordinatesTransformer: transformer,
 	}
 }
 
-func NewMatrixViewFlippedUpDown[T any](matrix Matrix[T]) View[T] {
+func NewMatrixViewFlippedUpDown[T any](view View[T]) View[T] {
 	transformer := func(x, y int) (int, int) {
-		return x, matrix.Height - y - 1
+		return x, view.GetHeight() - y - 1
 	}
 
-	return View[T]{
-		Width:                  matrix.Width,
-		Height:                 matrix.Height,
-		matrix:                 matrix,
+	return transformingView[T]{
+		view:                   view,
 		coordinatesTransformer: transformer,
 	}
 }
 
-func NewMatrixViewFlippedLeftRight[T any](matrix Matrix[T]) View[T] {
+func NewMatrixViewFlippedLeftRight[T any](view View[T]) View[T] {
 	transformer := func(x, y int) (int, int) {
-		return matrix.Width - x - 1, y
+		return view.GetWidth() - x - 1, y
 	}
 
-	return View[T]{
-		Width:                  matrix.Width,
-		Height:                 matrix.Height,
-		matrix:                 matrix,
+	return transformingView[T]{
+		view:                   view,
 		coordinatesTransformer: transformer,
 	}
 }
 
-func (v View[T]) Get(x, y int) T {
+func (v transformingView[T]) Get(x, y int) T {
 	x, y = v.coordinatesTransformer(x, y)
-	return v.matrix.Columns[x][y]
+	return v.view.Get(x, y)
 }
 
-func (v View[T]) GetV(pos utils.Vector2i) T {
+func (v transformingView[T]) GetV(pos utils.Vector2i) T {
 	return v.Get(pos.X, pos.Y)
 }
 
-func (v View[T]) Set(x, y int, value T) {
+func (v transformingView[T]) Set(x, y int, value T) {
 	x, y = v.coordinatesTransformer(x, y)
-	v.matrix.Columns[x][y] = value
+	v.view.Set(x, y, value)
 }
 
-func (v View[T]) SetV(pos utils.Vector2i, value T) {
+func (v transformingView[T]) SetV(pos utils.Vector2i, value T) {
 	v.Set(pos.X, pos.Y, value)
+}
+
+func (v transformingView[T]) GetWidth() int {
+	return v.GetWidth()
+}
+
+func (v transformingView[T]) GetHeight() int {
+	return v.GetHeight()
 }
