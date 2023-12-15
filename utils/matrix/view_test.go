@@ -5,6 +5,22 @@ import (
 	"testing"
 )
 
+func TestNewMatrixView(t *testing.T) {
+	m := NewMatrixNumberRowNotation([][]int{
+		{1, 2, 3},
+		{4, 5, 6},
+		{7, 8, 9},
+		{10, 11, 12},
+	})
+
+	view := NewMatrixView(m.Matrix)
+
+	assert.Equal(t, 1, view.Get(0, 0))
+	assert.Equal(t, 4, view.Get(0, 1))
+	assert.Equal(t, 7, view.Get(0, 2))
+	assert.Equal(t, 10, view.Get(0, 3))
+}
+
 func TestNewMatrixViewFlippedUpDown(t *testing.T) {
 	m := NewMatrixNumberRowNotation([][]int{
 		{1, 2, 3},

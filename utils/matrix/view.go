@@ -10,6 +10,19 @@ type View[T any] struct {
 	coordinatesTransformer coordinatesTransformer
 }
 
+func NewMatrixView[T any](matrix Matrix[T]) View[T] {
+	transformer := func(x, y int) (int, int) {
+		return x, y
+	}
+
+	return View[T]{
+		Width:                  matrix.Width,
+		Height:                 matrix.Height,
+		matrix:                 matrix,
+		coordinatesTransformer: transformer,
+	}
+}
+
 func NewMatrixViewFlippedUpDown[T any](matrix Matrix[T]) View[T] {
 	transformer := func(x, y int) (int, int) {
 		return x, matrix.Height - y - 1
