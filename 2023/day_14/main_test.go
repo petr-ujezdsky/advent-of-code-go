@@ -64,6 +64,70 @@ func Test_01(t *testing.T) {
 	assert.Equal(t, 110128, result)
 }
 
+func TestSpinCycleRocks(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	world := ParseInput(reader)
+
+	SpinCycleRocks(world)
+
+	str := world.Tiles.StringFmtSeparator("", func(tile Tile) string { return string(tile.Char) })
+	fmt.Println(str)
+
+	expected := utils.Msg(`
+.....#....
+....#...O#
+...OO##...
+.OO#......
+.....OOO#.
+.O#...O#.#
+....O#....
+......OOOO
+#...O###..
+#..OO#....`)
+
+	assert.Equal(t, expected, str)
+
+	SpinCycleRocks(world)
+
+	str = world.Tiles.StringFmtSeparator("", func(tile Tile) string { return string(tile.Char) })
+	fmt.Println(str)
+
+	expected = utils.Msg(`
+.....#....
+....#...O#
+.....##...
+..O#......
+.....OOO#.
+.O#...O#.#
+....O#...O
+.......OOO
+#..OO###..
+#.OOO#...O`)
+
+	assert.Equal(t, expected, str)
+
+	SpinCycleRocks(world)
+
+	str = world.Tiles.StringFmtSeparator("", func(tile Tile) string { return string(tile.Char) })
+	fmt.Println(str)
+
+	expected = utils.Msg(`
+.....#....
+....#...O#
+.....##...
+..O#......
+.....OOO#.
+.O#...O#.#
+....O#...O
+.......OOO
+#...O###.O
+#.OOO#...O`)
+
+	assert.Equal(t, expected, str)
+}
+
 func Test_02_example(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)

@@ -77,7 +77,20 @@ func MoveRocks(tiles matrix.Matrix[Tile], direction utils.Direction4) int {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	lastTotalLoad := 0
+
+	for i := 0; i < 1_000_000_000; i++ {
+		lastTotalLoad = SpinCycleRocks(world)
+	}
+
+	return lastTotalLoad
+}
+
+func SpinCycleRocks(world World) int {
+	MoveRocks(world.Tiles, utils.Up)
+	MoveRocks(world.Tiles, utils.Left)
+	MoveRocks(world.Tiles, utils.Down)
+	return MoveRocks(world.Tiles, utils.Right)
 }
 
 func ParseInput(r io.Reader) World {
