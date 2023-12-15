@@ -5,15 +5,13 @@ import (
 	"testing"
 )
 
-func TestNewMatrixView(t *testing.T) {
-	m := NewMatrixNumberRowNotation([][]int{
+func TestNewMatrixView_directly(t *testing.T) {
+	var view View[int] = NewMatrixNumberRowNotation([][]int{
 		{1, 2, 3},
 		{4, 5, 6},
 		{7, 8, 9},
 		{10, 11, 12},
 	}).Matrix
-
-	view := NewMatrixView[int](&m)
 
 	assert.Equal(t, 1, view.Get(0, 0))
 	assert.Equal(t, 4, view.Get(0, 1))
