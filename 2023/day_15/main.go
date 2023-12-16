@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"fmt"
 	"github.com/emirpasic/gods/maps/linkedhashmap"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
 	"strings"
@@ -101,19 +102,23 @@ func ParseInput(r io.Reader) World {
 	scanner.Scan()
 	tokens := strings.Split(scanner.Text(), ",")
 
-	steps := slices.Map(tokens, func(token string) Step {
-		label := token[0:2]
-		operation := rune(token[2])
-		focalLength := 0
-		if operation == '=' {
-			focalLength = int((token[3]) - '0')
+	steps := slices.Map(tokens, func(stepStr string) Step {
+		parts := strings.Split(stepStr, "=")
+
+		if len(parts) == 2 {
+			return Step{
+				Raw:         stepStr,
+				Label:       parts[0],
+				Operation:   '=',
+				FocalLength: utils.ParseInt(parts[1]),
+			}
 		}
 
 		return Step{
-			Raw:         token,
-			Label:       label,
-			Operation:   operation,
-			FocalLength: focalLength,
+			Raw:         stepStr,
+			Label:       stepStr[:len(stepStr)-1],
+			Operation:   '-',
+			FocalLength: 0,
 		}
 	})
 
