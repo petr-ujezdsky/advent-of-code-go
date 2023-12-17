@@ -31,30 +31,42 @@ func Walk(tiles matrix.Matrix[Tile]) int {
 }
 
 func walkRecursive(position utils.Vector2i, direction utils.Direction4, energized map[utils.Vector2i]struct{}, tiles matrix.Matrix[Tile]) {
-	nextPosition := position.Add(direction.ToStep())
-	nextTile, ok := tiles.GetVSafe(nextPosition)
+	for {
+		nextPosition := position.Add(direction.ToStep())
+		nextTile, ok := tiles.GetVSafe(nextPosition)
 
-	// outside the world
-	if !ok {
-		return
-	}
+		// outside the world
+		if !ok {
+			return
+		}
 
-	// already visited from this direction
-	if nextTile.Visited[direction] {
-		return
-	}
+		// already visited from this direction
+		if nextTile.Visited[direction] {
+			return
+		}
 
-	// mark as visited from this direction
-	nextTile.Visited[direction] = true
+		// mark as visited from this direction
+		nextTile.Visited[direction] = true
 
-	// energize
-	energized[nextPosition] = struct{}{}
+		// energize
+		energized[nextPosition] = struct{}{}
 
-	// compute where to go next
-	nextDirections := nextTile.NextFor[direction]
+		// compute where to go next
+		nextDirections := nextTile.NextFor[direction]
 
-	for _, nextDirection := range nextDirections {
-		walkRecursive(nextPosition, nextDirection, energized, tiles)
+		if len(nextDirections) == 1 {
+			// continue looping
+			position = nextPosition
+			direction = nextDirections[0]
+		} else {
+			// split using recursion
+			for _, nextDirection := range nextDirections {
+				walkRecursive(nextPosition, nextDirection, energized, tiles)
+			}
+
+			// end
+			return
+		}
 	}
 }
 
