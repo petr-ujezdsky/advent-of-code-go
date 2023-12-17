@@ -224,11 +224,8 @@ func (m Matrix[T]) Bounds() utils.BoundingRectangle {
 }
 
 func (m Matrix[T]) Clone() Matrix[T] {
-	cols := slices.Clone(m.Columns)
-	for i, col := range cols {
-		cols[i] = slices.Clone(col)
-	}
-	return NewMatrixColumnNotation(cols)
+	// no need to clone, new array is created in constructor during next calls
+	return NewMatrixColumnNotation(m.Columns)
 }
 
 func EqualFunc[T any](m1, m2 Matrix[T], eq func(a, b T) bool) bool {
