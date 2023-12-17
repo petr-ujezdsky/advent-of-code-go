@@ -58,8 +58,58 @@ func walkRecursive(position utils.Vector2i, direction utils.Direction4, energize
 	}
 }
 
+type InitialStep struct {
+	Position  utils.Vector2i
+	Direction utils.Direction4
+}
+
 func DoWithInputPart02(world World) int {
-	return 0
+	starts := generateInitialSteps(world.Tiles)
+	maxEnergized := 0
+
+	for _, start := range starts {
+		energized := make(map[utils.Vector2i]struct{})
+		tiles := world.Tiles.Clone()
+
+		walkRecursive(start.Position, start.Direction, energized, tiles)
+		maxEnergized = utils.Max(maxEnergized, len(energized))
+	}
+
+	return maxEnergized
+}
+
+func generateInitialSteps(tiles matrix.Matrix[Tile]) []InitialStep {
+	var starts []InitialStep
+
+	for x := 0; x < tiles.Width; x++ {
+		down := InitialStep{
+			Position:  utils.Vector2i{X: x, Y: tiles.Height},
+			Direction: utils.Down,
+		}
+
+		up := InitialStep{
+			Position:  utils.Vector2i{X: x, Y: -1},
+			Direction: utils.Up,
+		}
+
+		starts = append(starts, down, up)
+	}
+
+	for y := 0; y < tiles.Height; y++ {
+		right := InitialStep{
+			Position:  utils.Vector2i{X: -1, Y: y},
+			Direction: utils.Right,
+		}
+
+		left := InitialStep{
+			Position:  utils.Vector2i{X: tiles.Width, Y: y},
+			Direction: utils.Left,
+		}
+
+		starts = append(starts, right, left)
+	}
+
+	return starts
 }
 
 func ParseInput(r io.Reader) World {
