@@ -2,7 +2,6 @@ package main
 
 import (
 	_ "embed"
-	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
@@ -66,16 +65,19 @@ type InitialStep struct {
 
 func DoWithInputPart02(world World) int {
 	starts := generateInitialSteps(world.Tiles)
-	maxEnergized := 0
 
-	for _, start := range starts {
+	results := utils.ProcessParallel(starts, func(start InitialStep, i int) int {
 		energized := make(map[utils.Vector2i]struct{})
 		tiles := cloneTiles(world.Tiles)
 
 		walkRecursive(start.Position, start.Direction, energized, *tiles)
-		maxEnergized = utils.Max(maxEnergized, len(energized))
 
-		fmt.Printf("%v -> %d, max %d\n", start, len(energized), maxEnergized)
+		return len(energized)
+	})
+
+	maxEnergized := 0
+	for result := range results {
+		maxEnergized = utils.Max(maxEnergized, result.Value)
 	}
 
 	return maxEnergized
