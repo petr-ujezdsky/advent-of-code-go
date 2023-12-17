@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "embed"
+	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
@@ -69,10 +70,12 @@ func DoWithInputPart02(world World) int {
 
 	for _, start := range starts {
 		energized := make(map[utils.Vector2i]struct{})
-		tiles := world.Tiles.Clone()
+		tiles := cloneTiles(world.Tiles)
 
-		walkRecursive(start.Position, start.Direction, energized, tiles)
+		walkRecursive(start.Position, start.Direction, energized, *tiles)
 		maxEnergized = utils.Max(maxEnergized, len(energized))
+
+		fmt.Printf("%v -> %d, max %d\n", start, len(energized), maxEnergized)
 	}
 
 	return maxEnergized
@@ -110,6 +113,20 @@ func generateInitialSteps(tiles matrix.Matrix[Tile]) []InitialStep {
 	}
 
 	return starts
+}
+
+func cloneTiles(tiles matrix.Matrix[Tile]) *matrix.Matrix[Tile] {
+	// shallow clone the matrix
+	clone := tiles.Clone()
+
+	// reinitialize attributes held by reference
+	for x, column := range clone.Columns {
+		for y := range column {
+			clone.Columns[x][y].Visited = make([]bool, 4)
+		}
+	}
+
+	return &clone
 }
 
 func ParseInput(r io.Reader) World {
