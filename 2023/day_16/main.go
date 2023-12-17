@@ -92,9 +92,9 @@ func DoWithInputPart02(world World) int {
 	results := utils.ProcessParallel(starts, func(start InitialStep, i int) int {
 		tiles := cloneTiles(world.Tiles)
 
-		walkRecursive(start.Position, start.Direction, *tiles)
+		walkRecursive(start.Position, start.Direction, tiles)
 
-		return countEnergized(*tiles)
+		return countEnergized(tiles)
 	})
 
 	maxEnergized := 0
@@ -139,7 +139,7 @@ func generateInitialSteps(tiles matrix.Matrix[Tile]) []InitialStep {
 	return starts
 }
 
-func cloneTiles(tiles matrix.Matrix[Tile]) *matrix.Matrix[Tile] {
+func cloneTiles(tiles matrix.Matrix[Tile]) matrix.Matrix[Tile] {
 	// shallow clone the matrix
 	clone := tiles.Clone()
 
@@ -150,7 +150,7 @@ func cloneTiles(tiles matrix.Matrix[Tile]) *matrix.Matrix[Tile] {
 		}
 	}
 
-	return &clone
+	return clone
 }
 
 func ParseInput(r io.Reader) World {
