@@ -23,14 +23,12 @@ func DoWithInputPart01(world World) int {
 }
 
 func Walk(tiles matrix.Matrix[Tile]) int {
-	energized := make(map[utils.Vector2i]struct{})
+	walkRecursive(utils.Vector2i{X: -1, Y: tiles.Height - 1}, utils.Right, tiles)
 
-	walkRecursive(utils.Vector2i{X: -1, Y: tiles.Height - 1}, utils.Right, energized, tiles)
-
-	return len(energized)
+	return countEnergized(tiles)
 }
 
-func walkRecursive(position utils.Vector2i, direction utils.Direction4, energized map[utils.Vector2i]struct{}, tiles matrix.Matrix[Tile]) {
+func walkRecursive(position utils.Vector2i, direction utils.Direction4, tiles matrix.Matrix[Tile]) {
 	for {
 		nextPosition := position.Add(direction.ToStep())
 		nextTile, ok := tiles.GetVSafe(nextPosition)
@@ -47,9 +45,8 @@ func walkRecursive(position utils.Vector2i, direction utils.Direction4, energize
 
 		// mark as visited from this direction
 		nextTile.Visited[direction] = true
-
-		// energize
-		energized[nextPosition] = struct{}{}
+		// globally visited
+		nextTile.Visited[4] = true
 
 		// compute where to go next
 		nextDirections := nextTile.NextFor[direction]
@@ -61,13 +58,27 @@ func walkRecursive(position utils.Vector2i, direction utils.Direction4, energize
 		} else {
 			// split using recursion
 			for _, nextDirection := range nextDirections {
-				walkRecursive(nextPosition, nextDirection, energized, tiles)
+				walkRecursive(nextPosition, nextDirection, tiles)
 			}
 
 			// end
 			return
 		}
 	}
+}
+
+func countEnergized(tiles matrix.Matrix[Tile]) int {
+	sum := 0
+
+	for _, column := range tiles.Columns {
+		for _, tile := range column {
+			if tile.Visited[4] {
+				sum++
+			}
+		}
+	}
+
+	return sum
 }
 
 type InitialStep struct {
@@ -79,12 +90,11 @@ func DoWithInputPart02(world World) int {
 	starts := generateInitialSteps(world.Tiles)
 
 	results := utils.ProcessParallel(starts, func(start InitialStep, i int) int {
-		energized := make(map[utils.Vector2i]struct{})
 		tiles := cloneTiles(world.Tiles)
 
-		walkRecursive(start.Position, start.Direction, energized, *tiles)
+		walkRecursive(start.Position, start.Direction, *tiles)
 
-		return len(energized)
+		return countEnergized(*tiles)
 	})
 
 	maxEnergized := 0
@@ -136,7 +146,7 @@ func cloneTiles(tiles matrix.Matrix[Tile]) *matrix.Matrix[Tile] {
 	// reinitialize attributes held by reference
 	for x, column := range clone.Columns {
 		for y := range column {
-			clone.Columns[x][y].Visited = make([]bool, 4)
+			clone.Columns[x][y].Visited = make([]bool, 5)
 		}
 	}
 
@@ -188,7 +198,7 @@ func ParseInput(r io.Reader) World {
 		return Tile{
 			Char:    char,
 			NextFor: nextFor,
-			Visited: make([]bool, 4),
+			Visited: make([]bool, 5),
 		}
 	}
 
