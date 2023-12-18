@@ -57,8 +57,17 @@ func findForbiddenPositions(pathIterator *alg.PathIterator[utils.Vector2i]) []ut
 		return []utils.Vector2i{previous}
 	}
 
-	if current.X == previous.X && previous.X == previous2.X || current.Y == previous.Y && previous.Y == previous2.Y {
-		// all 3 are in a row
+	previous3, ok := pathIterator.Next()
+	if !ok {
+		// has only 3 previous tiles
+		return []utils.Vector2i{previous}
+	}
+
+	xs := current.X == previous.X && previous.X == previous2.X && previous2.X == previous3.X
+	ys := current.Y == previous.Y && previous.Y == previous2.Y && previous2.Y == previous3.Y
+
+	if xs || ys {
+		// all 4 are in a row
 		next := current.Add(current.Subtract(previous))
 		return []utils.Vector2i{previous, next}
 	}
