@@ -14,7 +14,7 @@ func Test_01_parse(t *testing.T) {
 
 	assert.Equal(t, 13, world.Tiles.Width)
 	assert.Equal(t, 13, world.Tiles.Height)
-	assert.Equal(t, 4, world.Tiles.Columns[0][0])
+	assert.Equal(t, 2, world.Tiles.Columns[0][0])
 }
 
 func Test_01_example(t *testing.T) {

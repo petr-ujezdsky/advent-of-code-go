@@ -39,16 +39,63 @@ func d(m Matrix2i) func(utils.Vector2i, utils.Vector2i) int {
 	}
 }
 
-func neighbours(m Matrix2i) func(origin utils.Vector2i) []utils.Vector2i {
-	return func(origin utils.Vector2i) []utils.Vector2i {
+func findForbiddenPositions(pathIterator *alg.PathIterator[utils.Vector2i]) []utils.Vector2i {
+	current, ok := pathIterator.Next()
+	if !ok {
+		panic("First tile should be the current tile")
+	}
+
+	previous, ok := pathIterator.Next()
+	if !ok {
+		// has no previous tile
+		return nil
+	}
+
+	previous2, ok := pathIterator.Next()
+	if !ok {
+		// has only 2 previous tiles
+		return []utils.Vector2i{previous}
+	}
+
+	if current.X == previous.X && previous.X == previous2.X || current.Y == previous.Y && previous.Y == previous2.Y {
+		// all 3 are in a row
+		next := current.Add(current.Subtract(previous))
+		return []utils.Vector2i{previous, next}
+	}
+
+	return []utils.Vector2i{previous}
+}
+
+func neighbours(m Matrix2i) func(origin utils.Vector2i, pathIterator *alg.PathIterator[utils.Vector2i]) []utils.Vector2i {
+	return func(origin utils.Vector2i, pathIterator *alg.PathIterator[utils.Vector2i]) []utils.Vector2i {
 		var neighbours []utils.Vector2i
-		for _, dir := range dirs {
+
+		// find forbidden positions based on the path
+		forbiddenPositions := findForbiddenPositions(pathIterator)
+
+		for _, dir := range utils.Direction4Steps {
 			nextPos := origin.Add(dir)
 
-			// check validity
-			if _, ok := m.GetVSafe(nextPos); ok {
-				neighbours = append(neighbours, nextPos)
+			// check world validity
+			if _, ok := m.GetVSafe(nextPos); !ok {
+				continue
 			}
+
+			// check for forbidden positions
+			forbidden := false
+			for _, forbiddenPosition := range forbiddenPositions {
+				if nextPos == forbiddenPosition {
+					forbidden = true
+					break
+				}
+			}
+
+			if forbidden {
+				continue
+			}
+
+			// everything is OK
+			neighbours = append(neighbours, nextPos)
 		}
 
 		return neighbours
@@ -56,8 +103,8 @@ func neighbours(m Matrix2i) func(origin utils.Vector2i) []utils.Vector2i {
 }
 
 func FindMinHeatLossPath(m Matrix2i) ([]utils.Vector2i, map[utils.Vector2i]int, int, bool) {
-	endPos := utils.Vector2i{m.Width - 1, 0}
-	return alg.AStar(utils.Vector2i{Y: m.Height - 1}, endPos, h(endPos), d(m), neighbours(m))
+	endPos := utils.Vector2i{X: m.Width - 1, Y: m.Height - 1}
+	return alg.AStar(utils.Vector2i{}, endPos, h(endPos), d(m), neighbours(m))
 }
 
 func DoWithInputPart02(world World) int {
