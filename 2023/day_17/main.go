@@ -2,11 +2,14 @@ package main
 
 import (
 	_ "embed"
+	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/alg"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
+	"strconv"
 )
 
 type Matrix2i = matrix.MatrixInt
@@ -17,10 +20,22 @@ type World struct {
 
 func DoWithInputPart01(world World) int {
 	tiles := world.Tiles
-	_, _, totalHeatLoss, ok := FindMinHeatLossPath(tiles)
+	path, _, totalHeatLoss, ok := FindMinHeatLossPath(tiles)
 	if !ok {
 		panic("No path found")
 	}
+
+	pathMap := slices.ToMap(path, func(v utils.Vector2i) utils.Vector2i { return v })
+
+	str := matrix.StringFmtSeparatorIndexed[int](tiles, "", func(value int, x, y int) string {
+		if _, ok := pathMap[utils.Vector2i{X: x, Y: y}]; ok {
+			return "."
+		}
+
+		return strconv.Itoa(value)
+	})
+
+	fmt.Printf("Tiles:\n%v\n", str)
 
 	return totalHeatLoss
 }

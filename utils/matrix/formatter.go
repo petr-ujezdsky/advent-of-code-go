@@ -11,11 +11,21 @@ type ViewFormatter[T any] struct {
 
 type ValueFormatter[T any] func(value T) string
 
+type ValueFormatterIndexed[T any] func(value T, x, y int) string
+
 func StringFmt[T any](view View[T], formatter ValueFormatter[T]) string {
 	return StringFmtSeparator(view, " ", formatter)
 }
 
 func StringFmtSeparator[T any](view View[T], separator string, formatter ValueFormatter[T]) string {
+	adapter := func(value T, x, y int) string {
+		return formatter(value)
+	}
+
+	return StringFmtSeparatorIndexed(view, separator, adapter)
+}
+
+func StringFmtSeparatorIndexed[T any](view View[T], separator string, formatter ValueFormatterIndexed[T]) string {
 	var sb strings.Builder
 
 	for y := 0; y < view.GetHeight(); y++ {
@@ -25,7 +35,7 @@ func StringFmtSeparator[T any](view View[T], separator string, formatter ValueFo
 			if x > 0 {
 				sb.WriteString(separator)
 			}
-			sb.WriteString(formatter(val))
+			sb.WriteString(formatter(val, x, y))
 		}
 		if y < view.GetHeight()-1 {
 			sb.WriteString("\n")
