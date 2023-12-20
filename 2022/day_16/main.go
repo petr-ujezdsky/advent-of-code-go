@@ -214,7 +214,7 @@ func FindMaxPressureReleaseStateMinMaxGeneralized(world World) int {
 		return -maxPossibleReleasedPressure2(state, world.AllNodesSorted)
 	}
 
-	next := func(state *WorldState2) []*WorldState2 {
+	next := func(state *WorldState2) ([]*WorldState2, bool) {
 		var nextStates []*WorldState2
 
 		for _, closedValve := range world.AllNodes {
@@ -245,7 +245,7 @@ func FindMaxPressureReleaseStateMinMaxGeneralized(world World) int {
 			nextStates = append(nextStates, nextState)
 		}
 
-		return nextStates
+		return nextStates, len(nextStates) == 0
 	}
 
 	initialState := &WorldState2{
@@ -313,7 +313,7 @@ func FindMaxPressureReleasedWithElephant(world World) int {
 		return -maxPossibleReleasedPressure3(state, world.AllNodesSorted)
 	}
 
-	next := func(state *WorldState3) []*WorldState3 {
+	next := func(state *WorldState3) ([]*WorldState3, bool) {
 		var nextStates []*WorldState3
 
 		// player 1
@@ -339,7 +339,7 @@ func FindMaxPressureReleasedWithElephant(world World) int {
 			}
 		}
 
-		return nextStates
+		return nextStates, len(nextStates) == 0
 	}
 
 	initialState := &WorldState3{

@@ -14,7 +14,7 @@ type storage[T any] interface {
 // BranchAndBoundBestFirst finds state with minimal cost. It skips states having lower bound greater than currently
 // found minimum.
 // Uses best-first search.
-func BranchAndBoundBestFirst[T comparable](start T, cost func(T) int, lowerBound func(T) int, nextStatesProvider func(T) []T) (min int, minState T) {
+func BranchAndBoundBestFirst[T comparable](start T, cost func(T) int, lowerBound func(T) int, nextStatesProvider func(T) ([]T, bool)) (min int, minState T) {
 	storage := collections.NewMinHeapInt[T]()
 	return branchAndBound[T](&storage, start, cost, lowerBound, nextStatesProvider)
 }
@@ -22,7 +22,7 @@ func BranchAndBoundBestFirst[T comparable](start T, cost func(T) int, lowerBound
 // BranchAndBoundDeepFirst finds state with minimal cost. It skips states having lower bound greater than currently
 // found minimum.
 // Uses deep-first search.
-func BranchAndBoundDeepFirst[T any](start T, cost func(T) int, lowerBound func(T) int, nextStatesProvider func(T) []T) (min int, minState T) {
+func BranchAndBoundDeepFirst[T any](start T, cost func(T) int, lowerBound func(T) int, nextStatesProvider func(T) ([]T, bool)) (min int, minState T) {
 	storage := newStackStorage[T]()
 	return branchAndBound[T](&storage, start, cost, lowerBound, nextStatesProvider)
 }
@@ -30,13 +30,13 @@ func BranchAndBoundDeepFirst[T any](start T, cost func(T) int, lowerBound func(T
 // BranchAndBoundBreadthFirst finds state with minimal cost. It skips states having lower bound greater than currently
 // found minimum.
 // Uses breadth-first search.
-func BranchAndBoundBreadthFirst[T any](start T, cost func(T) int, lowerBound func(T) int, nextStatesProvider func(T) []T) (min int, minState T) {
+func BranchAndBoundBreadthFirst[T any](start T, cost func(T) int, lowerBound func(T) int, nextStatesProvider func(T) ([]T, bool)) (min int, minState T) {
 	storage := newQueueStorage[T]()
 	return branchAndBound[T](&storage, start, cost, lowerBound, nextStatesProvider)
 }
 
 // branchAndBound finds state with minimal cost. It skips states having lower bound greater than currently found minimum.
-func branchAndBound[T any](storage storage[T], start T, cost func(T) int, lowerBound func(T) int, nextStatesProvider func(T) []T) (min int, minState T) {
+func branchAndBound[T any](storage storage[T], start T, cost func(T) int, lowerBound func(T) int, nextStatesProvider func(T) ([]T, bool)) (min int, minState T) {
 	openSet := storage
 	openSet.Push(start, lowerBound(start))
 
@@ -47,10 +47,10 @@ func branchAndBound[T any](storage storage[T], start T, cost func(T) int, lowerB
 
 		current := openSet.Pop()
 
-		nextStates := nextStatesProvider(current)
+		nextStates, end := nextStatesProvider(current)
 
 		// current is terminal state
-		if len(nextStates) == 0 {
+		if end {
 			currentCost := cost(current)
 
 			if currentCost < min {

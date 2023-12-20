@@ -122,9 +122,9 @@ func maxGeodeCountInTime(blueprint Blueprint, remainingTime int) (int, State) {
 		//return math.MinInt
 	}
 
-	nextStatesProvider := func(state State) []State {
+	nextStatesProvider := func(state State) ([]State, bool) {
 		if state.RemainingTime <= 0 {
-			return nil
+			return nil, true
 		}
 
 		var states []State
@@ -170,7 +170,7 @@ func maxGeodeCountInTime(blueprint Blueprint, remainingTime int) (int, State) {
 			}
 		}
 
-		return states
+		return states, len(states) == 0
 	}
 
 	initialState := State{
