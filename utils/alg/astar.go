@@ -1,6 +1,7 @@
 package alg
 
 import (
+	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/collections"
 )
 
@@ -13,38 +14,35 @@ func reconstructPath[T comparable](cameFrom map[T]T, current T) []T {
 	return totalPath
 }
 
-type PathIterator[T comparable] struct {
-	Value       T
-	cameFrom    map[T]T
-	initialized bool
+type pathIterator[T comparable] struct {
+	value    T
+	cameFrom map[T]T
+	valid    bool
 }
 
-func newPathIterator[T comparable](cameFrom map[T]T, current T) *PathIterator[T] {
-	return &PathIterator[T]{
-		Value:    current,
+func newPathIterator[T comparable](cameFrom map[T]T, current T) *pathIterator[T] {
+	return &pathIterator[T]{
+		value:    current,
 		cameFrom: cameFrom,
+		valid:    true,
 	}
 }
 
-func (i *PathIterator[T]) Next() (T, bool) {
-	if !i.initialized {
-		i.initialized = true
-		return i.Value, true
-	}
+func (i *pathIterator[T]) HasNext() bool {
+	return i.valid
+}
 
-	if next, ok := i.cameFrom[i.Value]; ok {
-		i.Value = next
-		return i.Value, true
-	}
-
-	return i.Value, false
+func (i *pathIterator[T]) Next() T {
+	value := i.value
+	i.value, i.valid = i.cameFrom[i.value]
+	return value
 }
 
 // AStar algorithm as in https://en.wikipedia.org/wiki/A%2A_search_algorithm
 // h(n) int - heuristic function to calculate expected cost from node n to the goal node
 // d(from, to) int - cost function for step from node "from" to node "to
 // neighbours(n) []T - function that returns all neighbours of node n
-func AStar[T comparable](start, goal T, h func(T) int, d func(T, T) int, neighbours func(T, *PathIterator[T]) []T) (path []T, scores map[T]int, score int, found bool) {
+func AStar[T comparable](start, goal T, h func(T) int, d func(T, T) int, neighbours func(T, utils.Iterator[T]) []T) (path []T, scores map[T]int, score int, found bool) {
 	return AStarEndFunc(start, func(state T) bool { return state == goal }, h, d, neighbours)
 }
 
@@ -52,7 +50,7 @@ func AStar[T comparable](start, goal T, h func(T) int, d func(T, T) int, neighbo
 // h(n) int - heuristic function to calculate expected cost from node n to the goal node
 // d(from, to) int - cost function for step from node "from" to node "to
 // neighbours(n) []T - function that returns all neighbours of node n
-func AStarEndFunc[T comparable](start T, isEnd func(T) bool, h func(T) int, d func(T, T) int, neighbours func(T, *PathIterator[T]) []T) (path []T, scores map[T]int, score int, found bool) {
+func AStarEndFunc[T comparable](start T, isEnd func(T) bool, h func(T) int, d func(T, T) int, neighbours func(T, utils.Iterator[T]) []T) (path []T, scores map[T]int, score int, found bool) {
 	hStart := h(start)
 
 	// The set of discovered nodes that may need to be (re-)expanded.

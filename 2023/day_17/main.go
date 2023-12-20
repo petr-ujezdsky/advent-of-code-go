@@ -54,29 +54,31 @@ func d(m Matrix2i) func(utils.Vector2i, utils.Vector2i) int {
 	}
 }
 
-func findForbiddenPositions(pathIterator *alg.PathIterator[utils.Vector2i]) []utils.Vector2i {
-	current, ok := pathIterator.Next()
-	if !ok {
+func findForbiddenPositions(pathIterator utils.Iterator[utils.Vector2i]) []utils.Vector2i {
+	if !pathIterator.HasNext() {
 		panic("First tile should be the current tile")
-	}
 
-	previous, ok := pathIterator.Next()
-	if !ok {
+	}
+	current := pathIterator.Next()
+
+	if !pathIterator.HasNext() {
 		// has no previous tile
 		return nil
 	}
+	previous := pathIterator.Next()
 
-	previous2, ok := pathIterator.Next()
-	if !ok {
+	if !pathIterator.HasNext() {
 		// has only 2 previous tiles
 		return []utils.Vector2i{previous}
 	}
+	previous2 := pathIterator.Next()
 
-	previous3, ok := pathIterator.Next()
-	if !ok {
+	if !pathIterator.HasNext() {
 		// has only 3 previous tiles
 		return []utils.Vector2i{previous}
 	}
+
+	previous3 := pathIterator.Next()
 
 	xs := current.X == previous.X && previous.X == previous2.X && previous2.X == previous3.X
 	ys := current.Y == previous.Y && previous.Y == previous2.Y && previous2.Y == previous3.Y
@@ -90,8 +92,8 @@ func findForbiddenPositions(pathIterator *alg.PathIterator[utils.Vector2i]) []ut
 	return []utils.Vector2i{previous}
 }
 
-func neighbours(m Matrix2i) func(origin utils.Vector2i, pathIterator *alg.PathIterator[utils.Vector2i]) []utils.Vector2i {
-	return func(origin utils.Vector2i, pathIterator *alg.PathIterator[utils.Vector2i]) []utils.Vector2i {
+func neighbours(m Matrix2i) func(origin utils.Vector2i, pathIterator utils.Iterator[utils.Vector2i]) []utils.Vector2i {
+	return func(origin utils.Vector2i, pathIterator utils.Iterator[utils.Vector2i]) []utils.Vector2i {
 		var neighbours []utils.Vector2i
 
 		// find forbidden positions based on the path
