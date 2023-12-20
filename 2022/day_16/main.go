@@ -365,7 +365,7 @@ func computeDistances(world World) matrix.MatrixInt {
 
 	h := func(_ *ValveNode) int { return 0 }
 	d := func(_, _ *ValveNode) int { return 1 }
-	neighbours := func(node *ValveNode) []*ValveNode { return node.Children }
+	neighbours := func(node *ValveNode, pathIterator utils.Iterator[*ValveNode]) []*ValveNode { return node.Children }
 
 	for i, nodeFrom := range world.AllNodes {
 		_, allCosts, _, _ := alg.AStar(nodeFrom, nil, h, d, neighbours)
