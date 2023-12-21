@@ -6,6 +6,7 @@ import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/alg"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/collections"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/iterators"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/maps"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
@@ -365,7 +366,7 @@ func computeDistances(world World) matrix.MatrixInt {
 
 	h := func(_ *ValveNode) int { return 0 }
 	d := func(_, _ *ValveNode) int { return 1 }
-	neighbours := func(node *ValveNode, pathIterator utils.Iterator[*ValveNode]) []*ValveNode { return node.Children }
+	neighbours := func(node *ValveNode, pathIterator iterators.Iterator[*ValveNode]) []*ValveNode { return node.Children }
 
 	for i, nodeFrom := range world.AllNodes {
 		_, allCosts, _, _ := alg.AStar(nodeFrom, nil, h, d, neighbours)

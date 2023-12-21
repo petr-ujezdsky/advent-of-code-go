@@ -1,4 +1,4 @@
-package slices
+package iterators
 
 type SliceIterator[T any] struct {
 	slice    []T

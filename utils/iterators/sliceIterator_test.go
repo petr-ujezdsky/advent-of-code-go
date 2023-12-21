@@ -1,4 +1,4 @@
-package slices
+package iterators
 
 import (
 	"github.com/stretchr/testify/assert"
