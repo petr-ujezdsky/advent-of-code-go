@@ -72,32 +72,7 @@ func Test_02(t *testing.T) {
 	assert.Equal(t, 2297056002603, result)
 }
 
-func Test_isValid(t *testing.T) {
-	type args struct {
-		conditions []rune
-		groupSizes []int
-	}
-	tests := []struct {
-		name string
-		args args
-		want bool
-	}{
-		{name: "", args: args{conditions: []rune("#.#.###"), groupSizes: []int{1, 1, 3}}, want: true},
-		{name: "", args: args{conditions: []rune("###.###"), groupSizes: []int{1, 1, 3}}, want: false},
-		{name: "", args: args{conditions: []rune("#######"), groupSizes: []int{1, 1, 3}}, want: false},
-		{name: "", args: args{conditions: []rune("......."), groupSizes: []int{1, 1, 3}}, want: false},
-		{name: "", args: args{conditions: []rune("#.#.###.###"), groupSizes: []int{1, 1, 3}}, want: false},
-		{name: "", args: args{conditions: []rune("#.#...."), groupSizes: []int{1, 1, 3}}, want: false},
-		{name: "", args: args{conditions: []rune(".###.##.#..#"), groupSizes: []int{3, 2, 1}}, want: false},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, isValid(tt.args.conditions, tt.args.groupSizes), "isValid(%v, %v)", tt.args.conditions, tt.args.groupSizes)
-		})
-	}
-}
-
-func Test_calculateArrangements(t *testing.T) {
+func Test_calculateArrangementsCount(t *testing.T) {
 	type args struct {
 		record Record
 	}
@@ -124,7 +99,7 @@ func Test_calculateArrangements(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, len(calculateArrangements(tt.args.record)), "calculateArrangements(%v)", tt.args.record)
+			assert.Equalf(t, tt.want, calculateArrangementsCount(tt.args.record), "calculateArrangementsCount(%v)", tt.args.record)
 		})
 	}
 }
