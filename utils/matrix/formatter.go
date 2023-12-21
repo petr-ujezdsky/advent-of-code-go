@@ -22,15 +22,32 @@ func StringFmtSeparator[T any](view View[T], separator string, formatter ValueFo
 		return formatter(value)
 	}
 
-	return StringFmtSeparatorIndexed(view, separator, adapter)
+	return StringFmtSeparatorIndexed(view, false, separator, adapter)
 }
 
-func StringFmtSeparatorIndexed[T any](view View[T], separator string, formatter ValueFormatterIndexed[T]) string {
+func StringFmtSeparatorIndexed[T any](view View[T], rulers bool, separator string, formatter ValueFormatterIndexed[T]) string {
 	var sb strings.Builder
+
+	if rulers {
+		for i := 0; i < 3; i++ {
+			sb.WriteString("    ")
+
+			for x := 0; x < view.GetWidth(); x++ {
+				sb.WriteRune(rune(fmt.Sprintf("%3d ", x)[i]))
+			}
+			sb.WriteString("\n")
+		}
+
+		sb.WriteString("\n")
+	}
 
 	for y := 0; y < view.GetHeight(); y++ {
 		for x := 0; x < view.GetWidth(); x++ {
 			val := view.Get(x, y)
+
+			if rulers && x == 0 {
+				sb.WriteString(fmt.Sprintf("%3d ", y))
+			}
 
 			if x > 0 {
 				sb.WriteString(separator)
