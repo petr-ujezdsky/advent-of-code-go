@@ -88,6 +88,8 @@ func Test_calculateArrangementsCount(t *testing.T) {
 		{name: "", args: args{ParseRecord("????.######..#####. 1,6,5")}, want: 4},
 		{name: "", args: args{ParseRecord("?###???????? 3,2,1")}, want: 10},
 		{name: "", args: args{ParseRecord("?#???#???????#????? 5,2,1,5")}, want: 4},
+		{name: "", args: args{ParseRecord("??????#???#??? 1,8")}, want: 14},
+		{name: "", args: args{ParseRecord("?.##????#?.?# 1,4,1,1")}, want: 1},
 
 		{name: "", args: args{Unfold(ParseRecord("???.### 1,1,3"), 5)}, want: 1},
 		{name: "", args: args{Unfold(ParseRecord(".??..??...?##. 1,1,3"), 5)}, want: 16384},
@@ -146,5 +148,29 @@ func Test_calculateArrangementsCountUnfolded(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			assert.Equalf(t, tt.want, calculateArrangementsCountUnfolded(tt.args.record, tt.args.i), "calculateArrangementsCountUnfolded(%v, %v)", tt.args.record, tt.args.i)
 		})
+	}
+}
+
+func Benchmark_calculateArrangementsCount_1(b *testing.B) {
+	record := Unfold(ParseRecord("????????????? 1,1,1,2"), 1)
+	for i := 0; i < b.N; i++ {
+		//assert.Equal(b, 126, calculateArrangementsCount(record))
+		calculateArrangementsCount(record)
+	}
+}
+
+func Benchmark_calculateArrangementsCount_2(b *testing.B) {
+	record := Unfold(ParseRecord("????????????? 1,1,1,2"), 2)
+	for i := 0; i < b.N; i++ {
+		//assert.Equal(b, 126, calculateArrangementsCount(record))
+		calculateArrangementsCount(record)
+	}
+}
+
+func Benchmark_calculateArrangementsCount_3(b *testing.B) {
+	record := Unfold(ParseRecord("????????????? 1,1,1,2"), 3)
+	for i := 0; i < b.N; i++ {
+		//assert.Equal(b, 126, calculateArrangementsCount(record))
+		calculateArrangementsCount(record)
 	}
 }

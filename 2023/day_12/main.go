@@ -46,73 +46,81 @@ func DoWithInputPart01(world World) int {
 
 func calculateArrangementsCount(record Record) int {
 	//defer measure.Duration(measure.Track(fmt.Sprintf("Optimized calculation for %d unknowns took", record.Unknowns)))
-	return calculateArrangementsCountMutable(0, record.Conditions, '.', 0, 0, record.GroupSizes)
+
+	conditions := record.Conditions
+	sum := 0
+
+	// try to offset first group by N .
+	for i := -1; i < len(conditions); i++ {
+		// check . separator
+		if i >= 0 && conditions[i] == '#' {
+			break
+		}
+
+		count, canShift := calculateArrangementsCountRecursive(0, conditions[i+1:], record)
+		sum += count
+		if !canShift {
+			break
+		}
+	}
+
+	return sum
 }
 
-func calculateArrangementsCountMutable(position int, conditions []rune, previous rune, currentGroupIndex, currentGroupSize int, groupSizes []int) int {
-	for i := position; i < len(conditions); i++ {
-		current := conditions[i]
+func calculateArrangementsCountRecursive(group int, conditions []rune, record Record) (int, bool) {
+	groupSize := record.GroupSizes[group]
+	isLastGroup := group == len(record.GroupSizes)-1
 
-		// increase group
-		if current == '#' {
-			currentGroupSize++
-
-			if currentGroupIndex >= len(groupSizes) {
-				return 0
-			}
-
-			if currentGroupSize > groupSizes[currentGroupIndex] {
-				return 0
-			}
+	if isLastGroup {
+		// not enough remaining conditions for the group
+		if groupSize > len(conditions) {
+			return 0, false
 		}
-
-		// group end
-		last := i == len(conditions)-1
-		if previous == '#' && (current == '.') || current == '#' && last {
-			// found more groups
-			if currentGroupIndex >= len(groupSizes) {
-				return 0
-			}
-
-			// group size is different -> not valid
-			if groupSizes[currentGroupIndex] != currentGroupSize {
-				return 0
-			}
-
-			// group size is same -> continue
-			currentGroupIndex++
-			currentGroupSize = 0
+	} else {
+		// not enough remaining conditions for the group
+		if groupSize+1 > len(conditions) {
+			return 0, false
 		}
-
-		if current == '?' {
-			position = i
-			sum := 0
-
-			// try '#'
-			conditions[position] = '#'
-			sum += calculateArrangementsCountMutable(position, conditions, previous, currentGroupIndex, currentGroupSize, groupSizes)
-
-			conditions[position] = '.'
-			// try '.'
-			sum += calculateArrangementsCountMutable(position, conditions, previous, currentGroupIndex, currentGroupSize, groupSizes)
-
-			// revert
-			conditions[position] = '?'
-
-			return sum
-		}
-
-		previous = current
 	}
 
-	// found less groups
-	if currentGroupIndex != len(groupSizes) {
-		return 0
+	// check # group starting at 0
+	for i := 0; i < groupSize; i++ {
+		if conditions[i] == '.' {
+			return 0, true
+		}
 	}
 
-	//fmt.Printf("Valid: %v\n", string(conditions))
-	// valid
-	return 1
+	sum := 0
+	if isLastGroup {
+		// expect ending is OK
+		sum = 1
+
+		for i := groupSize; i < len(conditions); i++ {
+			// check ending . after final group
+			if conditions[i] == '#' {
+				// ending is not ok
+				sum = 0
+				break
+			}
+		}
+
+	} else {
+		// try to offset next group by N .
+		for i := groupSize; i < len(conditions); i++ {
+			// check . separator after group
+			if conditions[i] == '#' {
+				break
+			}
+
+			count, canShift := calculateArrangementsCountRecursive(group+1, conditions[i+1:], record)
+			sum += count
+			if !canShift {
+				break
+			}
+		}
+	}
+
+	return sum, true
 }
 
 func DoWithInputPart02(world World) int {
@@ -236,6 +244,10 @@ func calculateArrangementsCountUnfolded2(record Record, i int) int {
 }
 
 func Unfold(record Record, count int) Record {
+	if count == 1 {
+		return record
+	}
+
 	conditionsRawJoined := strings.Join(slices.Repeat([]string{record.ConditionsRaw}, count), "?")
 	groupSizes := slices.Repeat(record.GroupSizes, count)
 
