@@ -13,12 +13,13 @@ import (
 	"strings"
 )
 
-var regexDots = regexp.MustCompile(`[.]+`)
+var regexMultiDots = regexp.MustCompile(`[.]+`)
 
 type Record struct {
 	Raw                 string
 	ConditionsRaw       string
 	Conditions          []rune
+	ConditionGroups     [][]rune
 	Groups              [][]rune
 	GroupSizes          []int
 	DamagedCountTotal   int
@@ -124,6 +125,54 @@ func calculateArrangementsCountRecursive(group int, conditions []rune, record Re
 	}
 
 	return sum, true
+}
+
+func calculateArrangementsCountGroup(conditions string, groupSize int) int {
+	shiftsCount := len(conditions) - groupSize
+
+	sum := 0
+
+	for shift := 0; shift <= shiftsCount; shift++ {
+		// check prefix .
+		if !OnlyDots(conditions[0:shift]) {
+			continue
+		}
+
+		// check group #
+		if !OnlySharps(conditions[shift : shift+groupSize]) {
+			continue
+		}
+
+		// check suffix .
+		if !OnlyDots(conditions[shift+groupSize:]) {
+			continue
+		}
+
+		// everything OK
+		sum++
+	}
+
+	return sum
+}
+
+func OnlyDots(conditions string) bool {
+	for _, condition := range conditions {
+		if condition == '#' {
+			return false
+		}
+	}
+
+	return true
+}
+
+func OnlySharps(conditions string) bool {
+	for _, condition := range conditions {
+		if condition == '.' {
+			return false
+		}
+	}
+
+	return true
 }
 
 func DoWithInputPart02(world World) int {
@@ -345,10 +394,21 @@ func ParseRecord(str string) Record {
 		}
 	}
 
+	// trim '.'
+	conditionsRawTrimmed := strings.Trim(conditionsRaw, ".")
+	// replace multiple '.' by single '.'
+	conditionsRawSimplified := regexMultiDots.ReplaceAllLiteralString(conditionsRawTrimmed, ".")
+
+	conditionGroupsStr := strings.Split(conditionsRawSimplified, ".")
+	conditionGroups := slices.Map(conditionGroupsStr, func(s string) []rune { return []rune(s) })
+
+	//fmt.Printf("%-20v -> %-20v | %v\n", conditionsRaw, conditionsRawSimplified, conditionGroupsStr)
+
 	return Record{
 		Raw:                 str,
 		ConditionsRaw:       conditionsRaw,
 		Conditions:          []rune(conditionsRaw),
+		ConditionGroups:     conditionGroups,
 		GroupSizes:          groupSizes,
 		DamagedCountTotal:   groupsSum,
 		DamagedCountInitial: damaged,

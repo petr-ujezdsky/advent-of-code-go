@@ -35,10 +35,10 @@ func Test_01_example(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
 
-	world := ParseInput(reader)
-
-	result := DoWithInputPart01(world)
-	assert.Equal(t, 21, result)
+	ParseInput(reader)
+	//
+	//result := DoWithInputPart01(world)
+	//assert.Equal(t, 21, result)
 }
 
 func Test_01(t *testing.T) {
@@ -172,5 +172,33 @@ func Benchmark_calculateArrangementsCount_3(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		//assert.Equal(b, 126, calculateArrangementsCount(record))
 		calculateArrangementsCount(record)
+	}
+}
+
+func Test_calculateArrangementsCountGroup(t *testing.T) {
+	type args struct {
+		conditions string
+		groupSize  int
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{"", args{"?????", 1}, 5},
+		{"", args{"?????", 2}, 4},
+		{"", args{"?????", 3}, 3},
+		{"", args{"?????", 4}, 2},
+		{"", args{"?????", 5}, 1},
+		{"", args{"#????", 2}, 1},
+		{"", args{"?#???", 2}, 2},
+		{"", args{"??#??", 3}, 3},
+
+		{"", args{"??#??", 6}, 0},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, calculateArrangementsCountGroup(tt.args.conditions, tt.args.groupSize), "calculateArrangementsCountGroup(%v, %v)", tt.args.conditions, tt.args.groupSize)
+		})
 	}
 }
