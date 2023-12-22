@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/measure"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
@@ -15,6 +16,7 @@ import (
 var regexDots = regexp.MustCompile(`[.]+`)
 
 type Record struct {
+	Raw                 string
 	ConditionsRaw       string
 	Conditions          []rune
 	Groups              [][]rune
@@ -46,6 +48,7 @@ func DoWithInputPart01(world World) int {
 
 func calculateArrangementsCount(record Record) int {
 	//defer measure.Duration(measure.Track(fmt.Sprintf("Optimized calculation for %d unknowns took", record.Unknowns)))
+	//defer measure.Duration(measure.Track("Optimized calculation took"))
 
 	conditions := record.Conditions
 	sum := 0
@@ -128,7 +131,7 @@ func DoWithInputPart02(world World) int {
 	count := 0
 
 	results := utils.ProcessParallel(world.Records, calculateArrangementsCountUnfolded4)
-	//results := utils.ProcessSerial(world.Records, calculateArrangementsCountUnfolded3)
+	//results := utils.ProcessSerial(world.Records, calculateArrangementsCountUnfolded5)
 
 	for result := range results {
 		sum += result.Value
@@ -223,19 +226,49 @@ func calculateArrangementsCountUnfolded3(record Record, i int) int {
 }
 
 func calculateArrangementsCountUnfolded4(record Record, i int) int {
+	defer measure.Duration(measure.Track(fmt.Sprintf("#%3d (%30s)", i+1, record.Raw)))
+
 	count1 := calculateArrangementsCount(record)
 	count2 := calculateArrangementsCount(Unfold(record, 2))
 
 	if count2 == count1*count1 {
 		count5 := count1 * count1 * count1 * count1 * count1
-		fmt.Printf("#%3d: QUICK count5: %9d\n", i, count5)
+		fmt.Printf("#%3d: QUICK count5: %9d\n", i+1, count5)
 
 		return count5
 	}
 
-	count5 := calculateArrangementsCount(Unfold(record, 5))
-	fmt.Printf("#%3d: SLOW  count5: %9d\n", i, count5)
+	count5 := calculateArrangementsCount(Unfold(record, 4))
+	fmt.Printf("#%3d: SLOW  count5: %9d\n", i+1, count5)
 	return count5
+}
+
+//Unfold 3x
+//#145: 658.952417ms
+//#287: 792.577042ms
+//#408: 2.262375208s
+//#775: 767.091333ms
+
+func calculateArrangementsCountUnfolded5(record Record, i int) int {
+	//start := time.Now()
+	//count := calculateArrangementsCount(Unfold(record, 3))
+	//
+	//duration := time.Since(start)
+	//if duration.Milliseconds() > 500 {
+	//	fmt.Printf("#%3d: %v\n", i, duration)
+	//}
+	//return count
+
+	record = Unfold(record, 3)
+
+	countExpected := calculateArrangementsCount(record)
+	countActual := calculateArrangementsCount(record)
+
+	if countActual != countExpected {
+		fmt.Printf("#%3d: %9d / %-9d\n", i+1, countExpected, countActual)
+	}
+
+	return countActual
 }
 
 func calculateArrangementsCountUnfolded2(record Record, i int) int {
@@ -313,6 +346,7 @@ func ParseRecord(str string) Record {
 	}
 
 	return Record{
+		Raw:                 str,
 		ConditionsRaw:       conditionsRaw,
 		Conditions:          []rune(conditionsRaw),
 		GroupSizes:          groupSizes,
