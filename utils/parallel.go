@@ -33,3 +33,22 @@ func ProcessParallel[T any, R any](workUnits []T, processor func(T, int) R) chan
 
 	return resultsChan
 }
+
+func ProcessSerial[T any, R any](workUnits []T, processor func(T, int) R) chan Result[R] {
+	resultsChan := make(chan Result[R])
+
+	go func(data []T, ch chan Result[R]) {
+		defer close(ch)
+
+		for i, workUnit := range data {
+			result := processor(workUnit, i)
+
+			ch <- Result[R]{
+				Index: i,
+				Value: result,
+			}
+		}
+	}(workUnits, resultsChan)
+
+	return resultsChan
+}
