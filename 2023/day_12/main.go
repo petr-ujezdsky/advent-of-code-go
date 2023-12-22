@@ -4,7 +4,6 @@ import (
 	_ "embed"
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
-	"github.com/petr-ujezdsky/advent-of-code-go/utils/measure"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
@@ -46,7 +45,7 @@ func DoWithInputPart01(world World) int {
 }
 
 func calculateArrangementsCount(record Record) int {
-	defer measure.Duration(measure.Track(fmt.Sprintf("Optimized calculation for %d unknowns took", record.Unknowns)))
+	//defer measure.Duration(measure.Track(fmt.Sprintf("Optimized calculation for %d unknowns took", record.Unknowns)))
 	return calculateArrangementsCountMutable(0, record.Conditions, '.', 0, 0, record.GroupSizes)
 }
 
@@ -119,7 +118,7 @@ func calculateArrangementsCountMutable(position int, conditions []rune, previous
 func DoWithInputPart02(world World) int {
 	sum := 0
 
-	results := utils.ProcessParallel(world.Records, calculateArrangementsCountUnfolded2)
+	results := utils.ProcessParallel(world.Records, calculateArrangementsCountUnfolded)
 
 	for result := range results {
 		sum += result.Value
@@ -132,46 +131,44 @@ func calculateArrangementsCountUnfolded(record Record, i int) int {
 	//fmt.Printf("#%d: ?'s count: %d\n", i, record.Unknowns)
 	singleCount := calculateArrangementsCount(record)
 
-	unfolded2 := Unfold2(record)
+	unfolded2 := Unfold(record, 2)
 	//fmt.Printf("#%d: ?'s count: %d\n", i, unfolded2.Unknowns)
 	pairCount := calculateArrangementsCount(unfolded2)
 
-	fmt.Println()
+	unfolded3 := Unfold(record, 3)
+	//fmt.Printf("#%d: ?'s count: %d\n", i, unfolded2.Unknowns)
+	tripletCount := calculateArrangementsCount(unfolded3)
+
+	//fmt.Println()
 	k := pairCount / singleCount
-	return pairCount * k * k * k
+	fivesCount := pairCount * k * k * k
+
+	tripletCountQuick := pairCount * k
+
+	warning := ""
+	if tripletCount != tripletCountQuick {
+		warning = "   *"
+	}
+
+	fmt.Printf("#%3d: unknowns: %2d, 1x: %4d, 2x: %5d, 3x: %8d, 3x quick: %8d%s\n", i, record.Unknowns, singleCount, pairCount, tripletCount, tripletCountQuick, warning)
+
+	return fivesCount
 }
 func calculateArrangementsCountUnfolded2(record Record, i int) int {
-	unfolded := Unfold(record)
+	unfolded := Unfold(record, 5)
 	return calculateArrangementsCount(unfolded)
 }
 
-func Unfold(record Record) Record {
-	// multiply data 5x
-	conditionsRaw := record.ConditionsRaw + "?" + record.ConditionsRaw + "?" + record.ConditionsRaw + "?" + record.ConditionsRaw + "?" + record.ConditionsRaw
-	groupSizes := slices.Repeat(record.GroupSizes, 5)
+func Unfold(record Record, count int) Record {
+	conditionsRawJoined := strings.Join(slices.Repeat([]string{record.ConditionsRaw}, count), "?")
+	groupSizes := slices.Repeat(record.GroupSizes, count)
 
 	// convert groupSizes ints to string
 	groupSizesStr := slices.Map(groupSizes, strconv.Itoa)
 	groupSizesStrJoined := strings.Join(groupSizesStr, ",")
 
 	// join to raw record string
-	recordStr := conditionsRaw + " " + groupSizesStrJoined
-
-	// parse
-	return ParseRecord(recordStr)
-}
-
-func Unfold2(record Record) Record {
-	// multiply data 2x
-	conditionsRaw := record.ConditionsRaw + "?" + record.ConditionsRaw
-	groupSizes := slices.Repeat(record.GroupSizes, 2)
-
-	// convert groupSizes ints to string
-	groupSizesStr := slices.Map(groupSizes, strconv.Itoa)
-	groupSizesStrJoined := strings.Join(groupSizesStr, ",")
-
-	// join to raw record string
-	recordStr := conditionsRaw + " " + groupSizesStrJoined
+	recordStr := conditionsRawJoined + " " + groupSizesStrJoined
 
 	// parse
 	return ParseRecord(recordStr)

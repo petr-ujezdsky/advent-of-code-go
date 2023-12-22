@@ -89,13 +89,13 @@ func Test_calculateArrangementsCount(t *testing.T) {
 		{name: "", args: args{ParseRecord("?###???????? 3,2,1")}, want: 10},
 		{name: "", args: args{ParseRecord("?#???#???????#????? 5,2,1,5")}, want: 4},
 
-		{name: "", args: args{Unfold(ParseRecord("???.### 1,1,3"))}, want: 1},
-		{name: "", args: args{Unfold(ParseRecord(".??..??...?##. 1,1,3"))}, want: 16384},
-		{name: "", args: args{Unfold(ParseRecord("?#?#?#?#?#?#?#? 1,3,1,6"))}, want: 1},
-		{name: "", args: args{Unfold(ParseRecord("????.#...#... 4,1,1"))}, want: 16},
-		{name: "", args: args{Unfold(ParseRecord("????.######..#####. 1,6,5"))}, want: 2500},
-		{name: "", args: args{Unfold(ParseRecord("?###???????? 3,2,1"))}, want: 506250},
-		{name: "", args: args{Unfold(ParseRecord("?#???#???????#????? 5,2,1,5"))}, want: -1},
+		{name: "", args: args{Unfold(ParseRecord("???.### 1,1,3"), 5)}, want: 1},
+		{name: "", args: args{Unfold(ParseRecord(".??..??...?##. 1,1,3"), 5)}, want: 16384},
+		{name: "", args: args{Unfold(ParseRecord("?#?#?#?#?#?#?#? 1,3,1,6"), 5)}, want: 1},
+		{name: "", args: args{Unfold(ParseRecord("????.#...#... 4,1,1"), 5)}, want: 16},
+		{name: "", args: args{Unfold(ParseRecord("????.######..#####. 1,6,5"), 5)}, want: 2500},
+		{name: "", args: args{Unfold(ParseRecord("?###???????? 3,2,1"), 5)}, want: 506250},
+		{name: "", args: args{Unfold(ParseRecord("?#???#???????#????? 5,2,1,5"), 5)}, want: -1},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -104,20 +104,22 @@ func Test_calculateArrangementsCount(t *testing.T) {
 	}
 }
 
-func TestUnfold(t *testing.T) {
+func TestUnfoldN(t *testing.T) {
 	type args struct {
 		record Record
+		count  int
 	}
 	tests := []struct {
 		name string
 		args args
 		want Record
 	}{
-		{name: "", args: args{record: ParseRecord("???.### 1,1,3")}, want: ParseRecord("???.###????.###????.###????.###????.### 1,1,3,1,1,3,1,1,3,1,1,3,1,1,3")},
+		{name: "", args: args{record: ParseRecord("???.### 1,1,3"), count: 5}, want: ParseRecord("???.###????.###????.###????.###????.### 1,1,3,1,1,3,1,1,3,1,1,3,1,1,3")},
+		{name: "", args: args{record: ParseRecord("???.### 1,1,3"), count: 2}, want: ParseRecord("???.###????.### 1,1,3,1,1,3")},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, Unfold(tt.args.record), "Unfold(%v)", tt.args.record)
+			assert.Equalf(t, tt.want, Unfold(tt.args.record, tt.args.count), "Unfold(%v,%v)", tt.args.record, tt.args.count)
 		})
 	}
 }
