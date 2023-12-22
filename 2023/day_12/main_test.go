@@ -82,6 +82,7 @@ func Test_calculateArrangementsCount(t *testing.T) {
 		want int
 	}{
 		{name: "", args: args{ParseRecord("???.### 1,1,3")}, want: 1},
+		{name: "", args: args{ParseRecord("???.### 1,1,3,1")}, want: 0},
 		{name: "", args: args{ParseRecord(".??..??...?##. 1,1,3")}, want: 4},
 		{name: "", args: args{ParseRecord("?#?#?#?#?#?#?#? 1,3,1,6")}, want: 1},
 		{name: "", args: args{ParseRecord("????.#...#... 4,1,1")}, want: 1},
@@ -102,6 +103,41 @@ func Test_calculateArrangementsCount(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			assert.Equalf(t, tt.want, calculateArrangementsCount(tt.args.record), "calculateArrangementsCount(%v)", tt.args.record)
+		})
+	}
+}
+
+func Test_calculateArrangementsCount2(t *testing.T) {
+	type args struct {
+		record Record
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{name: "", args: args{ParseRecord("???.### 1,1,3")}, want: 1},
+		{name: "", args: args{ParseRecord(".??..??...?##. 1,1,3")}, want: 4},
+		{name: "", args: args{ParseRecord("?#?#?#?#?#?#?#? 1,3,1,6")}, want: 1},
+		{name: "", args: args{ParseRecord("????.#...#... 4,1,1")}, want: 1},
+		{name: "", args: args{ParseRecord("????.######..#####. 1,6,5")}, want: 4},
+		{name: "", args: args{ParseRecord("?###???????? 3,2,1")}, want: 10},
+		{name: "", args: args{ParseRecord("?#???#???????#????? 5,2,1,5")}, want: 4},
+		{name: "", args: args{ParseRecord("??????#???#??? 1,8")}, want: 14},
+		{name: "", args: args{ParseRecord("?.##????#?.?# 1,4,1,1")}, want: 1},
+		{name: "", args: args{ParseRecord("?????.??.???. 1,1,1")}, want: 68},
+
+		{name: "", args: args{Unfold(ParseRecord("???.### 1,1,3"), 5)}, want: 1},
+		{name: "", args: args{Unfold(ParseRecord(".??..??...?##. 1,1,3"), 5)}, want: 16384},
+		{name: "", args: args{Unfold(ParseRecord("?#?#?#?#?#?#?#? 1,3,1,6"), 5)}, want: 1},
+		{name: "", args: args{Unfold(ParseRecord("????.#...#... 4,1,1"), 5)}, want: 16},
+		{name: "", args: args{Unfold(ParseRecord("????.######..#####. 1,6,5"), 5)}, want: 2500},
+		{name: "", args: args{Unfold(ParseRecord("?###???????? 3,2,1"), 5)}, want: 506250},
+		{name: "", args: args{Unfold(ParseRecord("?#???#???????#????? 5,2,1,5"), 5)}, want: 4487214},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, calculateArrangementsCount2(tt.args.record), "calculateArrangementsCount(%v)", tt.args.record)
 		})
 	}
 }

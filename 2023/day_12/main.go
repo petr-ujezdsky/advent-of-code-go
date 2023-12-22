@@ -19,7 +19,7 @@ type Record struct {
 	Raw                 string
 	ConditionsRaw       string
 	Conditions          []rune
-	ConditionGroups     [][]rune
+	ConditionGroups     []string
 	Groups              [][]rune
 	GroupSizes          []int
 	DamagedCountTotal   int
@@ -36,8 +36,8 @@ func DoWithInputPart01(world World) int {
 
 	max := 0
 	for i, record := range world.Records {
-		count := calculateArrangementsCount(record)
-		fmt.Printf("#%d combinations: %d\n", i, count)
+		count := calculateArrangementsCount2(record)
+		fmt.Printf("#%3d combinations: %-6d %s\n", i+1, count, record.ConditionsRaw)
 		max = utils.Max(max, count)
 		sum += count
 	}
@@ -48,10 +48,13 @@ func DoWithInputPart01(world World) int {
 }
 
 func calculateArrangementsCount(record Record) int {
+	return calculateArrangementsCountInner(record.Conditions, record.GroupSizes)
+}
+
+func calculateArrangementsCountInner(conditions []rune, groupSizes []int) int {
 	//defer measure.Duration(measure.Track(fmt.Sprintf("Optimized calculation for %d unknowns took", record.Unknowns)))
 	//defer measure.Duration(measure.Track("Optimized calculation took"))
 
-	conditions := record.Conditions
 	sum := 0
 
 	// try to offset first group by N .
@@ -61,7 +64,7 @@ func calculateArrangementsCount(record Record) int {
 			break
 		}
 
-		count, canShift := calculateArrangementsCountRecursive(0, conditions[i+1:], record)
+		count, canShift := calculateArrangementsCountRecursive(0, conditions[i+1:], groupSizes)
 		sum += count
 		if !canShift {
 			break
@@ -71,9 +74,9 @@ func calculateArrangementsCount(record Record) int {
 	return sum
 }
 
-func calculateArrangementsCountRecursive(group int, conditions []rune, record Record) (int, bool) {
-	groupSize := record.GroupSizes[group]
-	isLastGroup := group == len(record.GroupSizes)-1
+func calculateArrangementsCountRecursive(group int, conditions []rune, groupSizes []int) (int, bool) {
+	groupSize := groupSizes[group]
+	isLastGroup := group == len(groupSizes)-1
 
 	if isLastGroup {
 		// not enough remaining conditions for the group
@@ -116,7 +119,7 @@ func calculateArrangementsCountRecursive(group int, conditions []rune, record Re
 				break
 			}
 
-			count, canShift := calculateArrangementsCountRecursive(group+1, conditions[i+1:], record)
+			count, canShift := calculateArrangementsCountRecursive(group+1, conditions[i+1:], groupSizes)
 			sum += count
 			if !canShift {
 				break
@@ -125,6 +128,38 @@ func calculateArrangementsCountRecursive(group int, conditions []rune, record Re
 	}
 
 	return sum, true
+}
+
+func calculateArrangementsCount2(record Record) int {
+	//countExpected := calculateArrangementsCount(record)
+
+	//if len(record.ConditionGroups) == len(record.GroupSizes) {
+	countQuick := calculateArrangementsCountRecursive2(record.ConditionGroups, record.GroupSizes)
+
+	//if countExpected != countQuick {
+	//	fmt.Printf("      Different, %d != %d\n", countExpected, countQuick)
+	//}
+
+	return countQuick
+	//}
+	//
+	//return countExpected
+}
+
+func calculateArrangementsCountRecursive2(conditionGroups []string, groupSizes []int) int {
+	conditions := conditionGroups[0]
+	groupSize := groupSizes[0]
+
+	count := calculateArrangementsCountGroup(conditions, groupSize)
+	if count == 0 {
+		return 0
+	}
+
+	if len(conditionGroups) > 1 && len(groupSizes) > 1 {
+		count *= calculateArrangementsCountRecursive2(conditionGroups[1:], groupSizes[1:])
+	}
+
+	return count
 }
 
 func calculateArrangementsCountGroup(conditions string, groupSize int) int {
@@ -399,8 +434,8 @@ func ParseRecord(str string) Record {
 	// replace multiple '.' by single '.'
 	conditionsRawSimplified := regexMultiDots.ReplaceAllLiteralString(conditionsRawTrimmed, ".")
 
-	conditionGroupsStr := strings.Split(conditionsRawSimplified, ".")
-	conditionGroups := slices.Map(conditionGroupsStr, func(s string) []rune { return []rune(s) })
+	conditionGroups := strings.Split(conditionsRawSimplified, ".")
+	//conditionGroups := slices.Map(conditionGroupsStr, func(s string) []rune { return []rune(s) })
 
 	//fmt.Printf("%-20v -> %-20v | %v\n", conditionsRaw, conditionsRawSimplified, conditionGroupsStr)
 
