@@ -133,7 +133,8 @@ func calculateArrangementsCountRecursive(group int, conditions []rune, groupSize
 func calculateArrangementsCount2(record Record) int {
 	//countExpected := calculateArrangementsCount(record)
 	//
-	countQuick := calculateArrangementsCountRecursive2(record.ConditionGroups, record.GroupSizes)
+	cache := make(map[key]int)
+	countQuick := calculateArrangementsCountRecursive2(record.ConditionGroups, record.GroupSizes, cache)
 	//
 	//if countExpected != countQuick {
 	//	fmt.Printf("      Different, %d != %d\n", countExpected, countQuick)
@@ -142,19 +143,19 @@ func calculateArrangementsCount2(record Record) int {
 	return countQuick
 }
 
-func calculateArrangementsCountRecursive2(conditionGroups []string, groupSizes []int) int {
+func calculateArrangementsCountRecursive2(conditionGroups []string, groupSizes []int, cache map[key]int) int {
 	conditions := conditionGroups[0]
 
 	isLastCondition := len(conditionGroups) == 1
 
 	if isLastCondition {
-		count := calculateArrangementsCountGroups(conditions, groupSizes)
+		count := calculateArrangementsCountGroupsCached(conditions, groupSizes, cache)
 		return count
 	}
 
 	sum := 0
 	for groupsCount := 0; groupsCount <= len(groupSizes); groupsCount++ {
-		subCount := calculateArrangementsCountGroups(conditions, groupSizes[0:groupsCount])
+		subCount := calculateArrangementsCountGroupsCached(conditions, groupSizes[0:groupsCount], cache)
 		if subCount == 0 {
 			//if groupsCount == 0 {
 			continue
@@ -163,12 +164,8 @@ func calculateArrangementsCountRecursive2(conditionGroups []string, groupSizes [
 			//return sum
 		}
 
-		//if len(groupSizes) > 1 {
-		k := calculateArrangementsCountRecursive2(conditionGroups[1:], groupSizes[groupsCount:])
+		k := calculateArrangementsCountRecursive2(conditionGroups[1:], groupSizes[groupsCount:], cache)
 		subCount *= k
-		//} else {
-		//	subCount *= 1
-		//}
 
 		sum += subCount
 	}
@@ -176,6 +173,19 @@ func calculateArrangementsCountRecursive2(conditionGroups []string, groupSizes [
 	return sum
 }
 
+func calculateArrangementsCountGroupsCached(conditions string, groupSizes []int, cache map[key]int) int {
+	k := newKey(conditions, groupSizes)
+
+	if count, ok := cache[k]; ok {
+		//fmt.Printf("Cache hit!\n")
+		return count
+	}
+
+	count := calculateArrangementsCountGroups(conditions, groupSizes)
+	cache[k] = count
+
+	return count
+}
 func calculateArrangementsCountGroups(conditions string, groupSizes []int) int {
 	if len(groupSizes) == 0 {
 		if OnlyDots(conditions) {
@@ -186,6 +196,26 @@ func calculateArrangementsCountGroups(conditions string, groupSizes []int) int {
 	}
 
 	return calculateArrangementsCountInner([]rune(conditions), groupSizes)
+}
+
+type key struct {
+	conditions     string
+	groupSizesHash uint64
+}
+
+func newKey(conditions string, groupSizes []int) key {
+	hash := uint64(0)
+	for _, size := range groupSizes {
+		// size max value is 15, so move by 2^4 = 16 (max 16 group sizes)
+		// max 6 group sizes in original -> max 5*6=30 in total
+		hash <<= 4
+		hash += uint64(size)
+	}
+
+	return key{
+		conditions:     conditions,
+		groupSizesHash: hash,
+	}
 }
 
 func OnlyDots(conditions string) bool {
@@ -212,13 +242,13 @@ func DoWithInputPart02(world World) int {
 	sum := 0
 	count := 0
 
-	results := utils.ProcessParallel(world.Records, calculateArrangementsCountUnfolded4)
+	results := utils.ProcessParallel(world.Records, calculateArrangementsCountUnfolded5)
 	//results := utils.ProcessSerial(world.Records, calculateArrangementsCountUnfolded5)
 
 	for result := range results {
 		sum += result.Value
 		count++
-		fmt.Printf("Done %d / %d (%.2f%%)\n", count, len(world.Records), float64(100*count)/float64(len(world.Records)))
+		//fmt.Printf("Done %d / %d (%.2f%%)\n", count, len(world.Records), float64(100*count)/float64(len(world.Records)))
 	}
 
 	return sum
@@ -320,7 +350,7 @@ func calculateArrangementsCountUnfolded4(record Record, i int) int {
 		return count5
 	}
 
-	count5 := calculateArrangementsCount(Unfold(record, 4))
+	count5 := calculateArrangementsCount2(Unfold(record, 5))
 	fmt.Printf("#%3d: SLOW  count5: %9d\n", i+1, count5)
 	return count5
 }
@@ -331,13 +361,19 @@ func calculateArrangementsCountUnfolded4(record Record, i int) int {
 //#408: 2.262375208s
 //#775: 767.091333ms
 
+// #323: 201.515667ms (.?.?????#?????.???? 1,6,1,2,1)
+// #663: 205.578209ms (?????#????#??????? 5,1,1,1,1,1)
+// #776: 215.4115ms (?????????.???? 1,1,3,1)
+// #288: 314.184958ms (??.??????.??#?#????? 1,2,1,5,1,1)
+// #146: 331.222709ms (.???????.#.????????? 4,1,1,1,3,1)
+// #409: 721.529916ms (????????????? 1,1,1,2)
 func calculateArrangementsCountUnfolded5(record Record, i int) int {
 	//start := time.Now()
 	//count := calculateArrangementsCount(Unfold(record, 3))
 	//
 	//duration := time.Since(start)
-	//if duration.Milliseconds() > 500 {
-	//	fmt.Printf("#%3d: %v\n", i, duration)
+	//if duration.Milliseconds() > 200 {
+	//	fmt.Printf("#%3d: %v (%v)\n", i+1, duration, record.Raw)
 	//}
 	//return count
 
