@@ -132,62 +132,60 @@ func calculateArrangementsCountRecursive(group int, conditions []rune, groupSize
 
 func calculateArrangementsCount2(record Record) int {
 	//countExpected := calculateArrangementsCount(record)
-
-	//if len(record.ConditionGroups) == len(record.GroupSizes) {
+	//
 	countQuick := calculateArrangementsCountRecursive2(record.ConditionGroups, record.GroupSizes)
-
+	//
 	//if countExpected != countQuick {
 	//	fmt.Printf("      Different, %d != %d\n", countExpected, countQuick)
 	//}
 
 	return countQuick
-	//}
-	//
-	//return countExpected
 }
 
 func calculateArrangementsCountRecursive2(conditionGroups []string, groupSizes []int) int {
 	conditions := conditionGroups[0]
-	groupSize := groupSizes[0]
 
-	count := calculateArrangementsCountGroup(conditions, groupSize)
-	if count == 0 {
-		return 0
+	isLastCondition := len(conditionGroups) == 1
+
+	if isLastCondition {
+		count := calculateArrangementsCountGroups(conditions, groupSizes)
+		return count
 	}
-
-	if len(conditionGroups) > 1 && len(groupSizes) > 1 {
-		count *= calculateArrangementsCountRecursive2(conditionGroups[1:], groupSizes[1:])
-	}
-
-	return count
-}
-
-func calculateArrangementsCountGroup(conditions string, groupSize int) int {
-	shiftsCount := len(conditions) - groupSize
 
 	sum := 0
-
-	for shift := 0; shift <= shiftsCount; shift++ {
-		// check prefix .
-		if !OnlyDots(conditions[0:shift]) {
+	for groupsCount := 0; groupsCount <= len(groupSizes); groupsCount++ {
+		subCount := calculateArrangementsCountGroups(conditions, groupSizes[0:groupsCount])
+		if subCount == 0 {
+			//if groupsCount == 0 {
 			continue
+			//}
+			//
+			//return sum
 		}
 
-		// check group #
-		if !OnlySharps(conditions[shift : shift+groupSize]) {
-			continue
-		}
+		//if len(groupSizes) > 1 {
+		k := calculateArrangementsCountRecursive2(conditionGroups[1:], groupSizes[groupsCount:])
+		subCount *= k
+		//} else {
+		//	subCount *= 1
+		//}
 
-		// check suffix .
-		if !OnlyDots(conditions[shift+groupSize:]) {
-			continue
-		}
-
-		// everything OK
-		sum++
+		sum += subCount
 	}
 
 	return sum
+}
+
+func calculateArrangementsCountGroups(conditions string, groupSizes []int) int {
+	if len(groupSizes) == 0 {
+		if OnlyDots(conditions) {
+			return 1
+		}
+
+		return 0
+	}
+
+	return calculateArrangementsCountInner([]rune(conditions), groupSizes)
 }
 
 func OnlyDots(conditions string) bool {

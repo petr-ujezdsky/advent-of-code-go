@@ -126,6 +126,8 @@ func Test_calculateArrangementsCount2(t *testing.T) {
 		{name: "", args: args{ParseRecord("??????#???#??? 1,8")}, want: 14},
 		{name: "", args: args{ParseRecord("?.##????#?.?# 1,4,1,1")}, want: 1},
 		{name: "", args: args{ParseRecord("?????.??.???. 1,1,1")}, want: 68},
+		{name: "", args: args{ParseRecord("????????????? 1,1,1,2")}, want: 126},
+		{name: "", args: args{ParseRecord("??????.??..? 2,1,2")}, want: 6},
 
 		{name: "", args: args{Unfold(ParseRecord("???.### 1,1,3"), 5)}, want: 1},
 		{name: "", args: args{Unfold(ParseRecord(".??..??...?##. 1,1,3"), 5)}, want: 16384},
@@ -198,8 +200,8 @@ func Benchmark_calculateArrangementsCount_1(b *testing.B) {
 func Benchmark_calculateArrangementsCount_2(b *testing.B) {
 	record := Unfold(ParseRecord("????????????? 1,1,1,2"), 2)
 	for i := 0; i < b.N; i++ {
-		//assert.Equal(b, 126, calculateArrangementsCount(record))
-		calculateArrangementsCount(record)
+		assert.Equal(b, 43758, calculateArrangementsCount2(record))
+		//calculateArrangementsCount(record)
 	}
 }
 
@@ -211,30 +213,36 @@ func Benchmark_calculateArrangementsCount_3(b *testing.B) {
 	}
 }
 
-func Test_calculateArrangementsCountGroup(t *testing.T) {
+func Test_calculateArrangementsCountGroups(t *testing.T) {
 	type args struct {
 		conditions string
-		groupSize  int
+		groupSizes []int
 	}
 	tests := []struct {
 		name string
 		args args
 		want int
 	}{
-		{"", args{"?????", 1}, 5},
-		{"", args{"?????", 2}, 4},
-		{"", args{"?????", 3}, 3},
-		{"", args{"?????", 4}, 2},
-		{"", args{"?????", 5}, 1},
-		{"", args{"#????", 2}, 1},
-		{"", args{"?#???", 2}, 2},
-		{"", args{"??#??", 3}, 3},
+		{"", args{"?????", []int{1}}, 5},
+		{"", args{"?????", []int{2}}, 4},
+		{"", args{"?????", []int{3}}, 3},
+		{"", args{"?????", []int{4}}, 2},
+		{"", args{"?????", []int{5}}, 1},
+		{"", args{"#????", []int{2}}, 1},
+		{"", args{"?#???", []int{2}}, 2},
+		{"", args{"??#??", []int{3}}, 3},
 
-		{"", args{"??#??", 6}, 0},
+		{"", args{"??#??", []int{6}}, 0},
+		{"", args{"??#??", []int{}}, 0},
+
+		{"", args{"?????", []int{1, 1}}, 6},
+		//{"", args{"#.???", []int{1, 1}}, 6},
+		//{"", args{".#.??", []int{1, 1}}, 6},
+		//{"", args{"..#.?", []int{1, 1}}, 6},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, calculateArrangementsCountGroup(tt.args.conditions, tt.args.groupSize), "calculateArrangementsCountGroup(%v, %v)", tt.args.conditions, tt.args.groupSize)
+			assert.Equalf(t, tt.want, calculateArrangementsCountGroups(tt.args.conditions, tt.args.groupSizes), "calculateArrangementsCountGroups(%v, %v)", tt.args.conditions, tt.args.groupSizes)
 		})
 	}
 }
