@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/alg"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/iterators"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
@@ -27,7 +28,7 @@ func DoWithInputPart01(world World) int {
 
 	pathMap := slices.ToMap(path, func(v utils.Vector2i) utils.Vector2i { return v })
 
-	str := matrix.StringFmtSeparatorIndexed[int](tiles, "", func(value int, x, y int) string {
+	str := matrix.StringFmtSeparatorIndexed[int](tiles, false, "", func(value int, x, y int) string {
 		if _, ok := pathMap[utils.Vector2i{X: x, Y: y}]; ok {
 			return "."
 		}
@@ -54,7 +55,7 @@ func d(m Matrix2i) func(utils.Vector2i, utils.Vector2i) int {
 	}
 }
 
-func findForbiddenPositions(pathIterator utils.Iterator[utils.Vector2i]) []utils.Vector2i {
+func findForbiddenPositions(pathIterator iterators.Iterator[utils.Vector2i]) []utils.Vector2i {
 	if !pathIterator.HasNext() {
 		panic("First tile should be the current tile")
 
@@ -92,8 +93,8 @@ func findForbiddenPositions(pathIterator utils.Iterator[utils.Vector2i]) []utils
 	return []utils.Vector2i{previous}
 }
 
-func neighbours(m Matrix2i) func(origin utils.Vector2i, pathIterator utils.Iterator[utils.Vector2i]) []utils.Vector2i {
-	return func(origin utils.Vector2i, pathIterator utils.Iterator[utils.Vector2i]) []utils.Vector2i {
+func neighbours(m Matrix2i) func(origin utils.Vector2i, pathIterator iterators.Iterator[utils.Vector2i]) []utils.Vector2i {
+	return func(origin utils.Vector2i, pathIterator iterators.Iterator[utils.Vector2i]) []utils.Vector2i {
 		var neighbours []utils.Vector2i
 
 		// find forbidden positions based on the path
