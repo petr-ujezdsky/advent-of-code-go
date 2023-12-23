@@ -2,7 +2,9 @@ package main
 
 import (
 	_ "embed"
+	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"io"
 	"strings"
@@ -62,6 +64,9 @@ func LagoonArea(trench map[utils.Vector2i]DigOrder, bounds utils.BoundingRectang
 	// use rendering algorithm
 	area := 0
 
+	m := matrix.NewMatrix[rune](bounds.Width(), bounds.Height())
+	mOrigin := utils.Vector2i{X: bounds.Horizontal.Low, Y: bounds.Vertical.Low}
+
 	for x := bounds.Horizontal.Low; x <= bounds.Horizontal.High; x++ {
 		previous := '.'
 		crossingsCount := 0
@@ -73,11 +78,13 @@ func LagoonArea(trench map[utils.Vector2i]DigOrder, bounds utils.BoundingRectang
 				current = '#'
 			}
 
-			if previous != current {
+			m.SetV(position.Subtract(mOrigin), current)
+
+			if current == '#' && previous != current {
 				crossingsCount++
 			}
 
-			if crossingsCount%2 == 1 {
+			if current == '#' || crossingsCount%2 == 1 {
 				// inside
 				area++
 			}
@@ -85,6 +92,14 @@ func LagoonArea(trench map[utils.Vector2i]DigOrder, bounds utils.BoundingRectang
 			previous = current
 		}
 	}
+
+	//m = m.FlipVertical()
+
+	str := matrix.StringFmtSeparatorIndexedOrigin[rune](m, true, mOrigin, "", func(r rune, x, y int) string {
+		return string(r)
+	})
+
+	fmt.Printf("Lagoon:\n\n%v\n", str)
 
 	return area
 }
