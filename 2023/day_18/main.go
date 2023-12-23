@@ -2,11 +2,10 @@ package main
 
 import (
 	_ "embed"
-	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
-	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"io"
+	"sort"
 	"strings"
 )
 
@@ -15,6 +14,16 @@ type DigOrder struct {
 	Amount         int
 	Color          string
 	Previous, Next *DigOrder
+}
+
+type TrenchSegment struct {
+	Line     utils.LineOrthogonal2i
+	DigOrder *DigOrder
+}
+
+type IntersectingSegment struct {
+	IntersectingLine utils.LineOrthogonal2i
+	TrenchSegment    TrenchSegment
 }
 
 type World struct {
@@ -28,85 +37,146 @@ func DoWithInputPart01(world World) int {
 	return LagoonArea(trench, bounds)
 }
 
-func WalkOrders(orders []*DigOrder) (map[utils.Vector2i]*DigOrder, utils.BoundingRectangle) {
-	trench := make(map[utils.Vector2i]*DigOrder)
+func WalkOrders(orders []*DigOrder) ([]TrenchSegment, utils.BoundingRectangle) {
+	var trench []TrenchSegment
 
 	position := utils.Vector2i{}
 
 	bounds := utils.NewBoundingRectangleFromPoints(position, position)
 
-	// origin
-	trench[position] = &DigOrder{
-		Direction: -1,
-		Amount:    -1,
-		Color:     "",
-	}
-
 	for _, order := range orders {
 		step := order.Direction.ToStep()
 
-		for i := 0; i < order.Amount; i++ {
-			nextPosition := position.Add(step)
+		to := position.Add(step.Multiply(order.Amount))
+		line := utils.NewLineOrthogonal2i(position, to)
 
-			trench[nextPosition] = order
-			bounds = bounds.Enlarge(nextPosition)
+		bounds = bounds.Enlarge(to)
 
-			position = nextPosition
-		}
+		trench = append(trench, TrenchSegment{
+			Line:     line,
+			DigOrder: order,
+		})
+
+		position = to
 	}
 
 	return trench, bounds
 }
 
-func LagoonArea(trench map[utils.Vector2i]*DigOrder, bounds utils.BoundingRectangle) int {
+func LagoonArea(trench []TrenchSegment, bounds utils.BoundingRectangle) int {
 	// use rendering algorithm
 	area := 0
 
-	m := matrix.NewMatrix[rune](bounds.Width(), bounds.Height())
-	mOrigin := utils.Vector2i{X: bounds.Horizontal.Low, Y: bounds.Vertical.Low}
+	//m := matrix.NewMatrix[rune](bounds.Width(), bounds.Height())
+	//mOrigin := utils.Vector2i{X: bounds.Horizontal.Low, Y: bounds.Vertical.Low}
 
 	for x := bounds.Horizontal.Low; x <= bounds.Horizontal.High; x++ {
-		previous := '.'
-		crossingsCount := 0
-		areaY := 0
-		for y := bounds.Vertical.Low; y <= bounds.Vertical.High; y++ {
-			position := utils.Vector2i{X: x, Y: y}
+		from := utils.Vector2i{X: x, Y: bounds.Vertical.Low}
+		to := utils.Vector2i{X: x, Y: bounds.Vertical.High}
+		scanLine := utils.NewLineOrthogonal2i(from, to)
 
-			current := '.'
-			if t, ok := trench[position]; ok {
-				current = '#'
+		var intersectingSegments []IntersectingSegment
+		for _, segment := range trench {
+			if intersection, ok := scanLine.Intersection(segment.Line); ok {
+				// intersection is edge point
+				if intersection.IsPoint() && (intersection.A == segment.Line.A || intersection.A == segment.Line.B) {
+					// skip - solve by subsequent line intersection
+					continue
+				}
 
-				// detect vertical
-				if t.Direction == utils.Up || t.Direction == utils.Down {
+				intersectingSegments = append(intersectingSegments, IntersectingSegment{
+					IntersectingLine: intersection,
+					TrenchSegment:    segment,
+				})
+			}
+		}
 
+		// sort by Y axis
+		sort.Slice(intersectingSegments, func(i, j int) bool {
+			return intersectingSegments[i].IntersectingLine.A.Y < intersectingSegments[j].IntersectingLine.A.Y
+		})
+
+		yArea := 0
+		inside := false
+		lastInsideY := 0
+		for _, segment := range intersectingSegments {
+
+			aggregateArea := true
+			if segment.IntersectingLine.IsPoint() {
+				inside = !inside
+			} else {
+				// intersection is line, check the shape
+
+				// "Z" shape - act as "point"
+				digOrder := segment.TrenchSegment.DigOrder
+				if digOrder.Previous.Direction == digOrder.Next.Direction {
+					inside = !inside
+				} else {
+					// "C" shape - change nothing
+
+					// aggregate segment
+					if inside {
+						// current subarea segment
+						yArea += utils.Min(segment.IntersectingLine.A.Y, segment.IntersectingLine.B.Y) - lastInsideY
+					} else {
+						aggregateArea = false
+					}
 				}
 			}
 
-			m.SetV(position.Subtract(mOrigin), current)
+			// aggregate intersection segment
+			yArea += segment.IntersectingLine.Length()
 
-			if current == '#' && previous != current {
-				crossingsCount++
+			currentInsideY := utils.Max(segment.IntersectingLine.A.Y, segment.IntersectingLine.B.Y) + 1
+
+			if !inside && aggregateArea {
+				// aggregate area
+				yArea += currentInsideY - lastInsideY - segment.IntersectingLine.Length()
 			}
 
-			if current == '#' || crossingsCount%2 == 1 {
-				// inside
-				areaY++
-			}
-
-			previous = current
+			lastInsideY = currentInsideY
 		}
-		fmt.Printf("x=%d  area %d\n", x, areaY)
 
-		area += areaY
+		//
+		//areaY := 0
+		//for y := bounds.Vertical.Low; y <= bounds.Vertical.High; y++ {
+		//	position := utils.Vector2i{X: x, Y: y}
+		//
+		//	current := '.'
+		//	if t, ok := trench[position]; ok {
+		//		current = '#'
+		//
+		//		// detect vertical
+		//		if t.Direction == utils.Up || t.Direction == utils.Down {
+		//
+		//		}
+		//	}
+		//
+		//	m.SetV(position.Subtract(mOrigin), current)
+		//
+		//	if current == '#' && previous != current {
+		//		crossingsCount++
+		//	}
+		//
+		//	if current == '#' || crossingsCount%2 == 1 {
+		//		// inside
+		//		areaY++
+		//	}
+		//
+		//	previous = current
+		//}
+		//fmt.Printf("x=%d  area %d\n", x, areaY)
+
+		area += yArea
 	}
 
 	//m = m.FlipVertical()
 
-	str := matrix.StringFmtSeparatorIndexedOrigin[rune](m, true, mOrigin, "", func(r rune, x, y int) string {
-		return string(r)
-	})
-
-	fmt.Printf("Lagoon:\n\n%v\n", str)
+	//str := matrix.StringFmtSeparatorIndexedOrigin[rune](m, true, mOrigin, "", func(r rune, x, y int) string {
+	//	return string(r)
+	//})
+	//
+	//fmt.Printf("Lagoon:\n\n%v\n", str)
 
 	return area
 }

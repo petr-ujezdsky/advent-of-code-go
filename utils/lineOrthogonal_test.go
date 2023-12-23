@@ -90,3 +90,27 @@ func TestLineOrthogonal2i_Length(t *testing.T) {
 		})
 	}
 }
+
+func TestLineOrthogonal2i_IsPoint(t *testing.T) {
+	type fields struct {
+		A Vector2i
+		B Vector2i
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   bool
+	}{
+		{"", fields{Vector2i{1, 2}, Vector2i{10, 20}}, false},
+		{"", fields{Vector2i{1, 2}, Vector2i{1, 2}}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			line := LineOrthogonal2i{
+				A: tt.fields.A,
+				B: tt.fields.B,
+			}
+			assert.Equalf(t, tt.want, line.IsPoint(), "IsPoint()")
+		})
+	}
+}

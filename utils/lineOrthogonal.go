@@ -29,5 +29,9 @@ func (line LineOrthogonal2i) Intersection(line2 LineOrthogonal2i) (LineOrthogona
 }
 
 func (line LineOrthogonal2i) Length() int {
+
 	return line.B.Subtract(line.A).LengthManhattan() + 1
+}
+func (line LineOrthogonal2i) IsPoint() bool {
+	return line.A == line.B
 }
