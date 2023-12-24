@@ -10,6 +10,14 @@ import (
 	"strings"
 )
 
+type WorkFlowType int
+
+const (
+	TypeNormal WorkFlowType = iota
+	TypeAccepts
+	TypeRejects
+)
+
 type Category int
 
 const (
@@ -27,6 +35,7 @@ type Workflow struct {
 	Name       string
 	Conditions []Condition
 	Fallback   *Workflow
+	Type       WorkFlowType
 }
 
 type Condition struct {
@@ -108,7 +117,7 @@ func ParseWorkFlow(str string, workflows map[string]*Workflow) {
 		return ParseCondition(s, workflows)
 	})
 	// fallback
-	fallback := workflows[conditionsRaw[len(conditionsRaw)-1]]
+	fallback := getOrCreateWorkflow(conditionsRaw[len(conditionsRaw)-1], workflows)
 
 	workflow := getOrCreateWorkflow(name, workflows)
 
@@ -121,8 +130,17 @@ func getOrCreateWorkflow(name string, workflows map[string]*Workflow) *Workflow 
 		return workflow
 	}
 
+	workFlowType := TypeNormal
+	switch name {
+	case "A":
+		workFlowType = TypeAccepts
+	case "R":
+		workFlowType = TypeRejects
+	}
+
 	workflow := &Workflow{
 		Name: name,
+		Type: workFlowType,
 	}
 
 	workflows[name] = workflow

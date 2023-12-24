@@ -17,12 +17,17 @@ func Test_01_parse(t *testing.T) {
 
 	start := world.Start
 	assert.Equal(t, "in", start.Name)
+	assert.Equal(t, "qqz", start.Fallback.Name)
+	assert.Equal(t, TypeNormal, start.Type)
 
 	condition := start.Conditions[0]
 	assert.Equal(t, CategoryS, condition.Category)
 	assert.Equal(t, '<', condition.Operand)
 	assert.Equal(t, 1351, condition.Amount)
 	assert.Equal(t, "px", condition.Next.Name)
+
+	assert.Equal(t, TypeRejects, world.Workflows["crn"].Fallback.Type)
+	assert.Equal(t, TypeAccepts, world.Workflows["pv"].Fallback.Type)
 }
 
 func Test_01_example(t *testing.T) {
