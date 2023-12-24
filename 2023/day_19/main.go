@@ -7,6 +7,7 @@ import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -31,6 +32,10 @@ type Part struct {
 	Ratings [4]int
 }
 
+func (p Part) Sum() int {
+	return p.Ratings[0] + p.Ratings[1] + p.Ratings[2] + p.Ratings[3]
+}
+
 type Workflow struct {
 	Name       string
 	Conditions []Condition
@@ -45,14 +50,64 @@ type Condition struct {
 	Next     *Workflow
 }
 
+func (c Condition) Evaluate(part Part) bool {
+	switch c.Operand {
+	case '<':
+		return part.Ratings[c.Category] < c.Amount
+	case '>':
+		return part.Ratings[c.Category] > c.Amount
+	}
+
+	panic("Unknown operand")
+}
+
 type World struct {
 	Workflows map[string]*Workflow
 	Start     *Workflow
 	Parts     []Part
 }
 
+func (w *Workflow) Resolve(part Part, path []*Workflow, fillPath bool) (bool, []*Workflow) {
+	if fillPath {
+		path = append(path, w)
+	}
+
+	switch w.Type {
+	case TypeAccepts:
+		return true, path
+	case TypeRejects:
+		return false, path
+	case TypeNormal:
+		// try conditions
+		for _, condition := range w.Conditions {
+			if condition.Evaluate(part) {
+				return condition.Next.Resolve(part, path, fillPath)
+			}
+		}
+
+		// none matched -> fallback
+		return w.Fallback.Resolve(part, path, fillPath)
+	}
+
+	panic("Unknown type " + strconv.Itoa(int(w.Type)))
+}
+
 func DoWithInputPart01(world World) int {
-	return 0
+	results := utils.ProcessParallel(world.Parts, func(part Part, i int) int {
+		if accepted, _ := world.Start.Resolve(part, nil, false); accepted {
+			return part.Sum()
+		}
+
+		return 0
+	})
+
+	sum := 0
+
+	for result := range results {
+		sum += result.Value
+	}
+
+	return sum
 }
 
 func DoWithInputPart02(world World) int {
