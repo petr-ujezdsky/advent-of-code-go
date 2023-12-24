@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	_ "embed"
+	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
@@ -111,7 +112,25 @@ func DoWithInputPart01(world World) int {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	results := utils.ProcessParallel(world.Parts, func(part Part, i int) int {
+		accepted, path := world.Start.Resolve(part, nil, true)
+
+		fmt.Printf("#%3d (index %3d) recursions: %2d accepted: %v\n", i+574, i, len(path), accepted)
+
+		if accepted {
+			return part.Sum()
+		}
+
+		return 0
+	})
+
+	sum := 0
+
+	for result := range results {
+		sum += result.Value
+	}
+
+	return sum
 }
 
 func toCategory(str string) Category {
