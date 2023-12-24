@@ -67,6 +67,16 @@ func WalkOrders(orders []*DigOrder) ([]TrenchSegment, utils.BoundingRectangle) {
 }
 
 func LagoonArea(trench []TrenchSegment, bounds utils.BoundingRectangle) int {
+	// precompute scan lines
+	onScanLine := make([][]TrenchSegment, bounds.Horizontal.Size())
+
+	for _, segment := range trench {
+		for x := utils.Min(segment.Line.A.X, segment.Line.B.X); x <= utils.Max(segment.Line.A.X, segment.Line.B.X); x++ {
+			xx := x - bounds.Horizontal.Low
+			onScanLine[xx] = append(onScanLine[xx], segment)
+		}
+	}
+
 	// use rendering algorithm
 	area := 0
 
@@ -79,7 +89,7 @@ func LagoonArea(trench []TrenchSegment, bounds utils.BoundingRectangle) int {
 		scanLine := utils.NewLineOrthogonal2i(from, to)
 
 		var intersectingSegments []IntersectingSegment
-		for _, segment := range trench {
+		for _, segment := range onScanLine[x-bounds.Horizontal.Low] {
 			if intersection, ok := scanLine.Intersection(segment.Line); ok {
 				// intersection is edge point
 				if intersection.IsPoint() && (intersection.A == segment.Line.A || intersection.A == segment.Line.B) {
