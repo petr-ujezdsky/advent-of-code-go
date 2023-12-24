@@ -112,25 +112,48 @@ func DoWithInputPart01(world World) int {
 }
 
 func DoWithInputPart02(world World) int {
-	results := utils.ProcessParallel(world.Parts, func(part Part, i int) int {
-		accepted, path := world.Start.Resolve(part, nil, true)
+	visited := make(map[string]*Workflow)
 
-		fmt.Printf("#%3d (index %3d) recursions: %2d accepted: %v\n", i+574, i, len(path), accepted)
+	VisitAll(world.Start, visited)
 
-		if accepted {
-			return part.Sum()
-		}
+	fmt.Printf("Visited %d / %d\n", len(visited), len(world.Workflows))
 
-		return 0
-	})
+	return 0
+	//results := utils.ProcessParallel(world.Parts, func(part Part, i int) int {
+	//	accepted, path := world.Start.Resolve(part, nil, true)
+	//
+	//	fmt.Printf("#%3d (index %3d) recursions: %2d accepted: %v\n", i+574, i, len(path), accepted)
+	//
+	//	if accepted {
+	//		return part.Sum()
+	//	}
+	//
+	//	return 0
+	//})
+	//
+	//sum := 0
+	//
+	//for result := range results {
+	//	sum += result.Value
+	//}
+	//
+	//return sum
+}
 
-	sum := 0
+func VisitAll(workflow *Workflow, visited map[string]*Workflow) {
+	if _, ok := visited[workflow.Name]; ok {
+		return
+	}
+	visited[workflow.Name] = workflow
 
-	for result := range results {
-		sum += result.Value
+	for _, condition := range workflow.Conditions {
+		next := condition.Next
+		VisitAll(next, visited)
 	}
 
-	return sum
+	if workflow.Fallback != nil {
+		VisitAll(workflow.Fallback, visited)
+	}
 }
 
 func toCategory(str string) Category {
