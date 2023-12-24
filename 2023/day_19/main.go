@@ -114,9 +114,9 @@ func DoWithInputPart01(world World) int {
 func DoWithInputPart02(world World) int {
 	visited := make(map[string]*Workflow)
 
-	VisitAll(world.Start, visited)
+	count := VisitAll(world.Start, visited)
 
-	fmt.Printf("Visited %d / %d\n", len(visited), len(world.Workflows))
+	fmt.Printf("Visited %d / %d, count %d\n", len(visited), len(world.Workflows), count)
 
 	return 0
 	//results := utils.ProcessParallel(world.Parts, func(part Part, i int) int {
@@ -140,20 +140,29 @@ func DoWithInputPart02(world World) int {
 	//return sum
 }
 
-func VisitAll(workflow *Workflow, visited map[string]*Workflow) {
-	if _, ok := visited[workflow.Name]; ok {
-		return
-	}
+func VisitAll(workflow *Workflow, visited map[string]*Workflow) int {
+	//if _, ok := visited[workflow.Name]; ok {
+	//	return
+	//}
 	visited[workflow.Name] = workflow
+	count := 0
 
-	for _, condition := range workflow.Conditions {
-		next := condition.Next
-		VisitAll(next, visited)
+	switch workflow.Type {
+	case TypeAccepts:
+	case TypeRejects:
+		count++
+	case TypeNormal:
+		for _, condition := range workflow.Conditions {
+			next := condition.Next
+			count += VisitAll(next, visited)
+		}
+
+		if workflow.Fallback != nil {
+			count += VisitAll(workflow.Fallback, visited)
+		}
 	}
 
-	if workflow.Fallback != nil {
-		VisitAll(workflow.Fallback, visited)
-	}
+	return count
 }
 
 func toCategory(str string) Category {
