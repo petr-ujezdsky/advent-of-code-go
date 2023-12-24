@@ -4,12 +4,15 @@ import (
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
 	"sort"
+	"strconv"
 	"strings"
 )
 
 type DigOrder struct {
+	Raw            string
 	Direction      utils.Direction4
 	Amount         int
 	Color          string
@@ -165,7 +168,7 @@ func LagoonArea(trench []TrenchSegment, bounds utils.BoundingRectangle) int {
 		//
 		//	previous = current
 		//}
-		//fmt.Printf("x=%d  area %d\n", x, areaY)
+		//fmt.Printf("x=%d  area %d\n", x, yArea)
 
 		area += yArea
 	}
@@ -182,7 +185,38 @@ func LagoonArea(trench []TrenchSegment, bounds utils.BoundingRectangle) int {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	fixed := fixDigOrders(world.Orders)
+	trench, bounds := WalkOrders(fixed)
+
+	return LagoonArea(trench, bounds)
+}
+
+func fixDigOrders(orders []*DigOrder) []*DigOrder {
+	fixed := slices.Map(orders, func(broken *DigOrder) *DigOrder {
+		amount, _ := strconv.ParseInt(broken.Color[1:6], 16, 32)
+		dir, _ := strconv.ParseInt(broken.Color[6:], 16, 32)
+		direction := parseDirInt(int(dir))
+
+		return &DigOrder{
+			Raw:       broken.Raw,
+			Direction: direction,
+			Amount:    int(amount),
+			Color:     broken.Color,
+			Previous:  nil,
+			Next:      nil,
+		}
+	})
+
+	// link them
+	previous := fixed[len(fixed)-1]
+	for _, current := range fixed {
+		current.Previous = previous
+		previous.Next = current
+
+		previous = current
+	}
+
+	return fixed
 }
 
 func parseDir(s string) utils.Direction4 {
@@ -199,6 +233,22 @@ func parseDir(s string) utils.Direction4 {
 
 	panic("Unknown direction")
 }
+
+func parseDirInt(i int) utils.Direction4 {
+	switch i {
+	case 0:
+		return utils.Right
+	case 1:
+		return utils.Down
+	case 2:
+		return utils.Left
+	case 3:
+		return utils.Up
+	}
+
+	panic("Unknown direction")
+}
+
 func ParseInput(r io.Reader) World {
 	parseItem := func(str string) *DigOrder {
 		parts := strings.Split(str, " ")
@@ -208,6 +258,7 @@ func ParseInput(r io.Reader) World {
 		color := parts[2][1 : len(parts[2])-1]
 
 		return &DigOrder{
+			Raw:       str,
 			Direction: direction,
 			Amount:    amount,
 			Color:     color,
