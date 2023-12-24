@@ -80,9 +80,6 @@ func LagoonArea(trench []TrenchSegment, bounds utils.BoundingRectangle) int {
 	// use rendering algorithm
 	area := 0
 
-	//m := matrix.NewMatrix[rune](bounds.Width(), bounds.Height())
-	//mOrigin := utils.Vector2i{X: bounds.Horizontal.Low, Y: bounds.Vertical.Low}
-
 	for x := bounds.Horizontal.Low; x <= bounds.Horizontal.High; x++ {
 		from := utils.Vector2i{X: x, Y: bounds.Vertical.Low}
 		to := utils.Vector2i{X: x, Y: bounds.Vertical.High}
@@ -150,46 +147,8 @@ func LagoonArea(trench []TrenchSegment, bounds utils.BoundingRectangle) int {
 			lastInsideY = currentInsideY
 		}
 
-		//
-		//areaY := 0
-		//for y := bounds.Vertical.Low; y <= bounds.Vertical.High; y++ {
-		//	position := utils.Vector2i{X: x, Y: y}
-		//
-		//	current := '.'
-		//	if t, ok := trench[position]; ok {
-		//		current = '#'
-		//
-		//		// detect vertical
-		//		if t.Direction == utils.Up || t.Direction == utils.Down {
-		//
-		//		}
-		//	}
-		//
-		//	m.SetV(position.Subtract(mOrigin), current)
-		//
-		//	if current == '#' && previous != current {
-		//		crossingsCount++
-		//	}
-		//
-		//	if current == '#' || crossingsCount%2 == 1 {
-		//		// inside
-		//		areaY++
-		//	}
-		//
-		//	previous = current
-		//}
-		//fmt.Printf("x=%d  area %d\n", x, yArea)
-
 		area += yArea
 	}
-
-	//m = m.FlipVertical()
-
-	//str := matrix.StringFmtSeparatorIndexedOrigin[rune](m, true, mOrigin, "", func(r rune, x, y int) string {
-	//	return string(r)
-	//})
-	//
-	//fmt.Printf("Lagoon:\n\n%v\n", str)
 
 	return area
 }
