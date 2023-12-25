@@ -130,14 +130,7 @@ func DoWithInputPart02(world World) int {
 	accepting := world.Workflows["A"]
 
 	//WalkReverse(accepting)
-	fullInterval := utils.IntervalI{High: 4000}
-	intersection := WalkReverseAndIntersect(accepting, [4]utils.IntervalI{fullInterval, fullInterval, fullInterval, fullInterval})
-	combinations := 1
-	for _, interval := range intersection {
-		combinations *= interval.Size()
-	}
-
-	fmt.Printf("Intersetion %v, combinations %d\n", intersection, combinations)
+	combinations := WalkReverseAndIntersect(accepting)
 
 	return combinations
 	//results := utils.ProcessParallel(world.Parts, func(part Part, i int) int {
@@ -204,16 +197,26 @@ func WalkReverse(workflow *Workflow) {
 	WalkReverse(conditionTrue.Owner)
 }
 
-func WalkReverseAndIntersect(workflow *Workflow, ratingIntervals [4]utils.IntervalI) [4]utils.IntervalI {
-	if workflow == nil {
-		fmt.Printf("\n")
-		return ratingIntervals
+func WalkReverseAndIntersect(acceptingWorkflow *Workflow) int {
+	totalCombinations := 0
+
+	for _, conditionTrue := range acceptingWorkflow.ParentConditions {
+		fullInterval := utils.IntervalI{High: 4000}
+		intersection := walkReverseAndIntersectCondition(conditionTrue, [4]utils.IntervalI{fullInterval, fullInterval, fullInterval, fullInterval})
+
+		combinations := 1
+		for _, ratingInterval := range intersection {
+			combinations *= ratingInterval.Size()
+		}
+
+		totalCombinations += combinations
 	}
 
-	fmt.Printf(" -> %s", workflow.Name)
-	conditionTrue := workflow.ParentCondition
+	return totalCombinations
+}
+
+func walkReverseAndIntersectCondition(conditionTrue *Condition, ratingIntervals [4]utils.IntervalI) [4]utils.IntervalI {
 	if conditionTrue == nil {
-		fmt.Printf("\n")
 		return ratingIntervals
 	}
 
@@ -232,7 +235,7 @@ func WalkReverseAndIntersect(workflow *Workflow, ratingIntervals [4]utils.Interv
 		conditionFalse = conditionFalse.Previous
 	}
 
-	return WalkReverseAndIntersect(conditionTrue.Owner, ratingIntervals)
+	return walkReverseAndIntersectCondition(conditionTrue.Owner.ParentCondition, ratingIntervals)
 }
 
 func toCategory(str string) Category {
