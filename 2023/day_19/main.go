@@ -112,12 +112,14 @@ func DoWithInputPart01(world World) int {
 }
 
 func DoWithInputPart02(world World) int {
+	// look at counts
 	visited := make(map[string]*Workflow)
 
 	count := VisitAll(world.Start, visited)
 
 	fmt.Printf("Visited %d / %d, count %d\n", len(visited), len(world.Workflows), count)
 
+	// print tree
 	treeStr := tree.PrintTree(world.Start, func(node *Workflow) (string, []*Workflow) {
 		var children []*Workflow
 
@@ -129,6 +131,11 @@ func DoWithInputPart02(world World) int {
 	})
 
 	fmt.Printf("%v\n", treeStr)
+
+	// walk reverse A -> in
+	accepting := world.Workflows["A"]
+
+	WalkReverse(accepting)
 
 	return 0
 	//results := utils.ProcessParallel(world.Parts, func(part Part, i int) int {
@@ -171,6 +178,28 @@ func VisitAll(workflow *Workflow, visited map[string]*Workflow) int {
 	}
 
 	return count
+}
+
+func WalkReverse(workflow *Workflow) {
+	if workflow == nil {
+		fmt.Printf("\n")
+		return
+	}
+
+	fmt.Printf(" -> %s", workflow.Name)
+	conditionTrue := workflow.ParentCondition
+	if conditionTrue == nil {
+		fmt.Printf("\n")
+		return
+	}
+
+	conditionFalse := conditionTrue.Previous
+	for conditionFalse != nil {
+
+		conditionFalse = conditionFalse.Previous
+	}
+
+	WalkReverse(conditionTrue.Owner)
 }
 
 func toCategory(str string) Category {
