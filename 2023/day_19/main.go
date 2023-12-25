@@ -46,12 +46,13 @@ type Workflow struct {
 }
 
 type Condition struct {
-	Category Category
-	Operand  rune
-	Amount   int
-	Next     *Workflow
-	Previous *Condition
-	Owner    *Workflow
+	Category                    Category
+	Operand                     rune
+	Amount                      int
+	Next                        *Workflow
+	Previous                    *Condition
+	Owner                       *Workflow
+	TrueInterval, FalseInterval utils.IntervalI
 }
 
 func (c Condition) Evaluate(part Part) bool {
@@ -135,7 +136,10 @@ func DoWithInputPart02(world World) int {
 	// walk reverse A -> in
 	accepting := world.Workflows["A"]
 
-	WalkReverse(accepting)
+	//WalkReverse(accepting)
+	fullInterval := utils.IntervalI{High: 4000}
+	intersection := WalkReverseAndIntersect(accepting, [4]utils.IntervalI{fullInterval, fullInterval, fullInterval, fullInterval})
+	fmt.Printf("Intersetion %v\n", intersection)
 
 	return 0
 	//results := utils.ProcessParallel(world.Parts, func(part Part, i int) int {
@@ -202,6 +206,37 @@ func WalkReverse(workflow *Workflow) {
 	WalkReverse(conditionTrue.Owner)
 }
 
+func WalkReverseAndIntersect(workflow *Workflow, ratingIntervals [4]utils.IntervalI) [4]utils.IntervalI {
+	if workflow == nil {
+		fmt.Printf("\n")
+		return ratingIntervals
+	}
+
+	fmt.Printf(" -> %s", workflow.Name)
+	conditionTrue := workflow.ParentCondition
+	if conditionTrue == nil {
+		fmt.Printf("\n")
+		return ratingIntervals
+	}
+
+	// fulfill the condition
+	if intersection, ok := ratingIntervals[conditionTrue.Category].Intersection(conditionTrue.TrueInterval); ok {
+		ratingIntervals[conditionTrue.Category] = intersection
+	}
+
+	// neglect the previous conditions
+	conditionFalse := conditionTrue.Previous
+	for conditionFalse != nil {
+		if intersection, ok := ratingIntervals[conditionFalse.Category].Intersection(conditionFalse.FalseInterval); ok {
+			ratingIntervals[conditionFalse.Category] = intersection
+		}
+
+		conditionFalse = conditionFalse.Previous
+	}
+
+	return WalkReverseAndIntersect(conditionTrue.Owner, ratingIntervals)
+}
+
 func toCategory(str string) Category {
 	switch str {
 	case "x":
@@ -242,13 +277,25 @@ func ParseCondition(str string, workflows map[string]*Workflow, previous *Condit
 	amount := utils.ParseInt(parts[3])
 	next := getOrCreateWorkflow(parts[4], workflows)
 
+	var trueInterval utils.IntervalI
+	var falseInterval utils.IntervalI
+	if operand == '>' {
+		trueInterval = utils.IntervalI{Low: amount + 1, High: 4000}
+		falseInterval = utils.IntervalI{Low: 0, High: amount}
+	} else {
+		trueInterval = utils.IntervalI{Low: 0, High: amount - 1}
+		falseInterval = utils.IntervalI{Low: amount, High: 4000}
+	}
+
 	condition := Condition{
-		Category: category,
-		Operand:  operand,
-		Amount:   amount,
-		Next:     next,
-		Previous: previous,
-		Owner:    owner,
+		Category:      category,
+		Operand:       operand,
+		Amount:        amount,
+		Next:          next,
+		Previous:      previous,
+		Owner:         owner,
+		TrueInterval:  trueInterval,
+		FalseInterval: falseInterval,
 	}
 
 	next.ParentCondition = &condition
@@ -262,12 +309,14 @@ func ParseAlwaysTrueCondition(nextName string, workflows map[string]*Workflow, p
 	next := getOrCreateWorkflow(nextName, workflows)
 
 	condition := Condition{
-		Category: CategoryX,
-		Operand:  '>',
-		Amount:   -1,
-		Next:     next,
-		Previous: previous,
-		Owner:    owner,
+		Category:      CategoryX,
+		Operand:       '>',
+		Amount:        -1,
+		Next:          next,
+		Previous:      previous,
+		Owner:         owner,
+		TrueInterval:  utils.IntervalI{Low: 0, High: 4000},
+		FalseInterval: utils.IntervalI{Low: -2, High: -1},
 	}
 
 	next.ParentCondition = &condition
