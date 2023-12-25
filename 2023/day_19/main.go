@@ -49,6 +49,7 @@ type Condition struct {
 	Amount   int
 	Next     *Workflow
 	Previous *Condition
+	Owner    *Workflow
 }
 
 func (c Condition) Evaluate(part Part) bool {
@@ -202,7 +203,7 @@ func ParsePart(str string) Part {
 
 var conditionRegex = regexp.MustCompile(`([xmas])([<>])(\d+):(.+)`)
 
-func ParseCondition(str string, workflows map[string]*Workflow, previous *Condition) Condition {
+func ParseCondition(str string, workflows map[string]*Workflow, previous *Condition, owner *Workflow) Condition {
 	parts := conditionRegex.FindStringSubmatch(str)
 
 	category := toCategory(parts[1])
@@ -216,10 +217,11 @@ func ParseCondition(str string, workflows map[string]*Workflow, previous *Condit
 		Amount:   amount,
 		Next:     next,
 		Previous: previous,
+		Owner:    owner,
 	}
 }
 
-func ParseAlwaysTrueCondition(nextName string, workflows map[string]*Workflow, previous *Condition) Condition {
+func ParseAlwaysTrueCondition(nextName string, workflows map[string]*Workflow, previous *Condition, owner *Workflow) Condition {
 	next := getOrCreateWorkflow(nextName, workflows)
 
 	return Condition{
@@ -228,6 +230,7 @@ func ParseAlwaysTrueCondition(nextName string, workflows map[string]*Workflow, p
 		Amount:   -1,
 		Next:     next,
 		Previous: previous,
+		Owner:    owner,
 	}
 }
 
@@ -235,6 +238,8 @@ func ParseWorkFlow(str string, workflows map[string]*Workflow) {
 	mainParts := strings.Split(str, "{")
 
 	name := mainParts[0]
+	workflow := getOrCreateWorkflow(name, workflows)
+
 	conditionsRaw := strings.Split(mainParts[1][:len(mainParts[1])-1], ",")
 
 	// proper conditions
@@ -243,16 +248,14 @@ func ParseWorkFlow(str string, workflows map[string]*Workflow) {
 	for i, conditionRaw := range conditionsRaw {
 		var condition Condition
 		if i == len(conditionsRaw)-1 {
-			condition = ParseAlwaysTrueCondition(conditionRaw, workflows, previousCondition)
+			condition = ParseAlwaysTrueCondition(conditionRaw, workflows, previousCondition, workflow)
 		} else {
-			condition = ParseCondition(conditionRaw, workflows, previousCondition)
+			condition = ParseCondition(conditionRaw, workflows, previousCondition, workflow)
 		}
 
 		previousCondition = &condition
 		conditions[i] = condition
 	}
-
-	workflow := getOrCreateWorkflow(name, workflows)
 
 	workflow.Conditions = conditions
 }

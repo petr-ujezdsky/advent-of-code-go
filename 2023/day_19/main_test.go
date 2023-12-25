@@ -30,6 +30,7 @@ func Test_01_parse(t *testing.T) {
 
 	workflow = world.Workflows["crn"]
 	assert.Equal(t, TypeRejects, workflow.Conditions[len(workflow.Conditions)-1].Next.Type)
+	assert.Equal(t, workflow, workflow.Conditions[len(workflow.Conditions)-1].Owner)
 
 	workflow = world.Workflows["pv"]
 	assert.Equal(t, TypeAccepts, workflow.Conditions[len(workflow.Conditions)-1].Next.Type)
