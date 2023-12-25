@@ -130,9 +130,11 @@ func DoWithInputPart02(world World) int {
 	accepting := world.Workflows["A"]
 
 	//WalkReverse(accepting)
-	combinations := WalkReverseAndIntersect(accepting)
+	ratingIntervals := WalkReverseAndIntersect(accepting)
 
+	combinations := CountCombinations(ratingIntervals)
 	return combinations
+
 	//results := utils.ProcessParallel(world.Parts, func(part Part, i int) int {
 	//	accepted, path := world.Start.Resolve(part, nil, true)
 	//
@@ -197,22 +199,41 @@ func WalkReverse(workflow *Workflow) {
 	WalkReverse(conditionTrue.Owner)
 }
 
-func WalkReverseAndIntersect(acceptingWorkflow *Workflow) int {
-	totalCombinations := 0
+func CountCombinations(results [][4]utils.IntervalI) int {
+	// total combinations
+	combinations := 0
+	for _, ratingIntervals := range results {
+		subCombinations := 1
+
+		for _, ratingInterval := range ratingIntervals {
+			subCombinations *= ratingInterval.Size()
+		}
+
+		combinations += subCombinations
+	}
+
+	//
+	//// subtract duplicates (intersection)
+	//intersection
+	//for _, ratingInterval := range ratingIntervals {
+	//	for _, categoryInterval := range ratingInterval {
+	//		combinations *= categoryInterval.Size()
+	//	}
+	//}
+
+	return combinations
+}
+
+func WalkReverseAndIntersect(acceptingWorkflow *Workflow) [][4]utils.IntervalI {
+	var ratingIntervals [][4]utils.IntervalI
 
 	for _, conditionTrue := range acceptingWorkflow.ParentConditions {
 		fullInterval := utils.IntervalI{High: 4000}
 		intersection := walkReverseAndIntersectCondition(conditionTrue, [4]utils.IntervalI{fullInterval, fullInterval, fullInterval, fullInterval})
 
-		combinations := 1
-		for _, ratingInterval := range intersection {
-			combinations *= ratingInterval.Size()
-		}
-
-		totalCombinations += combinations
+		ratingIntervals = append(ratingIntervals, intersection)
 	}
-
-	return totalCombinations
+	return ratingIntervals
 }
 
 func walkReverseAndIntersectCondition(conditionTrue *Condition, ratingIntervals [4]utils.IntervalI) [4]utils.IntervalI {
