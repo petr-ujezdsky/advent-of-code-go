@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/tree"
 	"io"
 	"regexp"
 	"strconv"
@@ -117,6 +118,22 @@ func DoWithInputPart02(world World) int {
 	count := VisitAll(world.Start, visited)
 
 	fmt.Printf("Visited %d / %d, count %d\n", len(visited), len(world.Workflows), count)
+
+	treeStr := tree.PrintTree(world.Start, func(node *Workflow) (string, []*Workflow) {
+		var children []*Workflow
+
+		for _, condition := range node.Conditions {
+			children = append(children, condition.Next)
+		}
+
+		if node.Fallback != nil {
+			children = append(children, node.Fallback)
+		}
+
+		return node.Name, children
+	})
+
+	fmt.Printf("%v\n", treeStr)
 
 	return 0
 	//results := utils.ProcessParallel(world.Parts, func(part Part, i int) int {
