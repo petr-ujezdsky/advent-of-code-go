@@ -226,9 +226,7 @@ func WalkReverseAndIntersect(acceptingWorkflow *Workflow) []utils.BoundingBoxN {
 	var ratingIntervals []utils.BoundingBoxN
 
 	for _, conditionTrue := range acceptingWorkflow.ParentConditions {
-		fullInterval := utils.IntervalI{High: 4000}
-		fullIntervals := []utils.IntervalI{fullInterval, fullInterval, fullInterval, fullInterval}
-		fullBoundingBox := utils.BoundingBoxN{Intervals: fullIntervals}
+		fullBoundingBox := fullBox()
 
 		intersection := walkReverseAndIntersectCondition(conditionTrue, fullBoundingBox)
 
@@ -292,7 +290,7 @@ func ParsePart(str string) Part {
 }
 
 func fullBox() utils.BoundingBoxN {
-	fullInterval := utils.IntervalI{High: 4000}
+	fullInterval := utils.IntervalI{Low: 1, High: 4000}
 	fullIntervals := []utils.IntervalI{fullInterval, fullInterval, fullInterval, fullInterval}
 	return utils.BoundingBoxN{Intervals: fullIntervals}
 }
@@ -318,9 +316,9 @@ func ParseCondition(str string, workflows map[string]*Workflow, previous *Condit
 
 	if operand == '>' {
 		trueBox.Intervals[category] = utils.IntervalI{Low: amount + 1, High: 4000}
-		falseBox.Intervals[category] = utils.IntervalI{Low: 0, High: amount}
+		falseBox.Intervals[category] = utils.IntervalI{Low: 1, High: amount}
 	} else {
-		trueBox.Intervals[category] = utils.IntervalI{Low: 0, High: amount - 1}
+		trueBox.Intervals[category] = utils.IntervalI{Low: 1, High: amount - 1}
 		falseBox.Intervals[category] = utils.IntervalI{Low: amount, High: 4000}
 	}
 

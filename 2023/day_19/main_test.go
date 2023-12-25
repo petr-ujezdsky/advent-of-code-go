@@ -143,6 +143,5 @@ func Test_02(t *testing.T) {
 	world := ParseInput(reader)
 
 	result := DoWithInputPart02(world)
-	// 121284244666545 too high
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 121158073425385, result)
 }
