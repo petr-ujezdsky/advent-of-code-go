@@ -17,19 +17,22 @@ func Test_01_parse(t *testing.T) {
 	assert.Equal(t, 11+2, len(world.Workflows))
 	assert.Equal(t, 5, len(world.Parts))
 
-	start := world.Start
-	assert.Equal(t, "in", start.Name)
-	assert.Equal(t, "qqz", start.Fallback.Name)
-	assert.Equal(t, TypeNormal, start.Type)
+	workflow := world.Start
+	assert.Equal(t, "in", workflow.Name)
+	assert.Equal(t, "qqz", workflow.Conditions[len(workflow.Conditions)-1].Next.Name)
+	assert.Equal(t, TypeNormal, workflow.Type)
 
-	condition := start.Conditions[0]
+	condition := workflow.Conditions[0]
 	assert.Equal(t, CategoryS, condition.Category)
 	assert.Equal(t, '<', condition.Operand)
 	assert.Equal(t, 1351, condition.Amount)
 	assert.Equal(t, "px", condition.Next.Name)
 
-	assert.Equal(t, TypeRejects, world.Workflows["crn"].Fallback.Type)
-	assert.Equal(t, TypeAccepts, world.Workflows["pv"].Fallback.Type)
+	workflow = world.Workflows["crn"]
+	assert.Equal(t, TypeRejects, workflow.Conditions[len(workflow.Conditions)-1].Next.Type)
+
+	workflow = world.Workflows["pv"]
+	assert.Equal(t, TypeAccepts, workflow.Conditions[len(workflow.Conditions)-1].Next.Type)
 }
 
 func Test_01_resolve(t *testing.T) {

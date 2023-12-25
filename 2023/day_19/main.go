@@ -5,7 +5,6 @@ import (
 	_ "embed"
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
-	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/tree"
 	"io"
 	"regexp"
@@ -41,7 +40,6 @@ func (p Part) Sum() int {
 type Workflow struct {
 	Name       string
 	Conditions []Condition
-	Fallback   *Workflow
 	Type       WorkFlowType
 }
 
@@ -50,6 +48,7 @@ type Condition struct {
 	Operand  rune
 	Amount   int
 	Next     *Workflow
+	Previous *Condition
 }
 
 func (c Condition) Evaluate(part Part) bool {
@@ -86,9 +85,6 @@ func (w *Workflow) Resolve(part Part, path []*Workflow, fillPath bool) (bool, []
 				return condition.Next.Resolve(part, path, fillPath)
 			}
 		}
-
-		// none matched -> fallback
-		return w.Fallback.Resolve(part, path, fillPath)
 	}
 
 	panic("Unknown type " + strconv.Itoa(int(w.Type)))
@@ -124,10 +120,6 @@ func DoWithInputPart02(world World) int {
 
 		for _, condition := range node.Conditions {
 			children = append(children, condition.Next)
-		}
-
-		if node.Fallback != nil {
-			children = append(children, node.Fallback)
 		}
 
 		return node.Name, children
@@ -173,10 +165,6 @@ func VisitAll(workflow *Workflow, visited map[string]*Workflow) int {
 			next := condition.Next
 			count += VisitAll(next, visited)
 		}
-
-		if workflow.Fallback != nil {
-			count += VisitAll(workflow.Fallback, visited)
-		}
 	}
 
 	return count
@@ -214,7 +202,7 @@ func ParsePart(str string) Part {
 
 var conditionRegex = regexp.MustCompile(`([xmas])([<>])(\d+):(.+)`)
 
-func ParseCondition(str string, workflows map[string]*Workflow) Condition {
+func ParseCondition(str string, workflows map[string]*Workflow, previous *Condition) Condition {
 	parts := conditionRegex.FindStringSubmatch(str)
 
 	category := toCategory(parts[1])
@@ -227,6 +215,19 @@ func ParseCondition(str string, workflows map[string]*Workflow) Condition {
 		Operand:  operand,
 		Amount:   amount,
 		Next:     next,
+		Previous: previous,
+	}
+}
+
+func ParseAlwaysTrueCondition(nextName string, workflows map[string]*Workflow, previous *Condition) Condition {
+	next := getOrCreateWorkflow(nextName, workflows)
+
+	return Condition{
+		Category: CategoryX,
+		Operand:  '>',
+		Amount:   -1,
+		Next:     next,
+		Previous: previous,
 	}
 }
 
@@ -235,17 +236,25 @@ func ParseWorkFlow(str string, workflows map[string]*Workflow) {
 
 	name := mainParts[0]
 	conditionsRaw := strings.Split(mainParts[1][:len(mainParts[1])-1], ",")
+
 	// proper conditions
-	conditions := slices.Map(conditionsRaw[:len(conditionsRaw)-1], func(s string) Condition {
-		return ParseCondition(s, workflows)
-	})
-	// fallback
-	fallback := getOrCreateWorkflow(conditionsRaw[len(conditionsRaw)-1], workflows)
+	var previousCondition *Condition
+	conditions := make([]Condition, len(conditionsRaw))
+	for i, conditionRaw := range conditionsRaw {
+		var condition Condition
+		if i == len(conditionsRaw)-1 {
+			condition = ParseAlwaysTrueCondition(conditionRaw, workflows, previousCondition)
+		} else {
+			condition = ParseCondition(conditionRaw, workflows, previousCondition)
+		}
+
+		previousCondition = &condition
+		conditions[i] = condition
+	}
 
 	workflow := getOrCreateWorkflow(name, workflows)
 
 	workflow.Conditions = conditions
-	workflow.Fallback = fallback
 }
 
 func getOrCreateWorkflow(name string, workflows map[string]*Workflow) *Workflow {
