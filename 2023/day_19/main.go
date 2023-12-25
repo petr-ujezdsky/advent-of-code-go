@@ -5,7 +5,6 @@ import (
 	_ "embed"
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
-	"github.com/petr-ujezdsky/advent-of-code-go/utils/tree"
 	"io"
 	"regexp"
 	"strconv"
@@ -107,26 +106,26 @@ func DoWithInputPart01(world World) int {
 
 func DoWithInputPart02(world World) int {
 	// look at counts
-	visited := make(map[string]*Workflow)
-
-	count := VisitAll(world.Start, visited)
-
-	fmt.Printf("Visited %d / %d, count %d\n", len(visited), len(world.Workflows), count)
+	//visited := make(map[string]*Workflow)
+	//
+	//count := VisitAll(world.Start, visited)
+	//
+	//fmt.Printf("Visited %d / %d, count %d\n", len(visited), len(world.Workflows), count)
 
 	// print tree
-	treeStr := tree.PrintTree(world.Start, func(node *Workflow) (string, []*Workflow) {
-		var children []*Workflow
-
-		for _, condition := range node.Conditions {
-			children = append(children, condition.Next)
-		}
-
-		return node.Name, children
-	})
-
-	fmt.Printf("%v\n", treeStr)
-
-	// walk reverse A -> in
+	//treeStr := tree.PrintTree(world.Start, func(node *Workflow) (string, []*Workflow) {
+	//	var children []*Workflow
+	//
+	//	for _, condition := range node.Conditions {
+	//		children = append(children, condition.Next)
+	//	}
+	//
+	//	return node.Name, children
+	//})
+	//
+	//fmt.Printf("%v\n", treeStr)
+	//
+	//// walk reverse A -> in
 	accepting := world.Workflows["A"]
 
 	//WalkReverse(accepting)
@@ -206,16 +205,21 @@ func CountCombinations(results []utils.BoundingBoxN) int {
 		combinations += ratingIntervals.Volume()
 	}
 
-	//
-	//// subtract duplicates (intersection)
-	//intersection
-	//for _, ratingInterval := range ratingIntervals {
-	//	for _, categoryInterval := range ratingInterval {
-	//		combinations *= categoryInterval.Size()
-	//	}
-	//}
+	// subtract duplicates (intersection)
+	var intersections []utils.BoundingBoxN
+	duplicates := 0
+	for i, box1 := range results {
+		for _, box2 := range results[i+1:] {
+			if intersection, ok := box1.Intersection(box2); ok {
+				duplicates += intersection.Volume()
+				intersections = append(intersections, intersection)
+			}
+		}
+	}
 
-	return combinations
+	fmt.Printf("Total %d, duplicates %d\n", combinations, duplicates)
+
+	return combinations - duplicates
 }
 
 func WalkReverseAndIntersect(acceptingWorkflow *Workflow) []utils.BoundingBoxN {
