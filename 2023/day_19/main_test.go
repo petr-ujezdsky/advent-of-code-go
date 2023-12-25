@@ -8,6 +8,34 @@ import (
 	"testing"
 )
 
+//example tree
+//in
+//├──px
+//│  ├──qkq
+//│  │  ├──A
+//│  │  └──crn
+//│  │     ├──A
+//│  │     └──R
+//│  ├──A
+//│  └──rfg
+//│     ├──gd
+//│     │  ├──R
+//│     │  └──R
+//│     ├──R
+//│     └──A
+//└──qqz
+//   ├──qs
+//   │  ├──A
+//   │  └──lnx
+//   │     ├──A
+//   │     └──A
+//   ├──hdj
+//   │  ├──A
+//   │  └──pv
+//   │     ├──R
+//   │     └──A
+//   └──R
+
 func Test_01_parse(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
@@ -34,6 +62,30 @@ func Test_01_parse(t *testing.T) {
 
 	workflow = world.Workflows["pv"]
 	assert.Equal(t, TypeAccepts, workflow.Conditions[len(workflow.Conditions)-1].Next.Type)
+}
+
+func Test_01_reverse_links(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	world := ParseInput(reader)
+
+	accepting := world.Workflows["A"]
+
+	// find A in path in -> qqz -> qs -> A
+	condition := accepting.ParentConditions[5]
+	assert.Equal(t, "qs", condition.Owner.Name)
+	assert.Nil(t, condition.Previous)
+
+	condition = condition.Owner.ParentCondition
+	assert.Equal(t, "qqz", condition.Owner.Name)
+	assert.Nil(t, condition.Previous)
+
+	condition = condition.Owner.ParentCondition
+	assert.Equal(t, "in", condition.Owner.Name)
+	assert.Equal(t, "px", condition.Previous.Next.Name)
+	assert.Nil(t, condition.Previous.Previous)
+	assert.Nil(t, condition.Owner.ParentCondition)
 }
 
 func Test_01_resolve(t *testing.T) {

@@ -38,9 +38,11 @@ func (p Part) Sum() int {
 }
 
 type Workflow struct {
-	Name       string
-	Conditions []Condition
-	Type       WorkFlowType
+	Name             string
+	Conditions       []Condition
+	Type             WorkFlowType
+	ParentCondition  *Condition
+	ParentConditions []*Condition
 }
 
 type Condition struct {
@@ -211,7 +213,7 @@ func ParseCondition(str string, workflows map[string]*Workflow, previous *Condit
 	amount := utils.ParseInt(parts[3])
 	next := getOrCreateWorkflow(parts[4], workflows)
 
-	return Condition{
+	condition := Condition{
 		Category: category,
 		Operand:  operand,
 		Amount:   amount,
@@ -219,12 +221,18 @@ func ParseCondition(str string, workflows map[string]*Workflow, previous *Condit
 		Previous: previous,
 		Owner:    owner,
 	}
+
+	next.ParentCondition = &condition
+	// for leaf 'A' nodes - it has multiple parents
+	next.ParentConditions = append(next.ParentConditions, &condition)
+
+	return condition
 }
 
 func ParseAlwaysTrueCondition(nextName string, workflows map[string]*Workflow, previous *Condition, owner *Workflow) Condition {
 	next := getOrCreateWorkflow(nextName, workflows)
 
-	return Condition{
+	condition := Condition{
 		Category: CategoryX,
 		Operand:  '>',
 		Amount:   -1,
@@ -232,6 +240,12 @@ func ParseAlwaysTrueCondition(nextName string, workflows map[string]*Workflow, p
 		Previous: previous,
 		Owner:    owner,
 	}
+
+	next.ParentCondition = &condition
+	// for leaf 'A' nodes - it has multiple parents
+	next.ParentConditions = append(next.ParentConditions, &condition)
+
+	return condition
 }
 
 func ParseWorkFlow(str string, workflows map[string]*Workflow) {
