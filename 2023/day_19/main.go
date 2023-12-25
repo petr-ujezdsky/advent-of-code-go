@@ -56,14 +56,7 @@ type Condition struct {
 }
 
 func (c Condition) Evaluate(part Part) bool {
-	switch c.Operand {
-	case '<':
-		return part.Ratings[c.Category] < c.Amount
-	case '>':
-		return part.Ratings[c.Category] > c.Amount
-	}
-
-	panic("Unknown operand")
+	return c.TrueInterval.Contains(part.Ratings[c.Category])
 }
 
 type World struct {
@@ -139,9 +132,14 @@ func DoWithInputPart02(world World) int {
 	//WalkReverse(accepting)
 	fullInterval := utils.IntervalI{High: 4000}
 	intersection := WalkReverseAndIntersect(accepting, [4]utils.IntervalI{fullInterval, fullInterval, fullInterval, fullInterval})
-	fmt.Printf("Intersetion %v\n", intersection)
+	combinations := 1
+	for _, interval := range intersection {
+		combinations *= interval.Size()
+	}
 
-	return 0
+	fmt.Printf("Intersetion %v, combinations %d\n", intersection, combinations)
+
+	return combinations
 	//results := utils.ProcessParallel(world.Parts, func(part Part, i int) int {
 	//	accepted, path := world.Start.Resolve(part, nil, true)
 	//
