@@ -10,22 +10,28 @@ type Node interface {
 	Children() []Node
 }
 
-func PrintTree(root Node) string {
-	return traversePreOrderRoot(root)
+func PrintTreeNode(root Node) string {
+	return traversePreOrderRoot(root, func(node Node) (string, []Node) {
+		return fmt.Sprintf("%v", node), node.Children()
+	})
+}
+
+func PrintTree[T any](root T, extractor func(node T) (string, []T)) string {
+	return traversePreOrderRoot(root, extractor)
 }
 
 // see https://www.baeldung.com/java-print-binary-tree-diagram
-func traversePreOrderChild(builder *strings.Builder, padding, pointer string, node Node, last bool) {
-	if node == nil {
-		return
-	}
-	children := node.Children()
+func traversePreOrderChild[T any](builder *strings.Builder, padding, pointer string, node T, last bool, extractor func(node T) (string, []T)) {
+	//if node == nil {
+	//	return
+	//}
+	name, children := extractor(node)
 
 	builder.WriteRune('\n')
 	builder.WriteString(padding)
 	builder.WriteString(pointer)
 
-	builder.WriteString(fmt.Sprintf("%v", node))
+	builder.WriteString(name)
 
 	paddingBuilder := &strings.Builder{}
 	paddingBuilder.WriteString(padding)
@@ -51,19 +57,19 @@ func traversePreOrderChild(builder *strings.Builder, padding, pointer string, no
 			pointer = "└──"
 		}
 
-		traversePreOrderChild(builder, paddingForBoth, pointer, subNode, last)
+		traversePreOrderChild(builder, paddingForBoth, pointer, subNode, last, extractor)
 	}
 }
 
-func traversePreOrderRoot(root Node) string {
-	if root == nil {
-		return ""
-	}
+func traversePreOrderRoot[T any](root T, extractor func(node T) (string, []T)) string {
+	//if root == nil {
+	//	return ""
+	//}
+	name, children := extractor(root)
 
 	builder := &strings.Builder{}
-	builder.WriteString(fmt.Sprintf("%v", root))
+	builder.WriteString(name)
 
-	children := root.Children()
 	for i, child := range children {
 		pointer := "├──"
 
@@ -72,7 +78,7 @@ func traversePreOrderRoot(root Node) string {
 			pointer = "└──"
 		}
 
-		traversePreOrderChild(builder, "", pointer, child, last)
+		traversePreOrderChild(builder, "", pointer, child, last, extractor)
 	}
 
 	return builder.String()

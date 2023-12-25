@@ -30,6 +30,35 @@ func (n *node) String() string {
 	return n.Name
 }
 
+func TestPrintTreeNode(t *testing.T) {
+	node9 := &node{Name: "node9"}
+	node8 := &node{Name: "node8"}
+	node7 := &node{Name: "node7", Nodes: []*node{node8, node9}}
+	node6 := &node{Name: "node6"}
+	node5 := &node{Name: "node5"}
+	node4 := &node{Name: "node4"}
+	node3 := &node{Name: "node3", Nodes: []*node{node7}}
+	node2 := &node{Name: "node2", Nodes: []*node{node5, node6}}
+	node1 := &node{Name: "node1", Nodes: []*node{node3, node4}}
+	root := &node{Name: "root", Nodes: []*node{node1, node2}}
+
+	expected := utils.Msg(`
+root
+├──node1
+│  ├──node3
+│  │  └──node7
+│  │     ├──node8
+│  │     └──node9
+│  └──node4
+└──node2
+   ├──node5
+   └──node6`)
+
+	actual := PrintTreeNode(root)
+
+	assert.Equal(t, expected, actual)
+}
+
 func TestPrintTree(t *testing.T) {
 	node9 := &node{Name: "node9"}
 	node8 := &node{Name: "node8"}
@@ -54,7 +83,9 @@ root
    ├──node5
    └──node6`)
 
-	actual := PrintTree(root)
+	actual := PrintTree(root, func(node *node) (string, []*node) {
+		return node.Name, node.Nodes
+	})
 
 	assert.Equal(t, expected, actual)
 }
