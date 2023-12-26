@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/measure"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
@@ -57,6 +58,9 @@ func calculateArrangementsCountInner(conditions []rune, groupSizes []int) int {
 
 	sum := 0
 
+	cache := matrix.NewMatrixInt(len(conditions), len(groupSizes))
+	cache.SetAll(-1)
+
 	// try to offset first group by N .
 	for i := -1; i < len(conditions); i++ {
 		// check . separator
@@ -64,7 +68,7 @@ func calculateArrangementsCountInner(conditions []rune, groupSizes []int) int {
 			break
 		}
 
-		count, canShift := calculateArrangementsCountRecursive(0, conditions[i+1:], groupSizes)
+		count, canShift := calculateArrangementsCountRecursive(conditions[i+1:], groupSizes, cache)
 		sum += count
 		if !canShift {
 			break
@@ -74,9 +78,9 @@ func calculateArrangementsCountInner(conditions []rune, groupSizes []int) int {
 	return sum
 }
 
-func calculateArrangementsCountRecursive(group int, conditions []rune, groupSizes []int) (int, bool) {
-	groupSize := groupSizes[group]
-	isLastGroup := group == len(groupSizes)-1
+func calculateArrangementsCountRecursive(conditions []rune, groupSizes []int, cache matrix.MatrixNumber[int]) (int, bool) {
+	groupSize := groupSizes[0]
+	isLastGroup := len(groupSizes) == 1
 
 	if isLastGroup {
 		// not enough remaining conditions for the group
@@ -119,7 +123,7 @@ func calculateArrangementsCountRecursive(group int, conditions []rune, groupSize
 				break
 			}
 
-			count, canShift := calculateArrangementsCountRecursive(group+1, conditions[i+1:], groupSizes)
+			count, canShift := calculateArrangementsCountRecursive(conditions[i+1:], groupSizes[1:], cache)
 			sum += count
 			if !canShift {
 				break
