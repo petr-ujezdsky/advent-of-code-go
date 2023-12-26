@@ -68,8 +68,7 @@ func Test_02(t *testing.T) {
 	world := ParseInput(reader)
 
 	result := DoWithInputPart02(world)
-	// too low
-	assert.Equal(t, 2297056002603, result)
+	assert.Equal(t, 3920437278260, result)
 }
 
 func Test_calculateArrangementsCount(t *testing.T) {

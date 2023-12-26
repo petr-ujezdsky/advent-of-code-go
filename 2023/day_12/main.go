@@ -37,7 +37,7 @@ func DoWithInputPart01(world World) int {
 
 	max := 0
 	for i, record := range world.Records {
-		count := calculateArrangementsCount2(record)
+		count := calculateArrangementsCount(record)
 		fmt.Printf("#%3d combinations: %-6d %s\n", i+1, count, record.ConditionsRaw)
 		max = utils.Max(max, count)
 		sum += count
@@ -58,8 +58,8 @@ func calculateArrangementsCountInner(conditions []rune, groupSizes []int) int {
 
 	sum := 0
 
-	cache := matrix.NewMatrixInt(len(conditions), len(groupSizes))
-	cache.SetAll(-1)
+	cache := matrix.NewMatrix[result](len(conditions), len(groupSizes))
+	cache.SetAll(result{-1, false})
 
 	// try to offset first group by N .
 	for i := -1; i < len(conditions); i++ {
@@ -78,7 +78,27 @@ func calculateArrangementsCountInner(conditions []rune, groupSizes []int) int {
 	return sum
 }
 
-func calculateArrangementsCountRecursive(conditions []rune, groupSizes []int, cache matrix.MatrixNumber[int]) (int, bool) {
+type result struct {
+	count    int
+	canShift bool
+}
+
+func calculateArrangementsCountRecursiveCaching(conditions []rune, groupSizes []int, cache matrix.Matrix[result]) (int, bool) {
+	cacheKey := utils.Vector2i{X: len(conditions), Y: len(groupSizes)}
+
+	r := cache.GetV(cacheKey)
+	if r.count != -1 {
+		// cache hit
+		return r.count, r.canShift
+	}
+
+	// cache miss, compute
+	count, canShift := calculateArrangementsCountRecursive(conditions, groupSizes, cache)
+	cache.SetV(cacheKey, result{count, canShift})
+	return count, canShift
+}
+
+func calculateArrangementsCountRecursive(conditions []rune, groupSizes []int, cache matrix.Matrix[result]) (int, bool) {
 	groupSize := groupSizes[0]
 	isLastGroup := len(groupSizes) == 1
 
@@ -123,7 +143,7 @@ func calculateArrangementsCountRecursive(conditions []rune, groupSizes []int, ca
 				break
 			}
 
-			count, canShift := calculateArrangementsCountRecursive(conditions[i+1:], groupSizes[1:], cache)
+			count, canShift := calculateArrangementsCountRecursiveCaching(conditions[i+1:], groupSizes[1:], cache)
 			sum += count
 			if !canShift {
 				break
@@ -246,7 +266,7 @@ func DoWithInputPart02(world World) int {
 	sum := 0
 	count := 0
 
-	results := utils.ProcessParallel(world.Records, calculateArrangementsCountUnfolded5)
+	results := utils.ProcessParallel(world.Records, calculateArrangementsCountUnfolded)
 	//results := utils.ProcessSerial(world.Records, calculateArrangementsCountUnfolded5)
 
 	for result := range results {
@@ -259,44 +279,8 @@ func DoWithInputPart02(world World) int {
 }
 
 func calculateArrangementsCountUnfolded(record Record, i int) int {
-	if record.ConditionsRaw[0] != '.' || record.ConditionsRaw[len(record.ConditionsRaw)-1] != '.' {
-		return 0
-	}
-
-	count1 := calculateArrangementsCount(record)
-
-	unfolded2 := Unfold(record, 2)
-	count2 := calculateArrangementsCount(unfolded2)
-
-	unfolded3 := Unfold(record, 3)
-	count3 := calculateArrangementsCount(unfolded3)
-
-	unfolded4 := Unfold(record, 4)
-	count4 := calculateArrangementsCount(unfolded4)
-
-	//fmt.Println()
-	k := count2 / count1
-	fivesCount := count2 * k * k * k
-
-	count3Quick := count2 * k
-	count4Quick := count2 * k * k
-
-	warning := ""
-	if count3 != count3Quick {
-		warning = "*"
-	}
-
-	//??.?.???.?#?# 1,2,3
-	//#  0: unknowns:  8, 1x:    6, 2x:    48, 3x:      408/384, 4x:     3504/3072   *
-
-	//if count2%count1 != 0 {
-	//
-	//}
-
-	fmt.Printf("#%3d: unknowns: %2d, 1x: %4d, 2x: %5d, 3x: %8d/%d, 4x: %8d/%d%s\n", i, record.Unknowns, count1, count2, count3, count3Quick, count4, count4Quick, warning)
-	fmt.Printf("#%3d: 2%%1: %4d, 3%%1x: %5d, 4%%1x: %8d%4s %-30s\n", i, count2%count1, count3%count1, count4%count1, warning, record.ConditionsRaw)
-
-	return fivesCount
+	unfolded5 := Unfold(record, 5)
+	return calculateArrangementsCount(unfolded5)
 }
 
 func calculateArrangementsCountUnfolded3(record Record, i int) int {
