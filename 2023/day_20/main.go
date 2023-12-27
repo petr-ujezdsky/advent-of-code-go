@@ -121,8 +121,9 @@ func (m *Module) sendSignal(signal SignalType, aggregator *Aggregator) {
 		aggregator.HighCount += len(m.OutputModules)
 	}
 
-	// send signal
-	for _, output := range m.OutputModules {
+	// send signal - process last module first
+	for i := len(m.OutputModules) - 1; i >= 0; i-- {
+		output := m.OutputModules[i]
 		fmt.Printf("%s -%v-> %s\n", m.Name, signal, output.Name)
 		output.OnSignal(signal, m, aggregator)
 	}
