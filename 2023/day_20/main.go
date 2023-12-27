@@ -35,7 +35,7 @@ type Module struct {
 func (m *Module) OnSignal(signal SignalType, from *Module) (SignalType, bool) {
 	switch m.Type {
 	// FlipFlop
-	case '%':
+	case FlipFlop:
 		// contains ~ ON
 		if signal == Low {
 			m.State.Invert(0)
@@ -45,17 +45,59 @@ func (m *Module) OnSignal(signal SignalType, from *Module) (SignalType, bool) {
 				outputSignal = High
 			}
 
-			for _, output := range m.OutputModules {
-				output.OnSignal(outputSignal, m)
-			}
+			m.sendSignal(outputSignal)
 
 			return outputSignal, true
 		}
 
 		return Low, false
+	// Conjunction
+	case Conjunction:
+		// TODO pujezdsky optimize
+		// find input module index
+		index := -1
+		for i, inputModule := range m.InputModules {
+			if inputModule == from {
+				index = i
+				break
+			}
+		}
+
+		// store current signal per given input module
+		switch signal {
+		case Low:
+			m.State.Remove(index)
+		case High:
+			m.State.Push(index)
+		}
+
+		// TODO pujezdsky optimize
+		// check if all are HIGH
+		allHigh := true
+		for i, _ := range m.InputModules {
+			if !m.State.Contains(i) {
+				allHigh = false
+				break
+			}
+		}
+
+		outputSignal := High
+		if allHigh {
+			outputSignal = Low
+		}
+
+		m.sendSignal(outputSignal)
+
+		return outputSignal, true
 	}
 
 	panic("Not implemented")
+}
+
+func (m *Module) sendSignal(signal SignalType) {
+	for _, output := range m.OutputModules {
+		output.OnSignal(signal, m)
+	}
 }
 
 type ModuleType = rune

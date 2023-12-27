@@ -61,6 +61,39 @@ func Test_FlipFlop(t *testing.T) {
 	assert.False(t, sent)
 }
 
+func Test_Conjunction(t *testing.T) {
+	m1 := &Module{Name: "m1"}
+	m2 := &Module{Name: "m2"}
+
+	module := &Module{
+		Name:          "conjunction",
+		Type:          Conjunction,
+		InputModules:  []*Module{m1, m2},
+		OutputModules: nil,
+		State:         collections.BitSet64{},
+	}
+
+	outputSignal, sent := module.OnSignal(High, m1)
+
+	assert.True(t, sent)
+	assert.Equal(t, High, outputSignal)
+
+	outputSignal, sent = module.OnSignal(High, m2)
+
+	assert.True(t, sent)
+	assert.Equal(t, Low, outputSignal)
+
+	outputSignal, sent = module.OnSignal(High, m2)
+
+	assert.True(t, sent)
+	assert.Equal(t, Low, outputSignal)
+
+	outputSignal, sent = module.OnSignal(Low, m2)
+
+	assert.True(t, sent)
+	assert.Equal(t, High, outputSignal)
+}
+
 func Test_01_example(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
