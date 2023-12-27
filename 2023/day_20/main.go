@@ -42,6 +42,16 @@ type Module struct {
 }
 
 func (m *Module) OnSignal(signal SignalType, from *Module, aggregator *Aggregator) (SignalType, bool) {
+	outputSignal, ok := m.checkSignal(signal, from)
+
+	if ok {
+		m.sendSignal(outputSignal, aggregator)
+	}
+
+	return outputSignal, ok
+}
+
+func (m *Module) checkSignal(signal SignalType, from *Module) (SignalType, bool) {
 	switch m.Type {
 	// FlipFlop
 	case FlipFlop:
@@ -53,8 +63,6 @@ func (m *Module) OnSignal(signal SignalType, from *Module, aggregator *Aggregato
 			if m.State.Contains(0) {
 				outputSignal = High
 			}
-
-			m.sendSignal(outputSignal, aggregator)
 
 			return outputSignal, true
 		}
@@ -95,12 +103,8 @@ func (m *Module) OnSignal(signal SignalType, from *Module, aggregator *Aggregato
 			outputSignal = Low
 		}
 
-		m.sendSignal(outputSignal, aggregator)
-
 		return outputSignal, true
 	case Broadcast:
-		m.sendSignal(signal, aggregator)
-
 		return signal, true
 	}
 
@@ -147,7 +151,7 @@ func DoWithInputPart01(world World) int {
 	broadcast := world.Button
 	aggregator := &Aggregator{}
 
-	pushCount := 1
+	pushCount := 1000
 
 	for i := 0; i < pushCount; i++ {
 		broadcast.OnSignal(Low, nil, aggregator)
