@@ -148,13 +148,13 @@ type World struct {
 }
 
 func DoWithInputPart01(world World) int {
-	broadcast := world.Button
+	button := world.Button
 	aggregator := &Aggregator{}
 
 	pushCount := 1000
 
 	for i := 0; i < pushCount; i++ {
-		broadcast.OnSignal(Low, nil, aggregator)
+		button.OnSignal(Low, nil, aggregator)
 	}
 
 	fmt.Printf("Counts %v\n", *aggregator)
