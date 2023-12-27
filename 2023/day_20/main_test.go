@@ -17,6 +17,8 @@ func Test_01_parse(t *testing.T) {
 }
 
 func Test_FlipFlop(t *testing.T) {
+	aggregator := &Aggregator{}
+
 	module := &Module{
 		Name:          "flip",
 		Type:          FlipFlop,
@@ -33,35 +35,37 @@ func Test_FlipFlop(t *testing.T) {
 		State:         collections.BitSet64{},
 	}
 
-	outputSignal, sent := module.OnSignal(Low, broadcast)
+	outputSignal, sent := module.OnSignal(Low, broadcast, aggregator)
 
 	assert.True(t, sent)
 	assert.Equal(t, High, outputSignal)
 
-	outputSignal, sent = module.OnSignal(High, broadcast)
+	outputSignal, sent = module.OnSignal(High, broadcast, aggregator)
 
 	assert.False(t, sent)
 
-	outputSignal, sent = module.OnSignal(Low, broadcast)
+	outputSignal, sent = module.OnSignal(Low, broadcast, aggregator)
 
 	assert.True(t, sent)
 	assert.Equal(t, Low, outputSignal)
 
-	outputSignal, sent = module.OnSignal(High, broadcast)
+	outputSignal, sent = module.OnSignal(High, broadcast, aggregator)
 
 	assert.False(t, sent)
 
-	outputSignal, sent = module.OnSignal(Low, broadcast)
+	outputSignal, sent = module.OnSignal(Low, broadcast, aggregator)
 
 	assert.True(t, sent)
 	assert.Equal(t, High, outputSignal)
 
-	outputSignal, sent = module.OnSignal(High, broadcast)
+	outputSignal, sent = module.OnSignal(High, broadcast, aggregator)
 
 	assert.False(t, sent)
 }
 
 func Test_Conjunction(t *testing.T) {
+	aggregator := &Aggregator{}
+
 	m1 := &Module{Name: "m1"}
 	m2 := &Module{Name: "m2"}
 
@@ -73,22 +77,22 @@ func Test_Conjunction(t *testing.T) {
 		State:         collections.BitSet64{},
 	}
 
-	outputSignal, sent := module.OnSignal(High, m1)
+	outputSignal, sent := module.OnSignal(High, m1, aggregator)
 
 	assert.True(t, sent)
 	assert.Equal(t, High, outputSignal)
 
-	outputSignal, sent = module.OnSignal(High, m2)
+	outputSignal, sent = module.OnSignal(High, m2, aggregator)
 
 	assert.True(t, sent)
 	assert.Equal(t, Low, outputSignal)
 
-	outputSignal, sent = module.OnSignal(High, m2)
+	outputSignal, sent = module.OnSignal(High, m2, aggregator)
 
 	assert.True(t, sent)
 	assert.Equal(t, Low, outputSignal)
 
-	outputSignal, sent = module.OnSignal(Low, m2)
+	outputSignal, sent = module.OnSignal(Low, m2, aggregator)
 
 	assert.True(t, sent)
 	assert.Equal(t, High, outputSignal)

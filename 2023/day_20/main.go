@@ -32,7 +32,7 @@ type Module struct {
 	State                       collections.BitSet64
 }
 
-func (m *Module) OnSignal(signal SignalType, from *Module) (SignalType, bool) {
+func (m *Module) OnSignal(signal SignalType, from *Module, aggregator *Aggregator) (SignalType, bool) {
 	switch m.Type {
 	// FlipFlop
 	case FlipFlop:
@@ -45,7 +45,7 @@ func (m *Module) OnSignal(signal SignalType, from *Module) (SignalType, bool) {
 				outputSignal = High
 			}
 
-			m.sendSignal(outputSignal)
+			m.sendSignal(outputSignal, aggregator)
 
 			return outputSignal, true
 		}
@@ -86,7 +86,7 @@ func (m *Module) OnSignal(signal SignalType, from *Module) (SignalType, bool) {
 			outputSignal = Low
 		}
 
-		m.sendSignal(outputSignal)
+		m.sendSignal(outputSignal, aggregator)
 
 		return outputSignal, true
 	}
@@ -94,9 +94,18 @@ func (m *Module) OnSignal(signal SignalType, from *Module) (SignalType, bool) {
 	panic("Not implemented")
 }
 
-func (m *Module) sendSignal(signal SignalType) {
+func (m *Module) sendSignal(signal SignalType, aggregator *Aggregator) {
+	// aggregate counts
+	switch signal {
+	case Low:
+		aggregator.LowCount += len(m.OutputModules)
+	case High:
+		aggregator.HighCount += len(m.OutputModules)
+	}
+
+	// send signal
 	for _, output := range m.OutputModules {
-		output.OnSignal(signal, m)
+		output.OnSignal(signal, m, nil)
 	}
 }
 
@@ -107,6 +116,10 @@ const (
 	FlipFlop               = '%'
 	Conjunction            = '&'
 )
+
+type Aggregator struct {
+	LowCount, HighCount int
+}
 
 type Modules = map[string]*Module
 
