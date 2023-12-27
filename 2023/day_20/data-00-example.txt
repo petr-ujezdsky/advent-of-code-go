@@ -1,3 +1,4 @@
+button -> broadcaster
 broadcaster -> a, b, c
 %a -> b
 %b -> c

@@ -13,6 +13,14 @@ import (
 
 type SignalType bool
 
+func (s SignalType) String() string {
+	if s {
+		return "high"
+	}
+
+	return "low"
+}
+
 const (
 	Low  SignalType = false
 	High SignalType = true
@@ -110,6 +118,7 @@ func (m *Module) sendSignal(signal SignalType, aggregator *Aggregator) {
 
 	// send signal
 	for _, output := range m.OutputModules {
+		//fmt.Printf("%s -%v -> %s\n", m.Name, signal, output.Name)
 		output.OnSignal(signal, m, aggregator)
 	}
 }
@@ -129,12 +138,12 @@ type Aggregator struct {
 type Modules = map[string]*Module
 
 type World struct {
-	Modules   Modules
-	Broadcast *Module
+	Modules Modules
+	Button  *Module
 }
 
 func DoWithInputPart01(world World) int {
-	broadcast := world.Broadcast
+	broadcast := world.Button
 	aggregator := &Aggregator{}
 
 	pushCount := 1000
@@ -143,7 +152,7 @@ func DoWithInputPart01(world World) int {
 		broadcast.OnSignal(Low, nil, aggregator)
 	}
 
-	fmt.Printf("Counts %v", *aggregator)
+	fmt.Printf("Counts %v\n", *aggregator)
 
 	return aggregator.LowCount * aggregator.HighCount
 }
@@ -189,7 +198,7 @@ func ParseInput(r io.Reader) World {
 	}
 
 	return World{
-		Modules:   modules,
-		Broadcast: modules["broadcaster"],
+		Modules: modules,
+		Button:  modules["button"],
 	}
 }
