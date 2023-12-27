@@ -14,6 +14,7 @@ func Test_01_parse(t *testing.T) {
 	world := ParseInput(reader)
 
 	assert.Equal(t, 5, len(world.Modules))
+	assert.Equal(t, "broadcaster", world.Modules["broadcaster"].Name)
 }
 
 func Test_FlipFlop(t *testing.T) {
@@ -105,7 +106,17 @@ func Test_01_example(t *testing.T) {
 	world := ParseInput(reader)
 
 	result := DoWithInputPart01(world)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 32000000, result)
+}
+
+func Test_01_example2(t *testing.T) {
+	reader, err := os.Open("data-00-example-2.txt")
+	assert.Nil(t, err)
+
+	world := ParseInput(reader)
+
+	result := DoWithInputPart01(world)
+	assert.Equal(t, 11687500, result)
 }
 
 func Test_01(t *testing.T) {

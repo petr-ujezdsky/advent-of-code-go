@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	_ "embed"
+	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/collections"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/maps"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
@@ -89,6 +90,10 @@ func (m *Module) OnSignal(signal SignalType, from *Module, aggregator *Aggregato
 		m.sendSignal(outputSignal, aggregator)
 
 		return outputSignal, true
+	case Broadcast:
+		m.sendSignal(signal, aggregator)
+
+		return signal, true
 	}
 
 	panic("Not implemented")
@@ -105,7 +110,7 @@ func (m *Module) sendSignal(signal SignalType, aggregator *Aggregator) {
 
 	// send signal
 	for _, output := range m.OutputModules {
-		output.OnSignal(signal, m, nil)
+		output.OnSignal(signal, m, aggregator)
 	}
 }
 
@@ -129,7 +134,18 @@ type World struct {
 }
 
 func DoWithInputPart01(world World) int {
-	return 0
+	broadcast := world.Broadcast
+	aggregator := &Aggregator{}
+
+	pushCount := 1000
+
+	for i := 0; i < pushCount; i++ {
+		broadcast.OnSignal(Low, nil, aggregator)
+	}
+
+	fmt.Printf("Counts %v", *aggregator)
+
+	return aggregator.LowCount * aggregator.HighCount
 }
 
 func DoWithInputPart02(world World) int {
@@ -153,7 +169,7 @@ func ParseInput(r io.Reader) World {
 		mtype := parts[0][0]
 		name := parts[0][1:]
 
-		// exception for 'broadcast'
+		// exception for 'broadcaster'
 		if mtype == 'b' {
 			name = parts[0]
 		}
@@ -174,6 +190,6 @@ func ParseInput(r io.Reader) World {
 
 	return World{
 		Modules:   modules,
-		Broadcast: modules["broadcast"],
+		Broadcast: modules["broadcaster"],
 	}
 }
