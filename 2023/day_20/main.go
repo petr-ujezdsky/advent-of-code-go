@@ -111,7 +111,8 @@ const (
 type Modules = map[string]*Module
 
 type World struct {
-	Modules Modules
+	Modules   Modules
+	Broadcast *Module
 }
 
 func DoWithInputPart01(world World) int {
@@ -158,5 +159,8 @@ func ParseInput(r io.Reader) World {
 		module.State = collections.NewEmptyBitSet64()
 	}
 
-	return World{Modules: modules}
+	return World{
+		Modules:   modules,
+		Broadcast: modules["broadcast"],
+	}
 }
