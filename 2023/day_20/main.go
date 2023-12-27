@@ -27,18 +27,44 @@ const (
 
 type Module struct {
 	Name                        string
-	Type                        rune
+	Type                        ModuleType
 	InputModules, OutputModules []*Module
 	State                       collections.BitSet64
 }
 
-//type ModuleType = int
-//
-//const (
-//	Broadcast ModuleType = iota
-//	FlipFlop
-//	Conjunction
-//)
+func (m *Module) OnSignal(signal SignalType, from *Module) (SignalType, bool) {
+	switch m.Type {
+	// FlipFlop
+	case '%':
+		// contains ~ ON
+		if signal == Low {
+			m.State.Invert(0)
+
+			outputSignal := Low
+			if m.State.Contains(0) {
+				outputSignal = High
+			}
+
+			for _, output := range m.OutputModules {
+				output.OnSignal(outputSignal, m)
+			}
+
+			return outputSignal, true
+		}
+
+		return Low, false
+	}
+
+	panic("Not implemented")
+}
+
+type ModuleType = rune
+
+const (
+	Broadcast   ModuleType = 'b'
+	FlipFlop               = '%'
+	Conjunction            = '&'
+)
 
 type Modules = map[string]*Module
 

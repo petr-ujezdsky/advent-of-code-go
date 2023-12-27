@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/collections"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
@@ -13,6 +14,51 @@ func Test_01_parse(t *testing.T) {
 	world := ParseInput(reader)
 
 	assert.Equal(t, 5, len(world.Modules))
+}
+
+func Test_FlipFlop(t *testing.T) {
+	module := &Module{
+		Name:          "flip",
+		Type:          FlipFlop,
+		InputModules:  nil,
+		OutputModules: nil,
+		State:         collections.BitSet64{},
+	}
+
+	broadcast := &Module{
+		Name:          "broadcast",
+		Type:          Broadcast,
+		InputModules:  nil,
+		OutputModules: []*Module{module},
+		State:         collections.BitSet64{},
+	}
+
+	outputSignal, sent := module.OnSignal(Low, broadcast)
+
+	assert.True(t, sent)
+	assert.Equal(t, High, outputSignal)
+
+	outputSignal, sent = module.OnSignal(High, broadcast)
+
+	assert.False(t, sent)
+
+	outputSignal, sent = module.OnSignal(Low, broadcast)
+
+	assert.True(t, sent)
+	assert.Equal(t, Low, outputSignal)
+
+	outputSignal, sent = module.OnSignal(High, broadcast)
+
+	assert.False(t, sent)
+
+	outputSignal, sent = module.OnSignal(Low, broadcast)
+
+	assert.True(t, sent)
+	assert.Equal(t, High, outputSignal)
+
+	outputSignal, sent = module.OnSignal(High, broadcast)
+
+	assert.False(t, sent)
 }
 
 func Test_01_example(t *testing.T) {
