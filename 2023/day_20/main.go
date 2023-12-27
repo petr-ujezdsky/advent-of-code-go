@@ -112,7 +112,7 @@ func (m *Module) checkSignal(signal SignalType, from *Module) (SignalType, bool)
 		return signal, true
 	}
 
-	fmt.Printf("Unknown type, %s obtained %v\n", m.Name, signal)
+	//fmt.Printf("Unknown type, %s obtained %v\n", m.Name, signal)
 	return signal, false
 }
 
@@ -123,7 +123,7 @@ func (m *Module) sendSignal(signal SignalType, aggregator *Aggregator) {
 	// send signal - process last module first
 	for i := len(m.OutputModules) - 1; i >= 0; i-- {
 		output := m.OutputModules[i]
-		fmt.Printf("%s -%v-> %s\n", m.Name, signal, output.Name)
+		//fmt.Printf("%s -%v-> %s\n", m.Name, signal, output.Name)
 		output.OnSignal(signal, m, aggregator)
 	}
 }
@@ -190,6 +190,8 @@ func DoWithInputPart02(world World) int {
 		if *rxModule.InputsAggregator == targetRxCounts {
 			return pushCount
 		}
+
+		//fmt.Printf("#%15d rx: %v\n", pushCount, *rxModule.InputsAggregator)
 
 		rxModule.InputsAggregator.reset()
 		pushCount++
