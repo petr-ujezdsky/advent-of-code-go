@@ -39,9 +39,13 @@ type Module struct {
 	Type                        ModuleType
 	InputModules, OutputModules []*Module
 	State                       collections.BitSet64
+	InputsAggregator            *Aggregator
 }
 
 func (m *Module) OnSignal(signal SignalType, from *Module, aggregator *Aggregator) (SignalType, bool) {
+	// aggregate signal locally
+	m.InputsAggregator.aggregate(signal, 1)
+
 	outputSignal, ok := m.checkSignal(signal, from)
 
 	if ok {
@@ -114,12 +118,7 @@ func (m *Module) checkSignal(signal SignalType, from *Module) (SignalType, bool)
 
 func (m *Module) sendSignal(signal SignalType, aggregator *Aggregator) {
 	// aggregate counts
-	switch signal {
-	case Low:
-		aggregator.LowCount += len(m.OutputModules)
-	case High:
-		aggregator.HighCount += len(m.OutputModules)
-	}
+	aggregator.aggregate(signal, len(m.OutputModules))
 
 	// send signal - process last module first
 	for i := len(m.OutputModules) - 1; i >= 0; i-- {
@@ -139,6 +138,20 @@ const (
 
 type Aggregator struct {
 	LowCount, HighCount int
+}
+
+func (a *Aggregator) aggregate(signal SignalType, count int) {
+	switch signal {
+	case Low:
+		a.LowCount += count
+	case High:
+		a.HighCount += count
+	}
+}
+
+func (a *Aggregator) reset() {
+	a.LowCount = 0
+	a.HighCount = 0
 }
 
 type Modules = map[string]*Module
@@ -164,12 +177,32 @@ func DoWithInputPart01(world World) int {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	button := world.Button
+	rxModule := world.Modules["rx"]
+	aggregator := &Aggregator{}
+	targetRxCounts := Aggregator{LowCount: 1, HighCount: 0}
+
+	pushCount := 1
+
+	for {
+		button.OnSignal(Low, nil, aggregator)
+
+		if *rxModule.InputsAggregator == targetRxCounts {
+			return pushCount
+		}
+
+		rxModule.InputsAggregator.reset()
+		pushCount++
+	}
 }
 
 func getOrCreateModule(name string, modules Modules) *Module {
 	return maps.GetOrCompute(modules, name, func(key string) *Module {
-		return &Module{Name: name}
+		return &Module{
+			Name:             name,
+			State:            collections.NewEmptyBitSet64(),
+			InputsAggregator: &Aggregator{},
+		}
 	})
 }
 
@@ -200,7 +233,6 @@ func ParseInput(r io.Reader) World {
 
 		module.Type = rune(mtype)
 		module.OutputModules = outputs
-		module.State = collections.NewEmptyBitSet64()
 	}
 
 	return World{
