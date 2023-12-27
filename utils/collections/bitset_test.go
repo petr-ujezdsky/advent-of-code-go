@@ -57,6 +57,20 @@ func TestBitSet_Or(t *testing.T) {
 	assert.Equal(t, true, bitSet.Contains(4))
 }
 
+func TestBitSet_Invert(t *testing.T) {
+	bitSet := NewEmptyBitSet[uint8]()
+
+	bitSet.Push(3)
+	assert.True(t, bitSet.Contains(3))
+
+	bitSet.Invert(3)
+	assert.False(t, bitSet.Contains(3))
+
+	assert.False(t, bitSet.Contains(5))
+	bitSet.Invert(5)
+	assert.True(t, bitSet.Contains(5))
+}
+
 func TestNewFullBitSet8(t *testing.T) {
 	bitSet := NewFullBitSet8()
 	assert.Equal(t, "11111111", bitSet.String())

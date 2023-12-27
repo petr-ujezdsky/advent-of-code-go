@@ -61,6 +61,10 @@ func (s *BitSet[T]) Remove(value int) {
 	s.mask &= ^(1 << value)
 }
 
+func (s *BitSet[T]) Invert(value int) {
+	s.mask ^= 1 << value
+}
+
 func (s *BitSet[T]) Clone() BitSet[T] {
 	return BitSet[T]{s.mask}
 }
