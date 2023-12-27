@@ -83,7 +83,7 @@ func (m *Module) OnSignal(signal SignalType, from *Module, aggregator *Aggregato
 		// TODO pujezdsky optimize
 		// check if all are HIGH
 		allHigh := true
-		for i, _ := range m.InputModules {
+		for i := range m.InputModules {
 			if !m.State.Contains(i) {
 				allHigh = false
 				break
@@ -104,7 +104,8 @@ func (m *Module) OnSignal(signal SignalType, from *Module, aggregator *Aggregato
 		return signal, true
 	}
 
-	panic("Not implemented")
+	fmt.Printf("Unknown type, %s obtained %v\n", m.Name, signal)
+	return signal, false
 }
 
 func (m *Module) sendSignal(signal SignalType, aggregator *Aggregator) {
@@ -118,7 +119,7 @@ func (m *Module) sendSignal(signal SignalType, aggregator *Aggregator) {
 
 	// send signal
 	for _, output := range m.OutputModules {
-		//fmt.Printf("%s -%v -> %s\n", m.Name, signal, output.Name)
+		fmt.Printf("%s -%v-> %s\n", m.Name, signal, output.Name)
 		output.OnSignal(signal, m, aggregator)
 	}
 }
@@ -146,7 +147,7 @@ func DoWithInputPart01(world World) int {
 	broadcast := world.Button
 	aggregator := &Aggregator{}
 
-	pushCount := 1000
+	pushCount := 1
 
 	for i := 0; i < pushCount; i++ {
 		broadcast.OnSignal(Low, nil, aggregator)
