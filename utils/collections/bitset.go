@@ -22,7 +22,7 @@ type BitSet32 = BitSet[uint32]
 type BitSet64 = BitSet[uint64]
 
 func newBitSet[T UInteger](values ...int) BitSet[T] {
-	bitSet := NewBitSetInitialized[T](0)
+	bitSet := newBitSetInitialized[T](0)
 	for _, value := range values {
 		bitSet.Push(value)
 	}
@@ -38,22 +38,22 @@ func NewBitSet64(values ...int) BitSet64 {
 }
 
 func NewFullBitSet8() BitSet8 {
-	return NewBitSetInitialized[uint8](math.MaxUint8)
+	return newBitSetInitialized[uint8](math.MaxUint8)
 }
 
 func NewFullBitSet16() BitSet16 {
-	return NewBitSetInitialized[uint16](math.MaxUint16)
+	return newBitSetInitialized[uint16](math.MaxUint16)
 }
 
 func NewFullBitSet32() BitSet32 {
-	return NewBitSetInitialized[uint32](math.MaxUint32)
+	return newBitSetInitialized[uint32](math.MaxUint32)
 }
 
 func NewFullBitSet64() BitSet64 {
-	return NewBitSetInitialized[uint64](math.MaxUint64)
+	return newBitSetInitialized[uint64](math.MaxUint64)
 }
 
-func NewBitSetInitialized[T UInteger](mask T) BitSet[T] {
+func newBitSetInitialized[T UInteger](mask T) BitSet[T] {
 	return BitSet[T]{mask}
 }
 
