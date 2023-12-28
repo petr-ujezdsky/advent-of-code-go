@@ -38,8 +38,9 @@ type Module struct {
 	Name                        string
 	Type                        ModuleType
 	InputModules, OutputModules []*Module
-	State                       collections.BitSet64
-	InputsAggregator            *Aggregator
+	// there is maximum of 7 output modules, so BitSet8 is enough
+	State            collections.BitSet8
+	InputsAggregator *Aggregator
 }
 
 func (m *Module) OnSignal(signal SignalType, from *Module, aggregator *Aggregator) (SignalType, bool) {
@@ -203,7 +204,7 @@ func getOrCreateModule(name string, modules Modules) *Module {
 		return &Module{
 			Name:             name,
 			Type:             '?',
-			State:            collections.NewBitSet64(),
+			State:            collections.NewBitSet8(),
 			InputsAggregator: &Aggregator{},
 		}
 	})

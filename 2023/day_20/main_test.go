@@ -27,7 +27,7 @@ func Test_FlipFlop(t *testing.T) {
 		Type:          FlipFlop,
 		InputModules:  nil,
 		OutputModules: nil,
-		State:         collections.NewBitSet64(),
+		State:         collections.NewBitSet8(),
 	}
 
 	broadcast := &Module{
@@ -35,7 +35,7 @@ func Test_FlipFlop(t *testing.T) {
 		Type:          Broadcast,
 		InputModules:  nil,
 		OutputModules: []*Module{module},
-		State:         collections.NewBitSet64(),
+		State:         collections.NewBitSet8(),
 	}
 
 	outputSignal, sent := module.OnSignal(Low, broadcast, aggregator)
@@ -77,7 +77,7 @@ func Test_Conjunction(t *testing.T) {
 		Type:          Conjunction,
 		InputModules:  []*Module{m1, m2},
 		OutputModules: nil,
-		State:         collections.BitSet64{},
+		State:         collections.NewBitSet8(),
 	}
 
 	outputSignal, sent := module.OnSignal(High, m1, aggregator)
