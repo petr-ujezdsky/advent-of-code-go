@@ -44,3 +44,17 @@ func TestNewFullBitSet128(t *testing.T) {
 	bitSet := NewFullBitSet128()
 	assert.Equal(t, "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111", bitSet.String())
 }
+
+func TestBitSet128_Invert(t *testing.T) {
+	bitSet := NewBitSet128()
+
+	bitSet.Push(3)
+	assert.True(t, bitSet.Contains(3))
+
+	bitSet.Invert(3)
+	assert.False(t, bitSet.Contains(3))
+
+	assert.False(t, bitSet.Contains(123))
+	bitSet.Invert(123)
+	assert.True(t, bitSet.Contains(123))
+}

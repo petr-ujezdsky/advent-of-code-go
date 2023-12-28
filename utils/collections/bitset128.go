@@ -47,6 +47,11 @@ func (s *BitSet128) Remove(value int) {
 	mask.Remove(value - offset)
 }
 
+func (s *BitSet128) Invert(value int) {
+	mask, offset := s.getMask(value)
+	mask.Invert(value - offset)
+}
+
 func (s *BitSet128) Clone() BitSet128 {
 	return BitSet128{s.maskLow, s.maskHigh}
 }
