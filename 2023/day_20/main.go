@@ -203,7 +203,7 @@ func getOrCreateModule(name string, modules Modules) *Module {
 		return &Module{
 			Name:             name,
 			Type:             '?',
-			State:            collections.NewEmptyBitSet64(),
+			State:            collections.NewBitSet64(),
 			InputsAggregator: &Aggregator{},
 		}
 	})

@@ -33,8 +33,8 @@ func NewBitSet8(values ...int) BitSet8 {
 	return newBitSet[uint8](values...)
 }
 
-func NewEmptyBitSet64() BitSet64 {
-	return newBitSet[uint64]()
+func NewBitSet64(values ...int) BitSet64 {
+	return newBitSet[uint64](values...)
 }
 
 func NewFullBitSet8() BitSet8 {

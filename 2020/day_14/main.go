@@ -293,7 +293,7 @@ func ParseInput(r io.Reader) []MaskOrMem {
 		// mask
 		if str[1] == 'a' {
 			mask := strings.Split(str, " ")[2]
-			ones := collections.NewEmptyBitSet64()
+			ones := collections.NewBitSet64()
 			zeros := collections.NewFullBitSet64()
 
 			for i, char := range strs.ReverseString(mask) {

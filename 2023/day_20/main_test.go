@@ -27,7 +27,7 @@ func Test_FlipFlop(t *testing.T) {
 		Type:          FlipFlop,
 		InputModules:  nil,
 		OutputModules: nil,
-		State:         collections.NewEmptyBitSet64(),
+		State:         collections.NewBitSet64(),
 	}
 
 	broadcast := &Module{
@@ -35,7 +35,7 @@ func Test_FlipFlop(t *testing.T) {
 		Type:          Broadcast,
 		InputModules:  nil,
 		OutputModules: []*Module{module},
-		State:         collections.NewEmptyBitSet64(),
+		State:         collections.NewBitSet64(),
 	}
 
 	outputSignal, sent := module.OnSignal(Low, broadcast, aggregator)
