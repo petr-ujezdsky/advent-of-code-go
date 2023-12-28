@@ -1,6 +1,9 @@
 package utils
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 type MinFinder[T any] struct {
 	value int
@@ -20,4 +23,8 @@ func (mf *MinFinder[T]) Inspect(value int, item T) {
 
 func (mf *MinFinder[T]) Result() (int, T) {
 	return mf.value, mf.item
+}
+
+func (mf *MinFinder[T]) String() string {
+	return fmt.Sprintf("Min %d for %v", mf.value, mf.item)
 }

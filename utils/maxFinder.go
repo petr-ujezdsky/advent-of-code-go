@@ -1,6 +1,9 @@
 package utils
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 type MaxFinder[T any] struct {
 	value int
@@ -20,4 +23,8 @@ func (mf *MaxFinder[T]) Inspect(value int, item T) {
 
 func (mf *MaxFinder[T]) Result() (int, T) {
 	return mf.value, mf.item
+}
+
+func (mf *MaxFinder[T]) String() string {
+	return fmt.Sprintf("Max %d for %v", mf.value, mf.item)
 }

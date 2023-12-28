@@ -16,4 +16,5 @@ func TestMinFinder(t *testing.T) {
 	minimum, item := minFinder.Result()
 	assert.Equal(t, 1, minimum)
 	assert.Equal(t, "one", item)
+	assert.Equal(t, "Min 1 for one", minFinder.String())
 }

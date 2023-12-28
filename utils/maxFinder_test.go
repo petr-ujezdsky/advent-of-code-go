@@ -16,4 +16,5 @@ func TestMaxFinder(t *testing.T) {
 	maximum, item := maxFinder.Result()
 	assert.Equal(t, 10, maximum)
 	assert.Equal(t, "ten", item)
+	assert.Equal(t, "Max 10 for ten", maxFinder.String())
 }
