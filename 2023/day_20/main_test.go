@@ -15,7 +15,7 @@ func Test_01_parse(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	assert.Equal(t, 5, len(world.Modules))
+	assert.Equal(t, 6, len(world.Modules))
 	assert.Equal(t, "broadcaster", world.Modules["broadcaster"].Name)
 }
 
