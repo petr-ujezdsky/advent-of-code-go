@@ -2,6 +2,7 @@ package tree
 
 import (
 	"fmt"
+	"github.com/emirpasic/gods/sets/linkedhashset"
 	"strings"
 )
 
@@ -21,7 +22,7 @@ func PrintTree[T any](root T, extractor func(node T) (string, []T)) string {
 }
 
 // see https://www.baeldung.com/java-print-binary-tree-diagram
-func traversePreOrderChild[T any](builder *strings.Builder, padding, pointer string, node T, last bool, extractor func(node T) (string, []T)) {
+func traversePreOrderChild[T any](builder *strings.Builder, padding, pointer string, node T, last bool, path *linkedhashset.Set, extractor func(node T) (string, []T)) {
 	//if node == nil {
 	//	return
 	//}
@@ -32,6 +33,12 @@ func traversePreOrderChild[T any](builder *strings.Builder, padding, pointer str
 	builder.WriteString(pointer)
 
 	builder.WriteString(name)
+
+	if path.Contains(name) {
+		builder.WriteString(" --cycle detected--")
+		return
+	}
+	path.Add(name)
 
 	paddingBuilder := &strings.Builder{}
 	paddingBuilder.WriteString(padding)
@@ -57,8 +64,10 @@ func traversePreOrderChild[T any](builder *strings.Builder, padding, pointer str
 			pointer = "└──"
 		}
 
-		traversePreOrderChild(builder, paddingForBoth, pointer, subNode, last, extractor)
+		traversePreOrderChild(builder, paddingForBoth, pointer, subNode, last, path, extractor)
 	}
+
+	path.Remove(name)
 }
 
 func traversePreOrderRoot[T any](root T, extractor func(node T) (string, []T)) string {
@@ -66,6 +75,7 @@ func traversePreOrderRoot[T any](root T, extractor func(node T) (string, []T)) s
 	//	return ""
 	//}
 	name, children := extractor(root)
+	path := linkedhashset.New(name)
 
 	builder := &strings.Builder{}
 	builder.WriteString(name)
@@ -78,7 +88,7 @@ func traversePreOrderRoot[T any](root T, extractor func(node T) (string, []T)) s
 			pointer = "└──"
 		}
 
-		traversePreOrderChild(builder, "", pointer, child, last, extractor)
+		traversePreOrderChild(builder, "", pointer, child, last, path, extractor)
 	}
 
 	return builder.String()
