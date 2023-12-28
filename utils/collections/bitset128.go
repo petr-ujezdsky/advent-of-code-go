@@ -4,11 +4,17 @@ type BitSet128 struct {
 	maskLow, maskHigh BitSet64
 }
 
-func NewEmptyBitSet128() BitSet128 {
-	return BitSet128{
+func NewBitSet128(values ...int) BitSet128 {
+	bitSet := BitSet128{
 		maskLow:  NewBitSet64(),
 		maskHigh: NewBitSet64(),
 	}
+
+	for _, value := range values {
+		bitSet.Push(value)
+	}
+
+	return bitSet
 }
 
 func NewFullBitSet128() BitSet128 {

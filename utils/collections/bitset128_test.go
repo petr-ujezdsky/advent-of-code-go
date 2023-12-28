@@ -6,7 +6,7 @@ import (
 )
 
 func TestBitSet128_All(t *testing.T) {
-	bitSet := NewEmptyBitSet128()
+	bitSet := NewBitSet128()
 
 	for i := 0; i < 128; i++ {
 		assert.Equal(t, false, bitSet.Contains(i))
