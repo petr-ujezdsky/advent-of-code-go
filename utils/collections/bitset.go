@@ -21,12 +21,16 @@ type BitSet16 = BitSet[uint16]
 type BitSet32 = BitSet[uint32]
 type BitSet64 = BitSet[uint64]
 
-func NewEmptyBitSet[T UInteger]() BitSet[T] {
+func newEmptyBitSet[T UInteger]() BitSet[T] {
 	return NewBitSetInitialized[T](0)
 }
 
+func NewEmptyBitSet8() BitSet8 {
+	return newEmptyBitSet[uint8]()
+}
+
 func NewEmptyBitSet64() BitSet64 {
-	return NewEmptyBitSet[uint64]()
+	return newEmptyBitSet[uint64]()
 }
 
 func NewFullBitSet8() BitSet8 {

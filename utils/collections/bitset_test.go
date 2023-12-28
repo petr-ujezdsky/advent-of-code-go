@@ -6,7 +6,7 @@ import (
 )
 
 func TestBitSet_All(t *testing.T) {
-	bitSet := NewEmptyBitSet[uint8]()
+	bitSet := NewEmptyBitSet8()
 
 	for i := 0; i < 8; i++ {
 		assert.Equal(t, false, bitSet.Contains(i))
@@ -25,8 +25,8 @@ func TestBitSet_All(t *testing.T) {
 }
 
 func TestBitSet_And(t *testing.T) {
-	bitSet1 := NewEmptyBitSet[uint8]()
-	bitSet2 := NewEmptyBitSet[uint8]()
+	bitSet1 := NewEmptyBitSet8()
+	bitSet2 := NewEmptyBitSet8()
 
 	bitSet1.Push(1)
 	bitSet1.Push(2)
@@ -41,8 +41,8 @@ func TestBitSet_And(t *testing.T) {
 }
 
 func TestBitSet_Or(t *testing.T) {
-	bitSet1 := NewEmptyBitSet[uint8]()
-	bitSet2 := NewEmptyBitSet[uint8]()
+	bitSet1 := NewEmptyBitSet8()
+	bitSet2 := NewEmptyBitSet8()
 
 	bitSet1.Push(1)
 	bitSet1.Push(2)
@@ -58,7 +58,7 @@ func TestBitSet_Or(t *testing.T) {
 }
 
 func TestBitSet_Invert(t *testing.T) {
-	bitSet := NewEmptyBitSet[uint8]()
+	bitSet := NewEmptyBitSet8()
 
 	bitSet.Push(3)
 	assert.True(t, bitSet.Contains(3))

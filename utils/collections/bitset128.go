@@ -6,8 +6,8 @@ type BitSet128 struct {
 
 func NewEmptyBitSet128() BitSet128 {
 	return BitSet128{
-		maskLow:  NewEmptyBitSet[uint64](),
-		maskHigh: NewEmptyBitSet[uint64](),
+		maskLow:  NewEmptyBitSet64(),
+		maskHigh: NewEmptyBitSet64(),
 	}
 }
 
