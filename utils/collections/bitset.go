@@ -25,8 +25,12 @@ func newEmptyBitSet[T UInteger]() BitSet[T] {
 	return NewBitSetInitialized[T](0)
 }
 
-func NewEmptyBitSet8() BitSet8 {
-	return newEmptyBitSet[uint8]()
+func NewBitSet8(values ...int) BitSet8 {
+	bitSet := newEmptyBitSet[uint8]()
+	for _, value := range values {
+		bitSet.Push(value)
+	}
+	return bitSet
 }
 
 func NewEmptyBitSet64() BitSet64 {
@@ -87,6 +91,10 @@ func (s *BitSet[T]) Or(s2 BitSet[T]) BitSet[T] {
 
 func (s *BitSet[T]) GetMask() T {
 	return s.mask
+}
+
+func (s *BitSet[T]) Empty() bool {
+	return s.mask == 0
 }
 
 func (s *BitSet[T]) String() string {
