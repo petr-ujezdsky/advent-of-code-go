@@ -175,3 +175,15 @@ func Test_02(t *testing.T) {
 	result := DoWithInputPart02(world)
 	assert.Equal(t, 0, result)
 }
+
+func Benchmark_1000Steps(b *testing.B) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(b, err)
+
+	world := ParseInput(reader)
+
+	for i := 0; i < b.N; i++ {
+		result := DoWithInputPart01(world)
+		assert.Equal(b, 836127690, result)
+	}
+}

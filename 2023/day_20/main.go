@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	_ "embed"
-	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/collections"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/maps"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
@@ -172,7 +171,7 @@ func DoWithInputPart01(world World) int {
 		button.OnSignal(Low, nil, aggregator, &state)
 	}
 
-	fmt.Printf("Counts %v\n", *aggregator)
+	//fmt.Printf("Counts %v\n", *aggregator)
 
 	return aggregator.LowCount * aggregator.HighCount
 }
