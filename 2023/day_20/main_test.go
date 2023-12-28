@@ -23,19 +23,21 @@ func Test_FlipFlop(t *testing.T) {
 	aggregator := &Aggregator{}
 
 	module := &Module{
-		Name:          "flip",
-		Type:          FlipFlop,
-		InputModules:  nil,
-		OutputModules: nil,
-		State:         collections.NewBitSet8(),
+		Name:             "flip",
+		Type:             FlipFlop,
+		InputModules:     nil,
+		OutputModules:    nil,
+		State:            collections.NewBitSet8(),
+		InputsAggregator: &Aggregator{},
 	}
 
 	broadcast := &Module{
-		Name:          "broadcast",
-		Type:          Broadcast,
-		InputModules:  nil,
-		OutputModules: []*Module{module},
-		State:         collections.NewBitSet8(),
+		Name:             "broadcast",
+		Type:             Broadcast,
+		InputModules:     nil,
+		OutputModules:    []*Module{module},
+		State:            collections.NewBitSet8(),
+		InputsAggregator: &Aggregator{},
 	}
 
 	outputSignal, sent := module.OnSignal(Low, broadcast, aggregator)
@@ -73,11 +75,12 @@ func Test_Conjunction(t *testing.T) {
 	m2 := &Module{Name: "m2"}
 
 	module := &Module{
-		Name:          "conjunction",
-		Type:          Conjunction,
-		InputModules:  []*Module{m1, m2},
-		OutputModules: nil,
-		State:         collections.NewBitSet8(),
+		Name:             "conjunction",
+		Type:             Conjunction,
+		InputModules:     []*Module{m1, m2},
+		OutputModules:    nil,
+		State:            collections.NewBitSet8(),
+		InputsAggregator: &Aggregator{},
 	}
 
 	outputSignal, sent := module.OnSignal(High, m1, aggregator)
