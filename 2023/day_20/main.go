@@ -202,6 +202,7 @@ func getOrCreateModule(name string, modules Modules) *Module {
 	return maps.GetOrCompute(modules, name, func(key string) *Module {
 		return &Module{
 			Name:             name,
+			Type:             '?',
 			State:            collections.NewEmptyBitSet64(),
 			InputsAggregator: &Aggregator{},
 		}
