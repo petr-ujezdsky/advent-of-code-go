@@ -38,34 +38,33 @@ type Module struct {
 	Name                        string
 	Type                        ModuleType
 	InputModules, OutputModules []*Module
-	// there is maximum of 7 output modules, so BitSet8 is enough
-	State            collections.BitSet8
-	InputsAggregator *Aggregator
+	StateIndex                  int
+	InputsAggregator            *Aggregator
 }
 
-func (m *Module) OnSignal(signal SignalType, from *Module, aggregator *Aggregator) (SignalType, bool) {
+func (m *Module) OnSignal(signal SignalType, from *Module, aggregator *Aggregator, state *collections.BitSet128) (SignalType, bool) {
 	// aggregate signal locally
 	m.InputsAggregator.aggregate(signal, 1)
 
-	outputSignal, ok := m.checkSignal(signal, from)
+	outputSignal, ok := m.checkSignal(signal, from, state)
 
 	if ok {
-		m.sendSignal(outputSignal, aggregator)
+		m.sendSignal(outputSignal, aggregator, state)
 	}
 
 	return outputSignal, ok
 }
 
-func (m *Module) checkSignal(signal SignalType, from *Module) (SignalType, bool) {
+func (m *Module) checkSignal(signal SignalType, from *Module, state *collections.BitSet128) (SignalType, bool) {
 	switch m.Type {
 	// FlipFlop
 	case FlipFlop:
 		// contains ~ ON
 		if signal == Low {
-			m.State.Invert(0)
+			state.Invert(m.StateIndex + 0)
 
 			outputSignal := Low
-			if m.State.Contains(0) {
+			if state.Contains(m.StateIndex + 0) {
 				outputSignal = High
 			}
 
@@ -88,16 +87,16 @@ func (m *Module) checkSignal(signal SignalType, from *Module) (SignalType, bool)
 		// store current signal per given input module
 		switch signal {
 		case Low:
-			m.State.Remove(index)
+			state.Remove(m.StateIndex + index)
 		case High:
-			m.State.Push(index)
+			state.Push(m.StateIndex + index)
 		}
 
 		// TODO pujezdsky optimize
 		// check if all are HIGH
 		allHigh := true
 		for i := range m.InputModules {
-			if !m.State.Contains(i) {
+			if !state.Contains(m.StateIndex + i) {
 				allHigh = false
 				break
 			}
@@ -117,7 +116,7 @@ func (m *Module) checkSignal(signal SignalType, from *Module) (SignalType, bool)
 	return signal, false
 }
 
-func (m *Module) sendSignal(signal SignalType, aggregator *Aggregator) {
+func (m *Module) sendSignal(signal SignalType, aggregator *Aggregator, state *collections.BitSet128) {
 	// aggregate counts
 	aggregator.aggregate(signal, len(m.OutputModules))
 
@@ -125,7 +124,7 @@ func (m *Module) sendSignal(signal SignalType, aggregator *Aggregator) {
 	for i := len(m.OutputModules) - 1; i >= 0; i-- {
 		output := m.OutputModules[i]
 		//fmt.Printf("%s -%v-> %s\n", m.Name, signal, output.Name)
-		output.OnSignal(signal, m, aggregator)
+		output.OnSignal(signal, m, aggregator, state)
 	}
 }
 
@@ -167,9 +166,10 @@ func DoWithInputPart01(world World) int {
 	aggregator := &Aggregator{}
 
 	pushCount := 1000
+	state := collections.NewBitSet128()
 
 	for i := 0; i < pushCount; i++ {
-		button.OnSignal(Low, nil, aggregator)
+		button.OnSignal(Low, nil, aggregator, &state)
 	}
 
 	fmt.Printf("Counts %v\n", *aggregator)
@@ -184,9 +184,10 @@ func DoWithInputPart02(world World) int {
 	targetRxCounts := Aggregator{LowCount: 1, HighCount: 0}
 
 	pushCount := 1
+	state := collections.NewBitSet128()
 
 	for {
-		button.OnSignal(Low, nil, aggregator)
+		button.OnSignal(Low, nil, aggregator, &state)
 
 		if *rxModule.InputsAggregator == targetRxCounts {
 			return pushCount
@@ -204,7 +205,6 @@ func getOrCreateModule(name string, modules Modules) *Module {
 		return &Module{
 			Name:             name,
 			Type:             '?',
-			State:            collections.NewBitSet8(),
 			InputsAggregator: &Aggregator{},
 		}
 	})
@@ -241,6 +241,20 @@ func ParseInput(r io.Reader) World {
 
 		module.Type = rune(mtype)
 		module.OutputModules = outputs
+	}
+
+	// find starting state index for each module
+	// state size is 89
+	stateIndex := 0
+	for _, module := range modules {
+		module.StateIndex = stateIndex
+
+		switch module.Type {
+		case FlipFlop:
+			stateIndex++
+		case Conjunction:
+			stateIndex += len(module.InputModules)
+		}
 	}
 
 	return World{

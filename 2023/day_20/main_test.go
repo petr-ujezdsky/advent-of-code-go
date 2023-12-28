@@ -21,13 +21,13 @@ func Test_01_parse(t *testing.T) {
 
 func Test_FlipFlop(t *testing.T) {
 	aggregator := &Aggregator{}
+	state := collections.NewBitSet128()
 
 	module := &Module{
 		Name:             "flip",
 		Type:             FlipFlop,
 		InputModules:     nil,
 		OutputModules:    nil,
-		State:            collections.NewBitSet8(),
 		InputsAggregator: &Aggregator{},
 	}
 
@@ -36,40 +36,40 @@ func Test_FlipFlop(t *testing.T) {
 		Type:             Broadcast,
 		InputModules:     nil,
 		OutputModules:    []*Module{module},
-		State:            collections.NewBitSet8(),
 		InputsAggregator: &Aggregator{},
 	}
 
-	outputSignal, sent := module.OnSignal(Low, broadcast, aggregator)
+	outputSignal, sent := module.OnSignal(Low, broadcast, aggregator, &state)
 
 	assert.True(t, sent)
 	assert.Equal(t, High, outputSignal)
 
-	outputSignal, sent = module.OnSignal(High, broadcast, aggregator)
+	outputSignal, sent = module.OnSignal(High, broadcast, aggregator, &state)
 
 	assert.False(t, sent)
 
-	outputSignal, sent = module.OnSignal(Low, broadcast, aggregator)
+	outputSignal, sent = module.OnSignal(Low, broadcast, aggregator, &state)
 
 	assert.True(t, sent)
 	assert.Equal(t, Low, outputSignal)
 
-	outputSignal, sent = module.OnSignal(High, broadcast, aggregator)
+	outputSignal, sent = module.OnSignal(High, broadcast, aggregator, &state)
 
 	assert.False(t, sent)
 
-	outputSignal, sent = module.OnSignal(Low, broadcast, aggregator)
+	outputSignal, sent = module.OnSignal(Low, broadcast, aggregator, &state)
 
 	assert.True(t, sent)
 	assert.Equal(t, High, outputSignal)
 
-	outputSignal, sent = module.OnSignal(High, broadcast, aggregator)
+	outputSignal, sent = module.OnSignal(High, broadcast, aggregator, &state)
 
 	assert.False(t, sent)
 }
 
 func Test_Conjunction(t *testing.T) {
 	aggregator := &Aggregator{}
+	state := collections.NewBitSet128()
 
 	m1 := &Module{Name: "m1"}
 	m2 := &Module{Name: "m2"}
@@ -79,26 +79,25 @@ func Test_Conjunction(t *testing.T) {
 		Type:             Conjunction,
 		InputModules:     []*Module{m1, m2},
 		OutputModules:    nil,
-		State:            collections.NewBitSet8(),
 		InputsAggregator: &Aggregator{},
 	}
 
-	outputSignal, sent := module.OnSignal(High, m1, aggregator)
+	outputSignal, sent := module.OnSignal(High, m1, aggregator, &state)
 
 	assert.True(t, sent)
 	assert.Equal(t, High, outputSignal)
 
-	outputSignal, sent = module.OnSignal(High, m2, aggregator)
+	outputSignal, sent = module.OnSignal(High, m2, aggregator, &state)
 
 	assert.True(t, sent)
 	assert.Equal(t, Low, outputSignal)
 
-	outputSignal, sent = module.OnSignal(High, m2, aggregator)
+	outputSignal, sent = module.OnSignal(High, m2, aggregator, &state)
 
 	assert.True(t, sent)
 	assert.Equal(t, Low, outputSignal)
 
-	outputSignal, sent = module.OnSignal(Low, m2, aggregator)
+	outputSignal, sent = module.OnSignal(Low, m2, aggregator, &state)
 
 	assert.True(t, sent)
 	assert.Equal(t, High, outputSignal)
@@ -147,6 +146,24 @@ func Test_02_Print_tree(t *testing.T) {
 	})
 
 	fmt.Printf("%s\n", str)
+}
+func Test_02_State_size(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	world := ParseInput(reader)
+
+	stateSize := 0
+
+	for _, module := range world.Modules {
+		switch module.Type {
+		case FlipFlop:
+			stateSize++
+		case Conjunction:
+			stateSize += len(module.InputModules)
+		}
+	}
+	fmt.Printf("Need state of size %d\n", stateSize)
 }
 
 func Test_02(t *testing.T) {
