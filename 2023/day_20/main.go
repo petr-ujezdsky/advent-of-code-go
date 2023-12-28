@@ -211,6 +211,10 @@ func getOrCreateModule(name string, modules Modules) *Module {
 }
 
 func ParseInput(r io.Reader) World {
+	// prepend "button" module
+	buttonLine := strings.NewReader("button -> broadcaster\n")
+	r = io.MultiReader(buttonLine, r)
+
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
 
