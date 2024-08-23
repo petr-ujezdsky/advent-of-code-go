@@ -84,6 +84,12 @@ func neighbours(m Matrix2i) func(origin State) []State {
 	return func(origin State) []State {
 		var neighbours []State
 		for _, dir := range dirs {
+
+			// do not reverse
+			if dir == origin.Direction.Multiply(-1) {
+				continue
+			}
+
 			nextPos := origin.Position.Add(dir)
 
 			// check validity
