@@ -27,7 +27,9 @@ var dirs = []utils.Vector2i{
 }
 
 type State struct {
-	Position utils.Vector2i
+	Position         utils.Vector2i
+	Direction        utils.Vector2i
+	StepsInDirection int
 }
 
 func DoWithInputPart01(world World) int {
@@ -61,19 +63,36 @@ func neighbours(m Matrix2i) func(origin State) []State {
 			nextPos := origin.Position.Add(dir)
 
 			// check validity
-			if _, ok := m.GetVSafe(nextPos); ok {
-				nextState := State{nextPos}
-				neighbours = append(neighbours, nextState)
+			if _, ok := m.GetVSafe(nextPos); !ok {
+				continue
 			}
+
+			steps := 0
+			if origin.Direction == dir {
+				steps = origin.StepsInDirection + 1
+			}
+
+			if steps > 2 {
+				continue
+			}
+
+			nextState := State{Position: nextPos, Direction: dir, StepsInDirection: steps}
+			neighbours = append(neighbours, nextState)
 		}
 
 		return neighbours
 	}
 }
 
+func isEnd(endPos utils.Vector2i) func(state State) bool {
+	return func(state State) bool {
+		return state.Position == endPos
+	}
+}
+
 func FindMinHeatLossPath(m Matrix2i) ([]State, map[State]int, int, bool) {
 	endPos := utils.Vector2i{X: m.Width - 1, Y: m.Height - 1}
-	return alg.AStar(State{}, State{endPos}, h(endPos), d(m), neighbours(m))
+	return alg.AStarEndFunc(State{}, isEnd(endPos), h(endPos), d(m), neighbours(m))
 }
 
 func DoWithInputPart02(world World) int {
