@@ -2,15 +2,11 @@ package main
 
 import (
 	_ "embed"
-	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/alg"
-	"github.com/petr-ujezdsky/advent-of-code-go/utils/iterators"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
-	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
-	"strconv"
 )
 
 type Matrix2i = matrix.MatrixInt
@@ -19,119 +15,65 @@ type World struct {
 	Tiles Matrix2i
 }
 
+var dirs = []utils.Vector2i{
+	// left
+	{-1, 0},
+	// up
+	{0, -1},
+	// right
+	{1, 0},
+	// down
+	{0, 1},
+}
+
+type State struct {
+	Position utils.Vector2i
+}
+
 func DoWithInputPart01(world World) int {
 	tiles := world.Tiles
-	path, _, totalHeatLoss, ok := FindMinHeatLossPath(tiles)
+	_, _, totalHeatLoss, ok := FindMinHeatLossPath(tiles)
 	if !ok {
 		panic("No path found")
 	}
 
-	pathMap := slices.ToMap(path, func(v utils.Vector2i) utils.Vector2i { return v })
-
-	str := matrix.StringFmtSeparatorIndexed[int](tiles, false, "", func(value int, x, y int) string {
-		if _, ok := pathMap[utils.Vector2i{X: x, Y: y}]; ok {
-			return "."
-		}
-
-		return strconv.Itoa(value)
-	})
-
-	fmt.Printf("Tiles:\n%v\n", str)
-
 	return totalHeatLoss
 }
 
-func h(endPos utils.Vector2i) func(utils.Vector2i) int {
-	return func(pos utils.Vector2i) int {
+func h(endPos utils.Vector2i) func(state State) int {
+	return func(state State) int {
 		// manhattan distance
-		return utils.Abs(pos.X-endPos.X) + utils.Abs(pos.Y-endPos.Y)
+		return utils.Abs(state.Position.X-endPos.X) + utils.Abs(state.Position.Y-endPos.Y)
 	}
 }
 
-func d(m Matrix2i) func(utils.Vector2i, utils.Vector2i) int {
-	return func(nodeFrom, nodeTo utils.Vector2i) int {
+func d(m Matrix2i) func(State, State) int {
+	return func(nodeFrom, nodeTo State) int {
 		// step heat loss is the heat loss of target node
-		return m.GetV(nodeTo)
+		return m.GetV(nodeTo.Position)
 	}
 }
 
-func findForbiddenPositions(pathIterator iterators.Iterator[utils.Vector2i]) []utils.Vector2i {
-	if !pathIterator.HasNext() {
-		panic("First tile should be the current tile")
+func neighbours(m Matrix2i) func(origin State) []State {
+	return func(origin State) []State {
+		var neighbours []State
+		for _, dir := range dirs {
+			nextPos := origin.Position.Add(dir)
 
-	}
-	current := pathIterator.Next()
-
-	if !pathIterator.HasNext() {
-		// has no previous tile
-		return nil
-	}
-	previous := pathIterator.Next()
-
-	if !pathIterator.HasNext() {
-		// has only 2 previous tiles
-		return []utils.Vector2i{previous}
-	}
-	previous2 := pathIterator.Next()
-
-	if !pathIterator.HasNext() {
-		// has only 3 previous tiles
-		return []utils.Vector2i{previous}
-	}
-
-	previous3 := pathIterator.Next()
-
-	xs := current.X == previous.X && previous.X == previous2.X && previous2.X == previous3.X
-	ys := current.Y == previous.Y && previous.Y == previous2.Y && previous2.Y == previous3.Y
-
-	if xs || ys {
-		// all 4 are in a row
-		next := current.Add(current.Subtract(previous))
-		return []utils.Vector2i{previous, next}
-	}
-
-	return []utils.Vector2i{previous}
-}
-
-func neighbours(m Matrix2i) func(origin utils.Vector2i, pathIterator iterators.Iterator[utils.Vector2i]) []utils.Vector2i {
-	return func(origin utils.Vector2i, pathIterator iterators.Iterator[utils.Vector2i]) []utils.Vector2i {
-		var neighbours []utils.Vector2i
-
-		// find forbidden positions based on the path
-		forbiddenPositions := findForbiddenPositions(pathIterator)
-
-		for _, dir := range utils.Direction4Steps {
-			nextPos := origin.Add(dir)
-
-			// check world validity
-			if _, ok := m.GetVSafe(nextPos); !ok {
-				continue
+			// check validity
+			if _, ok := m.GetVSafe(nextPos); ok {
+				nextState := State{nextPos}
+				neighbours = append(neighbours, nextState)
 			}
-
-			// check for forbidden positions
-			forbidden := false
-			for _, forbiddenPosition := range forbiddenPositions {
-				if nextPos == forbiddenPosition {
-					forbidden = true
-					break
-				}
-			}
-
-			if forbidden {
-				continue
-			}
-
-			// everything is OK
-			neighbours = append(neighbours, nextPos)
 		}
 
 		return neighbours
 	}
 }
 
-func FindMinHeatLossPath(m Matrix2i) ([]utils.Vector2i, map[utils.Vector2i]int, int, bool) {
+func FindMinHeatLossPath(m Matrix2i) ([]State, map[State]int, int, bool) {
 	endPos := utils.Vector2i{X: m.Width - 1, Y: m.Height - 1}
-	return alg.AStar(utils.Vector2i{}, endPos, h(endPos), d(m), neighbours(m))
+	return alg.AStar(State{}, State{endPos}, h(endPos), d(m), neighbours(m))
 }
 
 func DoWithInputPart02(world World) int {
