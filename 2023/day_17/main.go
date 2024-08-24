@@ -183,7 +183,7 @@ func printPath(pathMap map[utils.Vector2i]State, tiles Matrix2i) {
 	dirStr[dirs[2]] = ">"
 	dirStr[dirs[3]] = "v"
 
-	str := matrix.StringFmtSeparatorIndexed[int](tiles, "", func(value int, x, y int) string {
+	str := matrix.StringFmtSeparatorIndexed[int](tiles, true, "", func(value int, x, y int) string {
 		if s, ok := pathMap[utils.Vector2i{X: x, Y: y}]; ok {
 			if char, ok := dirStr[s.Direction]; ok {
 				return char
