@@ -130,6 +130,10 @@ func (v1 vector2n[T]) LengthManhattan() T {
 	return v1.Abs().Sum()
 }
 
+func ManhattanDistance[T Number](v1, v2 vector2n[T]) T {
+	return Abs(v1.X-v2.X) + Abs(v1.Y-v2.Y)
+}
+
 func (v1 vector2n[T]) String() string {
 	return fmt.Sprint([]T{v1.X, v1.Y})
 }

@@ -52,7 +52,7 @@ func DoWithInputPart01(world World) int {
 func h(endPos utils.Vector2i) func(state State) int {
 	return func(state State) int {
 		// manhattan distance
-		return utils.Abs(state.Position.X-endPos.X) + utils.Abs(state.Position.Y-endPos.Y)
+		return utils.ManhattanDistance(state.Position, endPos)
 	}
 }
 
