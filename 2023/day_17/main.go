@@ -44,24 +44,7 @@ func DoWithInputPart01(world World) int {
 
 	pathMap := slices.ToMap(path, func(s State) utils.Vector2i { return s.Position })
 
-	dirStr := make(map[utils.Vector2i]string)
-	dirStr[dirs[0]] = "<"
-	dirStr[dirs[1]] = "^"
-	dirStr[dirs[2]] = ">"
-	dirStr[dirs[3]] = "v"
-
-	str := matrix.StringFmtSeparatorIndexed[int](tiles, "", func(value int, x, y int) string {
-		if s, ok := pathMap[utils.Vector2i{X: x, Y: y}]; ok {
-			if char, ok := dirStr[s.Direction]; ok {
-				return char
-			}
-			return "."
-		}
-
-		return strconv.Itoa(value)
-	})
-
-	fmt.Printf("Tiles:\n%v\n", str)
+	printPath(pathMap, tiles)
 
 	return totalHeatLoss
 }
@@ -188,6 +171,12 @@ func DoWithInputPart02(world World) int {
 
 	pathMap := slices.ToMap(path, func(s State) utils.Vector2i { return s.Position })
 
+	printPath(pathMap, tiles)
+
+	return totalHeatLoss
+}
+
+func printPath(pathMap map[utils.Vector2i]State, tiles Matrix2i) {
 	dirStr := make(map[utils.Vector2i]string)
 	dirStr[dirs[0]] = "<"
 	dirStr[dirs[1]] = "^"
@@ -206,8 +195,6 @@ func DoWithInputPart02(world World) int {
 	})
 
 	fmt.Printf("Tiles:\n%v\n", str)
-
-	return totalHeatLoss
 }
 
 func ParseInput(r io.Reader) World {
