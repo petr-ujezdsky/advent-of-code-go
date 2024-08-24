@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/alg"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/iterators"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
@@ -63,8 +64,8 @@ func d(m Matrix2i) func(State, State) int {
 	}
 }
 
-func neighbours(m Matrix2i) func(origin State) []State {
-	return func(origin State) []State {
+func neighbours(m Matrix2i) func(origin State, path iterators.Iterator[State]) []State {
+	return func(origin State, path iterators.Iterator[State]) []State {
 		var neighbours []State
 		for _, dir := range dirs {
 
@@ -96,8 +97,8 @@ func d2(m Matrix2i) func(State, State) int {
 	}
 }
 
-func neighbours2(m Matrix2i) func(origin State) []State {
-	return func(origin State) []State {
+func neighbours2(m Matrix2i) func(origin State, path iterators.Iterator[State]) []State {
+	return func(origin State, path iterators.Iterator[State]) []State {
 		var neighbours []State
 		for _, dir := range dirs {
 
