@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	_ "embed"
+	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/collections"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/maps"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
@@ -83,6 +84,10 @@ func (m *Module) checkSignal(signal SignalType, from *Module, state *collections
 			}
 		}
 
+		if index == -1 {
+			panic("Module not found")
+		}
+
 		// store current signal per given input module
 		switch signal {
 		case Low:
@@ -109,9 +114,11 @@ func (m *Module) checkSignal(signal SignalType, from *Module, state *collections
 		return outputSignal, true
 	case Broadcast:
 		return signal, true
+	case Terminal:
+		return signal, false
 	}
 
-	//fmt.Printf("Unknown type, %s obtained %v\n", m.Name, signal)
+	fmt.Printf("Unknown type %s, %s obtained %v\n", string(m.Type), m.Name, signal)
 	return signal, false
 }
 
@@ -133,6 +140,7 @@ const (
 	Broadcast   ModuleType = 'b'
 	FlipFlop               = '%'
 	Conjunction            = '&'
+	Terminal               = '?'
 )
 
 type Aggregator struct {
@@ -203,7 +211,7 @@ func getOrCreateModule(name string, modules Modules) *Module {
 	return maps.GetOrCompute(modules, name, func(key string) *Module {
 		return &Module{
 			Name:             name,
-			Type:             '?',
+			Type:             Terminal,
 			InputsAggregator: &Aggregator{},
 		}
 	})
