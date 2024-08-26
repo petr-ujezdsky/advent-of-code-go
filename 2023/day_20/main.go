@@ -116,10 +116,9 @@ func (m *Module) checkSignal(signal SignalType, from *Module, state *collections
 		return signal, true
 	case Terminal:
 		return signal, false
+	default:
+		panic(fmt.Sprintf("Unknown type %s, %s obtained %v\n", string(m.Type), m.Name, signal))
 	}
-
-	fmt.Printf("Unknown type %s, %s obtained %v\n", string(m.Type), m.Name, signal)
-	return signal, false
 }
 
 func (m *Module) sendSignal(signal SignalType, aggregator *Aggregator, state *collections.BitSet128) {
