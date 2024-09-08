@@ -147,6 +147,43 @@ func Test_02_Print_tree(t *testing.T) {
 
 	fmt.Printf("%s\n", str)
 }
+
+func Test_02_Print_nodes(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	world := ParseInput(reader)
+
+	for _, module := range world.Modules {
+		var in, out []string
+
+		for _, m := range module.InputModules {
+			in = append(in, m.Name)
+		}
+
+		for _, m := range module.OutputModules {
+			out = append(out, m.Name)
+		}
+
+		fmt.Printf("%v - IN: %v, OUT: %v\n", module.Name, in, out)
+	}
+}
+
+func Test_02_Print_reverse_tree(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	world := ParseInput(reader)
+
+	rx := world.Modules["rx"]
+
+	str := tree.PrintTree(rx, func(node *Module) (string, []*Module) {
+		return string(node.Type) + node.Name, node.InputModules
+	})
+
+	fmt.Printf("%s\n", str)
+}
+
 func Test_02_State_size(t *testing.T) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(t, err)
