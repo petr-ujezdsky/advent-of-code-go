@@ -165,7 +165,7 @@ func Test_02_Print_nodes(t *testing.T) {
 			out = append(out, m.Name)
 		}
 
-		fmt.Printf("%v - IN: %v, OUT: %v\n", module.Name, in, out)
+		fmt.Printf("%v%v - IN: %v, OUT: %v\n", string(module.Type), module.Name, in, out)
 	}
 }
 
