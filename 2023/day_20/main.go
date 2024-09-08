@@ -119,26 +119,22 @@ func (m *Module) checkSignal(signal SignalType, from *Module, state *collections
 		switch signal {
 		case Low:
 			state.Remove(m.StateIndex + index)
+			return High, true
 		case High:
 			state.Push(m.StateIndex + index)
 		}
 
 		// TODO pujezdsky optimize
 		// check if all are HIGH
-		allHigh := true
 		for i := range m.InputModules {
 			if !state.Contains(m.StateIndex + i) {
-				allHigh = false
-				break
+				// found low, send high
+				return High, true
 			}
 		}
 
-		outputSignal := High
-		if allHigh {
-			outputSignal = Low
-		}
-
-		return outputSignal, true
+		// all are high -> send low
+		return Low, true
 	case Broadcast:
 		return signal, true
 	case Terminal:
