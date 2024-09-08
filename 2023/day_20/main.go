@@ -211,6 +211,8 @@ func DoWithInputPart01(world World) int {
 
 	for i := 0; i < pushCount; i++ {
 		//button.OnSignal(Low, nil, aggregator, &state)
+		//fmt.Printf("Pushing button #%d\n", i+1)
+
 		signals.Push(buttonPressSignal)
 		processSignals(&signals, aggregator, &state)
 	}
@@ -224,6 +226,7 @@ func processSignals(signals *collections.Queue[Signal], aggregator *Aggregator, 
 	for !signals.Empty() {
 		signal := signals.Pop()
 		aggregator.aggregate(signal.Type, 1)
+		//fmt.Printf("%v -%v-> %v\n", signal.From.Name, signal.Type, signal.To.Name)
 		signal.To.OnSignal2(signal.Type, signal.From, state, signals)
 	}
 }
