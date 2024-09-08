@@ -4,6 +4,7 @@ import (
 	"bufio"
 	_ "embed"
 	"fmt"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/collections"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/maps"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
@@ -183,6 +184,8 @@ func DoWithInputPart01(world World) int {
 	return aggregator.LowCount * aggregator.HighCount
 }
 
+var metricGlobal = utils.NewMetric("Global")
+
 func DoWithInputPart02(world World) int {
 	button := world.Button
 	rxModule := world.Modules["rx"]
@@ -192,6 +195,8 @@ func DoWithInputPart02(world World) int {
 	pushCount := 1
 	state := collections.NewBitSet128()
 
+	metricGlobal.Enable()
+
 	for {
 		button.OnSignal(Low, nil, aggregator, &state)
 
@@ -200,6 +205,7 @@ func DoWithInputPart02(world World) int {
 		}
 
 		//fmt.Printf("#%15d rx: %v\n", pushCount, *rxModule.InputsAggregator)
+		metricGlobal.TickCurrent(500_000, pushCount)
 
 		rxModule.InputsAggregator.reset()
 		pushCount++
