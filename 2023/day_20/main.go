@@ -27,6 +27,11 @@ const (
 	High SignalType = true
 )
 
+type Signal struct {
+	Type     SignalType
+	From, To *Module
+}
+
 //type StateFlipFlop struct {
 //	On bool
 //}
@@ -51,6 +56,27 @@ func (m *Module) OnSignal(signal SignalType, from *Module, aggregator *Aggregato
 
 	if ok {
 		m.sendSignal(outputSignal, aggregator, state)
+	}
+
+	return outputSignal, ok
+}
+
+func (m *Module) OnSignal2(signal SignalType, from *Module, state *collections.BitSet128, signals *collections.Queue[Signal]) (SignalType, bool) {
+	// aggregate signal locally
+	m.InputsAggregator.aggregate(signal, 1)
+
+	outputSignal, ok := m.checkSignal(signal, from, state)
+
+	if ok {
+		for _, outputModule := range m.OutputModules {
+			signalNew := Signal{
+				Type: outputSignal,
+				From: m,
+				To:   outputModule,
+			}
+
+			signals.Push(signalNew)
+		}
 	}
 
 	return outputSignal, ok
@@ -164,19 +190,29 @@ func (a *Aggregator) reset() {
 type Modules = map[string]*Module
 
 type World struct {
-	Modules Modules
-	Button  *Module
+	Modules             Modules
+	Button, Broadcaster *Module
 }
 
 func DoWithInputPart01(world World) int {
 	button := world.Button
+	broadcaster := world.Broadcaster
 	aggregator := &Aggregator{}
 
 	pushCount := 1000
 	state := collections.NewBitSet128()
+	buttonPressSignal := Signal{
+		Type: Low,
+		From: button,
+		To:   broadcaster,
+	}
+
+	signals := collections.NewQueue[Signal]()
 
 	for i := 0; i < pushCount; i++ {
-		button.OnSignal(Low, nil, aggregator, &state)
+		//button.OnSignal(Low, nil, aggregator, &state)
+		signals.Push(buttonPressSignal)
+		processSignals(&signals, aggregator, &state)
 	}
 
 	//fmt.Printf("Counts %v\n", *aggregator)
@@ -184,10 +220,19 @@ func DoWithInputPart01(world World) int {
 	return aggregator.LowCount * aggregator.HighCount
 }
 
+func processSignals(signals *collections.Queue[Signal], aggregator *Aggregator, state *collections.BitSet128) {
+	for !signals.Empty() {
+		signal := signals.Pop()
+		aggregator.aggregate(signal.Type, 1)
+		signal.To.OnSignal2(signal.Type, signal.From, state, signals)
+	}
+}
+
 var metricGlobal = utils.NewMetric("Global")
 
 func DoWithInputPart02(world World) int {
 	button := world.Button
+	broadcaster := world.Broadcaster
 	rxModule := world.Modules["rx"]
 	aggregator := &Aggregator{}
 	targetRxCounts := Aggregator{LowCount: 1, HighCount: 0}
@@ -197,8 +242,17 @@ func DoWithInputPart02(world World) int {
 
 	metricGlobal.Enable()
 
+	buttonPressSignal := Signal{
+		Type: Low,
+		From: button,
+		To:   broadcaster,
+	}
+
+	signals := collections.NewQueue[Signal]()
+
 	for {
-		button.OnSignal(Low, nil, aggregator, &state)
+		signals.Push(buttonPressSignal)
+		processSignals(&signals, aggregator, &state)
 
 		if *rxModule.InputsAggregator == targetRxCounts {
 			return pushCount
@@ -270,7 +324,8 @@ func ParseInput(r io.Reader) World {
 	}
 
 	return World{
-		Modules: modules,
-		Button:  modules["button"],
+		Modules:     modules,
+		Button:      modules["button"],
+		Broadcaster: modules["broadcaster"],
 	}
 }
