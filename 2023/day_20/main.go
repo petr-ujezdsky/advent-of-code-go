@@ -232,7 +232,10 @@ var metricGlobal = utils.NewMetric("Global")
 func DoWithInputPart02(world World) int {
 	button := world.Button
 	broadcaster := world.Broadcaster
-	rxModule := world.Modules["rx"]
+
+	highSignalPeriods := map[string]int{}
+
+	hjModule := world.Modules["hj"]
 	aggregator := &Aggregator{}
 
 	pushCount := 1
@@ -252,14 +255,36 @@ func DoWithInputPart02(world World) int {
 		signals.Push(buttonPressSignal)
 		processSignals(&signals, aggregator, &state)
 
-		if rxModule.InputsAggregator.LowCount > 0 {
-			return pushCount
+		for _, inputModule := range hjModule.InputModules {
+			// it is single conjunction module (inverter) so low input means high output - looking for lows
+			if inputModule.InputsAggregator.LowCount == 0 {
+				continue
+			}
+
+			inputModule.InputsAggregator.reset()
+
+			if _, ok := highSignalPeriods[inputModule.Name]; ok {
+				// already found
+				continue
+			}
+
+			fmt.Printf("%v sent HIGH @ push #%v\n", inputModule.Name, pushCount)
+			highSignalPeriods[inputModule.Name] = pushCount
+		}
+
+		if len(highSignalPeriods) == len(hjModule.InputModules) {
+			// found all periods, return least-common-multiple
+			mul := 1
+
+			for _, period := range highSignalPeriods {
+				mul *= period
+			}
+
+			return mul
 		}
 
 		//fmt.Printf("#%15d rx: %v\n", pushCount, *rxModule.InputsAggregator)
 		metricGlobal.TickCurrent(500_000, pushCount)
-
-		rxModule.InputsAggregator.reset()
 		pushCount++
 	}
 }
