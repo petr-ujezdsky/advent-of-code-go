@@ -169,6 +169,20 @@ func Test_02_Print_nodes(t *testing.T) {
 	}
 }
 
+func Test_02_Print_nodes_visualize(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	world := ParseInput(reader)
+
+	for _, module := range world.Modules {
+		for _, m := range module.OutputModules {
+			// see https://csacademy.com/app/graph_editor/
+			fmt.Printf("%v%v %v%v\n", string(module.Type), module.Name, string(m.Type), m.Name)
+		}
+	}
+}
+
 func Test_02_Print_reverse_tree(t *testing.T) {
 	reader, err := os.Open("data-01.txt")
 	assert.Nil(t, err)
