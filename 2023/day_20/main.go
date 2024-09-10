@@ -234,7 +234,6 @@ func DoWithInputPart02(world World) int {
 	broadcaster := world.Broadcaster
 	rxModule := world.Modules["rx"]
 	aggregator := &Aggregator{}
-	targetRxCounts := Aggregator{LowCount: 1, HighCount: 0}
 
 	pushCount := 1
 	state := collections.NewBitSet128()
@@ -253,7 +252,7 @@ func DoWithInputPart02(world World) int {
 		signals.Push(buttonPressSignal)
 		processSignals(&signals, aggregator, &state)
 
-		if *rxModule.InputsAggregator == targetRxCounts {
+		if rxModule.InputsAggregator.LowCount > 0 {
 			return pushCount
 		}
 
