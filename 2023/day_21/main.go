@@ -70,8 +70,53 @@ func printPositions(m matrix.Matrix[rune], start utils.Vector2i, positions map[u
 	fmt.Println(str)
 }
 
-func DoWithInputPart02(world World) int {
-	return 0
+func DoWithInputPart02(world World, steps int) int {
+	currentPositions := map[utils.Vector2i]struct{}{}
+
+	currentPositions[world.Start] = struct{}{}
+
+	for i := 0; i < steps; i++ {
+
+		nextPositions := map[utils.Vector2i]struct{}{}
+
+		for pos := range currentPositions {
+			for _, step := range utils.Direction4Steps {
+				nextPos := pos.Add(step)
+
+				nextPosLooped := loopPosition(nextPos, world.Matrix)
+
+				// check position on map
+				ch, ok := world.Matrix.GetVSafe(nextPosLooped)
+				if !ok {
+					// out of bounds
+					panic("Out of bounds!")
+				}
+
+				if ch == '#' {
+					// rock -> can not step on it
+					continue
+				}
+
+				// save this position
+				nextPositions[nextPos] = struct{}{}
+			}
+		}
+
+		// swap positions
+		currentPositions = nextPositions
+
+		//fmt.Printf("Step #%5d, size=%d\n", i+1, len(currentPositions))
+		//printPositions(world.Matrix, world.Start, currentPositions)
+	}
+
+	return len(currentPositions)
+}
+
+func loopPosition(pos utils.Vector2i, m matrix.Matrix[rune]) utils.Vector2i {
+	x := utils.ModFloor(pos.X, m.GetWidth())
+	y := utils.ModFloor(pos.Y, m.GetHeight())
+
+	return utils.Vector2i{X: x, Y: y}
 }
 
 func ParseInput(r io.Reader) World {
