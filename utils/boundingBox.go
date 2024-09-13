@@ -12,6 +12,14 @@ func NewBoundingBox(point Vector3i) BoundingBox {
 	}
 }
 
+func NewBoundingBoxPoints(pointA, pointB Vector3i) BoundingBox {
+	return BoundingBox{
+		XInterval: NewInterval(pointA.X, pointB.X),
+		YInterval: NewInterval(pointA.Y, pointB.Y),
+		ZInterval: NewInterval(pointA.Z, pointB.Z),
+	}
+}
+
 func (b1 BoundingBox) Contains(pos Vector3i) bool {
 	return b1.XInterval.Contains(pos.X) && b1.YInterval.Contains(pos.Y) && b1.ZInterval.Contains(pos.Z)
 }
