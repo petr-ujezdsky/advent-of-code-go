@@ -3,6 +3,7 @@ package utils
 import (
 	"bufio"
 	"io"
+	"math"
 	"regexp"
 	"strconv"
 )
@@ -271,4 +272,20 @@ func ModFloor(value, size int) int {
 
 func Msg(str string) string {
 	return str[1:]
+}
+
+func FloorTowardsZero(value float64) float64 {
+	if value > 0 {
+		return math.Floor(value)
+	}
+
+	return -math.Floor(-value)
+}
+
+func CeilAwayFromZero(value float64) float64 {
+	if value > 0 {
+		return math.Ceil(value)
+	}
+
+	return -math.Ceil(-value)
 }

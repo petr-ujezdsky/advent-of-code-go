@@ -224,3 +224,46 @@ func TestModFloor(t *testing.T) {
 		})
 	}
 }
+
+func TestFloorTowardsZero(t *testing.T) {
+	type args struct {
+		value float64
+	}
+	tests := []struct {
+		name string
+		args args
+		want float64
+	}{
+		{"", args{1.49}, 1},
+		{"", args{1.51}, 1},
+		{"", args{-1.49}, -1},
+		{"", args{-1.51}, -1},
+		{"", args{0}, 0},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, utils.FloorTowardsZero(tt.args.value), "FloorTowardsZero(%v)", tt.args.value)
+		})
+	}
+}
+
+func TestCeilAwayFromZero(t *testing.T) {
+	type args struct {
+		value float64
+	}
+	tests := []struct {
+		name string
+		args args
+		want float64
+	}{
+		{"", args{1.49}, 2},
+		{"", args{1.51}, 2},
+		{"", args{-1.49}, -2},
+		{"", args{-1.51}, -2},
+		{"", args{0}, 0}}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, utils.CeilAwayFromZero(tt.args.value), "CeilAwayFromZero(%v)", tt.args.value)
+		})
+	}
+}
