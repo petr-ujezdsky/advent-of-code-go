@@ -56,3 +56,19 @@ func (b1 BoundingBox) Enlarge(point Vector3i) BoundingBox {
 func (b1 BoundingBox) Volume() int {
 	return b1.XInterval.Size() * b1.YInterval.Size() * b1.ZInterval.Size()
 }
+
+func (b1 BoundingBox) MinPoint() Vector3i {
+	return Vector3i{
+		X: b1.XInterval.Low,
+		Y: b1.YInterval.Low,
+		Z: b1.ZInterval.Low,
+	}
+}
+
+func (b1 BoundingBox) MaxPoint() Vector3i {
+	return Vector3i{
+		X: b1.XInterval.High,
+		Y: b1.YInterval.High,
+		Z: b1.ZInterval.High,
+	}
+}
