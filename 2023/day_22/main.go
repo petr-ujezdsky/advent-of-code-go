@@ -6,19 +6,19 @@ import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"io"
+	"strconv"
 	"strings"
 )
 
 type Cube struct {
 	Name         string
-	Index        int
 	Box          utils.BoundingBox
 	Stabilized   bool
 	Above, Below []*Cube
 }
 
 func (cube Cube) String() string {
-	return fmt.Sprintf("#%v %v %v", cube.Index+1, cube.Box.MinPoint(), cube.Box.MaxPoint())
+	return fmt.Sprintf("%v %v %v", cube.Name, cube.Box.MinPoint(), cube.Box.MaxPoint())
 }
 
 type World struct {
@@ -40,6 +40,7 @@ func fallDown(cubes []*Cube) {
 
 	for {
 		var nextMovableCubes []*Cube
+		fmt.Printf("Movable cubes: %d\n", len(movableCubes))
 
 		for _, cube := range movableCubes {
 			for tryStepDown(cube, cubes) {
@@ -67,6 +68,7 @@ func tryStepDown(cube *Cube, cubes []*Cube) bool {
 	if cube.Box.ZInterval.Low == 1 {
 		// at floor -> stabilize
 		cube.Stabilized = true
+		fmt.Printf("Cube %v stabilized by floor\n", cube.Name)
 		return false
 	}
 
@@ -85,6 +87,7 @@ func tryStepDown(cube *Cube, cubes []*Cube) bool {
 			// can not move
 			if otherCube.Stabilized {
 				cube.Stabilized = true
+				fmt.Printf("Cube %v stabilized by %v\n", cube.Name, otherCube.Name)
 
 				// link cubes
 				cube.Below = append(cube.Below, otherCube)
@@ -154,9 +157,8 @@ func ParseInput(r io.Reader) World {
 		pointB := parsePoint(points[1])
 
 		return &Cube{
-			Name:  string('A' + byte(i)),
-			Index: i,
-			Box:   utils.NewBoundingBoxPoints(pointA, pointB),
+			Name: "#" + strconv.Itoa(i+1),
+			Box:  utils.NewBoundingBoxPoints(pointA, pointB),
 		}
 	}
 
