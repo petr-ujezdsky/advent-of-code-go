@@ -41,7 +41,7 @@ func fallDown(cubes []*Cube) {
 
 	for {
 		var nextMovableCubes []*Cube
-		fmt.Printf("Movable cubes: %d\n", len(movableCubes))
+		//fmt.Printf("Movable cubes: %d\n", len(movableCubes))
 
 		for _, cube := range movableCubes {
 			for tryStepDown(cube, cubes) {
@@ -69,7 +69,7 @@ func tryStepDown(cube *Cube, cubes []*Cube) bool {
 	if cube.Box.ZInterval.Low == 1 {
 		// at floor -> stabilize
 		cube.Stabilized = true
-		fmt.Printf("Cube %v stabilized by floor\n", cube.Name)
+		//fmt.Printf("Cube %v stabilized by floor\n", cube.Name)
 		return false
 	}
 
@@ -89,7 +89,7 @@ func tryStepDown(cube *Cube, cubes []*Cube) bool {
 			// can not move
 			if otherCube.Stabilized {
 				cube.Stabilized = true
-				fmt.Printf("Cube %v stabilized by %v\n", cube.Name, otherCube.Name)
+				//fmt.Printf("Cube %v stabilized by %v\n", cube.Name, otherCube.Name)
 			}
 
 			// link cubes
@@ -112,7 +112,7 @@ func tryStepDown(cube *Cube, cubes []*Cube) bool {
 	}
 
 	// can move -> move
-	fmt.Printf("Cube %v moved down\n", cube.Name)
+	//fmt.Printf("Cube %v moved down\n", cube.Name)
 	cube.Box = movedBox
 
 	// disconnect from above
