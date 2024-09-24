@@ -12,9 +12,10 @@ import (
 
 type Cube struct {
 	Name         string
+	Id           int
 	Box          utils.BoundingBox
 	Stabilized   bool
-	Above, Below []*Cube
+	Above, Below map[*Cube]struct{}
 }
 
 func (cube Cube) String() string {
@@ -76,7 +77,8 @@ func tryStepDown(cube *Cube, cubes []*Cube) bool {
 	movedBox := stepDown(cube.Box)
 
 	// lookup collisions
-	collided := false
+	var below map[*Cube]struct{}
+
 	for _, otherCube := range cubes {
 		if otherCube == cube {
 			// skip self
@@ -88,22 +90,36 @@ func tryStepDown(cube *Cube, cubes []*Cube) bool {
 			if otherCube.Stabilized {
 				cube.Stabilized = true
 				fmt.Printf("Cube %v stabilized by %v\n", cube.Name, otherCube.Name)
-
-				// link cubes
-				cube.Below = append(cube.Below, otherCube)
-				otherCube.Above = append(otherCube.Above, cube)
 			}
 
-			collided = true
+			// link cubes
+			if below == nil {
+				below = make(map[*Cube]struct{})
+			}
+			below[otherCube] = struct{}{}
+
+			if otherCube.Above == nil {
+				otherCube.Above = make(map[*Cube]struct{})
+			}
+			otherCube.Above[cube] = struct{}{}
 		}
 	}
 
-	if collided {
+	cube.Below = below
+
+	if len(below) > 0 {
 		return false
 	}
 
 	// can move -> move
+	fmt.Printf("Cube %v moved down\n", cube.Name)
 	cube.Box = movedBox
+
+	// disconnect from above
+	for otherCube := range cube.Above {
+		delete(otherCube.Below, cube)
+	}
+	cube.Above = nil
 
 	return true
 }
@@ -135,7 +151,7 @@ func countDisintegratable(cubes []*Cube) int {
 }
 
 func isDisintegratable(cube *Cube) bool {
-	for _, cubeAbove := range cube.Above {
+	for cubeAbove := range cube.Above {
 		if len(cubeAbove.Below) <= 1 {
 			// cubeAbove is sitting on *only* this cube -> can not disintegrate this cube
 			return false
@@ -156,8 +172,11 @@ func ParseInput(r io.Reader) World {
 		pointA := parsePoint(points[0])
 		pointB := parsePoint(points[1])
 
+		id := i + 1
+
 		return &Cube{
-			Name: "#" + strconv.Itoa(i+1),
+			Name: "#" + strconv.Itoa(id),
+			Id:   id,
 			Box:  utils.NewBoundingBoxPoints(pointA, pointB),
 		}
 	}
