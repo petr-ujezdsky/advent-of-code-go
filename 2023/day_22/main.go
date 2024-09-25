@@ -161,8 +161,57 @@ func isDisintegratable(cube *Cube) bool {
 	return true
 }
 
+func fallingCount(cube *Cube, removed map[*Cube]struct{}) {
+	toBeRemoved := make(map[*Cube]struct{})
+
+	for cubeAbove := range cube.Above {
+		if _, ok := removed[cubeAbove]; ok {
+			// already removed
+			continue
+		}
+
+		// count below cubes that are not yet removed
+		hasCubesBelow := false
+		for cubeBelow := range cubeAbove.Below {
+			if _, ok := removed[cubeBelow]; !ok {
+				hasCubesBelow = true
+				break
+			}
+		}
+
+		if hasCubesBelow {
+			// can not remove - will not fall down
+			continue
+		}
+
+		// cubeAbove has no cubes below -> store to remove later
+		toBeRemoved[cubeAbove] = struct{}{}
+	}
+
+	for cubeToRemove := range toBeRemoved {
+		removed[cubeToRemove] = struct{}{}
+	}
+
+	for cubeRemoved := range toBeRemoved {
+		fallingCount(cubeRemoved, removed)
+	}
+}
+
 func DoWithInputPart02(world World) int {
-	return 0
+	fallDown(world.Cubes)
+
+	fallSum := 0
+
+	for _, cube := range world.Cubes {
+		removed := make(map[*Cube]struct{})
+		removed[cube] = struct{}{}
+
+		fallingCount(cube, removed)
+
+		fallSum += len(removed) - 1
+	}
+
+	return fallSum
 }
 
 func ParseInput(r io.Reader) World {
