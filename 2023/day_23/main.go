@@ -24,26 +24,28 @@ type World struct {
 	Start, End utils.Vector2i
 }
 
-func neighbours(m matrix.Matrix[Item]) func(origin State, path iterators.Iterator[State]) []State {
+func neighbours(m matrix.Matrix[Item], slopesConstraint bool) func(origin State, path iterators.Iterator[State]) []State {
 	return func(origin State, path iterators.Iterator[State]) []State {
 		var neighbours []State
 
 		currentTile := m.GetV(origin.Position)
 		steps := utils.Direction4Steps[:]
 
-		switch currentTile {
-		case '>':
-			steps = []utils.Vector2i{utils.Right.ToStep()}
-		case '<':
-			steps = []utils.Vector2i{utils.Left.ToStep()}
-		case '^':
-			steps = []utils.Vector2i{utils.Down.ToStep()}
-		case 'v':
-			steps = []utils.Vector2i{utils.Up.ToStep()}
-		case '.':
-			steps = utils.Direction4Steps[:]
-		default:
-			panic(fmt.Sprintf("Unknown current tile %v", string(currentTile)))
+		if slopesConstraint {
+			switch currentTile {
+			case '>':
+				steps = []utils.Vector2i{utils.Right.ToStep()}
+			case '<':
+				steps = []utils.Vector2i{utils.Left.ToStep()}
+			case '^':
+				steps = []utils.Vector2i{utils.Down.ToStep()}
+			case 'v':
+				steps = []utils.Vector2i{utils.Up.ToStep()}
+			case '.':
+				steps = utils.Direction4Steps[:]
+			default:
+				panic(fmt.Sprintf("Unknown current tile %v", string(currentTile)))
+			}
 		}
 
 		for _, dir := range steps {
@@ -91,7 +93,9 @@ func isEnd(endPos utils.Vector2i) func(state State) bool {
 	}
 }
 
-func MaximizePathLength(world World) (int, State) {
+var count = 0
+
+func MaximizePathLength(world World, slopesConstraint bool) (int, State) {
 	endPos := world.End
 
 	visited := [20_000]bool{}
@@ -103,10 +107,15 @@ func MaximizePathLength(world World) (int, State) {
 		Cost:     0,
 	}
 
-	cost := func(state State) int { return -state.Cost }
+	cost := func(state State) int {
+		count++
+		fmt.Printf("Costs: %v (%v)\n", count, state.Cost)
+		return -state.Cost
+	}
+
 	lowerBound := func(state State) int { return -1_000_000 }
 
-	n := neighbours(world.Matrix)
+	n := neighbours(world.Matrix, slopesConstraint)
 	end := isEnd(endPos)
 	nextStatesProvider := func(state State) ([]State, bool) {
 		if end(state) {
@@ -139,7 +148,7 @@ func printSteps(world World, lastState State) {
 }
 
 func DoWithInputPart01(world World) int {
-	length, lastState := MaximizePathLength(world)
+	length, lastState := MaximizePathLength(world, true)
 
 	printSteps(world, lastState)
 
@@ -147,7 +156,11 @@ func DoWithInputPart01(world World) int {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	length, lastState := MaximizePathLength(world, false)
+
+	printSteps(world, lastState)
+
+	return length
 }
 
 func ParseInput(r io.Reader) World {
