@@ -16,24 +16,12 @@ type Item rune
 type State struct {
 	Position utils.Vector2i
 	Visited  [20_000]bool
+	Cost     int
 }
 
 type World struct {
 	Matrix     matrix.Matrix[Item]
 	Start, End utils.Vector2i
-}
-
-func h(endPos utils.Vector2i) func(state State) int {
-	return func(state State) int {
-		// manhattan distance
-		return -utils.ManhattanDistance(state.Position, endPos)
-	}
-}
-
-func d() func(State, State) int {
-	return func(nodeFrom, nodeTo State) int {
-		return -utils.ManhattanDistance(nodeFrom.Position, nodeTo.Position)
-	}
 }
 
 func neighbours(m matrix.Matrix[Item]) func(origin State, path iterators.Iterator[State]) []State {
@@ -81,6 +69,7 @@ func neighbours(m matrix.Matrix[Item]) func(origin State, path iterators.Iterato
 			nextState := State{
 				Position: nextPos,
 				Visited:  origin.Visited,
+				Cost:     origin.Cost + 1,
 			}
 
 			nextState.Visited[nextVisitedIndex] = true
@@ -102,27 +91,59 @@ func isEnd(endPos utils.Vector2i) func(state State) bool {
 	}
 }
 
-func MaximizePathLength(world World) ([]State, map[State]int, int, bool) {
+func MaximizePathLength(world World) (int, State) {
 	endPos := world.End
 
-	visited := [20000]bool{}
+	visited := [20_000]bool{}
 	visited[toVisitedIndex(world.Start, world.Matrix)] = true
 
 	startState := State{
 		Position: world.Start,
 		Visited:  visited,
+		Cost:     0,
 	}
 
-	return alg.AStarEndFunc(startState, isEnd(endPos), h(endPos), d(), neighbours(world.Matrix))
+	cost := func(state State) int { return -state.Cost }
+	lowerBound := func(state State) int { return -1_000_000 }
+
+	n := neighbours(world.Matrix)
+	end := isEnd(endPos)
+	nextStatesProvider := func(state State) ([]State, bool) {
+		if end(state) {
+			return nil, true
+		}
+
+		return n(state, nil), false
+	}
+
+	min, minState := alg.BranchAndBoundDeepFirst(startState, cost, lowerBound, nextStatesProvider)
+
+	return -min, minState
+}
+
+func printSteps(world World, lastState State) {
+	visited := lastState.Visited
+
+	str := matrix.StringFmtSeparatorIndexed[Item](world.Matrix, true, "", func(value Item, x, y int) string {
+		pos := utils.Vector2i{X: x, Y: y}
+		visitedIndex := toVisitedIndex(pos, world.Matrix)
+
+		if visited[visitedIndex] {
+			return "O"
+		}
+
+		return string(world.Matrix.GetV(pos))
+	})
+
+	fmt.Println(str)
 }
 
 func DoWithInputPart01(world World) int {
-	_, _, length, ok := MaximizePathLength(world)
-	if !ok {
-		panic("No path found")
-	}
+	length, lastState := MaximizePathLength(world)
 
-	return -length
+	printSteps(world, lastState)
+
+	return length
 }
 
 func DoWithInputPart02(world World) int {
