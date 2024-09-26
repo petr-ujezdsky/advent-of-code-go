@@ -17,6 +17,17 @@ func Test_01_parse(t *testing.T) {
 	assert.Equal(t, utils.Vector2i{X: 21, Y: 22}, world.End)
 }
 
+// see https://csacademy.com/app/graph_editor/
+func Test_print_graph(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	//reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	world := ParseInput(reader)
+
+	PrintGraph(world)
+}
+
 func Test_01_example(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)

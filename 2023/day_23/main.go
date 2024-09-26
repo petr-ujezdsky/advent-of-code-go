@@ -163,6 +163,108 @@ func DoWithInputPart02(world World) int {
 	return length
 }
 
+func getOrCreateNode(position utils.Vector2i, nodes map[utils.Vector2i]*Node) *Node {
+	if n, ok := nodes[position]; ok {
+		return n
+	}
+
+	node := &Node{
+		Id:         len(nodes),
+		Position:   position,
+		Neighbours: make(map[*Node]int),
+	}
+
+	nodes[position] = node
+
+	return node
+}
+
+func transformGraph(world World) map[utils.Vector2i]*Node {
+	m := world.Matrix
+	nodes := make(map[utils.Vector2i]*Node)
+
+	for x, column := range m.Columns {
+		for y, item := range column {
+			if item == '#' {
+				continue
+			}
+
+			pos := utils.Vector2i{X: x, Y: y}
+			node := getOrCreateNode(pos, nodes)
+
+			steps := utils.Direction4Steps
+
+			for _, dir := range steps {
+				nextPos := pos.Add(dir)
+
+				nextTile, ok := m.GetVSafe(nextPos)
+				if !ok {
+					// out of bounds of map
+					continue
+				}
+
+				if nextTile == '#' {
+					// can not step on forest
+					continue
+				}
+
+				nextNode := getOrCreateNode(nextPos, nodes)
+
+				// link
+				node.Neighbours[nextNode] = 1
+				nextNode.Neighbours[node] = 1
+			}
+		}
+	}
+
+	return nodes
+}
+
+func simplify(nodes map[utils.Vector2i]*Node) {
+	for _, node := range nodes {
+		if len(node.Neighbours) != 2 {
+			continue
+		}
+
+		var left, right *Node
+		for neighbour := range node.Neighbours {
+			if left == nil {
+				left = neighbour
+			} else {
+				right = neighbour
+			}
+		}
+
+		leftCount := left.Neighbours[node]
+		rightCount := right.Neighbours[node]
+
+		left.Neighbours[right] = leftCount + rightCount
+		delete(left.Neighbours, node)
+
+		right.Neighbours[left] = rightCount + leftCount
+		delete(right.Neighbours, node)
+
+		delete(nodes, node.Position)
+	}
+}
+
+func PrintGraph(world World) {
+	nodes := transformGraph(world)
+	simplify(nodes)
+
+	for _, node := range nodes {
+		for neighbour, cost := range node.Neighbours {
+			fmt.Printf("%v %v %v\n", node.Id, neighbour.Id, cost)
+		}
+	}
+}
+
+type Node struct {
+	Id         int
+	Position   utils.Vector2i
+	Neighbours map[*Node]int
+}
+
 func ParseInput(r io.Reader) World {
 	parseItem := func(char rune) Item {
 		return Item(char)
