@@ -9,6 +9,7 @@ import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"io"
+	"sort"
 )
 
 type Item rune
@@ -155,10 +156,72 @@ func DoWithInputPart01(world World) int {
 	return length
 }
 
-func DoWithInputPart02(world World) int {
-	length, lastState := MaximizePathLength(world, false)
+type StateNode struct {
+	NodeId  int
+	Visited [40]bool
+	Cost    int
+}
 
-	printSteps(world, lastState)
+func MaximizePathLengthNodes(world World) (int, StateNode) {
+	nodesMap := transformGraph(world)
+	simplify(nodesMap)
+	nodes := toSplice(nodesMap)
+
+	startNode := nodes[0]
+	endNode := nodes[len(nodes)-1]
+
+	visited := [40]bool{}
+	visited[startNode.Id] = true
+
+	startState := StateNode{
+		NodeId:  startNode.Id,
+		Visited: visited,
+		Cost:    0,
+	}
+
+	cost := func(state StateNode) int {
+		count++
+		//fmt.Printf("Costs: %v (%v)\n", count, state.Cost)
+		return -state.Cost
+	}
+
+	lowerBound := func(state StateNode) int { return -1_000_000 }
+
+	nextStatesProvider := func(state StateNode) ([]StateNode, bool) {
+		if state.NodeId == endNode.Id {
+			return nil, true
+		}
+
+		var next []StateNode
+		for nextNode, weight := range nodes[state.NodeId].Neighbours {
+			if state.Visited[nextNode.Id] {
+				continue
+			}
+
+			nextVisited := state.Visited
+			nextVisited[nextNode.Id] = true
+
+			nextState := StateNode{
+				NodeId:  nextNode.Id,
+				Visited: nextVisited,
+				Cost:    state.Cost + weight,
+			}
+
+			next = append(next, nextState)
+		}
+
+		return next, false
+	}
+
+	min, minState := alg.BranchAndBoundDeepFirst(startState, cost, lowerBound, nextStatesProvider)
+
+	return -min, minState
+}
+
+func DoWithInputPart02(world World) int {
+	length, _ := MaximizePathLengthNodes(world)
+
+	fmt.Printf("Costs: %v\n", count)
 
 	return length
 }
@@ -246,6 +309,24 @@ func simplify(nodes map[utils.Vector2i]*Node) {
 
 		delete(nodes, node.Position)
 	}
+}
+
+func toSplice(nodes map[utils.Vector2i]*Node) []*Node {
+	var nodesSplice []*Node
+
+	for _, node := range nodes {
+		nodesSplice = append(nodesSplice, node)
+	}
+
+	sort.Slice(nodesSplice, func(i, j int) bool {
+		return nodesSplice[i].Id < nodesSplice[j].Id
+	})
+
+	for i, node := range nodesSplice {
+		node.Id = i
+	}
+
+	return nodesSplice
 }
 
 func PrintGraph(world World) {
