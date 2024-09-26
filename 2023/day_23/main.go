@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/alg"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/collections"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/iterators"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
@@ -158,7 +159,7 @@ func DoWithInputPart01(world World) int {
 
 type StateNode struct {
 	NodeId  int
-	Visited [40]bool
+	Visited collections.BitSet64
 	Cost    int
 }
 
@@ -170,8 +171,8 @@ func MaximizePathLengthNodes(world World) (int, StateNode) {
 	startNode := nodes[0]
 	endNode := nodes[len(nodes)-1]
 
-	visited := [40]bool{}
-	visited[startNode.Id] = true
+	visited := collections.NewBitSet64()
+	visited.Push(startNode.Id)
 
 	startState := StateNode{
 		NodeId:  startNode.Id,
@@ -194,12 +195,12 @@ func MaximizePathLengthNodes(world World) (int, StateNode) {
 
 		var next []StateNode
 		for nextNode, weight := range nodes[state.NodeId].Neighbours {
-			if state.Visited[nextNode.Id] {
+			if state.Visited.Contains(nextNode.Id) {
 				continue
 			}
 
 			nextVisited := state.Visited
-			nextVisited[nextNode.Id] = true
+			nextVisited.Push(nextNode.Id)
 
 			nextState := StateNode{
 				NodeId:  nextNode.Id,
