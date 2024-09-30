@@ -52,6 +52,15 @@ func ToInts(intsStr []string) ([]int, error) {
 	return result, nil
 }
 
+// ToIntsP parses each line into integer and returns the list, panics in case of an error
+func ToIntsP(intsStr []string) []int {
+	ints, err := ToInts(intsStr)
+	if err != nil {
+		panic(err)
+	}
+	return ints
+}
+
 // ParseInt parses string to number or panics
 func ParseInt(str string) int {
 	v, err := strconv.Atoi(str)
