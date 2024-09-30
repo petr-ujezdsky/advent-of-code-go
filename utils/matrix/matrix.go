@@ -27,6 +27,7 @@ type MatrixInt = MatrixNumber[int]
 type MatrixFloat = MatrixNumber[float64]
 
 var NewMatrixInt = NewMatrixNumber[int]
+var NewMatrixFloat = NewMatrixNumber[float64]
 
 var NewMatrixColumnNotationFloat = NewMatrixColumnNotationNumber[float64]
 
