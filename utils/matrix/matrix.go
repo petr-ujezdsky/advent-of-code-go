@@ -28,6 +28,8 @@ type MatrixFloat = MatrixNumber[float64]
 
 var NewMatrixInt = NewMatrixNumber[int]
 
+var NewMatrixColumnNotationFloat = NewMatrixColumnNotationNumber[float64]
+
 func NewMatrixNumber[T utils.Number](width, height int) MatrixNumber[T] {
 	return MatrixNumber[T]{NewMatrix[T](width, height)}
 }
@@ -43,6 +45,7 @@ func NewMatrix[T any](width, height int) Matrix[T] {
 
 	return Matrix[T]{matrixCols, width, height}
 }
+
 func NewMatrixColumnNotation[T any](columns [][]T) Matrix[T] {
 	width := len(columns)
 	height := len(columns[0])
@@ -56,6 +59,10 @@ func NewMatrixColumnNotation[T any](columns [][]T) Matrix[T] {
 	}
 
 	return matrix
+}
+
+func NewMatrixColumnNotationNumber[T utils.Number](columns [][]T) MatrixNumber[T] {
+	return MatrixNumber[T]{NewMatrixColumnNotation(columns)}
 }
 
 // NewMatrixNumberRowNotation converts matrix from row-first notation to column-first notation
@@ -91,6 +98,43 @@ func (m Matrix[T]) SetAll(value T) Matrix[T] {
 
 func (m MatrixNumber[T]) SetAll(value T) MatrixNumber[T] {
 	return MatrixNumber[T]{m.Matrix.SetAll(value)}
+}
+
+func (m MatrixNumber[T]) Determinant() T {
+	if m.Rank() == 1 {
+		return 1
+	}
+
+	if m.Rank() == 2 {
+		return m.determinant2()
+	}
+
+	if m.Rank() == 3 {
+		return m.determinant3()
+	}
+
+	panic("Can not compute determinant")
+}
+
+func (m MatrixNumber[T]) determinant2() T {
+	return m.Columns[0][0]*m.Columns[1][1] - m.Columns[1][0]*m.Columns[0][1]
+}
+
+func (m MatrixNumber[T]) determinant3() T {
+	return m.Columns[0][0]*m.Columns[1][1]*m.Columns[2][2] +
+		m.Columns[1][0]*m.Columns[2][1]*m.Columns[0][2] +
+		m.Columns[2][0]*m.Columns[0][1]*m.Columns[1][2] -
+		m.Columns[0][0]*m.Columns[2][1]*m.Columns[1][2] -
+		m.Columns[1][0]*m.Columns[0][1]*m.Columns[2][2] -
+		m.Columns[2][0]*m.Columns[1][1]*m.Columns[0][2]
+}
+
+func (m MatrixNumber[T]) Rank() int {
+	if m.Height != m.Width {
+		panic("Matrix is not square")
+	}
+
+	return m.Height
 }
 
 func (m Matrix[T]) Get(x, y int) T {

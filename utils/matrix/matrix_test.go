@@ -98,3 +98,21 @@ func TestMatrix_FlipVertical(t *testing.T) {
 
 	assert.Equal(t, expected, m.FlipVertical())
 }
+
+func TestMatrixNumber_Determinant(t *testing.T) {
+	type testCase[T float64] struct {
+		name string
+		m    MatrixNumber[T]
+		want T
+	}
+	tests := []testCase[float64]{
+		{"Rank 1", NewMatrixColumnNotationFloat([][]float64{{3}}), 1},
+		{"Rank 2", NewMatrixColumnNotationFloat([][]float64{{3, 1}, {7, -4}}), -19},
+		{"Rank 3", NewMatrixColumnNotationFloat([][]float64{{0, 3, 1}, {1, 2, 1}, {2, 1, 0}}), 3},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, tt.m.Determinant(), "Determinant()")
+		})
+	}
+}
