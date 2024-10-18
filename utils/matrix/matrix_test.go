@@ -116,3 +116,83 @@ func TestMatrixNumber_Determinant(t *testing.T) {
 		})
 	}
 }
+
+func TestMatrixNumber_GaussElimination(t *testing.T) {
+	actual := NewMatrixNumberRowNotation([][]float64{
+		{2, 1, -1, 8},
+		{-3, -1, 2, -11},
+		{-2, 1, 2, -3},
+	})
+
+	actual.GaussElimination()
+
+	expected := NewMatrixNumberRowNotation([][]float64{
+		{-3, -1, 2, -11},
+		{0, 1.6666666666666665, 0.6666666666666667, 4.333333333333333},
+		{0, 0, 0.19999999999999987, -0.1999999999999997},
+	})
+
+	fmt.Println(actual.StringFmt(FmtFmt[float64]("%9.6f")))
+
+	assert.Equal(t, expected, actual)
+}
+
+func TestMatrixNumber_JordanContinue(t *testing.T) {
+	actual := NewMatrixNumberRowNotation([][]float64{
+		{2, 1, -1, 8},
+		{0, 0.5, 0.5, 1},
+		{0, 0, -1, 1},
+	})
+
+	actual.JordanContinue()
+
+	expected := NewMatrixNumberRowNotation([][]float64{
+		{1, 0, 0, 2},
+		{0, 1, 0, 3},
+		{0, 0, 1, -1},
+	})
+
+	fmt.Println(actual.StringFmt(FmtFmt[float64]("%9.6f")))
+
+	assert.Equal(t, expected, actual)
+}
+
+func TestMatrixNumber_Inverse_1(t *testing.T) {
+	actual := NewMatrixNumberRowNotation([][]float64{
+		{1, 2},
+		{2, 3},
+	})
+
+	ok := actual.Inverse()
+	assert.True(t, ok)
+
+	expected := NewMatrixNumberRowNotation([][]float64{
+		{-3, 2},
+		{2, -1},
+	})
+
+	fmt.Println(actual.StringFmt(FmtFmt[float64]("%9.6f")))
+
+	assert.Equal(t, expected, actual)
+}
+
+func TestMatrixNumber_Inverse_2(t *testing.T) {
+	actual := NewMatrixNumberRowNotation([][]float64{
+		{1, 2, 0},
+		{2, 4, 1},
+		{2, 1, 0},
+	})
+
+	ok := actual.Inverse()
+	assert.True(t, ok)
+
+	expected := NewMatrixNumberRowNotation([][]float64{
+		{-0.3333333333333333, 0, 0.6666666666666666},
+		{0.6666666666666666, 0, -0.3333333333333333},
+		{-2, 1, 0},
+	})
+
+	fmt.Println(actual.StringFmt(FmtFmt[float64]("%9.6f")))
+
+	assert.Equal(t, expected, actual)
+}

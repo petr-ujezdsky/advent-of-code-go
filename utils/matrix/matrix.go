@@ -114,7 +114,9 @@ func (m MatrixNumber[T]) Determinant() T {
 		return m.determinant3()
 	}
 
-	panic("Can not compute determinant")
+	m.assertSquare()
+
+	return m.determinantN()
 }
 
 func (m MatrixNumber[T]) determinant2() T {
@@ -130,12 +132,191 @@ func (m MatrixNumber[T]) determinant3() T {
 		m.Columns[2][0]*m.Columns[1][1]*m.Columns[0][2]
 }
 
+func (m MatrixNumber[T]) determinantN() T {
+	m.assertSquare()
+
+	// create clone
+	m2 := NewMatrixColumnNotationNumber(m.Columns)
+
+	// gauss elimination
+	swapCount := m2.GaussElimination()
+
+	sign := T(1)
+	if swapCount%2 != 0 {
+		sign = T(-1)
+	}
+
+	// determinant is product of diagonal
+	return sign * m2.DiagonalProduct()
+}
+
 func (m MatrixNumber[T]) Rank() int {
+	m.assertSquare()
+
+	return m.Height
+}
+
+func (m Matrix[T]) assertSquare() {
 	if m.Height != m.Width {
 		panic("Matrix is not square")
 	}
+}
 
-	return m.Height
+func (m MatrixNumber[T]) DiagonalProduct() T {
+	product := T(1)
+
+	for i := 0; i < m.Width; i++ {
+		product *= m.Get(i, i)
+	}
+
+	return product
+}
+
+func (m MatrixNumber[T]) Inverse() bool {
+	m2 := NewMatrixNumber[T](2*m.Width, m.Height)
+
+	// copy m into m2
+	for x, column := range m.Columns {
+		for y, v := range column {
+			m2.Set(x, y, v)
+		}
+	}
+
+	// insert identity matrix to the right
+	for x := m2.Width / 2; x < m2.Width; x++ {
+		m2.Set(x, x-m2.Width/2, 1)
+	}
+
+	// do gauss elimination
+	m2.GaussElimination()
+
+	// do Jordan elimination
+	ok := m2.JordanContinue()
+	if !ok {
+		return false
+	}
+
+	// now the identity matrix has become the inverse matrix - copy it back into m
+	for x, column := range m.Columns {
+		for y := range column {
+			m.Set(x, y, m2.Get(x+m.Width, y))
+		}
+	}
+
+	return true
+}
+
+func (m MatrixNumber[T]) MultiplyN(coef T) {
+	for x, column := range m.Columns {
+		for y, value := range column {
+			m.Set(x, y, coef*value)
+		}
+	}
+}
+
+func (m MatrixNumber[T]) MultiplyV(a utils.VectorNn[T]) utils.VectorNn[T] {
+	ma := utils.NewVectorNn[T](len(a.Items))
+
+	for x, column := range m.Columns {
+		for y, v := range column {
+			ma.Items[y] = ma.Items[y] + v*a.Items[x]
+		}
+	}
+
+	return ma
+}
+
+// GaussElimination
+// see https://cs.wikipedia.org/wiki/Gaussova_elimina%C4%8Dn%C3%AD_metoda#Pseudok%C3%B3d
+func (m MatrixNumber[T]) GaussElimination() int {
+	// pivot row index
+	h := 0
+
+	// pivot column index
+	k := 0
+
+	rowSwapsCount := 0
+
+	for k < m.Height && h < m.Width {
+		// find k-th pivot
+		iMax := -1
+		v := T(0)
+		for i := h; i < m.Height; i++ {
+			candidate := utils.Abs(m.Get(k, i))
+			if candidate >= v {
+				iMax = i
+				v = candidate
+			}
+		}
+
+		if m.Get(k, iMax) == 0 {
+			// no pivot in given column, move to next
+			k++
+			continue
+		}
+
+		// swap rows h and i_max
+		if h != iMax {
+			for i := 0; i < m.Width; i++ {
+				m.Columns[i][iMax], m.Columns[i][h] = m.Columns[i][h], m.Columns[i][iMax]
+			}
+			rowSwapsCount++
+		}
+		// do for all rows under the pivot
+		for i := h + 1; i < m.Height; i++ {
+			f := m.Get(k, i) / m.Get(k, h)
+			// fill the column part under the pivot with zeros
+			m.Set(k, i, 0)
+
+			// do for the rest of the remaining items in current row
+			for j := k + 1; j < m.Width; j++ {
+				m.Set(j, i, m.Get(j, i)-m.Get(j, h)*f)
+			}
+		}
+
+		// move to the next pivot
+		h++
+		k++
+	}
+
+	return rowSwapsCount
+}
+
+// JordanContinue
+// see https://cs.wikipedia.org/wiki/Gaussova_elimina%C4%8Dn%C3%AD_metoda#Pseudok%C3%B3d
+func (m MatrixNumber[T]) JordanContinue() bool {
+	// pivot row index
+	h := utils.Min(m.Width, m.Height) - 1
+
+	// pivot column index
+	k := h
+
+	for k >= 0 && h >= 0 {
+		v := m.Get(k, h)
+		if v == 0 {
+			return false
+		}
+
+		if v != 1 {
+			// divide whole row with pivot value
+			for i := k; i < m.Width; i++ {
+				m.Set(i, h, m.Get(i, h)/v)
+			}
+		}
+
+		// update all items above
+		for i := h - 1; i >= 0; i-- {
+			p2 := m.Get(k, i)
+
+			for j := k; j < m.Width; j++ {
+				m.Set(j, i, m.Get(j, i)-p2*m.Get(j, h))
+			}
+		}
+		h--
+		k--
+	}
+
+	return true
 }
 
 func (m Matrix[T]) Get(x, y int) T {
