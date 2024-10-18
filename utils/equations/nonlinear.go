@@ -8,6 +8,12 @@ import (
 type Fn = func(x utils.VectorNf) utils.VectorNf
 type Jfn = func(x utils.VectorNf) matrix.MatrixFloat
 
+func Xy[T utils.Number, R any](f func(x, y T) R) func(nn utils.VectorNn[T]) R {
+	return func(v utils.VectorNn[T]) R {
+		return f(v.Items[0], v.Items[1])
+	}
+}
+
 // SolveNonLinearEquations solves nonlinear equations in form f(x) = 0
 func SolveNonLinearEquations(F Fn, J Jfn, x0 utils.VectorNf) (utils.VectorNf, bool) {
 	xi := x0

@@ -8,14 +8,8 @@ import (
 	"testing"
 )
 
-func xy[T utils.Number, R any](f func(x, y T) R) func(nn utils.VectorNn[T]) R {
-	return func(v utils.VectorNn[T]) R {
-		return f(v.Items[0], v.Items[1])
-	}
-}
-
 func TestSolveNonLinearEquations_1(t *testing.T) {
-	F := xy(func(x, y float64) utils.VectorNf {
+	F := Xy(func(x, y float64) utils.VectorNf {
 		return utils.VectorNf{Items: []float64{
 			// x^2 + y^2 - 4
 			x*x + y*y - 4,
@@ -25,7 +19,7 @@ func TestSolveNonLinearEquations_1(t *testing.T) {
 		}}
 	})
 
-	J := xy(func(x, y float64) matrix.MatrixFloat {
+	J := Xy(func(x, y float64) matrix.MatrixFloat {
 		return matrix.NewMatrixNumberRowNotation([][]float64{
 			{2 * x, 2 * y},
 
@@ -43,7 +37,7 @@ func TestSolveNonLinearEquations_1(t *testing.T) {
 }
 
 func TestSolveNonLinearEquations_2(t *testing.T) {
-	F := xy(func(x, y float64) utils.VectorNf {
+	F := Xy(func(x, y float64) utils.VectorNf {
 		return utils.VectorNf{Items: []float64{
 			x*x - 4*x + y*y,
 
@@ -51,7 +45,7 @@ func TestSolveNonLinearEquations_2(t *testing.T) {
 		}}
 	})
 
-	J := xy(func(x, y float64) matrix.MatrixFloat {
+	J := Xy(func(x, y float64) matrix.MatrixFloat {
 		return matrix.NewMatrixNumberRowNotation([][]float64{
 			{2*x - 4, 2 * y},
 
