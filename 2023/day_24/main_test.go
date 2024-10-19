@@ -33,6 +33,51 @@ func Test_findCrossing2D(t *testing.T) {
 	assert.Equal(t, utils.Vector2f{X: -6, Y: -5}, cross)
 }
 
+func Test_printLinesMath3D(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	world := ParseInput(reader)
+
+	var lines []Line
+
+	// solution
+	lines = append(lines, Line{
+		Position:  utils.Vector3i{X: 24, Y: 13, Z: 10},
+		Direction: utils.Vector3i{X: -3, Y: 1, Z: 2},
+	})
+
+	// world lines
+	for _, line := range world.Lines {
+		lines = append(lines, line)
+	}
+
+	printLinesMath3D(lines)
+}
+
+func Test_printLinesInputOffset(t *testing.T) {
+	reader, err := os.Open("data-01.txt")
+	//reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	world := ParseInput(reader)
+
+	var lines []Line
+
+	// solution
+	//lines = append(lines, Line{
+	//	Position:  utils.Vector3i{X: 24, Y: 13, Z: 10},
+	//	Direction: utils.Vector3i{X: -3, Y: 1, Z: 2},
+	//})
+
+	// world lines
+	for _, line := range world.Lines {
+		lines = append(lines, line)
+	}
+
+	printLinesInput(lines)
+}
+
 func Test_01_example(t *testing.T) {
 	reader, err := os.Open("data-00-example.txt")
 	assert.Nil(t, err)
@@ -60,7 +105,7 @@ func Test_02_example(t *testing.T) {
 	world := ParseInput(reader)
 
 	result := DoWithInputPart02(world)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 47, result)
 }
 
 func Test_02(t *testing.T) {

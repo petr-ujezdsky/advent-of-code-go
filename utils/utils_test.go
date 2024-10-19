@@ -267,3 +267,28 @@ func TestCeilAwayFromZero(t *testing.T) {
 		})
 	}
 }
+
+func TestCopysign(t *testing.T) {
+	type args struct {
+		a int
+		b int
+	}
+	type testCase struct {
+		name string
+		args args
+		want int
+	}
+	tests := []testCase{
+		{"", args{a: 5, b: 0}, 5},
+		{"", args{a: 5, b: 1}, 5},
+		{"", args{a: 5, b: -1}, -5},
+		{"", args{a: -5, b: 0}, 5},
+		{"", args{a: -5, b: 1}, 5},
+		{"", args{a: -5, b: -1}, -5},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, utils.Copysign(tt.args.a, tt.args.b), "Copysign(%v, %v)", tt.args.a, tt.args.b)
+		})
+	}
+}

@@ -189,6 +189,10 @@ func Signum[T Number](i T) T {
 	return 0
 }
 
+func Copysign[T Number](a, b T) T {
+	return T(math.Copysign(float64(a), float64(b)))
+}
+
 // Max returns maximum of two numbers
 func Max[T Number](i, j T) T {
 	if i > j {
