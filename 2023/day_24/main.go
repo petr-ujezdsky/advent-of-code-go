@@ -200,7 +200,8 @@ func DoWithInputPart02(world World) int {
 		Jxi := matrix.NewMatrixNumberRowNotation[float64](rows)
 
 		//fmt.Println(Jxi.StringFmt(matrix.FmtFmt[float64]("%9.6f")))
-		fmt.Println(Jxi.StringFmt(matrix.FmtFmt[float64]("%3.0f")))
+		//fmt.Println(Jxi.StringFmt(matrix.FmtFmt[float64]("%3.0f")))
+		//fmt.Println()
 
 		return Jxi
 	}
@@ -222,7 +223,7 @@ func DoWithInputPart02(world World) int {
 		15,
 	}}
 
-	solution, ok := equations.SolveNonLinearEquations(F, J, x0)
+	solution, ok := equations.SolveNonLinearEquationsThreshold(F, J, x0, 0.1, 10_000)
 	if !ok {
 		return -1
 	}

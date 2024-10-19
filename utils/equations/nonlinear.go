@@ -14,15 +14,19 @@ func Xy[T utils.Number, R any](f func(x, y T) R) func(nn utils.VectorNn[T]) R {
 	}
 }
 
-// SolveNonLinearEquations solves nonlinear equations in form f(x) = 0
+// SolveNonLinearEquations solves nonlinear equations in form f(x) = 0, stops when f(x) is below 0.001
 func SolveNonLinearEquations(F Fn, J Jfn, x0 utils.VectorNf) (utils.VectorNf, bool) {
+	return SolveNonLinearEquationsThreshold(F, J, x0, 0.001, 1000)
+}
+
+// SolveNonLinearEquationsThreshold solves nonlinear equations in form f(x) = 0, stops when f(x) is below threshold
+func SolveNonLinearEquationsThreshold(F Fn, J Jfn, x0 utils.VectorNf, threshold float64, iterationsMax int) (utils.VectorNf, bool) {
 	xi := x0
 	i := 0
-	iMax := 1000
 
 	for {
 		// fail on too much iterations
-		if i > iMax {
+		if i > iterationsMax {
 			return xi, false
 		}
 
@@ -30,7 +34,7 @@ func SolveNonLinearEquations(F Fn, J Jfn, x0 utils.VectorNf) (utils.VectorNf, bo
 		Fxi := F(xi)
 
 		// convergence check
-		if isNearZero(Fxi) {
+		if isBelowThreshold(Fxi, threshold) {
 			return xi, true
 		}
 
@@ -50,9 +54,9 @@ func SolveNonLinearEquations(F Fn, J Jfn, x0 utils.VectorNf) (utils.VectorNf, bo
 	}
 }
 
-func isNearZero(x utils.VectorNf) bool {
+func isBelowThreshold(x utils.VectorNf, threshold float64) bool {
 	for _, v := range x.Items {
-		if utils.Abs(v) > 0.001 {
+		if utils.Abs(v) > threshold {
 			return false
 		}
 	}
