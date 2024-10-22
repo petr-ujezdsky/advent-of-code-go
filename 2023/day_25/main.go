@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	_ "embed"
+	"fmt"
 	"io"
 	"strings"
 )
@@ -10,6 +11,20 @@ import (
 type Component struct {
 	Name       string
 	Neighbours []*Component
+}
+
+func (c Component) NeighbourNamesString() string {
+	neighbourNames := make([]string, len(c.Neighbours))
+
+	for i, neighbour := range c.Neighbours {
+		neighbourNames[i] = neighbour.Name
+	}
+
+	return strings.Join(neighbourNames, " ")
+}
+
+func (c Component) String() string {
+	return fmt.Sprintf("%v: %v", c.Name, c.NeighbourNamesString())
 }
 
 type World struct {

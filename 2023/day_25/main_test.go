@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
@@ -20,6 +21,32 @@ func Test_01_parse(t *testing.T) {
 	assert.Equal(t, "xhk", jqt.Neighbours[1].Name)
 	assert.Equal(t, "nvd", jqt.Neighbours[2].Name)
 	assert.Equal(t, "ntq", jqt.Neighbours[3].Name)
+}
+
+func Test_01_print(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	assert.Nil(t, err)
+
+	world := ParseInput(reader)
+
+	for _, component := range world.Components {
+		fmt.Println(component.String())
+	}
+}
+
+// see https://csacademy.com/app/graph_editor/
+func Test_01_print_csacademy(t *testing.T) {
+	reader, err := os.Open("data-00-example.txt")
+	//reader, err := os.Open("data-01.txt")
+	assert.Nil(t, err)
+
+	world := ParseInput(reader)
+
+	for _, component := range world.Components {
+		for _, neighbour := range component.Neighbours {
+			fmt.Printf("%s %s\n", component.Name, neighbour.Name)
+		}
+	}
 }
 
 func Test_01_example(t *testing.T) {
