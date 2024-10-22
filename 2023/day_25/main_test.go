@@ -21,6 +21,8 @@ func Test_01_parse(t *testing.T) {
 	assert.Equal(t, "xhk", jqt.Neighbours[1].Name)
 	assert.Equal(t, "nvd", jqt.Neighbours[2].Name)
 	assert.Equal(t, "ntq", jqt.Neighbours[3].Name)
+
+	assert.Equal(t, 15, len(world.ComponentsList))
 }
 
 func Test_01_print(t *testing.T) {

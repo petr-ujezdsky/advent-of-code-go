@@ -28,7 +28,8 @@ func (c Component) String() string {
 }
 
 type World struct {
-	Components map[string]*Component
+	Components     map[string]*Component
+	ComponentsList []*Component
 }
 
 func DoWithInputPart01(world World) int {
@@ -39,15 +40,17 @@ func DoWithInputPart02(world World) int {
 	return 0
 }
 
-func getOrCreateComponent(name string, components map[string]*Component) *Component {
+func getOrCreateComponent(name string, components map[string]*Component, componentsList []*Component) (*Component, []*Component) {
 	if component, ok := components[name]; ok {
-		return component
+		return component, componentsList
 	}
 
 	component := &Component{Name: name}
 	components[name] = component
 
-	return component
+	componentsList = append(componentsList, component)
+
+	return component, componentsList
 }
 
 func ParseInput(r io.Reader) World {
@@ -55,14 +58,17 @@ func ParseInput(r io.Reader) World {
 	scanner.Split(bufio.ScanLines)
 
 	components := make(map[string]*Component)
+	var componentsList []*Component
 	for scanner.Scan() {
 		parts := strings.Split(scanner.Text(), ": ")
 
 		name := parts[0]
-		component := getOrCreateComponent(name, components)
+		var component *Component
+		component, componentsList = getOrCreateComponent(name, components, componentsList)
 
 		for _, neighbourName := range strings.Split(parts[1], " ") {
-			neighbour := getOrCreateComponent(neighbourName, components)
+			var neighbour *Component
+			neighbour, componentsList = getOrCreateComponent(neighbourName, components, componentsList)
 
 			// link both ways
 			component.Neighbours = append(component.Neighbours, neighbour)
@@ -70,5 +76,8 @@ func ParseInput(r io.Reader) World {
 		}
 	}
 
-	return World{Components: components}
+	return World{
+		Components:     components,
+		ComponentsList: componentsList,
+	}
 }
