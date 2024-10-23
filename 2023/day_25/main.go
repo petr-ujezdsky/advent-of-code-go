@@ -11,12 +11,42 @@ import (
 	"strings"
 )
 
+type Edge struct {
+	C1, C2 *Component
+	Count  int
+}
+
+func (edge *Edge) other(component *Component) *Component {
+	if edge.C1 == component {
+		return edge.C2
+	}
+
+	if edge.C2 == component {
+		return edge.C1
+	}
+
+	panic("Component not on edge")
+}
+
+func (edge *Edge) swap(component, cNew *Component) {
+	if edge.C1 == component {
+		edge.C1 = cNew
+		return
+	}
+
+	if edge.C2 == component {
+		edge.C2 = cNew
+		return
+	}
+
+	panic("Component not on edge")
+}
+
 type Component struct {
 	Name       string
 	Neighbours []*Component
 
-	NeighboursMap map[string]*Component
-	MergedCount   int
+	Edges map[string]*Edge
 }
 
 func (c Component) NeighbourNamesString() string {
@@ -43,17 +73,30 @@ func DoWithInputPart01(world World) int {
 	for i := 0; i < 1000; i++ {
 		c1, c2 := karger(world.Components)
 
-		diff = len(c1.NeighboursMap) - len(c2.NeighboursMap)
+		e1 := maps.FirstValue(c1.Edges)
+		e2 := maps.FirstValue(c2.Edges)
+
+		diff = len(c1.Edges) - len(c2.Edges)
 		if diff != 0 {
-			panic(fmt.Sprintf("Non zero diff, %v vs. %v\n", len(c1.NeighboursMap), len(c2.NeighboursMap)))
+			panic(fmt.Sprintf("Non zero diff, %v vs. %v\n", len(c1.Edges), len(c2.Edges)))
 		}
 
-		fmt.Printf("#%4d Cut edges %v\n", i, len(c1.NeighboursMap))
+		if e1 != e2 {
+			panic(fmt.Sprintf("Edge is not symmetric\n"))
+		}
+
+		if e1.Count == 3 {
+			fmt.Printf("Found cut size of 3 edges #%4d\n", i)
+		}
+
+		//fmt.Printf("#%4d Cut edges %v\n", i, e1.Count)
 	}
 
 	return diff
 }
 
+// karger implements Karger's algorithm
+// see https://en.wikipedia.org/wiki/Karger%27s_algorithm
 func karger(components map[string]*Component) (*Component, *Component) {
 	sequence := 0
 
@@ -62,25 +105,23 @@ func karger(components map[string]*Component) (*Component, *Component) {
 
 	for len(components) > 2 {
 		// find random edge
-		c1 := randComponent(components)
-		c2 := randComponentUnique(c1.NeighboursMap, c1)
+		cr := randMapValue(components)
+		edge := randMapValue(cr.Edges)
 
-		// contract the edge
-		delete(c1.NeighboursMap, c2.Name)
-		delete(c2.NeighboursMap, c1.Name)
-		c1Neighbours := unregister(c1, components)
-		c2Neighbours := unregister(c2, components)
+		c1 := edge.C1
+		c2 := edge.C2
 
 		cNew := &Component{
-			Name:          strconv.Itoa(sequence),
-			NeighboursMap: mergeMaps(c1Neighbours, c2Neighbours),
-		}
-
-		// link new component
-		for _, neighbour := range cNew.NeighboursMap {
-			neighbour.NeighboursMap[cNew.Name] = cNew
+			Name:  strconv.Itoa(sequence),
+			Edges: make(map[string]*Edge),
 		}
 		components[cNew.Name] = cNew
+
+		// contract the edge
+		delete(c1.Edges, c2.Name)
+		delete(c2.Edges, c1.Name)
+		relink(c1, cNew, components)
+		relink(c2, cNew, components)
 
 		sequence++
 	}
@@ -89,20 +130,11 @@ func karger(components map[string]*Component) (*Component, *Component) {
 	return c12[0], c12[1]
 }
 
-func randComponentUnique(components map[string]*Component, component *Component) *Component {
-	for {
-		rc := randComponent(components)
-		if rc != component {
-			return rc
-		}
-	}
-}
-
-func randComponent(components map[string]*Component) *Component {
-	index := rand.IntN(len(components))
+func randMapValue[K comparable, V any](m map[K]*V) *V {
+	index := rand.IntN(len(m))
 
 	i := 0
-	for _, component := range components {
+	for _, component := range m {
 		if i == index {
 			return component
 		}
@@ -112,31 +144,23 @@ func randComponent(components map[string]*Component) *Component {
 	panic("Could not find random component")
 }
 
-func mergeMaps(m1, m2 map[string]*Component) map[string]*Component {
-	result := make(map[string]*Component)
+func relink(component, cNew *Component, components map[string]*Component) {
+	for _, edge := range component.Edges {
+		neighbour := edge.other(component)
 
-	for name, component := range m1 {
-		result[name] = component
-	}
+		delete(neighbour.Edges, component.Name)
 
-	for name, component := range m2 {
-		result[name] = component
-	}
+		if edgeNew, ok := neighbour.Edges[cNew.Name]; ok {
+			edgeNew.Count += edge.Count
+			continue
+		}
 
-	return result
-}
-
-func unregister(component *Component, components map[string]*Component) map[string]*Component {
-	for _, neighbour := range component.NeighboursMap {
-		delete(neighbour.NeighboursMap, component.Name)
+		edge.swap(component, cNew)
+		neighbour.Edges[cNew.Name] = edge
+		cNew.Edges[neighbour.Name] = edge
 	}
 
 	delete(components, component.Name)
-
-	neighbours := component.NeighboursMap
-	component.NeighboursMap = nil
-
-	return neighbours
 }
 
 func initComponents(components map[string]*Component) map[string]*Component {
@@ -145,14 +169,24 @@ func initComponents(components map[string]*Component) map[string]*Component {
 
 	// rebuild internal maps
 	for _, component := range components {
-		component.NeighboursMap = make(map[string]*Component)
-		component.MergedCount = 0
+		component.Edges = make(map[string]*Edge)
 	}
 
 	for _, c1 := range components {
 		for _, c2 := range c1.Neighbours {
-			c1.NeighboursMap[c2.Name] = c2
-			c2.NeighboursMap[c1.Name] = c1
+			// edge exists, skip
+			if _, ok := c1.Edges[c2.Name]; ok {
+				continue
+			}
+
+			edge := &Edge{
+				C1:    c1,
+				C2:    c2,
+				Count: 1,
+			}
+
+			c1.Edges[c2.Name] = edge
+			c2.Edges[c1.Name] = edge
 		}
 	}
 
@@ -168,10 +202,7 @@ func getOrCreateComponent(name string, components map[string]*Component, compone
 		return component, componentsList
 	}
 
-	component := &Component{
-		Name:          name,
-		NeighboursMap: make(map[string]*Component),
-	}
+	component := &Component{Name: name}
 
 	components[name] = component
 
@@ -211,7 +242,4 @@ func ParseInput(r io.Reader) World {
 func connect(c1, c2 *Component) {
 	c1.Neighbours = append(c1.Neighbours, c2)
 	c2.Neighbours = append(c2.Neighbours, c1)
-
-	c1.NeighboursMap[c2.Name] = c2
-	c2.NeighboursMap[c1.Name] = c1
 }
