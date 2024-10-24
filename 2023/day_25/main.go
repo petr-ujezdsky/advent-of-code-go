@@ -239,10 +239,6 @@ func initComponents(components map[string]*Component) map[string]*Component {
 	return components
 }
 
-func DoWithInputPart02(world World) int {
-	return 0
-}
-
 func getOrCreateComponent(name string, components map[string]*Component, componentsList []*Component) (*Component, []*Component) {
 	if component, ok := components[name]; ok {
 		return component, componentsList
