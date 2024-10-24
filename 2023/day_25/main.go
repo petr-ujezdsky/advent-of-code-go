@@ -11,9 +11,12 @@ import (
 	"strings"
 )
 
+type StringSet = map[string]struct{}
+
 type Edge struct {
 	C1, C2 *Component
-	Count  int
+	//Count         int
+	OriginalEdges []*Edge
 }
 
 func (edge *Edge) other(component *Component) *Component {
@@ -40,6 +43,10 @@ func (edge *Edge) swap(component, cNew *Component) {
 	}
 
 	panic("Component not on edge")
+}
+
+func (edge *Edge) String() string {
+	return fmt.Sprintf("%v/%v", edge.C1.Name, edge.C2.Name)
 }
 
 type Component struct {
@@ -85,14 +92,50 @@ func DoWithInputPart01(world World) int {
 			panic(fmt.Sprintf("Edge is not symmetric\n"))
 		}
 
-		if e1.Count == 3 {
-			fmt.Printf("Found cut size of 3 edges #%4d\n", i)
-		}
+		if len(e1.OriginalEdges) == 3 {
+			fmt.Printf("* #%4d min-cut size %v, %v\n", i, len(e1.OriginalEdges), e1.OriginalEdges)
 
-		//fmt.Printf("#%4d Cut edges %v\n", i, e1.Count)
+			countL, countR := countLeftRightSizes(e1.OriginalEdges, world.Components)
+			fmt.Printf("Left: %v, right: %v\n", countL, countR)
+
+			return countL * countR
+		} else {
+			fmt.Printf("  #%4d min-cut size %v\n", i, len(e1.OriginalEdges))
+		}
 	}
 
-	return diff
+	panic("Found no solution")
+}
+
+func countLeftRightSizes(edges []*Edge, components map[string]*Component) (int, int) {
+	components = initComponents(components)
+
+	// do the cut
+	for _, edge := range edges {
+		delete(edge.C1.Edges, edge.C2.Name)
+		delete(edge.C2.Edges, edge.C1.Name)
+	}
+
+	// count vertices in graph
+	visited := make(StringSet)
+	visitAllVertices(edges[0].C1, visited)
+	left := len(visited)
+	right := len(components) - left
+
+	return left, right
+}
+
+func visitAllVertices(c *Component, visited StringSet) {
+	if _, ok := visited[c.Name]; ok {
+		return
+	}
+
+	visited[c.Name] = struct{}{}
+
+	for _, edge := range c.Edges {
+		neighbour := edge.other(c)
+		visitAllVertices(neighbour, visited)
+	}
 }
 
 // karger implements Karger's algorithm
@@ -151,7 +194,10 @@ func relink(component, cNew *Component, components map[string]*Component) {
 		delete(neighbour.Edges, component.Name)
 
 		if edgeNew, ok := neighbour.Edges[cNew.Name]; ok {
-			edgeNew.Count += edge.Count
+			// merge original edges
+			for _, originalEdge := range edge.OriginalEdges {
+				edgeNew.OriginalEdges = append(edgeNew.OriginalEdges, originalEdge)
+			}
 			continue
 		}
 
@@ -180,9 +226,9 @@ func initComponents(components map[string]*Component) map[string]*Component {
 			}
 
 			edge := &Edge{
-				C1:    c1,
-				C2:    c2,
-				Count: 1,
+				C1:            c1,
+				C2:            c2,
+				OriginalEdges: []*Edge{{C1: c1, C2: c2}},
 			}
 
 			c1.Edges[c2.Name] = edge
