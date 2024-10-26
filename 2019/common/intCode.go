@@ -7,12 +7,56 @@ import (
 
 const debug = false
 
+type IntCodeComputer struct {
+	Name                  string
+	program               []int
+	inputs, outputs, halt chan int
+}
+
+func NewIntCodeComputer(name string, program []int, inputs, outputs, halt chan int) IntCodeComputer {
+	return IntCodeComputer{
+		Name:    name,
+		program: program,
+		inputs:  inputs,
+		outputs: outputs,
+		halt:    halt,
+	}
+}
+
+func InputSlice(inputs []int, input chan int) func() {
+	return func() {
+		for _, inputValue := range inputs {
+			input <- inputValue
+		}
+	}
+}
+
 func RunProgram(inputs []int, program []int) int {
 	program = slices.Clone(program)
-	output := 0
-	index := 0
+	input := make(chan int)
+	halt := make(chan int)
 
-	inputIndex := 0
+	defer close(input)
+	defer close(halt)
+
+	computer := NewIntCodeComputer("Unknown", program, input, nil, halt)
+
+	// input
+	go InputSlice(inputs, input)()
+
+	go Run(computer)
+
+	return <-halt
+}
+
+func Run(computer IntCodeComputer) {
+	program := computer.program
+	inputs := computer.inputs
+	outputs := computer.outputs
+	halt := computer.halt
+
+	lastOutput := 0
+	index := 0
 
 	for {
 		opRaw := program[index]
@@ -20,7 +64,10 @@ func RunProgram(inputs []int, program []int) int {
 		op := opRaw % 100
 
 		if op == 99 {
-			return output
+			if halt != nil {
+				halt <- lastOutput
+			}
+			return
 		}
 
 		switch op {
@@ -46,8 +93,8 @@ func RunProgram(inputs []int, program []int) int {
 			args := parseArguments(program[index:index+2], program, 0)
 
 			destI := args[0]
-			program[destI] = inputs[inputIndex]
-			inputIndex++
+			inputValue := <-inputs
+			program[destI] = inputValue
 
 			if index != destI {
 				index += 2
@@ -55,7 +102,10 @@ func RunProgram(inputs []int, program []int) int {
 		case 4:
 			args := parseArguments(program[index:index+2], program, -1)
 
-			output = args[0]
+			lastOutput = args[0]
+			if outputs != nil {
+				outputs <- lastOutput
+			}
 
 			index += 2
 		case 5:
