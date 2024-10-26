@@ -1,6 +1,6 @@
 module github.com/petr-ujezdsky/advent-of-code-go
 
-go 1.18
+go 1.23
 
 require (
 	github.com/emirpasic/gods v1.18.1

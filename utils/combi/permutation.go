@@ -30,7 +30,7 @@ func permute[T any](quit chan interface{}, values []T, left, right int, output c
 			// swap #1
 			values[left], values[i] = values[i], values[left]
 
-			if !permute(quit, values, left+1, right, output) {
+			if !permute[T](quit, values, left+1, right, output) {
 				return false
 			}
 
