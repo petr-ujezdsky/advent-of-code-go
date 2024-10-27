@@ -13,6 +13,13 @@ type IntCodeComputer struct {
 	inputs, outputs, halt chan int
 }
 
+type argumentMode int
+
+const (
+	modePosition  argumentMode = 0
+	modeImmediate              = 1
+)
+
 func NewIntCodeComputer(name string, program []int, inputs, outputs, halt chan int) IntCodeComputer {
 	return IntCodeComputer{
 		Name:    name,
@@ -63,15 +70,9 @@ func Run(computer IntCodeComputer) {
 
 		op := opRaw % 100
 
-		if op == 99 {
-			if halt != nil {
-				halt <- lastOutput
-			}
-			return
-		}
-
 		switch op {
 		case 1:
+			// add two numbers
 			args := parseArguments(program[index:index+4], program, 2)
 
 			destI := args[2]
@@ -81,6 +82,7 @@ func Run(computer IntCodeComputer) {
 				index += 4
 			}
 		case 2:
+			// multiply two numbers
 			args := parseArguments(program[index:index+4], program, 2)
 
 			destI := args[2]
@@ -90,6 +92,7 @@ func Run(computer IntCodeComputer) {
 				index += 4
 			}
 		case 3:
+			// read input
 			args := parseArguments(program[index:index+2], program, 0)
 
 			destI := args[0]
@@ -100,6 +103,7 @@ func Run(computer IntCodeComputer) {
 				index += 2
 			}
 		case 4:
+			// write output
 			args := parseArguments(program[index:index+2], program, -1)
 
 			lastOutput = args[0]
@@ -109,6 +113,7 @@ func Run(computer IntCodeComputer) {
 
 			index += 2
 		case 5:
+			// jump-if-true
 			args := parseArguments(program[index:index+3], program, -1)
 
 			if args[0] != 0 {
@@ -117,6 +122,7 @@ func Run(computer IntCodeComputer) {
 				index += 3
 			}
 		case 6:
+			// jump-if-false
 			args := parseArguments(program[index:index+3], program, -1)
 
 			if args[0] == 0 {
@@ -125,6 +131,7 @@ func Run(computer IntCodeComputer) {
 				index += 3
 			}
 		case 7:
+			// less than
 			args := parseArguments(program[index:index+4], program, 2)
 			destI := args[2]
 
@@ -138,6 +145,7 @@ func Run(computer IntCodeComputer) {
 				index += 4
 			}
 		case 8:
+			// equals
 			args := parseArguments(program[index:index+4], program, 2)
 			destI := args[2]
 
@@ -150,6 +158,13 @@ func Run(computer IntCodeComputer) {
 			if index != destI {
 				index += 4
 			}
+		case 99:
+			// halt
+			if halt != nil {
+				halt <- lastOutput
+			}
+
+			return
 		default:
 			panic(fmt.Sprintf("Unknown op %v at index %v", opRaw, index))
 		}
@@ -175,7 +190,7 @@ func parseArguments(instruction, program []int, positionModeOnly int) []int {
 
 			parsed[i] = value
 		} else {
-			parsed[i] = parseArgument(mode, value, program)
+			parsed[i] = parseArgument(argumentMode(mode), value, program)
 		}
 
 		opMode = opMode / 10
@@ -184,14 +199,14 @@ func parseArguments(instruction, program []int, positionModeOnly int) []int {
 	return parsed
 }
 
-func parseArgument(mode, value int, program []int) int {
+func parseArgument(mode argumentMode, value int, program []int) int {
 	// position mode
-	if mode == 0 {
+	if mode == modePosition {
 		return program[value]
 	}
 
 	// immediate mode
-	if mode == 1 {
+	if mode == modeImmediate {
 		return value
 	}
 
