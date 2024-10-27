@@ -2,6 +2,8 @@ package main
 
 import (
 	_ "embed"
+	"fmt"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"io"
 	"math"
@@ -40,8 +42,41 @@ func DoWithInputPart01(world World, width int, height int) int {
 	return minZerosHistogram[1] * minZerosHistogram[2]
 }
 
-func DoWithInputPart02(world World, width int, height int) int {
-	return 0
+func DoWithInputPart02(world World, width int, height int) string {
+	layers := world.Numbers
+	layerSize := width * height
+
+	image := matrix.NewMatrix[byte](width, height)
+
+	for x := 0; x < width; x++ {
+		for y := 0; y < height; y++ {
+			for i := 0; i < len(layers); i += layerSize {
+				index := y*width + x + i
+				value := layers[index]
+
+				if value == 2 {
+					// transparent -> skip
+					continue
+				}
+
+				// black or white -> store
+				image.Set(x, y, value)
+				break
+			}
+		}
+	}
+
+	str := image.StringFmtSeparator("", func(value byte) string {
+		if value == 0 {
+			return " "
+		}
+
+		return "#"
+	})
+
+	fmt.Println(str)
+
+	return str
 }
 
 func ParseInput(r io.Reader) World {
