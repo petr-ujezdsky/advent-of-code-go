@@ -54,6 +54,10 @@ func (m unifiedMemory) readMany(address, count int) []int {
 }
 
 func (m unifiedMemory) write(address, value int) {
+	if debug {
+		fmt.Printf(" - writing value %v to address %v\n", value, address)
+	}
+
 	if address < 0 {
 		panic(fmt.Sprintf("Address must be positive, %v", address))
 	}
@@ -233,6 +237,9 @@ func Run(computer IntCodeComputer) {
 			args := parseArguments(index, 2, memory, relativeBase, -1)
 
 			relativeBase += args[0]
+			if debug {
+				fmt.Printf(" - changed relative base to %v\n", relativeBase)
+			}
 
 			index += 2
 		case 99:
@@ -260,16 +267,19 @@ func parseArguments(addressFrom, count int, memory *unifiedMemory, relativeBase,
 	parsed := make([]int, len(instruction)-1)
 
 	for i, value := range instruction[1:] {
-		mode := opMode % 10
+		mode := argumentMode(opMode % 10)
 
 		if i == positionModeOnly {
-			if mode != 0 {
+			switch mode {
+			case modePosition:
+				parsed[i] = value
+			case modeRelative:
+				parsed[i] = value + relativeBase
+			default:
 				panic(fmt.Sprintf("Unexpected immediate mode"))
 			}
-
-			parsed[i] = value
 		} else {
-			parsed[i] = parseArgument(argumentMode(mode), value, memory, relativeBase)
+			parsed[i] = parseArgument(mode, value, memory, relativeBase)
 		}
 
 		opMode = opMode / 10
