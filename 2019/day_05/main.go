@@ -13,11 +13,13 @@ type World struct {
 }
 
 func DoWithInputPart01(input int, world World) int {
-	return common.RunProgram([]int{input}, world.Program)
+	outputs := common.RunProgram([]int{input}, world.Program)
+	return outputs[len(outputs)-1]
 }
 
 func DoWithInputPart02(input int, world World) int {
-	return common.RunProgram([]int{input}, world.Program)
+	outputs := common.RunProgram([]int{input}, world.Program)
+	return outputs[len(outputs)-1]
 }
 
 func ParseInput(r io.Reader) World {

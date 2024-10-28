@@ -9,8 +9,60 @@ const debug = false
 
 type IntCodeComputer struct {
 	Name                  string
-	program               []int
+	memory                *unifiedMemory
 	inputs, outputs, halt chan int
+}
+
+type unifiedMemory struct {
+	program []int
+	heap    map[int]int
+}
+
+func (m unifiedMemory) read(address int) int {
+	if address < 0 {
+		panic(fmt.Sprintf("Address must be positive, %v", address))
+	}
+
+	if address < len(m.program) {
+		return m.program[address]
+	}
+
+	value, ok := m.heap[address]
+	if !ok {
+		//panic(fmt.Sprintf("Address not initialized, %v", address))
+		return 0
+	}
+
+	return value
+}
+
+func (m unifiedMemory) readMany(address, count int) []int {
+	if address < 0 {
+		panic(fmt.Sprintf("Address must be positive, %v", address))
+	}
+
+	if address+count <= len(m.program) {
+		return m.program[address : address+count]
+	}
+
+	values := make([]int, count)
+	for i := address; i < address+count; i++ {
+		values[i-address] = m.read(address)
+	}
+
+	return values
+}
+
+func (m unifiedMemory) write(address, value int) {
+	if address < 0 {
+		panic(fmt.Sprintf("Address must be positive, %v", address))
+	}
+
+	if address < len(m.program) {
+		m.program[address] = value
+	}
+
+	m.heap[address] = value
 }
 
 type argumentMode int
@@ -23,8 +75,11 @@ const (
 
 func NewIntCodeComputer(name string, program []int, inputs, outputs, halt chan int) IntCodeComputer {
 	return IntCodeComputer{
-		Name:    name,
-		program: program,
+		Name: name,
+		memory: &unifiedMemory{
+			program: program,
+			heap:    make(map[int]int),
+		},
 		inputs:  inputs,
 		outputs: outputs,
 		halt:    halt,
@@ -39,13 +94,7 @@ func InputSlice(inputs []int, input chan int) func() {
 	}
 }
 
-func RunProgram(inputs []int, program []int) int {
-	outputs := RunProgram2(inputs, program)
-
-	return outputs[0]
-}
-
-func RunProgram2(inputs []int, program []int) []int {
+func RunProgram(inputs []int, program []int) []int {
 	program = slices.Clone(program)
 	input := make(chan int)
 	output := make(chan int)
@@ -77,7 +126,7 @@ func RunProgram2(inputs []int, program []int) []int {
 }
 
 func Run(computer IntCodeComputer) {
-	program := computer.program
+	memory := computer.memory
 	inputs := computer.inputs
 	outputs := computer.outputs
 	halt := computer.halt
@@ -87,45 +136,45 @@ func Run(computer IntCodeComputer) {
 	index := 0
 
 	for {
-		opRaw := program[index]
+		opRaw := memory.read(index)
 
 		op := opRaw % 100
 
 		switch op {
 		case 1:
 			// add two numbers
-			args := parseArguments(program[index:index+4], program, relativeBase, 2)
+			args := parseArguments(index, 4, memory, relativeBase, 2)
 
 			destI := args[2]
-			program[destI] = args[0] + args[1]
+			memory.write(destI, args[0]+args[1])
 
 			if index != destI {
 				index += 4
 			}
 		case 2:
 			// multiply two numbers
-			args := parseArguments(program[index:index+4], program, relativeBase, 2)
+			args := parseArguments(index, 4, memory, relativeBase, 2)
 
 			destI := args[2]
-			program[destI] = args[0] * args[1]
+			memory.write(destI, args[0]*args[1])
 
 			if index != destI {
 				index += 4
 			}
 		case 3:
 			// read input
-			args := parseArguments(program[index:index+2], program, relativeBase, 0)
+			args := parseArguments(index, 2, memory, relativeBase, 0)
 
 			destI := args[0]
 			inputValue := <-inputs
-			program[destI] = inputValue
+			memory.write(destI, inputValue)
 
 			if index != destI {
 				index += 2
 			}
 		case 4:
 			// write output
-			args := parseArguments(program[index:index+2], program, relativeBase, -1)
+			args := parseArguments(index, 2, memory, relativeBase, -1)
 
 			lastOutput = args[0]
 			if outputs != nil {
@@ -135,7 +184,7 @@ func Run(computer IntCodeComputer) {
 			index += 2
 		case 5:
 			// jump-if-true
-			args := parseArguments(program[index:index+3], program, relativeBase, -1)
+			args := parseArguments(index, 3, memory, relativeBase, -1)
 
 			if args[0] != 0 {
 				index = args[1]
@@ -144,7 +193,7 @@ func Run(computer IntCodeComputer) {
 			}
 		case 6:
 			// jump-if-false
-			args := parseArguments(program[index:index+3], program, relativeBase, -1)
+			args := parseArguments(index, 3, memory, relativeBase, -1)
 
 			if args[0] == 0 {
 				index = args[1]
@@ -153,13 +202,13 @@ func Run(computer IntCodeComputer) {
 			}
 		case 7:
 			// less than
-			args := parseArguments(program[index:index+4], program, relativeBase, 2)
+			args := parseArguments(index, 4, memory, relativeBase, 2)
 			destI := args[2]
 
 			if args[0] < args[1] {
-				program[destI] = 1
+				memory.write(destI, 1)
 			} else {
-				program[destI] = 0
+				memory.write(destI, 0)
 			}
 
 			if index != destI {
@@ -167,13 +216,13 @@ func Run(computer IntCodeComputer) {
 			}
 		case 8:
 			// equals
-			args := parseArguments(program[index:index+4], program, relativeBase, 2)
+			args := parseArguments(index, 4, memory, relativeBase, 2)
 			destI := args[2]
 
 			if args[0] == args[1] {
-				program[destI] = 1
+				memory.write(destI, 1)
 			} else {
-				program[destI] = 0
+				memory.write(destI, 0)
 			}
 
 			if index != destI {
@@ -181,7 +230,7 @@ func Run(computer IntCodeComputer) {
 			}
 		case 9:
 			// set relative base
-			args := parseArguments(program[index:index+2], program, relativeBase, -1)
+			args := parseArguments(index, 2, memory, relativeBase, -1)
 
 			relativeBase += args[0]
 
@@ -199,7 +248,9 @@ func Run(computer IntCodeComputer) {
 	}
 }
 
-func parseArguments(instruction, program []int, relativeBase, positionModeOnly int) []int {
+func parseArguments(addressFrom, count int, memory *unifiedMemory, relativeBase, positionModeOnly int) []int {
+	instruction := memory.readMany(addressFrom, count)
+
 	if debug {
 		fmt.Printf("Parsing instruction %v\n", instruction)
 	}
@@ -218,7 +269,7 @@ func parseArguments(instruction, program []int, relativeBase, positionModeOnly i
 
 			parsed[i] = value
 		} else {
-			parsed[i] = parseArgument(argumentMode(mode), value, program, relativeBase)
+			parsed[i] = parseArgument(argumentMode(mode), value, memory, relativeBase)
 		}
 
 		opMode = opMode / 10
@@ -227,10 +278,10 @@ func parseArguments(instruction, program []int, relativeBase, positionModeOnly i
 	return parsed
 }
 
-func parseArgument(mode argumentMode, value int, program []int, relativeBase int) int {
+func parseArgument(mode argumentMode, value int, memory *unifiedMemory, relativeBase int) int {
 	// position mode
 	if mode == modePosition {
-		return program[value]
+		return memory.read(value)
 	}
 
 	// immediate mode
@@ -240,7 +291,7 @@ func parseArgument(mode argumentMode, value int, program []int, relativeBase int
 
 	// relative mode
 	if mode == modeRelative {
-		return program[relativeBase+value]
+		return memory.read(relativeBase + value)
 	}
 
 	panic(fmt.Sprintf("Unknown mode %v", mode))
