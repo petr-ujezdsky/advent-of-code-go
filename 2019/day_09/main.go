@@ -23,7 +23,12 @@ func DoWithInputPart01(world World) int {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	outputs := common.RunProgram([]int{2}, world.Program)
+	if len(outputs) > 1 {
+		panic(fmt.Sprintf("Invalid implementation, errors: %v", outputs))
+	}
+
+	return outputs[0]
 }
 
 func ParseInput(r io.Reader) World {
