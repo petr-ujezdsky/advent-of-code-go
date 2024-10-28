@@ -18,6 +18,7 @@ type argumentMode int
 const (
 	modePosition  argumentMode = 0
 	modeImmediate              = 1
+	modeRelative               = 2
 )
 
 func NewIntCodeComputer(name string, program []int, inputs, outputs, halt chan int) IntCodeComputer {
@@ -39,21 +40,40 @@ func InputSlice(inputs []int, input chan int) func() {
 }
 
 func RunProgram(inputs []int, program []int) int {
+	outputs := RunProgram2(inputs, program)
+
+	return outputs[0]
+}
+
+func RunProgram2(inputs []int, program []int) []int {
 	program = slices.Clone(program)
 	input := make(chan int)
+	output := make(chan int)
 	halt := make(chan int)
 
 	defer close(input)
 	defer close(halt)
 
-	computer := NewIntCodeComputer("Unknown", program, input, nil, halt)
+	computer := NewIntCodeComputer("Unknown", program, input, output, halt)
 
 	// input
 	go InputSlice(inputs, input)()
 
 	go Run(computer)
 
-	return <-halt
+	// close output on halt
+	go func() {
+		<-halt
+		close(output)
+	}()
+
+	// output
+	var outputs []int
+	for value := range output {
+		outputs = append(outputs, value)
+	}
+
+	return outputs
 }
 
 func Run(computer IntCodeComputer) {
@@ -63,6 +83,7 @@ func Run(computer IntCodeComputer) {
 	halt := computer.halt
 
 	lastOutput := 0
+	relativeBase := 0
 	index := 0
 
 	for {
@@ -73,7 +94,7 @@ func Run(computer IntCodeComputer) {
 		switch op {
 		case 1:
 			// add two numbers
-			args := parseArguments(program[index:index+4], program, 2)
+			args := parseArguments(program[index:index+4], program, relativeBase, 2)
 
 			destI := args[2]
 			program[destI] = args[0] + args[1]
@@ -83,7 +104,7 @@ func Run(computer IntCodeComputer) {
 			}
 		case 2:
 			// multiply two numbers
-			args := parseArguments(program[index:index+4], program, 2)
+			args := parseArguments(program[index:index+4], program, relativeBase, 2)
 
 			destI := args[2]
 			program[destI] = args[0] * args[1]
@@ -93,7 +114,7 @@ func Run(computer IntCodeComputer) {
 			}
 		case 3:
 			// read input
-			args := parseArguments(program[index:index+2], program, 0)
+			args := parseArguments(program[index:index+2], program, relativeBase, 0)
 
 			destI := args[0]
 			inputValue := <-inputs
@@ -104,7 +125,7 @@ func Run(computer IntCodeComputer) {
 			}
 		case 4:
 			// write output
-			args := parseArguments(program[index:index+2], program, -1)
+			args := parseArguments(program[index:index+2], program, relativeBase, -1)
 
 			lastOutput = args[0]
 			if outputs != nil {
@@ -114,7 +135,7 @@ func Run(computer IntCodeComputer) {
 			index += 2
 		case 5:
 			// jump-if-true
-			args := parseArguments(program[index:index+3], program, -1)
+			args := parseArguments(program[index:index+3], program, relativeBase, -1)
 
 			if args[0] != 0 {
 				index = args[1]
@@ -123,7 +144,7 @@ func Run(computer IntCodeComputer) {
 			}
 		case 6:
 			// jump-if-false
-			args := parseArguments(program[index:index+3], program, -1)
+			args := parseArguments(program[index:index+3], program, relativeBase, -1)
 
 			if args[0] == 0 {
 				index = args[1]
@@ -132,7 +153,7 @@ func Run(computer IntCodeComputer) {
 			}
 		case 7:
 			// less than
-			args := parseArguments(program[index:index+4], program, 2)
+			args := parseArguments(program[index:index+4], program, relativeBase, 2)
 			destI := args[2]
 
 			if args[0] < args[1] {
@@ -146,7 +167,7 @@ func Run(computer IntCodeComputer) {
 			}
 		case 8:
 			// equals
-			args := parseArguments(program[index:index+4], program, 2)
+			args := parseArguments(program[index:index+4], program, relativeBase, 2)
 			destI := args[2]
 
 			if args[0] == args[1] {
@@ -158,6 +179,13 @@ func Run(computer IntCodeComputer) {
 			if index != destI {
 				index += 4
 			}
+		case 9:
+			// set relative base
+			args := parseArguments(program[index:index+2], program, relativeBase, -1)
+
+			relativeBase += args[0]
+
+			index += 2
 		case 99:
 			// halt
 			if halt != nil {
@@ -171,7 +199,7 @@ func Run(computer IntCodeComputer) {
 	}
 }
 
-func parseArguments(instruction, program []int, positionModeOnly int) []int {
+func parseArguments(instruction, program []int, relativeBase, positionModeOnly int) []int {
 	if debug {
 		fmt.Printf("Parsing instruction %v\n", instruction)
 	}
@@ -190,7 +218,7 @@ func parseArguments(instruction, program []int, positionModeOnly int) []int {
 
 			parsed[i] = value
 		} else {
-			parsed[i] = parseArgument(argumentMode(mode), value, program)
+			parsed[i] = parseArgument(argumentMode(mode), value, program, relativeBase)
 		}
 
 		opMode = opMode / 10
@@ -199,7 +227,7 @@ func parseArguments(instruction, program []int, positionModeOnly int) []int {
 	return parsed
 }
 
-func parseArgument(mode argumentMode, value int, program []int) int {
+func parseArgument(mode argumentMode, value int, program []int, relativeBase int) int {
 	// position mode
 	if mode == modePosition {
 		return program[value]
@@ -208,6 +236,11 @@ func parseArgument(mode argumentMode, value int, program []int) int {
 	// immediate mode
 	if mode == modeImmediate {
 		return value
+	}
+
+	// relative mode
+	if mode == modeRelative {
+		return program[relativeBase+value]
 	}
 
 	panic(fmt.Sprintf("Unknown mode %v", mode))
