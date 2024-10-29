@@ -114,15 +114,17 @@ func DoWithInputPart02(world World) int {
 
 		shotsCount++
 		if shotsCount == 200 {
+			printShots(shots)
 			return 100*asteroid.OriginalPosition.X + asteroid.OriginalPosition.Y
 		}
 	}
 
-	origin := utils.Vector2i{}
-
-	fmt.Println(matrix.StringFmtSeparatorIndexedOrigin[int](shots, 2, origin, " ", matrix.NonIndexedAdapter(matrix.FmtFmt[int]("%2d"))))
-
+	printShots(shots)
 	panic("No solution found")
+}
+
+func printShots(shots matrix.MatrixNumber[int]) {
+	fmt.Println(matrix.StringFmtSeparatorIndexedOrigin[int](shots, 3, utils.Vector2i{}, " ", matrix.NonIndexedAdapter(matrix.FmtFmt[int]("%3d"))))
 }
 
 func angle(v utils.Vector2i) float64 {
