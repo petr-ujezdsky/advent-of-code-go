@@ -44,29 +44,25 @@ func DoWithInputPart01(world World) int {
 		}
 	}()
 
-	end := make(chan map[utils.Vector2i][]int)
+	end := make(chan map[utils.Vector2i]int)
 	defer close(end)
 
 	go func() {
-		hull := make(map[utils.Vector2i][]int)
+		hull := make(map[utils.Vector2i]int)
 
 		// start at [0,0]
 		position := utils.Vector2i{}
 		direction := utils.Up
 
 		for {
-			color := 0
-			if colors, ok := hull[position]; ok {
-				color = colors[len(colors)-1]
-			}
-
+			color := hull[position]
 			input <- color
 
 			// wait for output or halt
 			select {
 			case o := <-formattedOutput:
 				// paint current position
-				hull[position] = append(hull[position], o.Color)
+				hull[position] = o.Color
 
 				// rotate and move
 				direction = direction.Rotate(o.Rotation*2 - 1)
