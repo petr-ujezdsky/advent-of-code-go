@@ -18,12 +18,14 @@ func StringFmt[T any](view View[T], formatter ValueFormatter[T]) string {
 	return StringFmtSeparator(view, " ", formatter)
 }
 
-func StringFmtSeparator[T any](view View[T], separator string, formatter ValueFormatter[T]) string {
-	adapter := func(value T, x, y int) string {
+func NonIndexedAdapter[T any](formatter ValueFormatter[T]) ValueFormatterIndexed[T] {
+	return func(value T, x, y int) string {
 		return formatter(value)
 	}
+}
 
-	return StringFmtSeparatorIndexed(view, false, separator, adapter)
+func StringFmtSeparator[T any](view View[T], separator string, formatter ValueFormatter[T]) string {
+	return StringFmtSeparatorIndexed(view, false, separator, NonIndexedAdapter(formatter))
 }
 
 func StringFmtSeparatorIndexed[T any](view View[T], rulers bool, separator string, formatter ValueFormatterIndexed[T]) string {
@@ -38,6 +40,7 @@ func StringFmtSeparatorIndexedOrigin[T any](view View[T], rulers bool, origin ut
 
 			for x := 0; x < view.GetWidth(); x++ {
 				sb.WriteRune(rune(fmt.Sprintf("%3d ", x+origin.X)[i]))
+				sb.WriteString(separator)
 			}
 			sb.WriteString("\n")
 		}
