@@ -3,6 +3,7 @@ package matrix
 import (
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"strconv"
 	"strings"
 )
 
@@ -29,18 +30,26 @@ func StringFmtSeparator[T any](view View[T], separator string, formatter ValueFo
 }
 
 func StringFmtSeparatorIndexed[T any](view View[T], rulers bool, separator string, formatter ValueFormatterIndexed[T]) string {
-	return StringFmtSeparatorIndexedOrigin(view, rulers, utils.Vector2i{}, separator, formatter)
+	rulerWidth := 0
+	if rulers {
+		rulerWidth = 1
+	}
+	return StringFmtSeparatorIndexedOrigin(view, rulerWidth, utils.Vector2i{}, separator, formatter)
 }
-func StringFmtSeparatorIndexedOrigin[T any](view View[T], rulers bool, origin utils.Vector2i, separator string, formatter ValueFormatterIndexed[T]) string {
+func StringFmtSeparatorIndexedOrigin[T any](view View[T], rulerWidth int, origin utils.Vector2i, separator string, formatter ValueFormatterIndexed[T]) string {
 	var sb strings.Builder
 
-	if rulers {
+	if rulerWidth > 0 {
 		for i := 0; i < 3; i++ {
 			sb.WriteString("    ")
 
 			for x := 0; x < view.GetWidth(); x++ {
-				sb.WriteRune(rune(fmt.Sprintf("%3d ", x+origin.X)[i]))
-				sb.WriteString(separator)
+				if x > 0 {
+					sb.WriteString(separator)
+				}
+
+				rulerDigit := string(fmt.Sprintf("%3d ", x+origin.X)[i])
+				sb.WriteString(fmt.Sprintf("%"+strconv.Itoa(rulerWidth)+"v", rulerDigit))
 			}
 			sb.WriteString("\n")
 		}
@@ -52,7 +61,7 @@ func StringFmtSeparatorIndexedOrigin[T any](view View[T], rulers bool, origin ut
 		for x := 0; x < view.GetWidth(); x++ {
 			val := view.Get(x, y)
 
-			if rulers && x == 0 {
+			if rulerWidth > 0 && x == 0 {
 				sb.WriteString(fmt.Sprintf("%3d ", y+origin.Y))
 			}
 

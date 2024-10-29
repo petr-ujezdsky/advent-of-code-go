@@ -120,7 +120,7 @@ func DoWithInputPart02(world World) int {
 
 	origin := utils.Vector2i{}
 
-	fmt.Println(matrix.StringFmtSeparatorIndexedOrigin[int](shots, true, origin, " ", matrix.NonIndexedAdapter(matrix.FmtFmt[int]("%02d"))))
+	fmt.Println(matrix.StringFmtSeparatorIndexedOrigin[int](shots, 2, origin, " ", matrix.NonIndexedAdapter(matrix.FmtFmt[int]("%2d"))))
 
 	panic("No solution found")
 }
