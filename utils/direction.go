@@ -20,6 +20,7 @@ func (d Direction4) ToStep() Vector2i {
 	return Direction4Steps[d]
 }
 
+// Rotate rotates the direction clockwise by 90 degrees steps times
 func (d Direction4) Rotate(steps int) Direction4 {
 	return Direction4(ModFloor(int(d)+steps, 4))
 }
