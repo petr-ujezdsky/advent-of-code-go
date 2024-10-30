@@ -18,7 +18,7 @@ type ColorAndRotation struct {
 	Color, Rotation int
 }
 
-func DoWithInputPart01(world World) int {
+func paintHull(initialColor int, program []int) map[utils.Vector2i]int {
 	input := make(chan int, 1)
 	output := make(chan int)
 	halt := make(chan int)
@@ -27,7 +27,7 @@ func DoWithInputPart01(world World) int {
 	defer close(output)
 	defer close(halt)
 
-	computer := common.NewIntCodeComputer("Unknown", world.Program, input, output, halt)
+	computer := common.NewIntCodeComputer("Unknown", program, input, output, halt)
 
 	go common.Run(computer)
 
@@ -56,6 +56,9 @@ func DoWithInputPart01(world World) int {
 		position := utils.Vector2i{}
 		direction := utils.Up
 
+		// initial color
+		hull[position] = initialColor
+
 		for {
 			color := hull[position]
 			input <- color
@@ -79,16 +82,26 @@ func DoWithInputPart01(world World) int {
 	// wait for painting
 	paintedHull := <-end
 
+	return paintedHull
+}
+
+func DoWithInputPart01(world World) int {
+	paintedHull := paintHull(0, world.Program)
+
 	printHull(paintedHull)
 
 	return len(paintedHull)
 }
 
-func DoWithInputPart02(world World) int {
-	return 0
+func DoWithInputPart02(world World) string {
+	paintedHull := paintHull(1, world.Program)
+
+	printHull(paintedHull)
+
+	return toStringHull(paintedHull)
 }
 
-func printHull(hull map[utils.Vector2i]int) {
+func toStringHull(hull map[utils.Vector2i]int) string {
 	bb := utils.NewBoundingRectangle(utils.Vector2i{})
 
 	for pos := range hull {
@@ -111,7 +124,13 @@ func printHull(hull map[utils.Vector2i]int) {
 		m.SetV(pos.Subtract(origin), color)
 	}
 
-	fmt.Println(matrix.StringFmtSeparatorIndexedOrigin(m, 1, origin, "", matrix.NonIndexedAdapter(matrix.FmtBooleanConst[int](".", "#"))))
+	m = m.FlipVertical()
+
+	return matrix.StringFmtSeparatorIndexedOrigin(m, 0, origin, "", matrix.NonIndexedAdapter(matrix.FmtBooleanConst[int](" ", "#")))
+}
+
+func printHull(hull map[utils.Vector2i]int) {
+	fmt.Println(toStringHull(hull))
 }
 
 func ParseInput(r io.Reader) World {
