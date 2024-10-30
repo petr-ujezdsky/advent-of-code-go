@@ -3,8 +3,10 @@ package main
 import (
 	"bufio"
 	_ "embed"
+	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/2019/common"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"io"
 )
 
@@ -77,11 +79,39 @@ func DoWithInputPart01(world World) int {
 	// wait for painting
 	paintedHull := <-end
 
+	printHull(paintedHull)
+
 	return len(paintedHull)
 }
 
 func DoWithInputPart02(world World) int {
 	return 0
+}
+
+func printHull(hull map[utils.Vector2i]int) {
+	bb := utils.NewBoundingRectangle(utils.Vector2i{})
+
+	for pos := range hull {
+		bb = bb.Enlarge(pos)
+	}
+
+	if min(bb.Width(), bb.Height()) > 300 {
+		panic("Too large to print")
+	}
+
+	origin := utils.Vector2i{
+		X: bb.Horizontal.Low,
+		Y: bb.Vertical.Low,
+	}
+
+	m := matrix.NewMatrix[int](bb.Width(), bb.Height())
+
+	// print values
+	for pos, color := range hull {
+		m.SetV(pos.Subtract(origin), color)
+	}
+
+	fmt.Println(matrix.StringFmtSeparatorIndexedOrigin(m, 1, origin, "", matrix.NonIndexedAdapter(matrix.FmtBooleanConst[int](".", "#"))))
 }
 
 func ParseInput(r io.Reader) World {

@@ -5,11 +5,7 @@ type BoundingBox struct {
 }
 
 func NewBoundingBox(point Vector3i) BoundingBox {
-	return BoundingBox{
-		XInterval: IntervalI{Low: point.X, High: point.X},
-		YInterval: IntervalI{Low: point.Y, High: point.Y},
-		ZInterval: IntervalI{Low: point.Z, High: point.Z},
-	}
+	return NewBoundingBoxPoints(point, point)
 }
 
 func NewBoundingBoxPoints(pointA, pointB Vector3i) BoundingBox {

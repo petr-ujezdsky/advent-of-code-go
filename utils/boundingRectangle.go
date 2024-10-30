@@ -4,6 +4,10 @@ type BoundingRectangle struct {
 	Horizontal, Vertical IntervalI
 }
 
+func NewBoundingRectangle(point Vector2i) BoundingRectangle {
+	return NewBoundingRectangleFromPoints(point, point)
+}
+
 func NewBoundingRectangleFromPoints(point1, point2 Vector2i) BoundingRectangle {
 	return BoundingRectangle{
 		Horizontal: NewInterval(Min(point1.X, point2.X), Max(point1.X, point2.X)),
@@ -43,4 +47,9 @@ func (b1 BoundingRectangle) Width() int {
 
 func (b1 BoundingRectangle) Height() int {
 	return b1.Vertical.Size()
+}
+
+// Area returns total rectangle area
+func (b1 BoundingRectangle) Area() int {
+	return b1.Horizontal.Size() * b1.Vertical.Size()
 }
