@@ -104,6 +104,14 @@ func (v1 Vector3n[T]) OrthogonalBase() (Vector3n[T], Vector3n[T]) {
 	return v2, v3
 }
 
+func (v1 Vector3n[T]) Signum() Vector3n[T] {
+	return Vector3n[T]{
+		X: Signum(v1.X),
+		Y: Signum(v1.Y),
+		Z: Signum(v1.Z),
+	}
+}
+
 func (v1 Vector3n[T]) ManhattanLength() T {
 	return Abs(v1.X) + Abs(v1.Y) + Abs(v1.Z)
 }
