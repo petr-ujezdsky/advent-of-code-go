@@ -116,6 +116,19 @@ func (v1 Vector3n[T]) ManhattanLength() T {
 	return Abs(v1.X) + Abs(v1.Y) + Abs(v1.Z)
 }
 
+func (v1 Vector3n[T]) Get(dimensionIndex int) T {
+	switch dimensionIndex {
+	case 0:
+		return v1.X
+	case 1:
+		return v1.Y
+	case 2:
+		return v1.Z
+	}
+
+	panic(fmt.Sprintf("Unknown dimension index %d", dimensionIndex))
+}
+
 func (v1 Vector3n[T]) String() string {
 	return fmt.Sprint([]T{v1.X, v1.Y, v1.Z})
 }
