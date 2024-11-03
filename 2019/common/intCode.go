@@ -8,9 +8,9 @@ import (
 const debug = false
 
 type IntCodeComputer struct {
-	Name                  string
-	memory                *unifiedMemory
-	inputs, outputs, halt chan int
+	Name                              string
+	memory                            *unifiedMemory
+	inputs, readyInput, outputs, halt chan int
 }
 
 type unifiedMemory struct {
@@ -78,15 +78,20 @@ const (
 )
 
 func NewIntCodeComputer(name string, program []int, inputs, outputs, halt chan int) IntCodeComputer {
+	return NewIntCodeComputerReadyInput(name, program, inputs, nil, outputs, halt)
+}
+
+func NewIntCodeComputerReadyInput(name string, program []int, inputs, readyInput, outputs, halt chan int) IntCodeComputer {
 	return IntCodeComputer{
 		Name: name,
 		memory: &unifiedMemory{
 			program: program,
 			heap:    make(map[int]int),
 		},
-		inputs:  inputs,
-		outputs: outputs,
-		halt:    halt,
+		inputs:     inputs,
+		readyInput: readyInput,
+		outputs:    outputs,
+		halt:       halt,
 	}
 }
 
@@ -132,6 +137,7 @@ func RunProgram(inputs []int, program []int) []int {
 func Run(computer IntCodeComputer) {
 	memory := computer.memory
 	inputs := computer.inputs
+	readyInput := computer.readyInput
 	outputs := computer.outputs
 	halt := computer.halt
 
@@ -170,6 +176,9 @@ func Run(computer IntCodeComputer) {
 			args := parseArguments(index, 2, memory, relativeBase, 0)
 
 			destI := args[0]
+			if readyInput != nil {
+				<-readyInput
+			}
 			inputValue := <-inputs
 			memory.write(destI, inputValue)
 
