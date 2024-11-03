@@ -2,6 +2,7 @@ package matrix
 
 import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/maps"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	slices2 "slices"
 )
@@ -85,6 +86,24 @@ func NewMatrixRowNotation[T any](rows [][]T) Matrix[T] {
 	}
 
 	return matrix
+}
+
+// NewMatrixFromMap creates matrix from map of vectors to values
+func NewMatrixFromMap[T any](m map[utils.Vector2i]T) Matrix[T] {
+	positions := maps.Keys(m)
+	bb := utils.NewBoundingRectangle(positions[0])
+
+	for _, pos := range positions {
+		bb = bb.Enlarge(pos)
+	}
+
+	output := NewMatrix[T](bb.Width(), bb.Height())
+
+	for position, value := range m {
+		output.SetV(position, value)
+	}
+
+	return output
 }
 
 func (m Matrix[T]) SetAll(value T) Matrix[T] {
