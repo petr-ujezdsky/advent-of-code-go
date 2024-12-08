@@ -35,8 +35,29 @@ func DoWithInputPart01(world World) int {
 	return totalDistance
 }
 
+func countNumbers(ints []int) map[int]int {
+	counts := make(map[int]int)
+
+	for _, value := range ints {
+		counts[value]++
+	}
+
+	return counts
+}
+
 func DoWithInputPart02(world World) int {
-	return 0
+	leftCounts := countNumbers(world.Left)
+	rightCounts := countNumbers(world.Right)
+
+	totalSimilarity := 0
+	for value, count := range leftCounts {
+		rightCount := rightCounts[value]
+		similarity := value * count * rightCount
+
+		totalSimilarity += similarity
+	}
+
+	return totalSimilarity
 }
 
 func ParseInput(r io.Reader) World {
