@@ -9,12 +9,7 @@ import (
 	"sort"
 )
 
-type Item struct {
-	Left, Right int
-}
-
 type World struct {
-	Items       []Item
 	Left, Right []int
 }
 

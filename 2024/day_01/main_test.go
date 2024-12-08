@@ -12,9 +12,9 @@ func Test_01_parse(t *testing.T) {
 
 	world := ParseInput(reader)
 
-	assert.Equal(t, 6, len(world.Items))
-	assert.Equal(t, 1, world.Items[3].Left)
-	assert.Equal(t, 3, world.Items[3].Right)
+	assert.Equal(t, 6, len(world.Left))
+	assert.Equal(t, 1, world.Left[3])
+	assert.Equal(t, 3, world.Right[3])
 }
 
 func Test_01_example(t *testing.T) {
