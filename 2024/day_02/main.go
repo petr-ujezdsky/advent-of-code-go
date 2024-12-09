@@ -15,11 +15,11 @@ type World struct {
 	Reports []Report
 }
 
-func isReportSafe(report Report) bool {
-	previousLevel := report.Levels[0]
+func isReportSafe(levels []int) bool {
+	previousLevel := levels[0]
 	previousSignum := 0
 
-	for _, level := range report.Levels[1:] {
+	for _, level := range levels[1:] {
 		diff := level - previousLevel
 
 		if diff == 0 || utils.Abs(diff) > 3 {
@@ -42,7 +42,7 @@ func DoWithInputPart01(world World) int {
 	safeCount := 0
 
 	for _, report := range world.Reports {
-		if isReportSafe(report) {
+		if isReportSafe(report.Levels) {
 			safeCount++
 		}
 	}
@@ -50,8 +50,39 @@ func DoWithInputPart01(world World) int {
 	return safeCount
 }
 
+func isReportSafeDampened(report Report) bool {
+	for i := -1; i < len(report.Levels); i++ {
+		var levels []int
+
+		if i == -1 {
+			levels = report.Levels
+		} else {
+			for index, level := range report.Levels {
+				if index == i {
+					continue
+				}
+				levels = append(levels, level)
+			}
+		}
+
+		if isReportSafe(levels) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func DoWithInputPart02(world World) int {
-	return 0
+	safeCount := 0
+
+	for _, report := range world.Reports {
+		if isReportSafeDampened(report) {
+			safeCount++
+		}
+	}
+
+	return safeCount
 }
 
 func ParseInput(r io.Reader) World {
