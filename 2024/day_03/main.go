@@ -12,34 +12,19 @@ type World struct {
 	Rows []string
 }
 
-type Mul struct {
-	Left, Right int
-}
-
-var regexMul = regexp.MustCompile(`mul\((\d{1,3}),(\d{1,3})\)`)
-
-func extractMuls(str string) []Mul {
-	var muls []Mul
-
-	for _, mulRaw := range regexMul.FindAllStringSubmatch(str, -1) {
-		left := utils.ParseInt(mulRaw[1])
-		right := utils.ParseInt(mulRaw[2])
-
-		muls = append(muls, Mul{
-			Left:  left,
-			Right: right,
-		})
-	}
-
-	return muls
-}
+var regexMulti = regexp.MustCompile(`(mul)\((\d{1,3}),(\d{1,3})\)|(don't)\(\)|(do)\(\)`)
 
 func DoWithInputPart01(world World) int {
 	sum := 0
 
 	for _, row := range world.Rows {
-		for _, mul := range extractMuls(row) {
-			sum += mul.Left * mul.Right
+		for _, parsed := range regexMulti.FindAllStringSubmatch(row, -1) {
+			op := parsed[1] + parsed[4] + parsed[5]
+
+			switch op {
+			case "mul":
+				sum += utils.ParseInt(parsed[2]) * utils.ParseInt(parsed[3])
+			}
 		}
 	}
 
@@ -47,7 +32,27 @@ func DoWithInputPart01(world World) int {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	enabled := true
+	sum := 0
+
+	for _, row := range world.Rows {
+		for _, parsed := range regexMulti.FindAllStringSubmatch(row, -1) {
+			op := parsed[1] + parsed[4] + parsed[5]
+
+			switch op {
+			case "mul":
+				if enabled {
+					sum += utils.ParseInt(parsed[2]) * utils.ParseInt(parsed[3])
+				}
+			case "don't":
+				enabled = false
+			case "do":
+				enabled = true
+			}
+		}
+	}
+
+	return sum
 }
 
 func ParseInput(r io.Reader) World {
