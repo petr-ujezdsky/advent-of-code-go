@@ -58,6 +58,29 @@ var patterns01 = []matrix.Matrix[rune]{
 	}),
 }
 
+var patterns02 = []matrix.Matrix[rune]{
+	matrix.NewMatrixRowNotation[rune]([][]rune{
+		{'M', '.', 'S'},
+		{'.', 'A', '.'},
+		{'M', '.', 'S'},
+	}),
+	matrix.NewMatrixRowNotation[rune]([][]rune{
+		{'M', '.', 'M'},
+		{'.', 'A', '.'},
+		{'S', '.', 'S'},
+	}),
+	matrix.NewMatrixRowNotation[rune]([][]rune{
+		{'S', '.', 'M'},
+		{'.', 'A', '.'},
+		{'S', '.', 'M'},
+	}),
+	matrix.NewMatrixRowNotation[rune]([][]rune{
+		{'S', '.', 'S'},
+		{'.', 'A', '.'},
+		{'M', '.', 'M'},
+	}),
+}
+
 func matchesXmas(m, pattern matrix.Matrix[rune], pos utils.Vector2i) bool {
 	for x, column := range pattern.Columns {
 		for y, valueExpected := range column {
@@ -79,7 +102,7 @@ func countXmas(m matrix.Matrix[rune], patterns []matrix.Matrix[rune]) int {
 	count := 0
 
 	for x, column := range m.Columns {
-		for y, _ := range column {
+		for y := range column {
 			pos := utils.Vector2i{X: x, Y: y}
 
 			for _, pattern := range patterns {
@@ -99,7 +122,7 @@ func DoWithInputPart01(world World) int {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	return countXmas(world.Matrix, patterns02)
 }
 
 func ParseInput(r io.Reader) World {
