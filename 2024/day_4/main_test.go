@@ -55,21 +55,3 @@ func Test_02(t *testing.T) {
 	result := DoWithInputPart02(world)
 	assert.Equal(t, 0, result)
 }
-
-func Test_countXmas(t *testing.T) {
-	type args struct {
-		rows []string
-	}
-	tests := []struct {
-		name string
-		args args
-		want int
-	}{
-		{"", args{rows: []string{"XMASAMX"}}, 2},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, countXmas(tt.args.rows), "countXmas(%v)", tt.args.rows)
-		})
-	}
-}

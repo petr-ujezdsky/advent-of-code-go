@@ -6,89 +6,96 @@ import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"io"
-	"regexp"
 )
 
 type World struct {
 	Matrix matrix.Matrix[rune]
 }
 
-var regex1 = regexp.MustCompile(`XMAS`)
-var regex2 = regexp.MustCompile(`SAMX`)
+var patterns01 = []matrix.Matrix[rune]{
+	// horizontal
+	matrix.NewMatrixRowNotation[rune]([][]rune{
+		{'X', 'M', 'A', 'S'},
+	}),
+	matrix.NewMatrixRowNotation[rune]([][]rune{
+		{'S', 'A', 'M', 'X'},
+	}),
 
-func toColumns(m matrix.Matrix[rune]) []string {
-	columns := make([]string, m.Width)
+	// vertical
+	matrix.NewMatrixColumnNotation[rune]([][]rune{
+		{'X', 'M', 'A', 'S'},
+	}),
+	matrix.NewMatrixColumnNotation[rune]([][]rune{
+		{'S', 'A', 'M', 'X'},
+	}),
 
-	for i, column := range m.Columns {
-		columns[i] = string(column)
-	}
+	// diag 1
+	matrix.NewMatrixRowNotation[rune]([][]rune{
+		{'X', '.', '.', '.'},
+		{'.', 'M', '.', '.'},
+		{'.', '.', 'A', '.'},
+		{'.', '.', '.', 'S'},
+	}),
+	matrix.NewMatrixRowNotation[rune]([][]rune{
+		{'S', '.', '.', '.'},
+		{'.', 'A', '.', '.'},
+		{'.', '.', 'M', '.'},
+		{'.', '.', '.', 'X'},
+	}),
 
-	return columns
+	// diag 2
+	matrix.NewMatrixRowNotation[rune]([][]rune{
+		{'.', '.', '.', 'S'},
+		{'.', '.', 'A', '.'},
+		{'.', 'M', '.', '.'},
+		{'X', '.', '.', '.'},
+	}),
+	matrix.NewMatrixRowNotation[rune]([][]rune{
+		{'.', '.', '.', 'X'},
+		{'.', '.', 'M', '.'},
+		{'.', 'A', '.', '.'},
+		{'S', '.', '.', '.'},
+	}),
 }
 
-func rotate45(m matrix.Matrix[rune]) []string {
-	var rows []string
-	step := utils.Vector2i{X: 1, Y: 1}
-
-	startPosition := utils.Vector2i{X: m.Width - 1, Y: 0}
-
-	for index := 0; index < m.Width+m.Height-1; index++ {
-		var row []rune
-
-		pos := startPosition
-		for {
-			char, ok := m.GetVSafe(pos)
-			if !ok {
-				break
+func matchesXmas(m, pattern matrix.Matrix[rune], pos utils.Vector2i) bool {
+	for x, column := range pattern.Columns {
+		for y, valueExpected := range column {
+			if valueExpected == '.' {
+				continue
 			}
 
-			row = append(row, char)
-			pos = pos.Add(step)
+			valueActual, ok := m.GetVSafe(pos.Add(utils.Vector2i{X: x, Y: y}))
+			if !ok || valueActual != valueExpected {
+				return false
+			}
 		}
-
-		if startPosition.X > 0 {
-			startPosition.X--
-		} else {
-			startPosition.Y++
-		}
-
-		rows = append(rows, string(row))
 	}
 
-	return rows
+	return true
 }
 
-func countXmas(rows []string) int {
+func countXmas(m matrix.Matrix[rune], patterns []matrix.Matrix[rune]) int {
 	count := 0
 
-	for _, row := range rows {
-		count += len(regex1.FindAllString(row, -1))
-		count += len(regex2.FindAllString(row, -1))
+	for x, column := range m.Columns {
+		for y, _ := range column {
+			pos := utils.Vector2i{X: x, Y: y}
+
+			for _, pattern := range patterns {
+
+				if matchesXmas(m, pattern, pos) {
+					count++
+				}
+			}
+		}
 	}
 
 	return count
 }
 
 func DoWithInputPart01(world World) int {
-	totalCount := 0
-	m := world.Matrix
-
-	// columns
-	totalCount += countXmas(toColumns(m))
-
-	// diag
-	totalCount += countXmas(rotate45(m))
-
-	// rotate 90
-	m = m.Rotate90CounterClockwise(1)
-
-	// rows
-	totalCount += countXmas(toColumns(m))
-
-	// diag
-	totalCount += countXmas(rotate45(m))
-
-	return totalCount
+	return countXmas(world.Matrix, patterns01)
 }
 
 func DoWithInputPart02(world World) int {
