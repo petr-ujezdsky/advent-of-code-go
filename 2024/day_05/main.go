@@ -8,6 +8,8 @@ import (
 	"io"
 )
 
+type IntSet map[int]struct{}
+
 type Rule struct {
 	Left, Right int
 }
@@ -55,22 +57,7 @@ func createGraph(rules []Rule) map[int]*RuleNode {
 	return nodes
 }
 
-//
-//func findNode(nodes []*RuleNode, value int) *RuleNode {
-//	for _, node := range nodes {
-//		if node.Value == value {
-//			return node
-//		}
-//
-//		if found := findNode(node.Next, value); found != nil {
-//			return found
-//		}
-//	}
-//
-//	return nil
-//}
-
-func findNode(nodes []*RuleNode, value int) *RuleNode {
+func findNode(nodes []*RuleNode, value int, whitelist IntSet) *RuleNode {
 	for _, node := range nodes {
 		if node.Value == value {
 			return node
@@ -78,7 +65,12 @@ func findNode(nodes []*RuleNode, value int) *RuleNode {
 	}
 
 	for _, node := range nodes {
-		if found := findNode(node.Next, value); found != nil {
+		if _, ok := whitelist[node.Value]; !ok {
+			// skip rules with not used pages
+			continue
+		}
+
+		if found := findNode(node.Next, value, whitelist); found != nil {
 			return found
 		}
 	}
@@ -89,8 +81,13 @@ func findNode(nodes []*RuleNode, value int) *RuleNode {
 func conformsRules(update Update, nodes map[int]*RuleNode) bool {
 	node := nodes[update[0]]
 
+	whitelist := make(IntSet)
+	for _, value := range update {
+		whitelist[value] = struct{}{}
+	}
+
 	for _, value := range update[1:] {
-		node = findNode(node.Next, value)
+		node = findNode(node.Next, value, whitelist)
 		if node == nil {
 			return false
 		}
