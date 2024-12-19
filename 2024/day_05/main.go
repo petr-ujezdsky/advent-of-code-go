@@ -5,20 +5,13 @@ import (
 	_ "embed"
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	slices2 "github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
+	"slices"
 )
-
-type IntSet map[int]struct{}
 
 type Rule struct {
 	Left, Right int
-}
-
-type RuleNode struct {
-	Value int
-	//LeftNode, RightNode *RuleNode
-	//Previous, Next []*RuleNode
-	Next []*RuleNode
 }
 
 type Update []int
@@ -28,83 +21,33 @@ type World struct {
 	Updates []Update
 }
 
-func getOrCreateNode(value int, nodes map[int]*RuleNode) *RuleNode {
-	if node, ok := nodes[value]; ok {
-		return node
-	}
+func createComparator(rules []Rule) func(a, b int) int {
+	rulesSet := slices2.ToSet(rules)
 
-	node := &RuleNode{
-		Value: value,
-		Next:  nil,
-	}
-
-	nodes[value] = node
-
-	return node
-}
-
-func createGraph(rules []Rule) map[int]*RuleNode {
-	nodes := make(map[int]*RuleNode)
-
-	for _, rule := range rules {
-		nodeLeft := getOrCreateNode(rule.Left, nodes)
-		nodeRight := getOrCreateNode(rule.Right, nodes)
-
-		// connect nodes
-		nodeLeft.Next = append(nodeLeft.Next, nodeRight)
-	}
-
-	return nodes
-}
-
-func findNode(nodes []*RuleNode, value int, whitelist IntSet) *RuleNode {
-	for _, node := range nodes {
-		if node.Value == value {
-			return node
-		}
-	}
-
-	for _, node := range nodes {
-		if _, ok := whitelist[node.Value]; !ok {
-			// skip rules with not used pages
-			continue
+	return func(a, b int) int {
+		if _, ok := rulesSet[Rule{Left: a, Right: b}]; ok {
+			return -1
 		}
 
-		if found := findNode(node.Next, value, whitelist); found != nil {
-			return found
+		if _, ok := rulesSet[Rule{Left: b, Right: a}]; ok {
+			return 1
 		}
+
+		panic("Not found")
 	}
-
-	return nil
-}
-
-func conformsRules(update Update, nodes map[int]*RuleNode) bool {
-	node := nodes[update[0]]
-
-	whitelist := make(IntSet)
-	for _, value := range update {
-		whitelist[value] = struct{}{}
-	}
-
-	for _, value := range update[1:] {
-		node = findNode(node.Next, value, whitelist)
-		if node == nil {
-			return false
-		}
-	}
-
-	return true
 }
 
 func DoWithInputPart01(world World) int {
-	nodes := createGraph(world.Rules)
+	cmp := createComparator(world.Rules)
 
 	middlesSum := 0
 	for _, update := range world.Updates {
-		if !conformsRules(update, nodes) {
+		sorted := slices.IsSortedFunc(update, cmp)
+		if !sorted {
 			fmt.Printf("❌ %v\n", update)
 			continue
 		}
+
 		fmt.Printf("✅ %v\n", update)
 
 		middle := update[len(update)/2]
