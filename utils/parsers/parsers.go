@@ -48,6 +48,12 @@ func ParseToMatrix[T any](r io.Reader, mapper func(ch rune) T) matrix.Matrix[T] 
 	return ParseToMatrixIndexed(r, indexedMapper)
 }
 
+// ParseToMatrixRune returns the matrix of chars
+func ParseToMatrixRune(r io.Reader) matrix.Matrix[rune] {
+	indexedMapper := func(char rune, x, y int) rune { return char }
+	return ParseToMatrixIndexed(r, indexedMapper)
+}
+
 // ParseToMatrixIndexed returns the matrix of objects, uses row and column index
 func ParseToMatrixIndexed[T any](r io.Reader, mapper func(ch rune, x, y int) T) matrix.Matrix[T] {
 	lineMapper := func(line string, y int) []T {
