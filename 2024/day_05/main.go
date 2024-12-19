@@ -58,7 +58,25 @@ func DoWithInputPart01(world World) int {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	cmp := createComparator(world.Rules)
+
+	middlesSum := 0
+	for _, update := range world.Updates {
+		sorted := slices.IsSortedFunc(update, cmp)
+		if !sorted {
+			fmt.Printf("❌ %v\n", update)
+
+			sortedUpdate := slices.SortedFunc(slices.Values(update), cmp)
+
+			middle := sortedUpdate[len(sortedUpdate)/2]
+			middlesSum += middle
+			continue
+		}
+
+		fmt.Printf("✅ %v\n", update)
+	}
+
+	return middlesSum
 }
 
 func ParseInput(r io.Reader) World {
