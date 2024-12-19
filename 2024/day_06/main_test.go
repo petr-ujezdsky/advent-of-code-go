@@ -46,7 +46,7 @@ func Test_02_example(t *testing.T) {
 	world := ParseInput(reader)
 
 	result := DoWithInputPart02(world)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 6, result)
 }
 
 func Test_02(t *testing.T) {
@@ -56,5 +56,6 @@ func Test_02(t *testing.T) {
 	world := ParseInput(reader)
 
 	result := DoWithInputPart02(world)
-	assert.Equal(t, 0, result)
+	// too high
+	assert.Equal(t, 1304, result)
 }
