@@ -15,7 +15,7 @@ func Test_01_parse(t *testing.T) {
 
 	assert.Equal(t, 10, world.Matrix.Width)
 	assert.Equal(t, 10, world.Matrix.Height)
-	assert.Equal(t, '^', world.Matrix.Columns[4][6])
+	assert.Equal(t, '.', world.Matrix.Columns[4][6])
 	assert.Equal(t, utils.Vector2i{X: 4, Y: 6}, world.Start)
 }
 
@@ -26,7 +26,7 @@ func Test_01_example(t *testing.T) {
 	world := ParseInput(reader)
 
 	result := DoWithInputPart01(world)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 41, result)
 }
 
 func Test_01(t *testing.T) {
@@ -36,7 +36,7 @@ func Test_01(t *testing.T) {
 	world := ParseInput(reader)
 
 	result := DoWithInputPart01(world)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 4789, result)
 }
 
 func Test_02_example(t *testing.T) {
