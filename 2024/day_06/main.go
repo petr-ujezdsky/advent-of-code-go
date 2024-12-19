@@ -13,14 +13,34 @@ type World struct {
 	Start  utils.Vector2i
 }
 
-func walk(matrix matrix.Matrix[rune], start utils.Vector2i) map[utils.Vector2i]struct{} {
+type PathNode struct {
+	Position  utils.Vector2i
+	Direction utils.Direction4
+	Next      *PathNode
+}
+
+func walk(matrix matrix.Matrix[rune], start utils.Vector2i) (map[utils.Vector2i]struct{}, *PathNode) {
 	dir := utils.Down
 	pos := start
+	node := &PathNode{
+		Position:  utils.Vector2i{},
+		Direction: 0,
+		Next:      nil,
+	}
+	startNode := node
 
 	visited := make(map[utils.Vector2i]struct{})
 
 	for {
 		visited[pos] = struct{}{}
+
+		node.Next = &PathNode{
+			Position:  pos,
+			Direction: dir,
+			Next:      nil,
+		}
+
+		node = node.Next
 
 		for i := 0; i < 5; i++ {
 			if i == 2 {
@@ -37,7 +57,7 @@ func walk(matrix matrix.Matrix[rune], start utils.Vector2i) map[utils.Vector2i]s
 
 			char, ok := matrix.GetVSafe(newPos)
 			if !ok {
-				return visited
+				return visited, startNode
 			}
 
 			if char == '.' {
@@ -52,12 +72,10 @@ func walk(matrix matrix.Matrix[rune], start utils.Vector2i) map[utils.Vector2i]s
 		}
 
 	}
-
-	return visited
 }
 
 func DoWithInputPart01(world World) int {
-	visited := walk(world.Matrix, world.Start)
+	visited, _ := walk(world.Matrix, world.Start)
 
 	return len(visited)
 }
