@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "embed"
+	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"io"
@@ -12,12 +13,55 @@ type Equation struct {
 	Numbers []int
 }
 
+func (e Equation) String() string {
+	return fmt.Sprintf("%v: %v", e.Result, e.Numbers)
+}
+
 type World struct {
 	Equations []Equation
 }
 
+func equationSolvable(equation Equation, index, result int) bool {
+	if index == len(equation.Numbers) {
+		return result == equation.Result
+	}
+
+	number := equation.Numbers[index]
+
+	maxAdd := equation.Result - result
+	if number <= maxAdd {
+		// try add operation
+		nextResult := result + number
+		if equationSolvable(equation, index+1, nextResult) {
+			return true
+		}
+	}
+
+	if result != 0 {
+		maxMul := equation.Result / result
+		if number <= maxMul {
+			// try multiply operation
+			nextResult := result * number
+			if equationSolvable(equation, index+1, nextResult) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 func DoWithInputPart01(world World) int {
-	return 0
+	sum := 0
+	for _, equation := range world.Equations {
+		if equationSolvable(equation, 0, 0) {
+			sum += equation.Result
+			fmt.Printf("✅ %v\n", equation)
+		} else {
+			fmt.Printf("❌ %v\n", equation)
+		}
+	}
+	return sum
 }
 
 func DoWithInputPart02(world World) int {
