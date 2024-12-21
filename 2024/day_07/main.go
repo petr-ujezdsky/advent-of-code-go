@@ -6,6 +6,7 @@ import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"io"
+	"strconv"
 )
 
 type Equation struct {
@@ -21,7 +22,7 @@ type World struct {
 	Equations []Equation
 }
 
-func equationSolvable(equation Equation, index, result int) bool {
+func equationSolvable(equation Equation, index, result int, concatEnabled bool) bool {
 	if index == len(equation.Numbers) {
 		return result == equation.Result
 	}
@@ -32,7 +33,7 @@ func equationSolvable(equation Equation, index, result int) bool {
 	if number <= maxAdd {
 		// try add operation
 		nextResult := result + number
-		if equationSolvable(equation, index+1, nextResult) {
+		if equationSolvable(equation, index+1, nextResult, concatEnabled) {
 			return true
 		}
 	}
@@ -42,7 +43,15 @@ func equationSolvable(equation Equation, index, result int) bool {
 		if number <= maxMul {
 			// try multiply operation
 			nextResult := result * number
-			if equationSolvable(equation, index+1, nextResult) {
+			if equationSolvable(equation, index+1, nextResult, concatEnabled) {
+				return true
+			}
+		}
+
+		if concatEnabled {
+			nextResult := utils.ParseInt(strconv.Itoa(result) + strconv.Itoa(number))
+
+			if equationSolvable(equation, index+1, nextResult, concatEnabled) {
 				return true
 			}
 		}
@@ -54,7 +63,7 @@ func equationSolvable(equation Equation, index, result int) bool {
 func DoWithInputPart01(world World) int {
 	sum := 0
 	for _, equation := range world.Equations {
-		if equationSolvable(equation, 0, 0) {
+		if equationSolvable(equation, 0, 0, false) {
 			sum += equation.Result
 			fmt.Printf("✅ %v\n", equation)
 		} else {
@@ -65,7 +74,16 @@ func DoWithInputPart01(world World) int {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	sum := 0
+	for _, equation := range world.Equations {
+		if equationSolvable(equation, 0, 0, true) {
+			sum += equation.Result
+			fmt.Printf("✅ %v\n", equation)
+		} else {
+			fmt.Printf("❌ %v\n", equation)
+		}
+	}
+	return sum
 }
 
 func ParseInput(r io.Reader) World {
