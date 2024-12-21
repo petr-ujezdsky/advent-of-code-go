@@ -6,7 +6,7 @@ import (
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"io"
-	"strconv"
+	"math"
 )
 
 type Equation struct {
@@ -49,7 +49,10 @@ func equationSolvable(equation Equation, index, result int, concatEnabled bool) 
 		}
 
 		if concatEnabled {
-			nextResult := utils.ParseInt(strconv.Itoa(result) + strconv.Itoa(number))
+			// append number to result in 10-base representation
+			digits := int(math.Log10(float64(number))) + 1
+			pow := int(math.Pow10(digits))
+			nextResult := result*pow + number
 
 			if equationSolvable(equation, index+1, nextResult, concatEnabled) {
 				return true
