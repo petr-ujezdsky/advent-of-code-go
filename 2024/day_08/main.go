@@ -19,7 +19,31 @@ type World struct {
 }
 
 func DoWithInputPart01(world World) int {
-	return 0
+	bounds := world.Matrix.Bounds()
+
+	antinodes := make(map[utils.Vector2i]struct{})
+
+	for i, antenna1 := range world.Antennae {
+		for _, antenna2 := range world.Antennae[i+1:] {
+			if antenna1.Name != antenna2.Name {
+				continue
+			}
+
+			step := antenna2.Position.Subtract(antenna1.Position)
+
+			antinode1 := antenna1.Position.Subtract(step)
+			if bounds.Contains(antinode1) {
+				antinodes[antinode1] = struct{}{}
+			}
+
+			antinode2 := antenna1.Position.Add(step.Multiply(2))
+			if bounds.Contains(antinode2) {
+				antinodes[antinode2] = struct{}{}
+			}
+		}
+	}
+
+	return len(antinodes)
 }
 
 func DoWithInputPart02(world World) int {

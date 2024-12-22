@@ -459,11 +459,11 @@ func (m Matrix[T]) Bounds() utils.BoundingRectangle {
 	return utils.BoundingRectangle{
 		Horizontal: utils.IntervalI{
 			Low:  0,
-			High: m.Width,
+			High: m.Width - 1,
 		},
 		Vertical: utils.IntervalI{
 			Low:  0,
-			High: m.Height,
+			High: m.Height - 1,
 		},
 	}
 }
