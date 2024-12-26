@@ -4,6 +4,7 @@ import (
 	"bufio"
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/slices"
 	"io"
 	"strconv"
 	"strings"
@@ -36,6 +37,7 @@ func (block *Block) Split(leftLength int) (*Block, *Block) {
 
 type Blocks struct {
 	Head, Tail *Block
+	FilesIndex []*Block
 }
 
 func (blocks Blocks) String() string {
@@ -72,23 +74,24 @@ func (blocks Blocks) Checksum() int {
 
 func parseBlocks(diskMap []int) Blocks {
 	fileIdSeq := 0
+	var filesIndex []*Block
 
 	var head *Block
 	var previous *Block
 	for i, size := range diskMap {
 		isFile := i%2 == 0
 
-		fileId := -1
-		if isFile {
-			fileId = fileIdSeq
-			fileIdSeq++
-		}
-
 		block := &Block{
-			FileId:   fileId,
+			FileId:   -1,
 			Length:   size,
 			Previous: previous,
 			Next:     nil,
+		}
+
+		if isFile {
+			block.FileId = fileIdSeq
+			fileIdSeq++
+			filesIndex = append(filesIndex, block)
 		}
 
 		if head == nil {
@@ -103,8 +106,9 @@ func parseBlocks(diskMap []int) Blocks {
 	}
 
 	return Blocks{
-		Head: head,
-		Tail: previous,
+		Head:       head,
+		Tail:       previous,
+		FilesIndex: filesIndex,
 	}
 }
 
@@ -162,7 +166,46 @@ func DoWithInputPart01(world World) int {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	blocks := parseBlocks(world.DiskMap)
+
+	fileIndex := slices.Reverse(blocks.FilesIndex)
+
+	for _, file := range fileIndex {
+
+		//fmt.Printf("#%v: ", file.FileId)
+		printBlocks(blocks)
+
+		for block := blocks.Head; block != nil; block = block.Next {
+			if block == file {
+				break
+			}
+
+			if block.FileId != -1 {
+				// skip files
+				continue
+			}
+
+			if block.Length < file.Length {
+				// too small
+				continue
+			}
+
+			usableSize := utils.Min(block.Length, file.Length)
+
+			if block.Length > file.Length {
+				block.Split(usableSize)
+			}
+
+			block.FileId = file.FileId
+			// make it free space
+			file.FileId = -1
+			break
+		}
+	}
+
+	printBlocks(blocks)
+
+	return blocks.Checksum()
 }
 
 func ParseInput(r io.Reader) World {
