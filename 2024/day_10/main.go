@@ -16,12 +16,13 @@ type World struct {
 	TrailHeads []utils.Vector2i
 }
 
-func walk(pos, from utils.Vector2i, height int, m matrix.Matrix[int], peaks VecSet) {
+func walk(pos, from utils.Vector2i, height int, m matrix.Matrix[int], peaks VecSet) int {
 	if height == 9 {
 		peaks[pos] = struct{}{}
-		return
+		return 1
 	}
 
+	sum := 0
 	for _, step := range utils.Direction4Steps {
 		nextPos := pos.Add(step)
 		if nextPos == from {
@@ -37,8 +38,10 @@ func walk(pos, from utils.Vector2i, height int, m matrix.Matrix[int], peaks VecS
 			continue
 		}
 
-		walk(nextPos, pos, nextHeight, m, peaks)
+		sum += walk(nextPos, pos, nextHeight, m, peaks)
 	}
+
+	return sum
 }
 
 func DoWithInputPart01(world World) int {
@@ -57,7 +60,17 @@ func DoWithInputPart01(world World) int {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	score := 0
+
+	for i, trailHead := range world.TrailHeads {
+		fmt.Printf("Trying trailhead #%v: ", i)
+		peaks := make(VecSet)
+		count := walk(trailHead, utils.Vector2i{X: -1, Y: -1}, 0, world.Matrix, peaks)
+		fmt.Printf("%vx\n", count)
+		score += count
+	}
+
+	return score
 }
 
 func ParseInput(r io.Reader) World {
