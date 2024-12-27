@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	_ "embed"
+	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
 	"io"
 	"math"
@@ -17,36 +18,47 @@ type World struct {
 }
 
 func blink(stones []*Stone, times int) int {
+	stonesMap := make(map[int]int)
+	for _, stone := range stones {
+		stonesMap[stone.Number]++
+	}
+
 	for i := 0; i < times; i++ {
-		var extraStones []*Stone
-		for _, stone := range stones {
-			if stone.Number == 0 {
-				stone.Number = 1
+		fmt.Printf("Step #%v\n", i)
+		nextStonesMap := make(map[int]int)
+		for stone, count := range stonesMap {
+			if stone == 0 {
+				// 0 -> 1
+				nextStonesMap[1] += count
 				continue
 			}
 
-			if digitsCount := utils.DigitsCount(stone.Number); digitsCount%2 == 0 {
+			if digitsCount := utils.DigitsCount(stone); digitsCount%2 == 0 {
 				digitsHalf := digitsCount / 2
 				k := int(math.Pow10(digitsHalf))
 
-				left := stone.Number / k
-				right := stone.Number % k
+				left := stone / k
+				right := stone % k
 
-				stone.Number = left
+				nextStonesMap[left] += count
+				nextStonesMap[right] += count
 
-				extraStones = append(extraStones, &Stone{Number: right})
 				continue
 			}
 
-			stone.Number *= 2024
+			// N * 2024
+			nextStonesMap[stone*2024] += count
 		}
 
-		for _, stone := range extraStones {
-			stones = append(stones, stone)
-		}
+		stonesMap = nextStonesMap
 	}
 
-	return len(stones)
+	total := 0
+	for _, count := range stonesMap {
+		total += count
+	}
+
+	return total
 }
 
 func DoWithInputPart01(world World) int {
@@ -54,7 +66,7 @@ func DoWithInputPart01(world World) int {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	return blink(world.Stones, 75)
 }
 
 func ParseInput(r io.Reader) World {
