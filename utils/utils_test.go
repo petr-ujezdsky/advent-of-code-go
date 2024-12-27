@@ -292,3 +292,29 @@ func TestCopysign(t *testing.T) {
 		})
 	}
 }
+
+func TestDigitsCount(t *testing.T) {
+	type args struct {
+		value int
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{"", args{value: 0}, 1},
+		{"", args{value: 1}, 1},
+		{"", args{value: 9}, 1},
+		{"", args{value: 10}, 2},
+		{"", args{value: 99}, 2},
+		{"", args{value: 100}, 3},
+
+		{"", args{value: -99}, 2},
+		{"", args{value: -100}, 3},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, utils.DigitsCount(tt.args.value), "DigitsCount(%v)", tt.args.value)
+		})
+	}
+}

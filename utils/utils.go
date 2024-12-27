@@ -302,3 +302,11 @@ func CeilAwayFromZero(value float64) float64 {
 
 	return -math.Ceil(-value)
 }
+
+func DigitsCount(value int) int {
+	if value == 0 {
+		return 1
+	}
+
+	return int(math.Log10(math.Abs(float64(value)))) + 1
+}

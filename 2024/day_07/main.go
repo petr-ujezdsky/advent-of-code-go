@@ -50,7 +50,7 @@ func equationSolvable(equation Equation, index, result int, concatEnabled bool) 
 
 		if concatEnabled {
 			// append number to result in 10-base representation
-			digits := int(math.Log10(float64(number))) + 1
+			digits := utils.DigitsCount(number)
 			pow := int(math.Pow10(digits))
 			nextResult := result*pow + number
 
