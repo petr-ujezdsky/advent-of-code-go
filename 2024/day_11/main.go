@@ -16,10 +16,8 @@ type World struct {
 	Stones []*Stone
 }
 
-func DoWithInputPart01(world World) int {
-	stones := world.Stones
-
-	for i := 0; i < 25; i++ {
+func blink(stones []*Stone, times int) int {
+	for i := 0; i < times; i++ {
 		var extraStones []*Stone
 		for _, stone := range stones {
 			if stone.Number == 0 {
@@ -49,6 +47,10 @@ func DoWithInputPart01(world World) int {
 	}
 
 	return len(stones)
+}
+
+func DoWithInputPart01(world World) int {
+	return blink(world.Stones, 25)
 }
 
 func DoWithInputPart02(world World) int {
