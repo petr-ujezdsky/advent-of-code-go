@@ -44,17 +44,6 @@ func findRegions(m matrix.Matrix[*Plant]) []*Region {
 	return regions
 }
 
-func DoWithInputPart01(world World) int {
-	regions := findRegions(world.Matrix)
-
-	totalPrice := 0
-	for _, region := range regions {
-		totalPrice += region.Area * region.Perimeter
-	}
-
-	return totalPrice
-}
-
 func floodFill(pos utils.Vector2i, region *Region, used map[utils.Vector2i]struct{}, m matrix.Matrix[*Plant]) *Region {
 	if _, ok := used[pos]; ok {
 		// already used
@@ -96,6 +85,17 @@ func floodFill(pos utils.Vector2i, region *Region, used map[utils.Vector2i]struc
 	region.Perimeter += fences
 
 	return region
+}
+
+func DoWithInputPart01(world World) int {
+	regions := findRegions(world.Matrix)
+
+	totalPrice := 0
+	for _, region := range regions {
+		totalPrice += region.Area * region.Perimeter
+	}
+
+	return totalPrice
 }
 
 func DoWithInputPart02(world World) int {
