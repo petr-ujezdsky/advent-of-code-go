@@ -9,8 +9,13 @@ import (
 	"io"
 )
 
+type Plant struct {
+	Name   rune
+	Region *Region
+}
+
 type World struct {
-	Matrix matrix.Matrix[rune]
+	Matrix matrix.Matrix[*Plant]
 }
 
 type Region struct {
@@ -21,20 +26,26 @@ type Region struct {
 
 var steps = slices.Reverse(utils.Direction4Steps[:])
 
-func DoWithInputPart01(world World) int {
+func findRegions(m matrix.Matrix[*Plant]) []*Region {
 	used := make(map[utils.Vector2i]struct{})
 	var regions []*Region
 
-	for x, column := range world.Matrix.Columns {
+	for x, column := range m.Columns {
 		for y := range column {
 			pos := utils.Vector2i{X: x, Y: y}
 
-			region := floodFill(pos, nil, used, world.Matrix)
+			region := floodFill(pos, nil, used, m)
 			if region != nil {
 				regions = append(regions, region)
 			}
 		}
 	}
+
+	return regions
+}
+
+func DoWithInputPart01(world World) int {
+	regions := findRegions(world.Matrix)
 
 	totalPrice := 0
 	for _, region := range regions {
@@ -44,7 +55,7 @@ func DoWithInputPart01(world World) int {
 	return totalPrice
 }
 
-func floodFill(pos utils.Vector2i, region *Region, used map[utils.Vector2i]struct{}, m matrix.Matrix[rune]) *Region {
+func floodFill(pos utils.Vector2i, region *Region, used map[utils.Vector2i]struct{}, m matrix.Matrix[*Plant]) *Region {
 	if _, ok := used[pos]; ok {
 		// already used
 		return nil
@@ -52,27 +63,29 @@ func floodFill(pos utils.Vector2i, region *Region, used map[utils.Vector2i]struc
 
 	used[pos] = struct{}{}
 
-	value := m.GetV(pos)
+	plant := m.GetV(pos)
 
 	if region == nil {
 		region = &Region{
 			Id:        0,
-			Name:      value,
+			Name:      plant.Name,
 			Area:      0,
 			Perimeter: 0,
 		}
 	}
 
+	plant.Region = region
+
 	fences := 0
 	for _, step := range steps {
 		neighbourPos := pos.Add(step)
-		neighbourValue, ok := m.GetVSafe(neighbourPos)
+		neighbourPlant, ok := m.GetVSafe(neighbourPos)
 		if !ok {
 			fences++
 			continue
 		}
 
-		if neighbourValue != value {
+		if neighbourPlant.Name != plant.Name {
 			fences++
 		} else {
 			floodFill(neighbourPos, region, used, m)
@@ -90,8 +103,11 @@ func DoWithInputPart02(world World) int {
 }
 
 func ParseInput(r io.Reader) World {
-	parseItem := func(char rune) rune {
-		return char
+	parseItem := func(char rune) *Plant {
+		return &Plant{
+			Name:   char,
+			Region: nil,
+		}
 	}
 
 	return World{Matrix: parsers.ParseToMatrix(r, parseItem)}
