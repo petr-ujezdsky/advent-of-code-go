@@ -3,9 +3,10 @@ package main
 import (
 	_ "embed"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/equations"
+	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"io"
-	"math"
 )
 
 type ClawMachine struct {
@@ -17,41 +18,47 @@ type World struct {
 	ClawMachines []ClawMachine
 }
 
-func bruteForceWin(m ClawMachine) int {
-	cost := math.MaxInt
+func quickWin(m ClawMachine) int {
+	A := matrix.NewMatrixInt(2, 2)
+	b := utils.NewVectorNn[int](2)
 
-	for a := 0; a < 100; a++ {
-		posA := m.DirA.Multiply(a)
-		for b := 0; b < 100; b++ {
-			posB := m.DirB.Multiply(b)
+	A.Columns[0][0] = m.DirA.X
+	A.Columns[1][0] = m.DirB.X
+	b.Items[0] = m.PrizePosition.X
 
-			pos := posA.Add(posB)
+	A.Columns[0][1] = m.DirA.Y
+	A.Columns[1][1] = m.DirB.Y
+	b.Items[1] = m.PrizePosition.Y
 
-			if pos == m.PrizePosition {
-				cost = utils.Min(cost, a*3+b*1)
-			}
-		}
+	result, ok := equations.SolveLinearEquationsInt(A, b)
+	if !ok {
+		return 0
 	}
 
-	if cost != math.MaxInt {
-		return cost
-	}
-
-	return 0
+	return result.Items[0]*3 + result.Items[1]*1
 }
 
 func DoWithInputPart01(world World) int {
 	sum := 0
 
 	for _, clawMachine := range world.ClawMachines {
-		sum += bruteForceWin(clawMachine)
+		sum += quickWin(clawMachine)
 	}
 
 	return sum
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	shift := utils.Vector2i{X: 10000000000000, Y: 10000000000000}
+
+	sum := 0
+
+	for _, clawMachine := range world.ClawMachines {
+		clawMachine.PrizePosition = clawMachine.PrizePosition.Add(shift)
+		sum += quickWin(clawMachine)
+	}
+
+	return sum
 }
 
 func ParseInput(r io.Reader) World {
