@@ -4,7 +4,6 @@ import (
 	_ "embed"
 	"fmt"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils"
-	"github.com/petr-ujezdsky/advent-of-code-go/utils/maps"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/matrix"
 	"github.com/petr-ujezdsky/advent-of-code-go/utils/parsers"
 	"io"
@@ -65,7 +64,7 @@ func createQuadrants(width, height int) []utils.BoundingRectangle {
 	return quadrants
 }
 
-func printRobots(robots []*Robot, bounds []utils.BoundingRectangle, width int, height int) {
+func printRobots(robots []*Robot, bounds []utils.BoundingRectangle, path map[utils.Vector2i]struct{}, width int, height int) {
 	m := matrix.NewMatrix[int](width, height)
 
 	for _, robot := range robots {
@@ -79,10 +78,16 @@ func printRobots(robots []*Robot, bounds []utils.BoundingRectangle, width int, h
 			panic("Too much")
 		}
 
+		pos := utils.Vector2i{X: x, Y: y}
+
 		for _, bound := range bounds {
-			if bound.Contains(utils.Vector2i{X: x, Y: y}) {
+			if bound.Contains(pos) {
 				return "x"
 			}
+		}
+
+		if _, ok := path[pos]; ok {
+			return "#"
 		}
 
 		if i == 0 {
@@ -95,91 +100,45 @@ func printRobots(robots []*Robot, bounds []utils.BoundingRectangle, width int, h
 	fmt.Println(matrix.StringFmtSeparatorIndexed(m, false, "", formatter))
 }
 
-func findPeriod(robot *Robot, dimensions utils.Vector2i) int {
-	initialPosition := robot.Position
-	for i := 0; i < 5_000_000; i++ {
-		play(1, dimensions, []*Robot{robot})
-		if robot.Position == initialPosition {
-			return i + 1
-		}
-	}
-
-	return -1
-}
-
-func isSymmetric(max int, robots []*Robot, width, height int) bool {
-	m := matrix.NewMatrix[int](width, height)
-
-	for _, robot := range robots {
-		pos := robot.Position
-
-		//m.SetV(pos, m.GetV(pos)+1)
-		m.SetV(pos, 1)
-	}
-
-	mFlipped := m.FlipHorizontal()
-
-	// check equality
-	mismatched := 0
-	for x, column := range m.Columns {
-		for y, value1 := range column {
-			value2 := mFlipped.Get(x, y)
-
-			if value1 != value2 {
-				mismatched++
-			}
-
-			if mismatched > max {
-				return false
-			}
-		}
-	}
-
-	return true
-}
-
-func longestPath(robots []*Robot) int {
+func longestPath(robots []*Robot) (int, map[utils.Vector2i]struct{}) {
 	positions := make(map[utils.Vector2i]struct{})
 
 	for _, robot := range robots {
 		positions[robot.Position] = struct{}{}
 	}
 
-	mx := -1
+	var maximum map[utils.Vector2i]struct{}
 
-	for {
-		p := maps.FirstKey(positions)
-		path := longestPathRecursive(p, positions)
-		mx = utils.Max(path, mx)
-		if len(positions) == 0 {
-			break
+	for position := range positions {
+		used := make(map[utils.Vector2i]struct{})
+
+		path := longestPathRecursive(position, positions, used)
+		if path > len(maximum) {
+			maximum = used
 		}
 	}
 
-	return mx
+	return len(maximum), maximum
 }
 
-func longestPathRecursive(position utils.Vector2i, positions map[utils.Vector2i]struct{}) int {
-	mx := -1
-	for _, step := range utils.Direction4Steps {
-		neighbour := position.Add(step)
-		path := 0
-		if _, ok := positions[neighbour]; ok {
-			delete(positions, neighbour)
-			path += 1 + longestPathRecursive(neighbour, positions)
-		}
-
-		neighbour = position.Subtract(step)
-
-		if _, ok := positions[neighbour]; ok {
-			delete(positions, neighbour)
-			path += longestPathRecursive(neighbour, positions)
-		}
-
-		mx = utils.Max(path, mx)
+func longestPathRecursive(position utils.Vector2i, positions map[utils.Vector2i]struct{}, used map[utils.Vector2i]struct{}) int {
+	if _, ok := used[position]; ok {
+		return 0
 	}
 
-	return mx
+	used[position] = struct{}{}
+
+	length := 1
+	for _, step := range utils.Direction4Steps {
+		neighbour := position.Add(step)
+		if _, ok := positions[neighbour]; !ok {
+			continue
+		}
+
+		length += longestPathRecursive(neighbour, positions, used)
+	}
+
+	return length
 }
 
 func countsInBounds(bounds []utils.BoundingRectangle, robots []*Robot) []int {
@@ -197,70 +156,21 @@ func countsInBounds(bounds []utils.BoundingRectangle, robots []*Robot) []int {
 }
 
 func DoWithInputPart02(world World) int {
-	//for i, robot := range world.Robots {
-	//	period := findPeriod(robot, world.Dimensions)
-	//	fmt.Printf("Period #%3d: %v\n", i, period)
-	//}
-
 	width := world.Dimensions.X
 	height := world.Dimensions.Y
 
-	//qw := 10
-	//qh := 15
-	//bounds := []utils.BoundingRectangle{
-	//	{
-	//		Horizontal: utils.IntervalI{High: qw - 1},
-	//		Vertical:   utils.IntervalI{High: qh - 1},
-	//	},
-	//	{
-	//		Horizontal: utils.IntervalI{Low: width - qw, High: width - 1},
-	//		Vertical:   utils.IntervalI{High: qh - 1},
-	//	},
-	//}
-
-	//bounds := []utils.BoundingRectangle{
-	//	{
-	//		Horizontal: utils.IntervalI{High: width/2 - 1},
-	//		Vertical:   utils.IntervalI{High: height - 1},
-	//	},
-	//	{
-	//		Horizontal: utils.IntervalI{Low: width/2 + 1, High: width - 1},
-	//		Vertical:   utils.IntervalI{High: height - 1},
-	//	},
-	//}
-
-	//printRobots(world.Robots, corners, width, height)
-	//play(10403, world.Dimensions, world.Robots)
-	//fmt.Printf("After %3d seconds -----------------------------------------------------------------------------------\n", 10403)
-	//printRobots(world.Robots, corners, width, height)
-
-	//bounds := createQuadrants(width, height)
-
 	for seconds := 0; seconds < width*height+1; seconds++ {
-		//counts := countsInBounds(bounds, world.Robots)
-		//if counts[0]+counts[1] == 0 {
+		if l, path := longestPath(world.Robots); l > 100 {
+			fmt.Printf("After %3d seconds (%3v) -----------------------------------------------------------------------------    \n", seconds, l)
+			printRobots(world.Robots, nil, path, width, height)
 
-		//diff := 0
-		//if utils.Abs(counts[0]-counts[2]) == diff && utils.Abs(counts[1]-counts[3]) == diff && counts[0] < counts[1] {
-		//	//if counts[0] == counts[1] {
-		//	fmt.Printf("After %5d seconds ---------------------------------------------------------------------------------\n", seconds)
-		//	printRobots(world.Robots, nil, width, height)
-		//}
-
-		//if isSymmetric(1000, world.Robots, width, height) {
-		//	fmt.Printf("After %3d seconds -----------------------------------------------------------------------------------\n", seconds)
-		//	printRobots(world.Robots, nil, width, height)
-		//}
-
-		if longestPath(world.Robots) > 2 {
-			fmt.Printf("After %3d seconds -----------------------------------------------------------------------------------\n", seconds)
-			printRobots(world.Robots, nil, width, height)
+			return seconds
 		}
 
 		play(1, world.Dimensions, world.Robots)
 	}
 
-	return 0
+	panic("No tree found")
 }
 
 func ParseInput(r io.Reader) World {
