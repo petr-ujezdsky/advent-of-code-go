@@ -18,16 +18,16 @@ type World struct {
 	Dimensions utils.Vector2i
 }
 
-func play(seconds int, dimensions utils.Vector2i, robots []*Robot) []utils.Vector2i {
-	positions := make([]utils.Vector2i, len(robots))
+func play(seconds int, dimensions utils.Vector2i, robots []*Robot) map[utils.Vector2i]int {
+	positions := make(map[utils.Vector2i]int)
 
-	for i, robot := range robots {
+	for _, robot := range robots {
 		position := robot.Position.Add(robot.Velocity.Multiply(seconds))
 
 		position.X = utils.ModFloor(position.X, dimensions.X)
 		position.Y = utils.ModFloor(position.Y, dimensions.Y)
 
-		positions[i] = position
+		positions[position]++
 	}
 
 	return positions
@@ -106,19 +106,13 @@ func printRobots(robots []*Robot, bounds []utils.BoundingRectangle, path map[uti
 	fmt.Println(matrix.StringFmtSeparatorIndexed(m, false, "", formatter))
 }
 
-func longestPath(positions []utils.Vector2i) (int, map[utils.Vector2i]struct{}) {
-	positionsMap := make(map[utils.Vector2i]struct{})
-
-	for _, position := range positions {
-		positionsMap[position] = struct{}{}
-	}
-
+func longestPath(positions map[utils.Vector2i]int) (int, map[utils.Vector2i]struct{}) {
 	var maximum map[utils.Vector2i]struct{}
 
-	for position := range positionsMap {
+	for position := range positions {
 		used := make(map[utils.Vector2i]struct{})
 
-		path := longestPathRecursive(position, positionsMap, used)
+		path := longestPathRecursive(position, positions, used)
 		if path > len(maximum) {
 			maximum = used
 		}
@@ -127,7 +121,7 @@ func longestPath(positions []utils.Vector2i) (int, map[utils.Vector2i]struct{}) 
 	return len(maximum), maximum
 }
 
-func longestPathRecursive(position utils.Vector2i, positions map[utils.Vector2i]struct{}, used map[utils.Vector2i]struct{}) int {
+func longestPathRecursive(position utils.Vector2i, positions map[utils.Vector2i]int, used map[utils.Vector2i]struct{}) int {
 	if _, ok := used[position]; ok {
 		return 0
 	}
@@ -147,13 +141,13 @@ func longestPathRecursive(position utils.Vector2i, positions map[utils.Vector2i]
 	return length
 }
 
-func countsInBounds(bounds []utils.BoundingRectangle, positions []utils.Vector2i) []int {
+func countsInBounds(bounds []utils.BoundingRectangle, positions map[utils.Vector2i]int) []int {
 	counts := make([]int, len(bounds))
 
-	for _, position := range positions {
+	for position, count := range positions {
 		for i, bound := range bounds {
 			if bound.Contains(position) {
-				counts[i]++
+				counts[i] += count
 			}
 		}
 	}
