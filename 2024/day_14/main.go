@@ -108,11 +108,12 @@ func printRobots(robots []*Robot, bounds []utils.BoundingRectangle, path map[uti
 
 func longestPath(positions map[utils.Vector2i]int) (int, map[utils.Vector2i]struct{}) {
 	var maximum map[utils.Vector2i]struct{}
+	usedTotal := make(map[utils.Vector2i]struct{})
 
 	for position := range positions {
 		used := make(map[utils.Vector2i]struct{})
 
-		path := longestPathRecursive(position, positions, used)
+		path := longestPathRecursive(position, positions, used, usedTotal)
 		if path > len(maximum) {
 			maximum = used
 		}
@@ -121,12 +122,17 @@ func longestPath(positions map[utils.Vector2i]int) (int, map[utils.Vector2i]stru
 	return len(maximum), maximum
 }
 
-func longestPathRecursive(position utils.Vector2i, positions map[utils.Vector2i]int, used map[utils.Vector2i]struct{}) int {
+func longestPathRecursive(position utils.Vector2i, positions map[utils.Vector2i]int, used, usedTotal map[utils.Vector2i]struct{}) int {
 	if _, ok := used[position]; ok {
 		return 0
 	}
 
+	if _, ok := usedTotal[position]; ok {
+		return 0
+	}
+
 	used[position] = struct{}{}
+	usedTotal[position] = struct{}{}
 
 	length := 1
 	for _, step := range utils.Direction4Steps {
@@ -135,7 +141,7 @@ func longestPathRecursive(position utils.Vector2i, positions map[utils.Vector2i]
 			continue
 		}
 
-		length += longestPathRecursive(neighbour, positions, used)
+		length += longestPathRecursive(neighbour, positions, used, usedTotal)
 	}
 
 	return length
