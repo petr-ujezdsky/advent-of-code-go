@@ -165,19 +165,22 @@ func DoWithInputPart02(world World) int {
 	width := world.Dimensions.X
 	height := world.Dimensions.Y
 
+	result := make(chan int)
 	for seconds := 0; seconds < width*height+1; seconds++ {
-		positions := play(1, world.Dimensions, world.Robots)
+		go func() {
+			positions := play(seconds, world.Dimensions, world.Robots)
 
-		if l, path := longestPath(positions); l > 100 {
-			fmt.Printf("After %3d seconds (%3v) -----------------------------------------------------------------------------    \n", seconds, l)
-			printRobots(world.Robots, nil, path, width, height)
+			if l, path := longestPath(positions); l > 100 {
+				fmt.Printf("After %3d seconds (%3v) -----------------------------------------------------------------------------    \n", seconds, l)
+				printRobots(world.Robots, nil, path, width, height)
 
-			return seconds
-		}
+				result <- seconds
+			}
+		}()
 
 	}
 
-	panic("No tree found")
+	return <-result
 }
 
 func ParseInput(r io.Reader) World {
