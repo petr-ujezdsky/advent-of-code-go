@@ -70,12 +70,10 @@ func createQuadrants(width, height int) []utils.BoundingRectangle {
 	return quadrants
 }
 
-func printRobots(robots []*Robot, bounds []utils.BoundingRectangle, path map[utils.Vector2i]struct{}, width int, height int) {
+func printRobots(positions map[utils.Vector2i]int, bounds []utils.BoundingRectangle, path map[utils.Vector2i]struct{}, width int, height int) {
 	m := matrix.NewMatrix[int](width, height)
 
-	for _, robot := range robots {
-		pos := robot.Position
-
+	for pos := range positions {
 		m.SetV(pos, m.GetV(pos)+1)
 	}
 
@@ -172,7 +170,7 @@ func DoWithInputPart02(world World) int {
 
 			if l, path := longestPath(positions); l > 100 {
 				fmt.Printf("After %3d seconds (%3v) -----------------------------------------------------------------------------    \n", seconds, l)
-				printRobots(world.Robots, nil, path, width, height)
+				printRobots(positions, nil, path, width, height)
 
 				result <- seconds
 			}
