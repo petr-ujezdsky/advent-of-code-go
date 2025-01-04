@@ -18,24 +18,30 @@ type World struct {
 	Dimensions utils.Vector2i
 }
 
-func play(seconds int, dimensions utils.Vector2i, robots []*Robot) {
-	for _, robot := range robots {
-		robot.Position = robot.Position.Add(robot.Velocity.Multiply(seconds))
+func play(seconds int, dimensions utils.Vector2i, robots []*Robot) []utils.Vector2i {
+	positions := make([]utils.Vector2i, len(robots))
 
-		robot.Position.X = utils.ModFloor(robot.Position.X, dimensions.X)
-		robot.Position.Y = utils.ModFloor(robot.Position.Y, dimensions.Y)
+	for i, robot := range robots {
+		position := robot.Position.Add(robot.Velocity.Multiply(seconds))
+
+		position.X = utils.ModFloor(position.X, dimensions.X)
+		position.Y = utils.ModFloor(position.Y, dimensions.Y)
+
+		positions[i] = position
 	}
+
+	return positions
 }
 
 func DoWithInputPart01(world World) int {
 	width := world.Dimensions.X
 	height := world.Dimensions.Y
 
-	play(100, world.Dimensions, world.Robots)
+	positions := play(100, world.Dimensions, world.Robots)
 
 	quadrants := createQuadrants(width, height)
 
-	counts := countsInBounds(quadrants, world.Robots)
+	counts := countsInBounds(quadrants, positions)
 	return counts[0] * counts[1] * counts[2] * counts[3]
 }
 
@@ -100,19 +106,19 @@ func printRobots(robots []*Robot, bounds []utils.BoundingRectangle, path map[uti
 	fmt.Println(matrix.StringFmtSeparatorIndexed(m, false, "", formatter))
 }
 
-func longestPath(robots []*Robot) (int, map[utils.Vector2i]struct{}) {
-	positions := make(map[utils.Vector2i]struct{})
+func longestPath(positions []utils.Vector2i) (int, map[utils.Vector2i]struct{}) {
+	positionsMap := make(map[utils.Vector2i]struct{})
 
-	for _, robot := range robots {
-		positions[robot.Position] = struct{}{}
+	for _, position := range positions {
+		positionsMap[position] = struct{}{}
 	}
 
 	var maximum map[utils.Vector2i]struct{}
 
-	for position := range positions {
+	for position := range positionsMap {
 		used := make(map[utils.Vector2i]struct{})
 
-		path := longestPathRecursive(position, positions, used)
+		path := longestPathRecursive(position, positionsMap, used)
 		if path > len(maximum) {
 			maximum = used
 		}
@@ -141,12 +147,12 @@ func longestPathRecursive(position utils.Vector2i, positions map[utils.Vector2i]
 	return length
 }
 
-func countsInBounds(bounds []utils.BoundingRectangle, robots []*Robot) []int {
+func countsInBounds(bounds []utils.BoundingRectangle, positions []utils.Vector2i) []int {
 	counts := make([]int, len(bounds))
 
-	for _, robot := range robots {
+	for _, position := range positions {
 		for i, bound := range bounds {
-			if bound.Contains(robot.Position) {
+			if bound.Contains(position) {
 				counts[i]++
 			}
 		}
@@ -160,14 +166,15 @@ func DoWithInputPart02(world World) int {
 	height := world.Dimensions.Y
 
 	for seconds := 0; seconds < width*height+1; seconds++ {
-		if l, path := longestPath(world.Robots); l > 100 {
+		positions := play(1, world.Dimensions, world.Robots)
+
+		if l, path := longestPath(positions); l > 100 {
 			fmt.Printf("After %3d seconds (%3v) -----------------------------------------------------------------------------    \n", seconds, l)
 			printRobots(world.Robots, nil, path, width, height)
 
 			return seconds
 		}
 
-		play(1, world.Dimensions, world.Robots)
 	}
 
 	panic("No tree found")
