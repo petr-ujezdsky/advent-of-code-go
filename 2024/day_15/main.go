@@ -35,10 +35,16 @@ func char2step(char rune) utils.Vector2i {
 	panic("Unknown char")
 }
 
-func move(position utils.Vector2i, item *Item, items map[utils.Vector2i]*Item) {
-	delete(items, item.Position)
-	item.Position = position
-	items[position] = item
+func move(step utils.Vector2i, item *Item, items map[utils.Vector2i]*Item) {
+	for i := range item.Type {
+		pos := item.Position.Add(utils.Vector2i{X: i})
+		delete(items, pos)
+	}
+	item.Position = item.Position.Add(step)
+	for i := range item.Type {
+		pos := item.Position.Add(utils.Vector2i{X: i})
+		items[pos] = item
+	}
 }
 
 func tryMove(step utils.Vector2i, item *Item, items map[utils.Vector2i]*Item) bool {
@@ -52,24 +58,67 @@ func tryMove(step utils.Vector2i, item *Item, items map[utils.Vector2i]*Item) bo
 	next, ok := items[nextPos]
 
 	if !ok || tryMove(step, next, items) {
-		move(nextPos, item, items)
+		move(step, item, items)
 		return true
 	}
 
 	return false
 }
 
+func tryMove2(dryRun bool, step utils.Vector2i, item *Item, items map[utils.Vector2i]*Item) bool {
+	if item.Type[0] == '#' {
+		// walls can not move
+		return false
+	}
+
+	// up / down
+	if step.Y != 0 {
+		for i := range item.Type {
+			nextPos := item.Position.Add(step).Add(utils.Vector2i{X: i})
+
+			next, ok := items[nextPos]
+
+			if ok && !tryMove2(dryRun, step, next, items) {
+				return false
+			}
+		}
+	} else {
+		p := item.Position
+		if step.X == 1 {
+			// use the right part
+			p.X += len(item.Type) - 1
+		}
+
+		nextPos := p.Add(step)
+
+		next, ok := items[nextPos]
+
+		if ok && !tryMove2(dryRun, step, next, items) {
+			return false
+		}
+	}
+
+	if !dryRun {
+		move(step, item, items)
+	}
+
+	return true
+}
+
 func printItems(items map[utils.Vector2i]*Item) {
 	mx := utils.Vector2i{}
 
 	// find max boundary
-	for pos := range items {
-		mx = utils.Vector2i{X: utils.Max(mx.X, pos.X), Y: utils.Max(mx.Y, pos.Y)}
+	for pos, item := range items {
+		mx = utils.Vector2i{X: utils.Max(mx.X, pos.X+len(item.Type)-1), Y: utils.Max(mx.Y, pos.Y)}
 	}
 
 	m := matrix.NewMatrix[string](mx.X+1, mx.Y+1)
-	for pos, item := range items {
-		m.SetV(pos, item.Type)
+	for _, item := range items {
+		pos := item.Position
+		for i, char := range item.Type {
+			m.Set(pos.X+i, pos.Y, string(char))
+		}
 	}
 
 	formatter := func(char string, x, y int) string {
@@ -82,6 +131,29 @@ func printItems(items map[utils.Vector2i]*Item) {
 	str := matrix.StringFmtSeparatorIndexed(m, true, "", formatter)
 
 	fmt.Println(str)
+}
+
+func enlarge(items map[utils.Vector2i]*Item) map[utils.Vector2i]*Item {
+	changed := make(map[utils.Vector2i]*Item)
+
+	for pos, item := range items {
+		posNew := utils.Vector2i{X: 2 * pos.X, Y: pos.Y}
+		posNew2 := utils.Vector2i{X: 2*pos.X + 1, Y: pos.Y}
+
+		item.Position = posNew
+		changed[posNew] = item
+
+		switch item.Type {
+		case "#":
+			item.Type = "##"
+			changed[posNew2] = item
+		case "O":
+			item.Type = "[]"
+			changed[posNew2] = item
+		}
+	}
+
+	return changed
 }
 
 func DoWithInputPart01(world World) int {
@@ -115,7 +187,36 @@ func DoWithInputPart01(world World) int {
 }
 
 func DoWithInputPart02(world World) int {
-	return 0
+	items := enlarge(world.Items)
+	start := world.Start
+
+	printItems(items)
+
+	for _, instruction := range world.Instructions {
+		//fmt.Printf("Instruction #%3d (%s)\n", i, string(instruction))
+
+		step := char2step(instruction)
+
+		canMove := tryMove2(true, step, start, items)
+		if canMove {
+			tryMove2(false, step, start, items)
+		}
+
+		//printItems(items)
+		//fmt.Println()
+	}
+	printItems(items)
+
+	sum := 0
+	for _, item := range items {
+		if item.Type != "[]" {
+			continue
+		}
+
+		sum += 100*item.Position.Y + item.Position.X
+	}
+
+	return sum / 2
 }
 
 func ParseInput(r io.Reader) World {

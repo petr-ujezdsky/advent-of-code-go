@@ -14,8 +14,8 @@ func Test_01_parse(t *testing.T) {
 	world := ParseInput(reader)
 
 	assert.Equal(t, 59, len(world.Items))
-	assert.Equal(t, 'O', world.Items[utils.Vector2i{X: 5, Y: 5}].Type)
-	assert.Equal(t, '#', world.Items[utils.Vector2i{X: 2, Y: 5}].Type)
+	assert.Equal(t, "O", world.Items[utils.Vector2i{X: 5, Y: 5}].Type)
+	assert.Equal(t, "#", world.Items[utils.Vector2i{X: 2, Y: 5}].Type)
 
 	assert.Equal(t, utils.Vector2i{X: 4, Y: 4}, world.Start.Position)
 
@@ -49,7 +49,7 @@ func Test_02_example(t *testing.T) {
 	world := ParseInput(reader)
 
 	result := DoWithInputPart02(world)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 9021, result)
 }
 
 func Test_02(t *testing.T) {
@@ -59,5 +59,5 @@ func Test_02(t *testing.T) {
 	world := ParseInput(reader)
 
 	result := DoWithInputPart02(world)
-	assert.Equal(t, 0, result)
+	assert.Equal(t, 1446175, result)
 }
