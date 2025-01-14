@@ -33,7 +33,7 @@ func d() func(State, State) int {
 			return 1
 		}
 
-		return 1001
+		return 1000
 	}
 }
 
@@ -47,18 +47,29 @@ func n(m matrix.Matrix[string]) func(origin State, path iterators.Iterator[State
 				continue
 			}
 
-			nextPos := origin.Position.Add(dir)
+			if dir == origin.Direction {
+				// move forward
+				nextPos := origin.Position.Add(dir)
 
-			if nn, ok := m.GetVSafe(nextPos); !ok || nn == "#" {
-				continue
+				if nn, ok := m.GetVSafe(nextPos); !ok || nn == "#" {
+					continue
+				}
+
+				nextState := State{
+					Position:  nextPos,
+					Direction: dir,
+				}
+
+				neighbours = append(neighbours, nextState)
+			} else {
+				// rotate
+				nextState := State{
+					Position:  origin.Position,
+					Direction: dir,
+				}
+
+				neighbours = append(neighbours, nextState)
 			}
-
-			nextState := State{
-				Position:  nextPos,
-				Direction: dir,
-			}
-
-			neighbours = append(neighbours, nextState)
 		}
 
 		return neighbours
@@ -89,8 +100,65 @@ func DoWithInputPart01(world World) int {
 	return score
 }
 
+func connectBothDirections(forward, backward map[State]int, shortestPaths map[utils.Vector2i]struct{}, targetScore int) {
+	for state, scoreFromStart := range forward {
+		state.Direction = state.Direction.Multiply(-1)
+		scoreFromEnd, ok := backward[state]
+		if !ok {
+			continue
+		}
+
+		if scoreFromEnd+scoreFromStart == targetScore {
+			shortestPaths[state.Position] = struct{}{}
+		}
+	}
+}
+
 func DoWithInputPart02(world World) int {
-	return 0
+	// forward
+	startFw := State{
+		Position:  world.Start,
+		Direction: utils.Right.ToStep(),
+	}
+
+	// find the shortest path
+	_, _, score, _ := alg.AStarEndFunc(startFw, isEnd(world.End), h(world.End), d(), n(world.Matrix))
+
+	// find all paths
+	_, gScoreFw, _, _ := alg.AStarEndFunc(startFw, func(state State) bool { return false }, h(world.End), d(), n(world.Matrix))
+
+	// backward south
+	startBwS := State{
+		Position:  world.End,
+		Direction: utils.Up.ToStep(),
+	}
+
+	// find all paths
+	_, gScoreBwS, _, _ := alg.AStarEndFunc(startBwS, func(state State) bool { return false }, h(world.End), d(), n(world.Matrix))
+
+	// backward west
+	startBwW := State{
+		Position:  world.End,
+		Direction: utils.Left.ToStep(),
+	}
+
+	// find all paths
+	_, gScoreBwW, _, _ := alg.AStarEndFunc(startBwW, func(state State) bool { return false }, h(world.End), d(), n(world.Matrix))
+
+	// connect from both sides
+	shortestPaths := make(map[utils.Vector2i]struct{})
+
+	connectBothDirections(gScoreFw, gScoreBwS, shortestPaths, score)
+	connectBothDirections(gScoreFw, gScoreBwW, shortestPaths, score)
+
+	for path := range shortestPaths {
+		world.Matrix.SetV(path, "O")
+	}
+	formatter := matrix.NonIndexedAdapter(matrix.FmtFmt[string]("%s"))
+	str := matrix.StringFmtSeparatorIndexed(world.Matrix, true, "", formatter)
+	fmt.Println(str)
+
+	return len(shortestPaths)
 }
 
 func ParseInput(r io.Reader) World {
